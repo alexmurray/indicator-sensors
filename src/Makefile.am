@@ -13,4 +13,6 @@ INCLUDES = -DGNOMELOCALEDIR=\""$(datadir)/locale/"\" \
 LIBS = $(GLIB_LIBS) $(GTK_LIBS) $(APPINDICATOR_LIBS)
 
 bin_PROGRAMS = indicator-sensors
-indicator_sensors_SOURCES = indicator-sensors.c
+indicator_sensors_SOURCES = indicator-sensors.c \
+	sensors-indicator.h \
+	sensors-indicator.c
