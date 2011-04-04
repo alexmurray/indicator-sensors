@@ -14,5 +14,8 @@ LIBS = $(GLIB_LIBS) $(GTK_LIBS) $(APPINDICATOR_LIBS)
 
 bin_PROGRAMS = indicator-sensors
 indicator_sensors_SOURCES = indicator-sensors.c \
-	sensors-indicator.h \
-	sensors-indicator.c
+	is-indicator.h \
+	is-indicator.c \
+	is-sensor.h \
+	is-sensor.c
+
