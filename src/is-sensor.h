@@ -51,6 +51,7 @@ typedef struct _IsSensorPrivate IsSensorPrivate;
 struct _IsSensorClass
 {
 	GObjectClass parent_class;
+	void (*update)(IsSensor *sensor);
 };
 
 struct _IsSensor
@@ -62,8 +63,11 @@ struct _IsSensor
 GType is_sensor_get_type(void) G_GNUC_CONST;
 IsSensor *is_sensor_new(const gchar *family,
 			const gchar *id);
+void is_sensor_update(IsSensor *self);
 const gchar *is_sensor_get_family(IsSensor *self);
 const gchar *is_sensor_get_id(IsSensor *self);
+gdouble is_sensor_get_value(IsSensor *self);
+void is_sensor_set_value(IsSensor *self, gdouble value);
 G_END_DECLS
 
 #endif /* __IS_SENSOR_H__ */

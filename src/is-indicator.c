@@ -44,6 +44,8 @@ enum {
 struct _IsIndicatorPrivate
 {
 	GTree *sensors;
+	GList *enabled_sensors;
+	guint enabled_id;
 	guint dummy;
 };
 
@@ -140,6 +142,10 @@ is_indicator_dispose(GObject *object)
 	IsIndicator *self = (IsIndicator *)object;
 	IsIndicatorPrivate *priv = self->priv;
 
+	if (priv->enabled_id) {
+		g_source_remove(priv->enabled_id);
+		priv->enabled_id = 0;
+	}
 	G_OBJECT_CLASS(is_indicator_parent_class)->dispose(object);
 }
 
@@ -147,8 +153,11 @@ static void
 is_indicator_finalize(GObject *object)
 {
 	IsIndicator *self = (IsIndicator *)object;
+	IsIndicatorPrivate *priv = self->priv;
 
-	g_tree_unref(self->priv->sensors);
+	g_tree_unref(priv->sensors);
+	g_list_foreach(priv->enabled_sensors, (GFunc)g_object_unref, NULL);
+	g_list_free(priv->enabled_sensors);
 
 	G_OBJECT_CLASS(is_indicator_parent_class)->finalize(object);
 }
@@ -208,6 +217,45 @@ is_indicator_new(const gchar *id,
 	return IS_INDICATOR(self);
 }
 
+static gboolean
+update_sensors(IsIndicator *self)
+{
+	g_list_foreach(self->priv->enabled_sensors,
+		       (GFunc)is_sensor_update,
+		       NULL);
+	return TRUE;
+}
+
+static void
+sensor_value_changed(IsSensor *sensor)
+{
+	g_debug("sensor [%s]:%s new value: %f",
+		is_sensor_get_family(sensor),
+		is_sensor_get_id(sensor),
+		is_sensor_get_value(sensor));
+}
+
+static void
+enable_sensor(IsIndicator *self,
+	      IsSensor *sensor)
+{
+	IsIndicatorPrivate *priv = self->priv;
+
+	/* debug - enable sensor */
+	g_debug("enabling sensor [%s]:%s",
+		is_sensor_get_family(sensor),
+		is_sensor_get_id(sensor));
+	if (!priv->enabled_sensors) {
+		priv->enabled_id = g_timeout_add_seconds(1,
+							 (GSourceFunc)update_sensors,
+							 self);
+	}
+	priv->enabled_sensors = g_list_append(priv->enabled_sensors,
+					      g_object_ref(sensor));
+	g_signal_connect(sensor, "notify::value",
+			 G_CALLBACK(sensor_value_changed), self);
+}
+
 gboolean
 is_indicator_add_sensor(IsIndicator *self,
 			IsSensor *sensor)
@@ -243,6 +291,10 @@ is_indicator_add_sensor(IsIndicator *self,
 	g_debug("inserted sensor with id %s for family %s",
 		is_sensor_get_id(sensor), is_sensor_get_family(sensor));
 	ret = TRUE;
+
+	if (ret) {
+		enable_sensor(self, sensor);
+	}
 
 out:
 	return ret;
