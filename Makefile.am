@@ -1,1 +1,1 @@
-SUBDIRS = src pixmaps po
+SUBDIRS = src pixmaps plugins po
