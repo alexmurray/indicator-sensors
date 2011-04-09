@@ -17,7 +17,6 @@
 
 #include "is-indicator.h"
 #include <gtk/gtk.h>
-#include <libpeas-gtk/peas-gtk.h>
 
 G_DEFINE_TYPE (IsIndicator, is_indicator, APP_INDICATOR_TYPE);
 
@@ -181,7 +180,6 @@ static const gchar *ui_info =
 static void activate_action(GtkAction *action)
 {
 	GtkWidget *dialog;
-	GtkWidget *manager;
 
 	g_debug("activated action %s", gtk_action_get_name(action));
 
@@ -192,9 +190,6 @@ static void activate_action(GtkAction *action)
 					     NULL);
 	g_signal_connect_swapped(dialog, "response",
 				 G_CALLBACK(gtk_widget_destroy), dialog);
-	manager = peas_gtk_plugin_manager_new(peas_engine_get_default());
-	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
-			  manager);
 	gtk_widget_show_all(dialog);
 }
 

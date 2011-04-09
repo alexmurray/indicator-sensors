@@ -7,10 +7,10 @@ INCLUDES = -DGNOMELOCALEDIR=\""$(datadir)/locale/"\" \
         -DSYSCONFDIR=\""$(sysconfdir)"\" \
         -DPREFIX=\""$(prefix)"\" \
 	-I$(top_srcdir) \
-	$(GLIB_CFLAGS) $(GTK_CFLAGS) $(APPINDICATOR_CFLAGS) $(LIBPEAS_CFLAGS) $(LIBPEASGTK_CFLAGS)
+	$(GLIB_CFLAGS) $(GTK_CFLAGS) $(APPINDICATOR_CFLAGS) $(LIBPEAS_CFLAGS)
 
 
-LIBS = $(GLIB_LIBS) $(GTK_LIBS) $(APPINDICATOR_LIBS) $(LIBPEAS_LIBS) $(LIBPEASGTK_LIBS)
+LIBS = $(GLIB_LIBS) $(GTK_LIBS) $(APPINDICATOR_LIBS) $(LIBPEAS_LIBS)
 
 bin_PROGRAMS = indicator-sensors
 indicator_sensors_SOURCES = indicator-sensors.c \
