@@ -1,4 +1,4 @@
-plugindir = $(libdir)/$(PACKAGE)/plugins/libsensors
+plugindir = $(libdir)/$(PACKAGE)/plugins
 
 INCLUDES = \
 	-I$(top_srcdir) 		\
