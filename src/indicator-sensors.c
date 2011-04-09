@@ -23,19 +23,17 @@ on_extension_removed(PeasExtensionSet *set,
 	peas_extension_call(exten, "deactivate", indicator);
 }
 
-static void on_plugin_loaded(PeasEngine *engine,
-			     PeasPluginInfo *info,
-			     gpointer user_data)
+static void
+on_plugin_list_notify(PeasEngine *engine,
+		      GParamSpec *pspec,
+		      gpointer user_data)
 {
-	g_debug("Loaded plugin: %s", peas_plugin_info_get_name(info));
-}
-
-
-static void on_plugin_unloaded(PeasEngine *engine,
-			       PeasPluginInfo *info,
-			       gpointer user_data)
-{
-	g_debug("Unloaded plugin: %s", peas_plugin_info_get_name(info));
+	const GList *plugins = peas_engine_get_plugin_list(engine);
+	while (plugins != NULL) {
+		PeasPluginInfo *info = PEAS_PLUGIN_INFO(plugins->data);
+		peas_engine_load_plugin(engine, info);
+		plugins = plugins->next;
+	}
 }
 
 int main(int argc, char **argv)
@@ -44,55 +42,49 @@ int main(int argc, char **argv)
 	gchar *plugin_dir;
 	PeasEngine *engine;
 	PeasExtensionSet *set;
+	GError *error = NULL;
 
 	gtk_init(&argc, &argv);
 
+	if (!g_irepository_require(g_irepository_get_default(), "Peas", "1.0",
+				   0, &error))
+	{
+		g_warning("Could not load Peas repository: %s", error->message);
+		g_error_free (error);
+		error = NULL;
+	}
+
 	engine = peas_engine_get_default();
-	g_signal_connect(engine, "load-plugin", G_CALLBACK(on_plugin_loaded), NULL);
-	g_signal_connect(engine, "unload-plugin", G_CALLBACK(on_plugin_unloaded), NULL);
+	g_signal_connect(engine, "notify::plugin-list",
+			 G_CALLBACK(on_plugin_list_notify), NULL);
 
 	/* add home dir to search path */
-	plugin_dir = g_build_filename(g_get_user_config_dir(), PACKAGE "/plugins", NULL);
-	peas_engine_add_search_path(engine, plugin_dir, plugin_dir);
+	plugin_dir = g_build_filename(g_get_user_config_dir(), PACKAGE,
+				      "plugins", NULL);
+	peas_engine_add_search_path(engine, plugin_dir, NULL);
 	g_free(plugin_dir);
 
 	/* add system path to search path */
-	peas_engine_add_search_path(engine,
-				    LIBDIR "/" PACKAGE "/plugins/",
-				    NULL);
+	plugin_dir = g_build_filename(LIBDIR, PACKAGE, "plugins", NULL);
+	peas_engine_add_search_path(engine, plugin_dir, NULL);
+	g_free(plugin_dir);
 
-	/* load plugins which should then add found sensors to indicator */
-	peas_engine_rescan_plugins(engine);
+	/* create indicator - TODO: fixup icon name etc */
+	indicator = is_indicator_new(PACKAGE, PACKAGE);
 
-	{
-		gchar **plugins = peas_engine_get_loaded_plugins(engine);
-		gchar **plugin;
-		for (plugin = plugins; *plugin != NULL; plugin++) {
-			g_debug("loaded plugin: %s", *plugin);
-		}
-		g_strfreev(plugins);
-	}
-
-	/* create indicator */
-	indicator = is_indicator_new(PACKAGE,
-				     PACKAGE);
-
+	/* TODO: methinks the is-indicator should do this itself */
 	/* create extension set and set indicator as object */
 	set = peas_extension_set_new(engine, PEAS_TYPE_ACTIVATABLE,
 				     "object", indicator, NULL);
+
+	/* activate all activatable extensions */
 	peas_extension_set_call(set, "activate");
+
+	/* and make sure to activate any ones which are found in the future */
 	g_signal_connect(set, "extension-added",
 			 G_CALLBACK(on_extension_added), indicator);
 	g_signal_connect(set, "extension-removed",
 			  G_CALLBACK(on_extension_removed), indicator);
-
-	/* TODO: remove this hack!! add sensors to indicator */
-	is_indicator_add_sensor(indicator,
-				is_sensor_new("test-family", "test"));
-	is_indicator_add_sensor(indicator,
-				is_sensor_new("test-family", "tester"));
-	is_indicator_add_sensor(indicator,
-				is_sensor_new("test-family", "tester"));
 
 	/* start */
 	gtk_main();
