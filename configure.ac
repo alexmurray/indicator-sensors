@@ -1,27 +1,34 @@
 # ================= initialization =================== #
+AC_PREREQ(2.67)
+AC_INIT([indicator-sensors], [0.1], [murray.alex@gmail.com], [indicator-sensors])
 
-AC_INIT([Indicator Sensors], [0.1], [murray.alex@gmail.com],
-[indicator-sensors])
-
-AC_CONFIG_SRCDIR([src/indicator-sensors.c])
 AM_CONFIG_HEADER([src/config.h])
-AM_INIT_AUTOMAKE
-AM_MAINTAINER_MODE
+AC_CONFIG_SRCDIR([src/indicator-sensors.c])
+AC_CONFIG_MACRO_DIR([m4])
+
+AM_INIT_AUTOMAKE([1.11 dist-bzip2])
+AM_MAINTAINER_MODE([enable])
+
+AM_SILENT_RULES([yes])
 
 # ============== basic compiler settings ============= #
 AC_PROG_CC
+AC_PROG_INSTALL
 AC_HEADER_STDC
 
-# =================== for plugins ==================== #
-AC_PROG_LIBTOOL
+# ================= initialize libtool =============== #
+LT_PREREQ([2.2.6])
+LT_INIT([disable-static])
 
 # =========== take care of some localization ========= #
-AH_TEMPLATE([GETTEXT_PACKAGE], [Package name for gettext])
+IT_PROG_INTLTOOL([0.40.0])
+
+AM_GNU_GETTEXT_VERSION([0.18.1])
+AM_GNU_GETTEXT([external])
+
 GETTEXT_PACKAGE=indicator-sensors
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE")
 AC_SUBST(GETTEXT_PACKAGE)
-AM_GLIB_GNU_GETTEXT
-AC_PROG_INTLTOOL
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
 
 # ========== export compiler / linker options ======== #
 AC_SUBST(CFLAGS)
