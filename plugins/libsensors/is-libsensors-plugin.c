@@ -81,6 +81,27 @@ is_libsensors_plugin_get_property(GObject *object,
 }
 
 static void
+is_libsensors_plugin_init(IsLibsensorsPlugin *self)
+{
+	IsLibsensorsPluginPrivate *priv =
+		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_LIBSENSORS_PLUGIN,
+					    IsLibsensorsPluginPrivate);
+
+	self->priv = priv;
+}
+
+static void
+is_libsensors_plugin_finalize(GObject *object)
+{
+	IsLibsensorsPlugin *self = (IsLibsensorsPlugin *)object;
+
+	/* Make compiler happy */
+	(void)self;
+
+	G_OBJECT_CLASS(is_libsensors_plugin_parent_class)->finalize(object);
+}
+
+static void
 is_libsensors_plugin_activate(PeasActivatable *activatable)
 {
 	IsLibsensorsPlugin *plugin = IS_LIBSENSORS_PLUGIN(activatable);
@@ -120,27 +141,6 @@ peas_activatable_iface_init(PeasActivatableInterface *iface)
 {
   iface->activate = is_libsensors_plugin_activate;
   iface->deactivate = is_libsensors_plugin_deactivate;
-}
-
-static void
-is_libsensors_plugin_init(IsLibsensorsPlugin *self)
-{
-	IsLibsensorsPluginPrivate *priv =
-		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_LIBSENSORS_PLUGIN,
-					    IsLibsensorsPluginPrivate);
-
-	self->priv = priv;
-}
-
-static void
-is_libsensors_plugin_finalize(GObject *object)
-{
-	IsLibsensorsPlugin *self = (IsLibsensorsPlugin *)object;
-
-	/* Make compiler happy */
-	(void)self;
-
-	G_OBJECT_CLASS(is_libsensors_plugin_parent_class)->finalize(object);
 }
 
 static void
