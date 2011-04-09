@@ -19,8 +19,21 @@
 #include <config.h>
 #endif
 
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
 #include "is-libsensors-plugin.h"
 #include <is-indicator.h>
+#include <sensors/sensors.h>
 
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
@@ -38,6 +51,7 @@ enum {
 struct _IsLibsensorsPluginPrivate
 {
 	IsIndicator *indicator;
+	gboolean inited;
 };
 
 static void is_libsensors_plugin_finalize(GObject *object);
@@ -88,6 +102,9 @@ is_libsensors_plugin_init(IsLibsensorsPlugin *self)
 					    IsLibsensorsPluginPrivate);
 
 	self->priv = priv;
+        if (sensors_init(NULL) == 0) {
+		priv->inited = TRUE;
+	}
 }
 
 static void
@@ -101,25 +118,154 @@ is_libsensors_plugin_finalize(GObject *object)
 	G_OBJECT_CLASS(is_libsensors_plugin_parent_class)->finalize(object);
 }
 
+static gchar *get_chip_name_string(const sensors_chip_name *chip) {
+	gchar *name = NULL;
+
+	// adapted from lm-sensors:prog/sensors/main.c:sprintf_chip_name
+        // in lm-sensors-3.0
+#define BUF_SIZE 200
+	name = g_malloc0(BUF_SIZE);
+	if (sensors_snprintf_chip_name(name, BUF_SIZE, chip) < 0) {
+		g_free(name);
+                name = NULL;
+        }
+#undef BUF_SIZE
+	return name;
+}
+
 static void
 is_libsensors_plugin_activate(PeasActivatable *activatable)
 {
 	IsLibsensorsPlugin *plugin = IS_LIBSENSORS_PLUGIN(activatable);
-
-	g_debug(G_STRFUNC);
+	IsLibsensorsPluginPrivate *priv = plugin->priv;
+	const sensors_chip_name *chip_name;
+	int i = 0;
+        int nr = 0;
 
 	/* search for sensors and add them to indicator */
+	if (!priv->inited) {
+		g_warning("libsensors is not inited, unable to find sensors");
+		goto out;
+	}
+	g_debug("searching for sensors");
+	while ((chip_name = sensors_get_detected_chips(NULL, &nr)))
+        {
+                gchar *chip_name_string = NULL;
+		gchar *label = NULL;
+                const sensors_subfeature *input_feature;
+                const sensors_subfeature *low_feature;
+                const sensors_subfeature *high_feature;
+		const sensors_feature *main_feature;
+		gint nr1 = 0;
+                gdouble value, low, high;
+                gchar *id;
+		IsSensor *sensor;
+
+		chip_name_string = get_chip_name_string(chip_name);
+                if (chip_name_string == NULL) {
+                        g_debug("%s: %d: error getting name string for sensor: %s\n",
+                                        __FILE__, __LINE__, chip_name->path);
+                        continue;
+                }
+		while ((main_feature = sensors_get_features(chip_name, &nr1)))
+                {
+			switch (main_feature->type)
+                        {
+                        case SENSORS_FEATURE_IN:
+				input_feature = sensors_get_subfeature(chip_name,
+								       main_feature,
+								       SENSORS_SUBFEATURE_IN_INPUT);
+				low_feature = sensors_get_subfeature(chip_name,
+                                                                     main_feature,
+                                                                     SENSORS_SUBFEATURE_IN_MIN);
+				high_feature = sensors_get_subfeature(chip_name,
+                                                                      main_feature,
+                                                                      SENSORS_SUBFEATURE_IN_MAX);
+			  	break;
+                        case SENSORS_FEATURE_FAN:
+				input_feature = sensors_get_subfeature(chip_name,
+								       main_feature,
+								       SENSORS_SUBFEATURE_FAN_INPUT);
+				low_feature = sensors_get_subfeature(chip_name,
+                                                                     main_feature,
+                                                                     SENSORS_SUBFEATURE_FAN_MIN);
+                                // no fan max feature
+				high_feature = NULL;
+				break;
+                        case SENSORS_FEATURE_TEMP:
+				input_feature = sensors_get_subfeature(chip_name,
+								       main_feature,
+								       SENSORS_SUBFEATURE_TEMP_INPUT);
+				low_feature = sensors_get_subfeature(chip_name,
+                                                                     main_feature,
+                                                                     SENSORS_SUBFEATURE_TEMP_MIN);
+				high_feature = sensors_get_subfeature(chip_name,
+                                                                      main_feature,
+                                                                      SENSORS_SUBFEATURE_TEMP_MAX);
+				if (!high_feature)
+					high_feature = sensors_get_subfeature(chip_name,
+									      main_feature,
+									      SENSORS_SUBFEATURE_TEMP_CRIT);
+				break;
+                        default:
+                                g_debug("libsensors plugin: error determining type for: %s\n",
+                                        chip_name_string);
+				continue;
+                        }
+
+			if (!input_feature)
+                        {
+                                g_debug("%s: %d: could not get input subfeature for: %s\n",
+                                        __FILE__, __LINE__, chip_name_string);
+				continue;
+                        }
+                        // if still here we got input feature so get label
+                        label = sensors_get_label(chip_name, main_feature);
+                        if (!label)
+                        {
+                                g_debug("%s: %d: error: could not get label for: %s\n",
+                                        __FILE__, __LINE__, chip_name_string);
+                                continue;
+                        }
+
+                        g_assert(chip_name_string && label);
+
+                        if (low_feature) {
+                                sensors_get_value(chip_name, low_feature->number, &low);
+                        }
+
+                        if (high_feature) {
+                                sensors_get_value(chip_name, high_feature->number, &high);
+                        }
+                        if (sensors_get_value(chip_name, input_feature->number, &value) < 0) {
+                                g_debug("%s: %d: error: could not get value for input feature of sensor: %s\n",
+                                        __FILE__, __LINE__, chip_name_string);
+                                free(label);
+                                continue;
+                        }
+
+                        id = g_strdup_printf("%s/%d", chip_name_string,
+					     input_feature->number);
+			// TODO: create our own subclass of IsSensor
+			sensor = is_sensor_new("libsensors",
+					       id);
+			is_indicator_add_sensor(priv->indicator, sensor);
+			g_free(id);
+		}
+		g_free(chip_name_string);
+	}
+out:
+	return;
 }
 
 static void
 is_libsensors_plugin_deactivate(PeasActivatable *activatable)
 {
 	IsLibsensorsPlugin *plugin = IS_LIBSENSORS_PLUGIN(activatable);
-
-	g_debug(G_STRFUNC);
+	IsLibsensorsPluginPrivate *priv = plugin->priv;
 
 	/* remove sensors from indicator */
-
+	is_indicator_remove_all_sensors(priv->indicator, "libsensors");
 }
 
 static void

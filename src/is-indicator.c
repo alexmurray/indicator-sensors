@@ -267,6 +267,34 @@ enable_sensor(IsIndicator *self,
 			 G_CALLBACK(sensor_value_changed), self);
 }
 
+static void
+disable_sensor(IsIndicator *self,
+	       IsSensor *sensor)
+{
+	IsIndicatorPrivate *priv = self->priv;
+
+	/* debug - enable sensor */
+	g_debug("disabling sensor [%s]:%s",
+		is_sensor_get_family(sensor),
+		is_sensor_get_id(sensor));
+	g_signal_handlers_disconnect_by_func(sensor, sensor_value_changed,
+					     self);
+	priv->enabled_sensors = g_list_remove(priv->enabled_sensors,
+					      sensor);
+	if (!priv->enabled_sensors) {
+		g_source_remove(priv->enabled_id);
+		priv->enabled_id = 0;
+	}
+}
+
+static void
+disable_sensor_from_tree(const gchar *family,
+			 IsSensor *sensor,
+			 IsIndicator *self)
+{
+	disable_sensor(self, sensor);
+}
+
 gboolean
 is_indicator_add_sensor(IsIndicator *self,
 			IsSensor *sensor)
@@ -305,6 +333,33 @@ is_indicator_add_sensor(IsIndicator *self,
 
 	if (ret) {
 		enable_sensor(self, sensor);
+	}
+
+out:
+	return ret;
+}
+
+gboolean
+is_indicator_remove_all_sensors(IsIndicator *self,
+				const gchar *family)
+{
+	IsIndicatorPrivate *priv;
+	GTree *sensors;
+	gboolean ret = FALSE;
+
+	g_return_val_if_fail(IS_IS_INDICATOR(self), FALSE);
+	g_return_val_if_fail(family != NULL, FALSE);
+
+	priv = self->priv;
+
+	sensors = g_tree_lookup(priv->sensors, family);
+
+	if (sensors) {
+		g_tree_foreach(sensors,
+			       (GTraverseFunc)disable_sensor_from_tree,
+			       self);
+		g_tree_remove(priv->sensors, family);
+		ret = TRUE;
 	}
 
 out:
