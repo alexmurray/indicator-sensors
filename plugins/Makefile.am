@@ -1,1 +1,5 @@
-SUBDIRS = libsensors
+SUBDIRS =
+
+if LIBSENSORS
+SUBDIRS += libsensors
+endif
