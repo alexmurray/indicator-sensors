@@ -247,10 +247,11 @@ is_libsensors_plugin_activate(PeasActivatable *activatable)
                         id = g_strdup_printf("%s/%d", chip_name_string,
 					     input_feature->number);
 			// TODO: create our own subclass of IsSensor
-			sensor = is_sensor_new("libsensors",
-					       id);
+			sensor = is_sensor_new("libsensors", id, label,
+					       low, high);
 			is_indicator_add_sensor(priv->indicator, sensor);
 			g_free(id);
+			free(label);
 		}
 		g_free(chip_name_string);
 	}
