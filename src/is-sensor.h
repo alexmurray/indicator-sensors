@@ -65,7 +65,8 @@ IsSensor *is_sensor_new(const gchar *family,
 			const gchar *id,
 			const gchar *label,
 			gdouble min,
-			gdouble max);
+			gdouble max,
+			const gchar *units);
 void is_sensor_update(IsSensor *self);
 const gchar *is_sensor_get_family(IsSensor *self);
 const gchar *is_sensor_get_id(IsSensor *self);
@@ -77,6 +78,8 @@ gdouble is_sensor_get_min(IsSensor *self);
 void is_sensor_set_min(IsSensor *self, gdouble min);
 gdouble is_sensor_get_max(IsSensor *self);
 void is_sensor_set_max(IsSensor *self, gdouble max);
+const gchar *is_sensor_get_units(IsSensor *self);
+void is_sensor_set_units(IsSensor *self, const gchar *units);
 
 G_END_DECLS
 

@@ -17,5 +17,7 @@ indicator_sensors_SOURCES = indicator-sensors.c \
 	is-indicator.h \
 	is-indicator.c \
 	is-sensor.h \
-	is-sensor.c
+	is-sensor.c \
+	is-temperature-sensor.h \
+	is-temperature-sensor.c
 

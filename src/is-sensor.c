@@ -29,7 +29,7 @@ static void is_sensor_set_property(GObject *object,
 
 /* signal enum */
 enum {
-	SIGNAL_DUMMY,
+	SIGNAL_UPDATE,
 	LAST_SIGNAL
 };
 
@@ -44,6 +44,7 @@ enum {
 	PROP_VALUE,
 	PROP_MIN,
 	PROP_MAX,
+	PROP_UNITS,
 	LAST_PROPERTY
 };
 
@@ -57,13 +58,8 @@ struct _IsSensorPrivate
 	gdouble value;
 	gdouble min;
 	gdouble max;
+	gchar *units;
 };
-
-static void dummy_update(IsSensor *self)
-{
-	/* for now set to -1 */
-	is_sensor_set_value(self, -1.0f);
-}
 
 static void
 is_sensor_class_init(IsSensorClass *klass)
@@ -107,19 +103,23 @@ is_sensor_class_init(IsSensorClass *klass)
 						   -G_MAXDOUBLE, G_MAXDOUBLE, 0.0,
 						   G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_MAX, properties[PROP_MAX]);
+	properties[PROP_UNITS] = g_param_spec_string("units", "sensor units",
+						     "units of this sensor.",
+						     NULL,
+						     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_UNITS, properties[PROP_UNITS]);
 
-	signals[SIGNAL_DUMMY] = g_signal_new("dummy",
-					     G_OBJECT_CLASS_TYPE(klass),
-					     G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
-					     0,
-					     NULL, NULL,
-					     g_cclosure_marshal_VOID__VOID,
-					     G_TYPE_NONE, 0);
-	klass->update = dummy_update;
+	signals[SIGNAL_UPDATE] = g_signal_new("update",
+					      G_OBJECT_CLASS_TYPE(klass),
+					      G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+					      offsetof(IsSensorClass, update),
+					      NULL, NULL,
+					      g_cclosure_marshal_VOID__VOID,
+					      G_TYPE_NONE, 0);
 }
 
 static void
-is_sensor_init (IsSensor *self)
+is_sensor_init(IsSensor *self)
 {
 	IsSensorPrivate *priv =
 		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_SENSOR,
@@ -156,6 +156,9 @@ is_sensor_get_property(GObject *object,
 		break;
 	case PROP_MAX:
 		g_value_set_double(value, is_sensor_get_max(self));
+		break;
+	case PROP_UNITS:
+		g_value_set_string(value, is_sensor_get_units(self));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -194,6 +197,9 @@ is_sensor_set_property(GObject *object,
 	case PROP_MAX:
 		is_sensor_set_max(self, g_value_get_double(value));
 		break;
+	case PROP_UNITS:
+		is_sensor_set_units(self, g_value_get_string(value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 		break;
@@ -222,6 +228,8 @@ is_sensor_finalize (GObject *object)
 	priv->id = NULL;
 	g_free(priv->label);
 	priv->label = NULL;
+	g_free(priv->units);
+	priv->units = NULL;
 
 	G_OBJECT_CLASS(is_sensor_parent_class)->finalize(object);
 }
@@ -231,7 +239,8 @@ is_sensor_new(const gchar *family,
 	      const gchar *id,
 	      const gchar *label,
 	      gdouble min,
-	      gdouble max)
+	      gdouble max,
+	      const gchar *units)
 {
 	return g_object_new(IS_TYPE_SENSOR,
 			    "family", family,
@@ -239,6 +248,7 @@ is_sensor_new(const gchar *family,
 			    "label", label,
 			    "min", min,
 			    "max", max,
+			    "units", units,
 			    NULL);
 }
 
@@ -327,14 +337,28 @@ is_sensor_set_max(IsSensor *self,
 	}
 }
 
+const gchar *
+is_sensor_get_units(IsSensor *self)
+{
+	g_return_val_if_fail(IS_IS_SENSOR(self), NULL);
+	return self->priv->units;
+}
+
+void
+is_sensor_set_units(IsSensor *self,
+		    const gchar *units)
+{
+	g_return_if_fail(IS_IS_SENSOR(self));
+	g_free(self->priv->units);
+	self->priv->units = units ? g_strdup(units) : NULL;
+	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_UNITS]);
+}
+
 void
 is_sensor_update(IsSensor *self)
 {
-	IsSensorClass *sensor_class;
-
 	g_return_if_fail(IS_IS_SENSOR(self));
 
-	sensor_class = IS_SENSOR_GET_CLASS(self);
-	sensor_class->update(self);
+	g_signal_emit(self, signals[SIGNAL_UPDATE], 0);
 }
 
