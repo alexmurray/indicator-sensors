@@ -238,16 +238,26 @@ update_sensors(IsIndicator *self)
 }
 
 static void
-sensor_value_changed(IsSensor *sensor)
+sensor_value_changed(IsSensor *sensor,
+		     IsIndicator *self)
 {
+	gchar *text;
 	g_debug("sensor [%s]:%s new value: %f",
 		is_sensor_get_family(sensor),
 		is_sensor_get_id(sensor),
 		is_sensor_get_value(sensor));
+	text = g_strdup_printf("%2.1f%s",
+			       is_sensor_get_value(sensor),
+			       is_sensor_get_units(sensor));
+	/* TODO: this doesn't actually update the display, need to fix */
+	gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(sensor),
+						       "value-label")),
+			   text);
+	g_free(text);
 }
 
 static void
-sensor_error(IsSensor *sensor, GError *error)
+sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
 {
 	g_warning("sensor [%s]:%s error: %s",
 		  is_sensor_get_family(sensor),
@@ -260,6 +270,10 @@ enable_sensor(IsIndicator *self,
 	      IsSensor *sensor)
 {
 	IsIndicatorPrivate *priv = self->priv;
+	GtkMenu *menu;
+	GtkWidget *menu_item;
+	GtkWidget *hbox;
+	GtkWidget *label;
 
 	/* debug - enable sensor */
 	g_debug("enabling sensor [%s]:%s",
@@ -276,6 +290,22 @@ enable_sensor(IsIndicator *self,
 			 G_CALLBACK(sensor_value_changed), self);
 	g_signal_connect(sensor, "error",
 			 G_CALLBACK(sensor_error), self);
+	/* add a menu entry for this sensor */
+	menu = app_indicator_get_menu(APP_INDICATOR(self));
+	menu_item = gtk_menu_item_new();
+	hbox = gtk_hbox_new(FALSE, 4);
+	label = gtk_label_new(is_sensor_get_label(sensor));
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 0);
+	label = gtk_label_new(NULL);
+	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+	/* TODO: add to size group for all values */
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(menu_item), hbox);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+	gtk_widget_show_all(menu_item);
+	g_object_set_data(G_OBJECT(sensor), "menu-item", menu_item);
+	g_object_set_data(G_OBJECT(sensor), "value-label", label);
 }
 
 static void
@@ -283,11 +313,20 @@ disable_sensor(IsIndicator *self,
 	       IsSensor *sensor)
 {
 	IsIndicatorPrivate *priv = self->priv;
+	GtkWidget *menu_item;
 
 	/* debug - enable sensor */
 	g_debug("disabling sensor [%s]:%s",
 		is_sensor_get_family(sensor),
 		is_sensor_get_id(sensor));
+
+	/* destroy menu item */
+	menu_item = GTK_WIDGET(g_object_get_data(G_OBJECT(sensor),
+						 "menu-item"));
+	gtk_widget_destroy(menu_item);
+	g_object_set_data(G_OBJECT(sensor), "menu-item", NULL);
+	g_object_set_data(G_OBJECT(sensor), "value-item", NULL);
+
 	g_signal_handlers_disconnect_by_func(sensor, sensor_value_changed,
 					     self);
 	priv->enabled_sensors = g_list_remove(priv->enabled_sensors,
