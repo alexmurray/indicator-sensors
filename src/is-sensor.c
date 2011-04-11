@@ -29,7 +29,8 @@ static void is_sensor_set_property(GObject *object,
 
 /* signal enum */
 enum {
-	SIGNAL_UPDATE,
+	SIGNAL_UPDATE_VALUE,
+	SIGNAL_ERROR,
 	LAST_SIGNAL
 };
 
@@ -109,13 +110,20 @@ is_sensor_class_init(IsSensorClass *klass)
 						     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_UNITS, properties[PROP_UNITS]);
 
-	signals[SIGNAL_UPDATE] = g_signal_new("update",
-					      G_OBJECT_CLASS_TYPE(klass),
-					      G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-					      offsetof(IsSensorClass, update),
-					      NULL, NULL,
-					      g_cclosure_marshal_VOID__VOID,
-					      G_TYPE_NONE, 0);
+	signals[SIGNAL_UPDATE_VALUE] = g_signal_new("update-value",
+						    G_OBJECT_CLASS_TYPE(klass),
+						    G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+						    offsetof(IsSensorClass, update_value),
+						    NULL, NULL,
+						    g_cclosure_marshal_VOID__VOID,
+						    G_TYPE_NONE, 0);
+	signals[SIGNAL_ERROR] = g_signal_new("error",
+					     G_OBJECT_CLASS_TYPE(klass),
+					     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+					     offsetof(IsSensorClass, error),
+					     NULL, NULL,
+					     g_cclosure_marshal_VOID__BOXED,
+					     G_TYPE_NONE, 1, G_TYPE_ERROR);
 }
 
 static void
@@ -355,10 +363,18 @@ is_sensor_set_units(IsSensor *self,
 }
 
 void
-is_sensor_update(IsSensor *self)
+is_sensor_update_value(IsSensor *self)
 {
 	g_return_if_fail(IS_IS_SENSOR(self));
 
-	g_signal_emit(self, signals[SIGNAL_UPDATE], 0);
+	g_signal_emit(self, signals[SIGNAL_UPDATE_VALUE], 0);
+}
+
+void
+is_sensor_emit_error(IsSensor *self, GError *error)
+{
+	g_return_if_fail(IS_IS_SENSOR(self) && error != NULL);
+
+	g_signal_emit(self, signals[SIGNAL_ERROR], 0, error);
 }
 

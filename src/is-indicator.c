@@ -232,7 +232,7 @@ static gboolean
 update_sensors(IsIndicator *self)
 {
 	g_list_foreach(self->priv->enabled_sensors,
-		       (GFunc)is_sensor_update,
+		       (GFunc)is_sensor_update_value,
 		       NULL);
 	return TRUE;
 }
@@ -244,6 +244,15 @@ sensor_value_changed(IsSensor *sensor)
 		is_sensor_get_family(sensor),
 		is_sensor_get_id(sensor),
 		is_sensor_get_value(sensor));
+}
+
+static void
+sensor_error(IsSensor *sensor, GError *error)
+{
+	g_warning("sensor [%s]:%s error: %s",
+		  is_sensor_get_family(sensor),
+		  is_sensor_get_id(sensor),
+		  error->message);
 }
 
 static void
@@ -265,6 +274,8 @@ enable_sensor(IsIndicator *self,
 					      g_object_ref(sensor));
 	g_signal_connect(sensor, "notify::value",
 			 G_CALLBACK(sensor_value_changed), self);
+	g_signal_connect(sensor, "error",
+			 G_CALLBACK(sensor_error), self);
 }
 
 static void

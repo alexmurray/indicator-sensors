@@ -35,6 +35,7 @@
 #include <is-temperature-sensor.h>
 #include <is-indicator.h>
 #include <sensors/sensors.h>
+#include <sensors/error.h>
 
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
@@ -153,7 +154,7 @@ update_sensor_value(IsSensor *sensor,
 	const gchar *id;
 	const sensors_chip_name *found_chip;
 	gchar *offset, *end;
-	int n;
+	int n, ret;
 	gdouble value = 0.0f;
 
 	id = is_sensor_get_id(sensor);
@@ -170,10 +171,13 @@ update_sensor_value(IsSensor *sensor,
 	/* conversion should also never fail */
 	g_assert(end != NULL);
 
-	if (sensors_get_value(found_chip, n, &value) < 0) {
-		g_warning("Error getting sensor value for sensor '%s'",
-			  id);
-		/* TODO: emit error signal once we add it */
+	if ((ret = sensors_get_value(found_chip, n, &value)) < 0) {
+		GError *error = g_error_new(g_quark_from_string("libsensors-plugin-error-quark"),
+					    0,
+					    "Error getting sensor value for sensor %s: %s",
+					    id, sensors_strerror(ret));
+		is_sensor_emit_error(sensor, error);
+		g_error_free(error);
 		goto out;
 	}
 	is_sensor_set_value(sensor, value);
@@ -181,7 +185,6 @@ update_sensor_value(IsSensor *sensor,
 out:
 	return;
 }
-
 
 static void
 process_sensors_chip_name(IsLibsensorsPlugin *self,
@@ -302,8 +305,8 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		}
 		/* take ownership of id pointer */
 		g_hash_table_insert(priv->sensor_chip_names, id, (void *)chip_name);
-		/* connect to update signal */
-		g_signal_connect(sensor, "update",
+		/* connect to update-value signal */
+		g_signal_connect(sensor, "update-value",
 				 G_CALLBACK(update_sensor_value),
 				 self);
 		is_indicator_add_sensor(priv->indicator, sensor);
