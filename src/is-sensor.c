@@ -141,10 +141,6 @@ is_sensor_get_property(GObject *object,
 		       guint property_id, GValue *value, GParamSpec *pspec)
 {
 	IsSensor *self = IS_SENSOR(object);
-	IsSensorPrivate *priv = self->priv;
-
-	/* Make compiler happy */
-	(void)priv;
 
 	switch (property_id) {
 	case PROP_FAMILY:
