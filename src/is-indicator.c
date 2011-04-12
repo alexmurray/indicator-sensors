@@ -44,9 +44,10 @@ enum {
 struct _IsIndicatorPrivate
 {
 	GTree *sensors;
-	GList *enabled_sensors;
+	GSList *enabled_sensors;
+	GSList *menu_items;
+	IsSensor *primary_sensor;
 	guint enabled_id;
-	guint dummy;
 };
 
 static void
@@ -156,8 +157,8 @@ is_indicator_finalize(GObject *object)
 	IsIndicatorPrivate *priv = self->priv;
 
 	g_tree_unref(priv->sensors);
-	g_list_foreach(priv->enabled_sensors, (GFunc)g_object_unref, NULL);
-	g_list_free(priv->enabled_sensors);
+	g_slist_foreach(priv->enabled_sensors, (GFunc)g_object_unref, NULL);
+	g_slist_free(priv->enabled_sensors);
 
 	G_OBJECT_CLASS(is_indicator_parent_class)->finalize(object);
 }
@@ -219,10 +220,12 @@ is_indicator_new(const gchar *id,
 	}
 
 	menu = gtk_ui_manager_get_widget(ui_manager, "/ui/Indicator");
-
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu),
+			      gtk_separator_menu_item_new());
 	app_indicator_set_status(self, APP_INDICATOR_STATUS_ACTIVE);
 	app_indicator_set_attention_icon(self, "sensors-indicator");
-	app_indicator_set_label(self, "icon", "icon");
+	/* TODO: translate me */
+	app_indicator_set_label(self, "No sensors", "No Sensors");
 	app_indicator_set_menu(self, GTK_MENU(menu));
 
 	return IS_INDICATOR(self);
@@ -231,29 +234,44 @@ is_indicator_new(const gchar *id,
 static gboolean
 update_sensors(IsIndicator *self)
 {
-	g_list_foreach(self->priv->enabled_sensors,
-		       (GFunc)is_sensor_update_value,
-		       NULL);
+	g_return_if_fail(IS_IS_INDICATOR(self));
+
+	g_slist_foreach(self->priv->enabled_sensors,
+			(GFunc)is_sensor_update_value,
+			self);
 	return TRUE;
 }
 
 static void
-sensor_value_changed(IsSensor *sensor,
-		     IsIndicator *self)
+update_sensor_menu_item_label(IsIndicator *self,
+			      IsSensor *sensor,
+			      GtkMenuItem *menu_item)
 {
-	gchar *text;
-	g_debug("sensor [%s]:%s new value: %f",
-		is_sensor_get_family(sensor),
-		is_sensor_get_id(sensor),
-		is_sensor_get_value(sensor));
-	text = g_strdup_printf("%2.1f%s",
-			       is_sensor_get_value(sensor),
-			       is_sensor_get_units(sensor));
-	/* TODO: this doesn't actually update the display, need to fix */
-	gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(sensor),
-						       "value-label")),
-			   text);
+	gchar *text = g_strdup_printf("%s: %2.1f%s",
+				      is_sensor_get_label(sensor),
+				      is_sensor_get_value(sensor),
+				      is_sensor_get_units(sensor));
+	gtk_menu_item_set_label(menu_item, text);
+	if (self->priv->primary_sensor == sensor) {
+		app_indicator_set_label(APP_INDICATOR(self),
+					text, text);
+	}
 	g_free(text);
+}
+
+static void
+sensor_label_or_value_notify(IsSensor *sensor,
+			     GParamSpec *psec,
+			     IsIndicator *self)
+{
+	GtkMenuItem *menu_item;
+
+	g_return_if_fail(IS_IS_SENSOR(sensor));
+	g_return_if_fail(IS_IS_INDICATOR(self));
+
+	menu_item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(sensor),
+						    "menu-item"));
+	update_sensor_menu_item_label(self, sensor, menu_item);
 }
 
 static void
@@ -263,49 +281,6 @@ sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
 		  is_sensor_get_family(sensor),
 		  is_sensor_get_id(sensor),
 		  error->message);
-}
-
-static void
-enable_sensor(IsIndicator *self,
-	      IsSensor *sensor)
-{
-	IsIndicatorPrivate *priv = self->priv;
-	GtkMenu *menu;
-	GtkWidget *menu_item;
-	GtkWidget *hbox;
-	GtkWidget *label;
-
-	/* debug - enable sensor */
-	g_debug("enabling sensor [%s]:%s",
-		is_sensor_get_family(sensor),
-		is_sensor_get_id(sensor));
-	if (!priv->enabled_sensors) {
-		priv->enabled_id = g_timeout_add_seconds(1,
-							 (GSourceFunc)update_sensors,
-							 self);
-	}
-	priv->enabled_sensors = g_list_append(priv->enabled_sensors,
-					      g_object_ref(sensor));
-	g_signal_connect(sensor, "notify::value",
-			 G_CALLBACK(sensor_value_changed), self);
-	g_signal_connect(sensor, "error",
-			 G_CALLBACK(sensor_error), self);
-	/* add a menu entry for this sensor */
-	menu = app_indicator_get_menu(APP_INDICATOR(self));
-	menu_item = gtk_menu_item_new();
-	hbox = gtk_hbox_new(FALSE, 4);
-	label = gtk_label_new(is_sensor_get_label(sensor));
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-	gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 0);
-	label = gtk_label_new(NULL);
-	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-	/* TODO: add to size group for all values */
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(menu_item), hbox);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-	gtk_widget_show_all(menu_item);
-	g_object_set_data(G_OBJECT(sensor), "menu-item", menu_item);
-	g_object_set_data(G_OBJECT(sensor), "value-label", label);
 }
 
 static void
@@ -323,17 +298,46 @@ disable_sensor(IsIndicator *self,
 	/* destroy menu item */
 	menu_item = GTK_WIDGET(g_object_get_data(G_OBJECT(sensor),
 						 "menu-item"));
-	gtk_widget_destroy(menu_item);
+	gtk_container_remove(GTK_CONTAINER(app_indicator_get_menu(APP_INDICATOR(self))),
+			     menu_item);
 	g_object_set_data(G_OBJECT(sensor), "menu-item", NULL);
 	g_object_set_data(G_OBJECT(sensor), "value-item", NULL);
 
-	g_signal_handlers_disconnect_by_func(sensor, sensor_value_changed,
+	g_signal_handlers_disconnect_by_func(sensor,
+					     sensor_label_or_value_notify,
 					     self);
-	priv->enabled_sensors = g_list_remove(priv->enabled_sensors,
-					      sensor);
+	g_signal_handlers_disconnect_by_func(sensor,
+					     sensor_error,
+					     self);
+	priv->enabled_sensors = g_slist_remove(priv->enabled_sensors,
+					       sensor);
 	if (!priv->enabled_sensors) {
 		g_source_remove(priv->enabled_id);
 		priv->enabled_id = 0;
+	}
+}
+
+static void
+sensor_menu_item_activated(GtkMenuItem *menu_item,
+			   IsIndicator *self)
+{
+	IsIndicatorPrivate *priv;
+	IsSensor *sensor;
+
+	g_return_if_fail(IS_IS_INDICATOR(self));
+
+	priv = self->priv;
+	sensor = IS_SENSOR(g_object_get_data(G_OBJECT(menu_item),
+					     "sensor"));
+	/* enable display of this sensor if not displaying it */
+	if (priv->primary_sensor != sensor) {
+		g_debug("displaying sensor [%s]:%s",
+			is_sensor_get_family(sensor),
+			is_sensor_get_id(sensor));
+		priv->primary_sensor = sensor;
+		update_sensor_menu_item_label(self, sensor, menu_item);
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
+					       TRUE);
 	}
 }
 
@@ -343,6 +347,62 @@ disable_sensor_from_tree(const gchar *family,
 			 IsIndicator *self)
 {
 	disable_sensor(self, sensor);
+}
+
+static void
+enable_sensor(IsIndicator *self,
+	      IsSensor *sensor)
+{
+	IsIndicatorPrivate *priv = self->priv;
+	GtkMenu *menu;
+	GtkWidget *menu_item;
+	GtkWidget *hbox;
+	GtkWidget *label;
+
+	/* debug - enable sensor */
+	g_debug("enabling sensor [%s]:%s",
+		is_sensor_get_family(sensor),
+		is_sensor_get_id(sensor));
+	if (!priv->enabled_sensors) {
+		priv->enabled_id = g_timeout_add_seconds(5,
+							 (GSourceFunc)update_sensors,
+							 self);
+	}
+	priv->enabled_sensors = g_slist_append(priv->enabled_sensors,
+					       g_object_ref(sensor));
+	g_signal_connect(sensor, "notify::value",
+			 G_CALLBACK(sensor_label_or_value_notify),
+			 self);
+	g_signal_connect(sensor, "notify::label",
+			 G_CALLBACK(sensor_label_or_value_notify),
+			 self);
+	g_signal_connect(sensor, "error",
+			 G_CALLBACK(sensor_error), self);
+	/* add a menu entry for this sensor */
+	menu = app_indicator_get_menu(APP_INDICATOR(self));
+	/* if this is the first sensor we are displaying, then show it by
+	   default as the main sensor */
+	if (!priv->menu_items) {
+		priv->primary_sensor = sensor;
+	}
+	menu_item = gtk_radio_menu_item_new(priv->menu_items);
+	priv->menu_items = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+	if (priv->primary_sensor == sensor) {
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
+					       TRUE);
+	}
+	g_signal_connect(menu_item, "activate",
+			 G_CALLBACK(sensor_menu_item_activated),
+			 self);
+	gtk_widget_show_all(menu_item);
+
+	g_object_set_data(G_OBJECT(sensor), "menu-item", menu_item);
+	g_object_set_data(G_OBJECT(menu_item), "sensor", sensor);
+
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+
+	/* finally update the value of this sensor */
+	is_sensor_update_value(sensor);
 }
 
 gboolean
@@ -360,7 +420,7 @@ is_indicator_add_sensor(IsIndicator *self,
 
 	sensors = g_tree_lookup(priv->sensors, is_sensor_get_family(sensor));
 
-	if (sensors == NULL) {
+	if (!sensors) {
 		sensors = g_tree_new_full((GCompareDataFunc)g_strcmp0,
 					  NULL,
 					  NULL,
