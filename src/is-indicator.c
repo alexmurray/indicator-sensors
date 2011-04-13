@@ -17,6 +17,7 @@
 
 #include "is-indicator.h"
 #include <gtk/gtk.h>
+#include <glib/gi18n.h>
 
 G_DEFINE_TYPE (IsIndicator, is_indicator, APP_INDICATOR_TYPE);
 
@@ -166,8 +167,8 @@ is_indicator_finalize(GObject *object)
 static void activate_action(GtkAction *action);
 
 static GtkActionEntry entries[] = {
-  { "Preferences", "application-preferences", "_Preferences", NULL,
-    "Preferences...", G_CALLBACK(activate_action) },
+	{ "Preferences", "application-preferences", N_("_Preferences"), NULL,
+	  N_("Preferences"), G_CALLBACK(activate_action) },
 };
 static guint n_entries = G_N_ELEMENTS(entries);
 
@@ -184,7 +185,7 @@ static void activate_action(GtkAction *action)
 
 	g_debug("activated action %s", gtk_action_get_name(action));
 
-	dialog = gtk_dialog_new_with_buttons("Preferences",
+	dialog = gtk_dialog_new_with_buttons(_("Preferences"),
 					     NULL,
 					     0,
 					     GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
@@ -225,7 +226,7 @@ is_indicator_new(const gchar *id,
 	app_indicator_set_status(self, APP_INDICATOR_STATUS_ACTIVE);
 	app_indicator_set_attention_icon(self, "sensors-indicator");
 	/* TODO: translate me */
-	app_indicator_set_label(self, "No sensors", "No Sensors");
+	app_indicator_set_label(self, _("No sensors"), _("No Sensors"));
 	app_indicator_set_menu(self, GTK_MENU(menu));
 
 	return IS_INDICATOR(self);

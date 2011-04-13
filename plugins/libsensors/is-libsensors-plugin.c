@@ -19,23 +19,13 @@
 #include <config.h>
 #endif
 
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #include "is-libsensors-plugin.h"
+#include <stdlib.h>
 #include <is-temperature-sensor.h>
 #include <is-indicator.h>
 #include <sensors/sensors.h>
 #include <sensors/error.h>
+#include <glib/gi18n.h>
 
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
@@ -174,7 +164,9 @@ update_sensor_value(IsSensor *sensor,
 	if ((ret = sensors_get_value(found_chip, n, &value)) < 0) {
 		GError *error = g_error_new(g_quark_from_string("libsensors-plugin-error-quark"),
 					    0,
-					    "Error getting sensor value for sensor %s: %s",
+					    /* first placeholder is sensor name,
+					     * second is error message */
+					    _("Error getting sensor value for sensor %s: %s"),
 					    id, sensors_strerror(ret));
 		is_sensor_emit_error(sensor, error);
 		g_error_free(error);
@@ -204,7 +196,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 
 	chip_name_string = get_chip_name_string(chip_name);
 	if (chip_name_string == NULL) {
-		g_warning("libsensors plugin: error getting name string for sensor: %s\n",
+		g_warning("libsensors plugin: error getting name string for sensor '%s'",
 			  chip_name->path);
 		goto out;
 	}
@@ -249,14 +241,14 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 								      SENSORS_SUBFEATURE_TEMP_CRIT);
 			break;
 		default:
-			g_warning("libsensors plugin: error determining type for sensor: %s",
+			g_warning("libsensors plugin: error determining type for sensor '%s'",
 				  chip_name_string);
 			goto out;
 		}
 
 		if (!input_feature)
 		{
-			g_warning("libsensors plugin: could not get input subfeature for sensor: %s",
+			g_warning("libsensors plugin: could not get input subfeature for sensor '%s'",
 				  chip_name_string);
 			goto out;
 		}
@@ -264,8 +256,8 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		label = sensors_get_label(chip_name, main_feature);
 		if (!label)
 		{
-			g_warning("libsensors plugin: could not get label for sensor: %s",
-				__FILE__, __LINE__, chip_name_string);
+			g_warning("libsensors plugin: could not get label for sensor '%s'",
+				  chip_name_string);
 			goto out;
 		}
 
@@ -279,8 +271,8 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			sensors_get_value(chip_name, high_feature->number, &high);
 		}
 		if (sensors_get_value(chip_name, input_feature->number, &value) < 0) {
-			g_warning("libsensors plugin: could not get value for input feature of sensor: %s\n",
-				__FILE__, __LINE__, chip_name_string);
+			g_warning("libsensors plugin: could not get value for input feature of sensor '%s'",
+				  chip_name_string);
 			free(label);
 			goto out;
 		}

@@ -80,9 +80,9 @@ is_sensor_class_init(IsSensorClass *klass)
 						      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_FAMILY, properties[PROP_FAMILY]);
 	properties[PROP_ID] = g_param_spec_string("id", "id property",
-						      "id of this sensor.",
-						      NULL,
-						      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+						  "id of this sensor.",
+						  NULL,
+						  G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_ID, properties[PROP_ID]);
 	properties[PROP_VALUE] = g_param_spec_double("value", "sensor value",
 						     "value of this sensor.",
@@ -176,9 +176,6 @@ is_sensor_set_property(GObject *object,
 {
 	IsSensor *self = IS_SENSOR(object);
 	IsSensorPrivate *priv = self->priv;
-
-	/* Make compiler happy */
-	(void)priv;
 
 	switch (property_id) {
 	case PROP_FAMILY:
@@ -314,7 +311,7 @@ is_sensor_get_min(IsSensor *self)
 
 void
 is_sensor_set_min(IsSensor *self,
-		    gdouble min)
+		  gdouble min)
 {
 	g_return_if_fail(IS_IS_SENSOR(self));
 	if (self->priv->min != min) {
@@ -332,7 +329,7 @@ is_sensor_get_max(IsSensor *self)
 
 void
 is_sensor_set_max(IsSensor *self,
-		    gdouble max)
+		  gdouble max)
 {
 	g_return_if_fail(IS_IS_SENSOR(self));
 	if (self->priv->max != max) {

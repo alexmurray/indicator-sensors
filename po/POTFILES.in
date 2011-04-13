@@ -1,0 +1,2 @@
+plugins/libsensors/is-libsensors-plugin.c
+src/is-indicator.c
