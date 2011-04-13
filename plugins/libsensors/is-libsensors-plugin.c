@@ -298,7 +298,8 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			sensor = is_temperature_sensor_new_full("libsensors",
 								id,
 								label,
-								low, high);
+								low, high,
+								IS_TEMPERATURE_SENSOR_UNITS_CELSIUS);
 			break;
 		default:
 			g_assert_not_reached();

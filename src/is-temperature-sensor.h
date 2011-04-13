@@ -61,8 +61,7 @@ struct _IsTemperatureSensor
 
 typedef enum {
 	IS_TEMPERATURE_SENSOR_UNITS_CELSIUS,
-	IS_TEMPERATURE_SENSOR_UNITS_FARENHEIT,
-	IS_TEMPERATURE_SENSOR_UNITS_KELVIN,
+	IS_TEMPERATURE_SENSOR_UNITS_FAHRENHEIT,
 	NUM_IS_TEMPERATURE_SENSOR_UNITS,
 } IsTemperatureSensorUnits;
 
@@ -74,9 +73,15 @@ IsSensor *is_temperature_sensor_new_full(const gchar *family,
 					 const gchar *id,
 					 const gchar *label,
 					 gdouble min,
-					 gdouble max);
+					 gdouble max,
+					 IsTemperatureSensorUnits units);
 void is_temperature_sensor_set_units(IsTemperatureSensor *sensor,
 				     IsTemperatureSensorUnits units);
+IsTemperatureSensorUnits is_temperature_sensor_get_units(IsTemperatureSensor *sensor);
+gdouble celcius_to_fahrenheit(gdouble celcius);
+gdouble fahrenheit_to_celcius(gdouble fahrenheit);
+
+
 G_END_DECLS
 
 #endif /* __IS_TEMPERATURE_SENSOR_H__ */
