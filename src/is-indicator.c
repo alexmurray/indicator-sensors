@@ -16,6 +16,7 @@
  */
 
 #include "is-indicator.h"
+#include "is-sensor-store.h"
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 
@@ -44,7 +45,7 @@ enum {
 
 struct _IsIndicatorPrivate
 {
-	GTree *sensors;
+	IsSensorStore *store;
 	GSList *enabled_sensors;
 	GSList *menu_items;
 	IsSensor *primary_sensor;
@@ -89,12 +90,7 @@ is_indicator_init(IsIndicator *self)
 
 	self->priv = priv;
 
-	/* sensors is a dual level tree, the first level is each family - for
-	   each family there is a tree of sensors */
-	priv->sensors = g_tree_new_full((GCompareDataFunc)g_strcmp0,
-					NULL,
-					g_free,
-					(GDestroyNotify)g_tree_unref);
+	priv->store = is_sensor_store_new();
 }
 
 static void
@@ -157,14 +153,15 @@ is_indicator_finalize(GObject *object)
 	IsIndicator *self = (IsIndicator *)object;
 	IsIndicatorPrivate *priv = self->priv;
 
-	g_tree_unref(priv->sensors);
+	g_object_unref(priv->store);
 	g_slist_foreach(priv->enabled_sensors, (GFunc)g_object_unref, NULL);
 	g_slist_free(priv->enabled_sensors);
 
 	G_OBJECT_CLASS(is_indicator_parent_class)->finalize(object);
 }
 
-static void activate_action(GtkAction *action);
+static void activate_action(GtkAction *action,
+			    IsIndicator *self);
 
 static GtkActionEntry entries[] = {
 	{ "Preferences", "application-preferences", N_("_Preferences"), NULL,
@@ -179,19 +176,56 @@ static const gchar *ui_info =
 "  </popup>"
 "</ui>";
 
-static void activate_action(GtkAction *action)
+static void activate_action(GtkAction *action,
+			    IsIndicator *self)
 {
+	IsIndicatorPrivate *priv;
 	GtkWidget *dialog;
+	GtkWidget *scrolled_window;
+	GtkWidget *tree_view;
+	GtkCellRenderer *renderer;
+	GtkTreeViewColumn *col;
 
+	priv = self->priv;
 	g_debug("activated action %s", gtk_action_get_name(action));
 
+	tree_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(priv->store));
+	/* id column */
+	renderer = gtk_cell_renderer_text_new();
+	col = gtk_tree_view_column_new_with_attributes(_("ID"),
+						       renderer,
+						       "text", IS_SENSOR_STORE_COL_ID,
+						       NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), col);
+
+	col = gtk_tree_view_column_new_with_attributes(_("Label"),
+						       renderer,
+						       "text", IS_SENSOR_STORE_COL_LABEL,
+						       NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), col);
+
+	renderer = gtk_cell_renderer_toggle_new();
+	col = gtk_tree_view_column_new_with_attributes(_("Enabled"),
+						       renderer,
+						       "active", IS_SENSOR_STORE_COL_ENABLED,
+						       NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), col);
+	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+				       GTK_POLICY_AUTOMATIC,
+				       GTK_POLICY_AUTOMATIC);
+	gtk_container_add(GTK_CONTAINER(scrolled_window), tree_view);
 	dialog = gtk_dialog_new_with_buttons(_("Preferences"),
 					     NULL,
 					     0,
 					     GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 					     NULL);
+	gtk_window_set_default_size(GTK_WINDOW(dialog), 600, 500);
+
 	g_signal_connect_swapped(dialog, "response",
 				 G_CALLBACK(gtk_widget_destroy), dialog);
+	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
+			  scrolled_window);
 	gtk_widget_show_all(dialog);
 }
 
@@ -411,7 +445,6 @@ is_indicator_add_sensor(IsIndicator *self,
 			IsSensor *sensor)
 {
 	IsIndicatorPrivate *priv;
-	GTree *sensors;
 	gboolean ret = FALSE;
 
 	g_return_val_if_fail(IS_IS_INDICATOR(self), FALSE);
@@ -419,33 +452,10 @@ is_indicator_add_sensor(IsIndicator *self,
 
 	priv = self->priv;
 
-	sensors = g_tree_lookup(priv->sensors, is_sensor_get_family(sensor));
-
-	if (!sensors) {
-		sensors = g_tree_new_full((GCompareDataFunc)g_strcmp0,
-					  NULL,
-					  NULL,
-					  g_object_unref);
-		g_tree_insert(priv->sensors,
-			      g_strdup(is_sensor_get_family(sensor)),
-			      sensors);
-		g_debug("inserted family %s", is_sensor_get_family(sensor));
-	} else if (g_tree_lookup(sensors, is_sensor_get_id(sensor))) {
-		g_warning("sensor with id %s already exists for family %s, not adding duplicate",
-			  is_sensor_get_id(sensor), is_sensor_get_family(sensor));
-		goto out;
-	}
-	g_tree_insert(sensors,
-		      g_strdup(is_sensor_get_id(sensor)),
-		      g_object_ref(sensor));
-	g_debug("inserted sensor with id %s for family %s",
-		is_sensor_get_id(sensor), is_sensor_get_family(sensor));
-	ret = TRUE;
-
+	ret = is_sensor_store_add_sensor(priv->store, sensor, TRUE);
 	if (ret) {
 		enable_sensor(self, sensor);
 	}
-
 out:
 	return ret;
 }
@@ -463,15 +473,7 @@ is_indicator_remove_all_sensors(IsIndicator *self,
 
 	priv = self->priv;
 
-	sensors = g_tree_lookup(priv->sensors, family);
-
-	if (sensors) {
-		g_tree_foreach(sensors,
-			       (GTraverseFunc)disable_sensor_from_tree,
-			       self);
-		g_tree_remove(priv->sensors, family);
-		ret = TRUE;
-	}
+	ret = is_sensor_store_remove_family(priv->store, family);
 
 out:
 	return ret;
