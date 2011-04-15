@@ -39,6 +39,7 @@ on_plugin_list_notify(PeasEngine *engine,
 int main(int argc, char **argv)
 {
 	IsIndicator *indicator;
+	IsManager *manager;
 	gchar *plugin_dir;
 	PeasEngine *engine;
 	PeasExtensionSet *set;
@@ -69,13 +70,13 @@ int main(int argc, char **argv)
 	peas_engine_add_search_path(engine, plugin_dir, NULL);
 	g_free(plugin_dir);
 
+	manager = is_manager_new();
 	/* create indicator - TODO: fixup icon name etc */
-	indicator = is_indicator_new(PACKAGE, PACKAGE);
+	indicator = is_indicator_new(PACKAGE, PACKAGE, manager);
 
-	/* TODO: methinks the is-indicator should do this itself */
-	/* create extension set and set indicator as object */
+	/* create extension set and set manager as object */
 	set = peas_extension_set_new(engine, PEAS_TYPE_ACTIVATABLE,
-				     "object", indicator, NULL);
+				     "object", manager, NULL);
 
 	/* activate all activatable extensions */
 	peas_extension_set_call(set, "activate");

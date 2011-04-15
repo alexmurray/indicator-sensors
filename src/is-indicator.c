@@ -16,8 +16,7 @@
  */
 
 #include "is-indicator.h"
-#include "is-sensor-store.h"
-#include <gtk/gtk.h>
+#include "is-manager.h"
 #include <glib/gi18n.h>
 
 G_DEFINE_TYPE (IsIndicator, is_indicator, APP_INDICATOR_TYPE);
@@ -39,17 +38,15 @@ static guint signals[LAST_SIGNAL] = {0};
 
 /* properties */
 enum {
-	PROP_DUMMY = 1,
+	PROP_MANAGER = 1,
 	LAST_PROPERTY
 };
 
 struct _IsIndicatorPrivate
 {
-	IsSensorStore *store;
-	GSList *enabled_sensors;
+	IsManager *manager;
 	GSList *menu_items;
 	IsSensor *primary_sensor;
-	guint enabled_id;
 };
 
 static void
@@ -64,12 +61,11 @@ is_indicator_class_init(IsIndicatorClass *klass)
 	gobject_class->dispose = is_indicator_dispose;
 	gobject_class->finalize = is_indicator_finalize;
 
-	g_object_class_install_property(gobject_class, PROP_DUMMY,
-					g_param_spec_uint("dummy", "dummy property",
-							  "dummy property blurp.",
-							  0, G_MAXUINT,
-							  0,
-							  G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+	g_object_class_install_property(gobject_class, PROP_MANAGER,
+					g_param_spec_object("manager", "manager property",
+							    "manager property blurp.",
+							    IS_TYPE_MANAGER,
+							    G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 	signals[SIGNAL_DUMMY] = g_signal_new("dummy",
 					     G_OBJECT_CLASS_TYPE(klass),
@@ -89,8 +85,6 @@ is_indicator_init(IsIndicator *self)
 					    IsIndicatorPrivate);
 
 	self->priv = priv;
-
-	priv->store = is_sensor_store_new();
 }
 
 static void
@@ -104,8 +98,8 @@ is_indicator_get_property(GObject *object,
 	(void)priv;
 
 	switch (property_id) {
-	case PROP_DUMMY:
-		g_value_set_uint(value, 0);
+	case PROP_MANAGER:
+		g_value_set_object(value, priv->manager);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -120,12 +114,9 @@ is_indicator_set_property(GObject *object,
 	IsIndicator *self = IS_INDICATOR(object);
 	IsIndicatorPrivate *priv = self->priv;
 
-	/* Make compiler happy */
-	(void)priv;
-
 	switch (property_id) {
-	case PROP_DUMMY:
-		g_value_get_uint(value);
+	case PROP_MANAGER:
+		priv->manager = g_object_ref(g_value_get_object(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -140,10 +131,8 @@ is_indicator_dispose(GObject *object)
 	IsIndicator *self = (IsIndicator *)object;
 	IsIndicatorPrivate *priv = self->priv;
 
-	if (priv->enabled_id) {
-		g_source_remove(priv->enabled_id);
-		priv->enabled_id = 0;
-	}
+	(void)priv;
+
 	G_OBJECT_CLASS(is_indicator_parent_class)->dispose(object);
 }
 
@@ -153,9 +142,7 @@ is_indicator_finalize(GObject *object)
 	IsIndicator *self = (IsIndicator *)object;
 	IsIndicatorPrivate *priv = self->priv;
 
-	g_object_unref(priv->store);
-	g_slist_foreach(priv->enabled_sensors, (GFunc)g_object_unref, NULL);
-	g_slist_free(priv->enabled_sensors);
+	g_object_unref(priv->manager);
 
 	G_OBJECT_CLASS(is_indicator_parent_class)->finalize(object);
 }
@@ -182,39 +169,16 @@ static void activate_action(GtkAction *action,
 	IsIndicatorPrivate *priv;
 	GtkWidget *dialog;
 	GtkWidget *scrolled_window;
-	GtkWidget *tree_view;
-	GtkCellRenderer *renderer;
-	GtkTreeViewColumn *col;
 
 	priv = self->priv;
 	g_debug("activated action %s", gtk_action_get_name(action));
 
-	tree_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(priv->store));
-	/* id column */
-	renderer = gtk_cell_renderer_text_new();
-	col = gtk_tree_view_column_new_with_attributes(_("ID"),
-						       renderer,
-						       "text", IS_SENSOR_STORE_COL_ID,
-						       NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), col);
-
-	col = gtk_tree_view_column_new_with_attributes(_("Label"),
-						       renderer,
-						       "text", IS_SENSOR_STORE_COL_LABEL,
-						       NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), col);
-
-	renderer = gtk_cell_renderer_toggle_new();
-	col = gtk_tree_view_column_new_with_attributes(_("Enabled"),
-						       renderer,
-						       "active", IS_SENSOR_STORE_COL_ENABLED,
-						       NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), col);
 	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
 				       GTK_POLICY_AUTOMATIC,
 				       GTK_POLICY_AUTOMATIC);
-	gtk_container_add(GTK_CONTAINER(scrolled_window), tree_view);
+	gtk_container_add(GTK_CONTAINER(scrolled_window),
+			  GTK_WIDGET(priv->manager));
 	dialog = gtk_dialog_new_with_buttons(_("Preferences"),
 					     NULL,
 					     0,
@@ -231,7 +195,8 @@ static void activate_action(GtkAction *action,
 
 IsIndicator *
 is_indicator_new(const gchar *id,
-		 const gchar *icon_name)
+		 const gchar *icon_name,
+		 IsManager *manager)
 {
 	GtkActionGroup *action_group;
 	GtkUIManager *ui_manager;
@@ -242,6 +207,7 @@ is_indicator_new(const gchar *id,
 					  "id", id,
 					  "icon-name", icon_name,
 					  "category", "Hardware",
+					  "manager", manager,
 					  NULL);
 	action_group = gtk_action_group_new("AppActions");
 	gtk_action_group_add_actions(action_group,
@@ -264,17 +230,6 @@ is_indicator_new(const gchar *id,
 	app_indicator_set_menu(self, GTK_MENU(menu));
 
 	return IS_INDICATOR(self);
-}
-
-static gboolean
-update_sensors(IsIndicator *self)
-{
-	g_return_if_fail(IS_IS_INDICATOR(self));
-
-	g_slist_foreach(self->priv->enabled_sensors,
-			(GFunc)is_sensor_update_value,
-			self);
-	return TRUE;
 }
 
 static void
@@ -319,8 +274,9 @@ sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
 }
 
 static void
-disable_sensor(IsIndicator *self,
-	       IsSensor *sensor)
+sensor_disabled(IsManager *manager,
+		IsSensor *sensor,
+		IsIndicator *self)
 {
 	IsIndicatorPrivate *priv = self->priv;
 	GtkWidget *menu_item;
@@ -344,12 +300,6 @@ disable_sensor(IsIndicator *self,
 	g_signal_handlers_disconnect_by_func(sensor,
 					     sensor_error,
 					     self);
-	priv->enabled_sensors = g_slist_remove(priv->enabled_sensors,
-					       sensor);
-	if (!priv->enabled_sensors) {
-		g_source_remove(priv->enabled_id);
-		priv->enabled_id = 0;
-	}
 }
 
 static void
@@ -377,16 +327,9 @@ sensor_menu_item_activated(GtkMenuItem *menu_item,
 }
 
 static void
-disable_sensor_from_tree(const gchar *family,
-			 IsSensor *sensor,
-			 IsIndicator *self)
-{
-	disable_sensor(self, sensor);
-}
-
-static void
-enable_sensor(IsIndicator *self,
-	      IsSensor *sensor)
+sensor_enabled(IsManager *manager,
+	       IsSensor *sensor,
+	       IsIndicator *self)
 {
 	IsIndicatorPrivate *priv = self->priv;
 	GtkMenu *menu;
@@ -394,17 +337,6 @@ enable_sensor(IsIndicator *self,
 	GtkWidget *hbox;
 	GtkWidget *label;
 
-	/* debug - enable sensor */
-	g_debug("enabling sensor [%s]:%s",
-		is_sensor_get_family(sensor),
-		is_sensor_get_id(sensor));
-	if (!priv->enabled_sensors) {
-		priv->enabled_id = g_timeout_add_seconds(5,
-							 (GSourceFunc)update_sensors,
-							 self);
-	}
-	priv->enabled_sensors = g_slist_append(priv->enabled_sensors,
-					       g_object_ref(sensor));
 	g_signal_connect(sensor, "notify::value",
 			 G_CALLBACK(sensor_label_or_value_notify),
 			 self);
@@ -435,46 +367,5 @@ enable_sensor(IsIndicator *self,
 	g_object_set_data(G_OBJECT(menu_item), "sensor", sensor);
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-
-	/* finally update the value of this sensor */
-	is_sensor_update_value(sensor);
 }
 
-gboolean
-is_indicator_add_sensor(IsIndicator *self,
-			IsSensor *sensor)
-{
-	IsIndicatorPrivate *priv;
-	gboolean ret = FALSE;
-
-	g_return_val_if_fail(IS_IS_INDICATOR(self), FALSE);
-	g_return_val_if_fail(IS_IS_SENSOR(sensor), FALSE);
-
-	priv = self->priv;
-
-	ret = is_sensor_store_add_sensor(priv->store, sensor, TRUE);
-	if (ret) {
-		enable_sensor(self, sensor);
-	}
-out:
-	return ret;
-}
-
-gboolean
-is_indicator_remove_all_sensors(IsIndicator *self,
-				const gchar *family)
-{
-	IsIndicatorPrivate *priv;
-	GTree *sensors;
-	gboolean ret = FALSE;
-
-	g_return_val_if_fail(IS_IS_INDICATOR(self), FALSE);
-	g_return_val_if_fail(family != NULL, FALSE);
-
-	priv = self->priv;
-
-	ret = is_sensor_store_remove_family(priv->store, family);
-
-out:
-	return ret;
-}

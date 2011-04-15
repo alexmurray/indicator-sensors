@@ -22,7 +22,7 @@
 #include "is-libsensors-plugin.h"
 #include <stdlib.h>
 #include <is-temperature-sensor.h>
-#include <is-indicator.h>
+#include <is-manager.h>
 #include <sensors/sensors.h>
 #include <sensors/error.h>
 #include <glib/gi18n.h>
@@ -42,7 +42,7 @@ enum {
 
 struct _IsLibsensorsPluginPrivate
 {
-	IsIndicator *indicator;
+	IsManager *manager;
 	gboolean inited;
 	GHashTable *sensor_chip_names;
 };
@@ -59,7 +59,7 @@ is_libsensors_plugin_set_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_OBJECT:
-		plugin->priv->indicator = IS_INDICATOR(g_value_dup_object(value));
+		plugin->priv->manager = IS_MANAGER(g_value_dup_object(value));
 		break;
 
 	default:
@@ -78,7 +78,7 @@ is_libsensors_plugin_get_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_OBJECT:
-		g_value_set_object(value, plugin->priv->indicator);
+		g_value_set_object(value, plugin->priv->manager);
 		break;
 
 	default:
@@ -302,7 +302,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		g_signal_connect(sensor, "update-value",
 				 G_CALLBACK(update_sensor_value),
 				 self);
-		is_indicator_add_sensor(priv->indicator, sensor);
+		is_manager_add_sensor(priv->manager, sensor);
 		free(label);
 	}
 	g_free(chip_name_string);
@@ -319,7 +319,7 @@ is_libsensors_plugin_activate(PeasActivatable *activatable)
 	int i = 0;
         int nr = 0;
 
-	/* search for sensors and add them to indicator */
+	/* search for sensors and add them to manager */
 	if (!priv->inited) {
 		g_warning("libsensors is not inited, unable to find sensors");
 		goto out;
@@ -339,8 +339,8 @@ is_libsensors_plugin_deactivate(PeasActivatable *activatable)
 	IsLibsensorsPlugin *plugin = IS_LIBSENSORS_PLUGIN(activatable);
 	IsLibsensorsPluginPrivate *priv = plugin->priv;
 
-	/* remove sensors from indicator */
-	is_indicator_remove_all_sensors(priv->indicator, "libsensors");
+	/* remove sensors from manager */
+	is_manager_remove_all_sensors(priv->manager, "libsensors");
 }
 
 static void

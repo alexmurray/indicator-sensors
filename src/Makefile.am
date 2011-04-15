@@ -20,6 +20,8 @@ indicator_sensors_SOURCES = indicator-sensors.c \
 	is-sensor.c \
 	is-temperature-sensor.h \
 	is-temperature-sensor.c \
-	is-sensor-store.h \
-	is-sensor-store.c
+	is-store.h \
+	is-store.c \
+	is-manager.h \
+	is-manager.c
 

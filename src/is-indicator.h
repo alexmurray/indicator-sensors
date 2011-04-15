@@ -20,6 +20,7 @@
 #define __IS_INDICATOR_H__
 
 #include <libappindicator/app-indicator.h>
+#include "is-manager.h"
 #include "is-sensor.h"
 
 G_BEGIN_DECLS
@@ -61,8 +62,8 @@ struct _IsIndicator
 };
 
 GType is_indicator_get_type(void) G_GNUC_CONST;
-IsIndicator *is_indicator_new(const gchar *id, const gchar *icon_name);
-gboolean is_indicator_add_sensor(IsIndicator *self, IsSensor *sensor);
+IsIndicator *is_indicator_new(const gchar *id, const gchar *icon_name,
+			      IsManager *manager);
 
 G_END_DECLS
 
