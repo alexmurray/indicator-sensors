@@ -120,47 +120,22 @@ is_manager_class_init(IsManagerClass *klass)
 }
 
 static gboolean
-process_store(GtkTreeModel *model,
-	      GtkTreePath *path,
-	      GtkTreeIter *iter,
-	      IsManager *self)
-{
-	IsManagerPrivate *priv;
-	gboolean enabled;
-	IsSensor *sensor;
-
-	priv = self->priv;
-
-	gtk_tree_model_get(model, iter,
-			   IS_STORE_COL_ENABLED, &enabled,
-			   -1);
-
-	if (!enabled) {
-		goto out;
-	}
-	gtk_tree_model_get(model, iter,
-			   IS_STORE_COL_SENSOR, &sensor,
-			   -1);
-	if (!sensor) {
-		goto out;
-	}
-
-	priv->enabled_sensors = g_slist_append(priv->enabled_sensors,
-					       g_object_ref(sensor));
-out:
-	/* always keep iterating */
-	return FALSE;
-}
-
-static gboolean
 update_sensors(IsManager *self)
 {
+	IsManagerPrivate *priv;
+
 	g_return_if_fail(IS_IS_MANAGER(self));
 
-	g_slist_foreach(self->priv->enabled_sensors,
+	priv = self->priv;
+	g_slist_foreach(priv->enabled_sensors,
 			(GFunc)is_sensor_update_value,
-			self);
-	return TRUE;
+			NULL);
+	/* only keep going if have sensors to poll */
+	if (!priv->enabled_sensors) {
+		g_source_remove(priv->poll_timeout_id);
+		priv->poll_timeout_id = 0;
+	}
+	return priv->enabled_sensors != NULL;
 }
 
 static void
@@ -243,7 +218,6 @@ is_manager_set_property(GObject *object,
 	}
 }
 
-
 static void
 is_manager_dispose(GObject *object)
 {
@@ -264,7 +238,6 @@ is_manager_finalize(GObject *object)
 	IsManager *self = (IsManager *)object;
 	IsManagerPrivate *priv = self->priv;
 
-	g_slist_foreach(priv->enabled_sensors, (GFunc)g_object_unref, NULL);
 	g_slist_free(priv->enabled_sensors);
 
 	G_OBJECT_CLASS(is_manager_parent_class)->finalize(object);
@@ -312,30 +285,98 @@ is_manager_add_sensor(IsManager *self,
 		      gboolean enabled)
 {
 	IsManagerPrivate *priv;
+	gboolean ret = FALSE;
 
 	g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
 	g_return_val_if_fail(IS_IS_SENSOR(sensor), FALSE);
 
 	priv = self->priv;
 
-	return is_store_add_sensor(priv->store, sensor, enabled);
+	ret = is_store_add_sensor(priv->store, sensor, enabled);
+	if (!ret) {
+		goto out;
+	}
+	g_signal_emit(self, signals[SIGNAL_SENSOR_ADDED], 0, sensor);
+	if (!enabled) {
+		goto out;
+	}
+	priv->enabled_sensors = g_slist_append(priv->enabled_sensors,
+					       sensor);
+	/* get sensor to update and start polling if not already running */
+	is_sensor_update_value(sensor);
+	if (!priv->poll_timeout_id) {
+		priv->poll_timeout_id = g_timeout_add_seconds(priv->poll_timeout,
+							      (GSourceFunc)update_sensors,
+							      self);
+	}
+	g_signal_emit(self, signals[SIGNAL_SENSOR_ENABLED], 0, sensor);
+
+out:
+	return ret;
 }
 
-gboolean
+typedef struct _RemoveSensorsWithFamilyData
+{
+	IsManager *self;
+	const gchar *family;
+} RemoveSensorsWithFamilyData;
+
+static gboolean
+remove_sensors_with_family(GtkTreeModel *model,
+			   GtkTreePath *path,
+			   GtkTreeIter *iter,
+			   RemoveSensorsWithFamilyData *data)
+{
+	/* see if entry has family, and if so remove it */
+	IsManager *self;
+	IsManagerPrivate *priv;
+	IsSensor *sensor;
+	gboolean enabled;
+
+	self = data->self;
+	priv = self->priv;
+	gtk_tree_model_get(model, iter,
+			   IS_STORE_COL_SENSOR, &sensor,
+			   IS_STORE_COL_ENABLED, &enabled,
+			   -1);
+	if (!sensor)
+	{
+		goto out;
+	}
+	if (g_strcmp0(is_sensor_get_family(sensor), data->family))
+	{
+		g_object_unref(sensor);
+		goto out;
+	}
+
+	if (enabled) {
+		priv->enabled_sensors = g_slist_remove(priv->enabled_sensors,
+						       sensor);
+		g_signal_emit(self, signals[SIGNAL_SENSOR_DISABLED], 0, sensor);
+	}
+	is_store_remove_sensor(priv->store, sensor);
+	g_signal_emit(self, signals[SIGNAL_SENSOR_REMOVED], 0, sensor);
+	g_object_unref(sensor);
+
+out:
+	return FALSE;
+}
+
+void
 is_manager_remove_all_sensors(IsManager *self,
 			      const gchar *family)
 {
 	IsManagerPrivate *priv;
-	GTree *sensors;
-	gboolean ret = FALSE;
+	RemoveSensorsWithFamilyData data;
 
-	g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
-	g_return_val_if_fail(family != NULL, FALSE);
+	g_return_if_fail(IS_IS_MANAGER(self));
+	g_return_if_fail(family != NULL);
 
 	priv = self->priv;
 
-	ret = is_store_remove_family(priv->store, family);
-
-out:
-	return ret;
+	data.self = self;
+	data.family = family;
+	gtk_tree_model_foreach(GTK_TREE_MODEL(priv->store),
+			       (GtkTreeModelForeachFunc)remove_sensors_with_family,
+			       &data);
 }

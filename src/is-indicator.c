@@ -27,7 +27,12 @@ static void is_indicator_get_property(GObject *object,
 				      guint property_id, GValue *value, GParamSpec *pspec);
 static void is_indicator_set_property(GObject *object,
 				      guint property_id, const GValue *value, GParamSpec *pspec);
-
+static void sensor_enabled(IsManager *manager,
+			   IsSensor *sensor,
+			   IsIndicator *self);
+static void sensor_disabled(IsManager *manager,
+			   IsSensor *sensor,
+			   IsIndicator *self);
 /* signal enum */
 enum {
 	SIGNAL_DUMMY,
@@ -47,6 +52,7 @@ struct _IsIndicatorPrivate
 	IsManager *manager;
 	GSList *menu_items;
 	IsSensor *primary_sensor;
+	GtkWidget *prefs_dialog;
 };
 
 static void
@@ -80,11 +86,9 @@ is_indicator_class_init(IsIndicatorClass *klass)
 static void
 is_indicator_init(IsIndicator *self)
 {
-	IsIndicatorPrivate *priv =
-		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_INDICATOR,
-					    IsIndicatorPrivate);
+	self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_INDICATOR,
+						 IsIndicatorPrivate);
 
-	self->priv = priv;
 }
 
 static void
@@ -93,9 +97,6 @@ is_indicator_get_property(GObject *object,
 {
 	IsIndicator *self = IS_INDICATOR(object);
 	IsIndicatorPrivate *priv = self->priv;
-
-	/* Make compiler happy */
-	(void)priv;
 
 	switch (property_id) {
 	case PROP_MANAGER:
@@ -116,7 +117,12 @@ is_indicator_set_property(GObject *object,
 
 	switch (property_id) {
 	case PROP_MANAGER:
+		g_assert(!priv->manager);
 		priv->manager = g_object_ref(g_value_get_object(value));
+		g_signal_connect(priv->manager, "sensor-enabled",
+				 G_CALLBACK(sensor_enabled), self);
+		g_signal_connect(priv->manager, "sensor-disabled",
+				 G_CALLBACK(sensor_disabled), self);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -131,8 +137,10 @@ is_indicator_dispose(GObject *object)
 	IsIndicator *self = (IsIndicator *)object;
 	IsIndicatorPrivate *priv = self->priv;
 
-	(void)priv;
-
+	if (priv->prefs_dialog) {
+		gtk_widget_destroy(priv->prefs_dialog);
+		priv->prefs_dialog = NULL;
+	}
 	G_OBJECT_CLASS(is_indicator_parent_class)->dispose(object);
 }
 
@@ -167,69 +175,35 @@ static void activate_action(GtkAction *action,
 			    IsIndicator *self)
 {
 	IsIndicatorPrivate *priv;
-	GtkWidget *dialog;
-	GtkWidget *scrolled_window;
 
 	priv = self->priv;
 	g_debug("activated action %s", gtk_action_get_name(action));
 
-	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-				       GTK_POLICY_AUTOMATIC,
-				       GTK_POLICY_AUTOMATIC);
-	gtk_container_add(GTK_CONTAINER(scrolled_window),
-			  GTK_WIDGET(priv->manager));
-	dialog = gtk_dialog_new_with_buttons(_("Preferences"),
-					     NULL,
-					     0,
-					     GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-					     NULL);
-	gtk_window_set_default_size(GTK_WINDOW(dialog), 600, 500);
+	if (!priv->prefs_dialog) {
+		GtkWidget *scrolled_window;
+		scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+					       GTK_POLICY_AUTOMATIC,
+					       GTK_POLICY_AUTOMATIC);
+		gtk_container_add(GTK_CONTAINER(scrolled_window),
+				  GTK_WIDGET(priv->manager));
+		priv->prefs_dialog = gtk_dialog_new_with_buttons(_("Preferences"),
+								 NULL,
+								 0,
+								 GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+								 NULL);
+		gtk_window_set_default_size(GTK_WINDOW(priv->prefs_dialog), 600, 500);
 
-	g_signal_connect_swapped(dialog, "response",
-				 G_CALLBACK(gtk_widget_destroy), dialog);
-	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
-			  scrolled_window);
-	gtk_widget_show_all(dialog);
-}
-
-IsIndicator *
-is_indicator_new(const gchar *id,
-		 const gchar *icon_name,
-		 IsManager *manager)
-{
-	GtkActionGroup *action_group;
-	GtkUIManager *ui_manager;
-	GError *error = NULL;
-	GtkWidget *menu;
-
-	AppIndicator *self = g_object_new(IS_TYPE_INDICATOR,
-					  "id", id,
-					  "icon-name", icon_name,
-					  "category", "Hardware",
-					  "manager", manager,
-					  NULL);
-	action_group = gtk_action_group_new("AppActions");
-	gtk_action_group_add_actions(action_group,
-				     entries, n_entries,
-				     self);
-
-	ui_manager = gtk_ui_manager_new();
-	gtk_ui_manager_insert_action_group(ui_manager, action_group, 0);
-	if (!gtk_ui_manager_add_ui_from_string(ui_manager, ui_info, -1, &error)) {
-		g_error("Failed to build menus: %s\n", error->message);
+		g_signal_connect(priv->prefs_dialog, "response",
+				 G_CALLBACK(gtk_widget_hide), NULL);
+		g_signal_connect(priv->prefs_dialog, "delete-event",
+				 G_CALLBACK(gtk_widget_hide_on_delete),
+				 NULL);
+		gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(priv->prefs_dialog))),
+				  scrolled_window);
+		gtk_widget_show_all(priv->prefs_dialog);
 	}
-
-	menu = gtk_ui_manager_get_widget(ui_manager, "/ui/Indicator");
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu),
-			      gtk_separator_menu_item_new());
-	app_indicator_set_status(self, APP_INDICATOR_STATUS_ACTIVE);
-	app_indicator_set_attention_icon(self, "sensors-indicator");
-	/* TODO: translate me */
-	app_indicator_set_label(self, _("No sensors"), _("No Sensors"));
-	app_indicator_set_menu(self, GTK_MENU(menu));
-
-	return IS_INDICATOR(self);
+	gtk_window_present(GTK_WINDOW(priv->prefs_dialog));
 }
 
 static void
@@ -367,5 +341,45 @@ sensor_enabled(IsManager *manager,
 	g_object_set_data(G_OBJECT(menu_item), "sensor", sensor);
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+	update_sensor_menu_item_label(self, sensor, GTK_MENU_ITEM(menu_item));
 }
 
+IsIndicator *
+is_indicator_new(const gchar *id,
+		 const gchar *icon_name,
+		 IsManager *manager)
+{
+	GtkActionGroup *action_group;
+	GtkUIManager *ui_manager;
+	GError *error = NULL;
+	GtkWidget *menu;
+
+	AppIndicator *self = g_object_new(IS_TYPE_INDICATOR,
+					  "id", id,
+					  "icon-name", icon_name,
+					  "category", "Hardware",
+					  "manager", manager,
+					  NULL);
+
+	action_group = gtk_action_group_new("AppActions");
+	gtk_action_group_add_actions(action_group,
+				     entries, n_entries,
+				     self);
+
+	ui_manager = gtk_ui_manager_new();
+	gtk_ui_manager_insert_action_group(ui_manager, action_group, 0);
+	if (!gtk_ui_manager_add_ui_from_string(ui_manager, ui_info, -1, &error)) {
+		g_error("Failed to build menus: %s\n", error->message);
+	}
+
+	menu = gtk_ui_manager_get_widget(ui_manager, "/ui/Indicator");
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu),
+			      gtk_separator_menu_item_new());
+	app_indicator_set_status(self, APP_INDICATOR_STATUS_ACTIVE);
+	app_indicator_set_attention_icon(self, "sensors-indicator");
+	/* TODO: translate me */
+	app_indicator_set_label(self, _("No sensors"), _("No Sensors"));
+	app_indicator_set_menu(self, GTK_MENU(menu));
+
+	return IS_INDICATOR(self);
+}

@@ -778,3 +778,35 @@ is_store_set_enabled(IsStore *self,
 	}
 	return ret;
 }
+
+gboolean
+is_store_remove_sensor(IsStore *self,
+		       GtkTreeIter *iter)
+{
+	IsStorePrivate *priv;
+	GtkTreePath *path;
+	IsStoreFamily *family;
+
+	g_return_val_if_fail(IS_IS_STORE(self), FALSE);
+	g_return_val_if_fail(iter != NULL, FALSE);
+
+	priv = self->priv;
+
+	g_return_val_if_fail(iter->stamp == priv->stamp, FALSE);
+	g_return_val_if_fail(iter->user_data && iter->user_data2, FALSE);
+
+	g_sequence_remove((GSequenceIter *)iter->user_data2);
+	path = gtk_tree_model_get_path(GTK_TREE_MODEL(self), iter);
+	gtk_tree_model_row_deleted(GTK_TREE_MODEL(self), path);
+
+	/* if this was last sensor in family then need to remove that as well */
+	family = g_sequence_get((GSequenceIter *)iter->user_data);
+	if (g_sequence_get_length(family->entries) == 0) {
+		g_sequence_remove(family->iter);
+		gtk_tree_path_up(path);
+		gtk_tree_model_row_deleted(GTK_TREE_MODEL(self), path);
+	}
+	gtk_tree_path_free(path);
+	return TRUE;
+}
+
