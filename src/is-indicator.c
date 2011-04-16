@@ -30,6 +30,7 @@ static void is_indicator_set_property(GObject *object,
 				      guint property_id, const GValue *value, GParamSpec *pspec);
 static void sensor_enabled(IsManager *manager,
 			   IsSensor *sensor,
+			   gint position,
 			   IsIndicator *self);
 static void sensor_disabled(IsManager *manager,
 			   IsSensor *sensor,
@@ -89,7 +90,6 @@ is_indicator_init(IsIndicator *self)
 {
 	self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_INDICATOR,
 						 IsIndicatorPrivate);
-
 }
 
 static void
@@ -289,6 +289,7 @@ sensor_menu_item_activated(GtkMenuItem *menu_item,
 static void
 sensor_enabled(IsManager *manager,
 	       IsSensor *sensor,
+	       gint position,
 	       IsIndicator *self)
 {
 	IsIndicatorPrivate *priv = self->priv;
@@ -326,7 +327,7 @@ sensor_enabled(IsManager *manager,
 	g_object_set_data(G_OBJECT(sensor), "menu-item", menu_item);
 	g_object_set_data(G_OBJECT(menu_item), "sensor", sensor);
 
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+	gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menu_item, position);
 	update_sensor_menu_item_label(self, sensor, GTK_MENU_ITEM(menu_item));
 }
 

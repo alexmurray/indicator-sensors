@@ -84,7 +84,9 @@ gboolean is_store_set_label(IsStore *self,
 gboolean is_store_set_enabled(IsStore *self,
 			      GtkTreeIter *iter,
 			      gboolean enabled);
-
+gboolean is_store_get_iter_for_sensor(IsStore *self,
+				      IsSensor *sensor,
+				      GtkTreeIter *iter);
 G_END_DECLS
 
 #endif /* __IS_STORE_H__ */

@@ -16,6 +16,7 @@
  */
 
 #include "is-manager.h"
+#include "marshallers.h"
 #include <glib/gi18n.h>
 
 G_DEFINE_TYPE(IsManager, is_manager, GTK_TYPE_TREE_VIEW);
@@ -104,9 +105,9 @@ is_manager_class_init(IsManagerClass *klass)
 						      G_SIGNAL_RUN_LAST,
 						      0,
 						      NULL, NULL,
-						      g_cclosure_marshal_VOID__OBJECT,
-						      G_TYPE_NONE, 1,
-						      IS_TYPE_SENSOR);
+						      g_cclosure_user_marshal_VOID__OBJECT_INT,
+						      G_TYPE_NONE, 2,
+						      IS_TYPE_SENSOR, G_TYPE_INT);
 
 	signals[SIGNAL_SENSOR_DISABLED] = g_signal_new("sensor-disabled",
 						       G_OBJECT_CLASS_TYPE(klass),
@@ -138,6 +139,125 @@ update_sensors(IsManager *self)
 	return priv->enabled_sensors != NULL;
 }
 
+static void sensor_label_edited(GtkCellRendererText *renderer,
+				gchar *path_string,
+				gchar *new_label,
+				IsManager *self)
+{
+	IsManagerPrivate *priv;
+	GtkTreePath *path;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	IsSensor *sensor;
+
+	priv = self->priv;
+
+	path = gtk_tree_path_new_from_string(path_string);
+	model = GTK_TREE_MODEL(priv->store);
+	gtk_tree_model_get_iter(model, &iter, path);
+	gtk_tree_model_get(model, &iter,
+			   IS_STORE_COL_SENSOR, &sensor,
+			   -1);
+	is_sensor_set_label(sensor, new_label);
+	g_object_unref(sensor);
+	gtk_tree_path_free(path);
+}
+
+static int
+sensor_cmp_by_path(IsSensor *a, IsSensor *b, IsManager *self)
+{
+	IsManagerPrivate *priv;
+	GtkTreeIter a_iter, b_iter;
+	GtkTreePath *a_path, *b_path;
+	gchar *a_path_string, *b_path_string;
+	gint ret;
+
+	priv = self->priv;
+
+	is_store_get_iter_for_sensor(priv->store, a, &a_iter);
+	is_store_get_iter_for_sensor(priv->store, b, &b_iter);
+	a_path = gtk_tree_model_get_path(GTK_TREE_MODEL(priv->store), &a_iter);
+	b_path = gtk_tree_model_get_path(GTK_TREE_MODEL(priv->store), &b_iter);
+	a_path_string = gtk_tree_path_to_string(a_path);
+	b_path_string = gtk_tree_path_to_string(b_path);
+	ret = g_strcmp0(a_path_string, b_path_string);
+	g_free(b_path_string);
+	g_free(a_path_string);
+	gtk_tree_path_free(b_path);
+	gtk_tree_path_free(a_path);
+	return ret;
+}
+
+static void
+enable_sensor(IsManager *self,
+	      IsSensor *sensor)
+{
+	IsManagerPrivate *priv;
+
+	priv = self->priv;
+	priv->enabled_sensors = g_slist_insert_sorted_with_data(priv->enabled_sensors,
+								sensor,
+								(GCompareDataFunc)sensor_cmp_by_path,
+								self);
+
+	/* get sensor to update and start polling if not already running */
+	is_sensor_update_value(sensor);
+	if (!priv->poll_timeout_id) {
+		priv->poll_timeout_id = g_timeout_add_seconds(priv->poll_timeout,
+							      (GSourceFunc)update_sensors,
+							      self);
+	}
+	g_signal_emit(self, signals[SIGNAL_SENSOR_ENABLED], 0, sensor);
+}
+
+static void
+disable_sensor(IsManager *self,
+	       IsSensor *sensor)
+{
+	IsManagerPrivate *priv;
+
+	priv = self->priv;
+	priv->enabled_sensors = g_slist_remove(priv->enabled_sensors,
+					       sensor);
+
+	if (!priv->enabled_sensors) {
+		g_source_remove(priv->poll_timeout_id);
+		priv->poll_timeout_id = 0;
+	}
+	g_signal_emit(self, signals[SIGNAL_SENSOR_DISABLED], 0, sensor);
+}
+
+static void sensor_toggled(GtkCellRendererToggle *renderer,
+			   gchar *path_string,
+			   IsManager *self)
+{
+	IsManagerPrivate *priv;
+	GtkTreePath *path;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	IsSensor *sensor;
+	gboolean enabled;
+
+	priv = self->priv;
+
+	path = gtk_tree_path_new_from_string(path_string);
+	model = GTK_TREE_MODEL(priv->store);
+	gtk_tree_model_get_iter(model, &iter, path);
+	gtk_tree_model_get(model, &iter,
+			   IS_STORE_COL_SENSOR, &sensor,
+			   -1);
+	/* as was toggled need to invert */
+	enabled = !gtk_cell_renderer_toggle_get_active(renderer);
+	is_store_set_enabled(priv->store, &iter, enabled);
+	if (enabled) {
+		enable_sensor(self, sensor);
+	} else {
+		disable_sensor(self, sensor);
+	}
+	g_object_unref(sensor);
+	gtk_tree_path_free(path);
+}
+
 static void
 is_manager_init(IsManager *self)
 {
@@ -167,6 +287,8 @@ is_manager_init(IsManager *self)
 						       renderer,
 						       "text", IS_STORE_COL_LABEL,
 						       NULL);
+	g_signal_connect(renderer, "edited", G_CALLBACK(sensor_label_edited),
+			 self);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
 
 	renderer = gtk_cell_renderer_toggle_new();
@@ -174,6 +296,8 @@ is_manager_init(IsManager *self)
 						       renderer,
 						       "active", IS_STORE_COL_ENABLED,
 						       NULL);
+	g_signal_connect(renderer, "toggled", G_CALLBACK(sensor_toggled),
+			 self);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
 
 }
@@ -278,7 +402,6 @@ is_manager_set_poll_timeout(IsManager *self,
 	}
 }
 
-
 gboolean
 is_manager_add_sensor(IsManager *self,
 		      IsSensor *sensor,
@@ -300,16 +423,7 @@ is_manager_add_sensor(IsManager *self,
 	if (!enabled) {
 		goto out;
 	}
-	priv->enabled_sensors = g_slist_append(priv->enabled_sensors,
-					       sensor);
-	/* get sensor to update and start polling if not already running */
-	is_sensor_update_value(sensor);
-	if (!priv->poll_timeout_id) {
-		priv->poll_timeout_id = g_timeout_add_seconds(priv->poll_timeout,
-							      (GSourceFunc)update_sensors,
-							      self);
-	}
-	g_signal_emit(self, signals[SIGNAL_SENSOR_ENABLED], 0, sensor);
+	enable_sensor(self, sensor);
 
 out:
 	return ret;
@@ -350,9 +464,7 @@ remove_sensors_with_family(GtkTreeModel *model,
 	}
 
 	if (enabled) {
-		priv->enabled_sensors = g_slist_remove(priv->enabled_sensors,
-						       sensor);
-		g_signal_emit(self, signals[SIGNAL_SENSOR_DISABLED], 0, sensor);
+		disable_sensor(self, sensor);
 	}
 	is_store_remove_sensor(priv->store, sensor);
 	g_signal_emit(self, signals[SIGNAL_SENSOR_REMOVED], 0, sensor);

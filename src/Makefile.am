@@ -12,8 +12,19 @@ INCLUDES = -DGNOMELOCALEDIR=\""$(datadir)/locale/"\" \
 
 LIBS = $(GLIB_LIBS) $(GTK_LIBS) $(APPINDICATOR_LIBS) $(LIBPEAS_LIBS)
 
+marshallers.h: marshallers.list
+	glib-genmarshal --header $< > $@
+
+marshallers.c: marshallers.list
+	glib-genmarshal --body $< > $@
+
+BUILT_SOURCES = marshallers.h marshallers.c
+
 bin_PROGRAMS = indicator-sensors
-indicator_sensors_SOURCES = indicator-sensors.c \
+indicator_sensors_SOURCES = \
+	marshallers.h \
+	marshallers.c \
+	indicator-sensors.c \
 	is-indicator.h \
 	is-indicator.c \
 	is-sensor.h \

@@ -26,32 +26,32 @@ static void is_store_tree_model_init(GtkTreeModelIface *iface);
 static GtkTreeModelFlags is_store_get_flags(GtkTreeModel *tree_model);
 static gint is_store_get_n_columns(GtkTreeModel *tree_model);
 static GType is_store_get_column_type(GtkTreeModel *tree_model,
-					     gint index);
+				      gint index);
 static gboolean is_store_get_iter(GtkTreeModel *tree_model,
-					 GtkTreeIter *iter,
-					 GtkTreePath *path);
+				  GtkTreeIter *iter,
+				  GtkTreePath *path);
 static GtkTreePath *is_store_get_path(GtkTreeModel *tree_model,
-					     GtkTreeIter *iter);
+				      GtkTreeIter *iter);
 static void is_store_get_value(GtkTreeModel *tree_model,
-				      GtkTreeIter *iter,
-				      gint column,
-				      GValue *value);
+			       GtkTreeIter *iter,
+			       gint column,
+			       GValue *value);
 static gboolean is_store_iter_next(GtkTreeModel *tree_model,
-					  GtkTreeIter *iter);
+				   GtkTreeIter *iter);
 static gboolean is_store_iter_children(GtkTreeModel *tree_model,
-					      GtkTreeIter *iter,
-					      GtkTreeIter *parent);
+				       GtkTreeIter *iter,
+				       GtkTreeIter *parent);
 static gboolean is_store_iter_has_child(GtkTreeModel *tree_model,
-					       GtkTreeIter *iter);
+					GtkTreeIter *iter);
 static gint is_store_iter_n_children(GtkTreeModel *tree_model,
-					    GtkTreeIter *iter);
+				     GtkTreeIter *iter);
 static gboolean is_store_iter_nth_child(GtkTreeModel *tree_model,
-					       GtkTreeIter *iter,
-					       GtkTreeIter *parent,
-					       gint n);
+					GtkTreeIter *iter,
+					GtkTreeIter *parent,
+					gint n);
 static gboolean is_store_iter_parent(GtkTreeModel *tree_model,
-					    GtkTreeIter *iter,
-					    GtkTreeIter *child);
+				     GtkTreeIter *iter,
+				     GtkTreeIter *child);
 
 G_DEFINE_TYPE_EXTENDED(IsStore, is_store, G_TYPE_OBJECT,
 		       0,
@@ -67,17 +67,14 @@ struct _IsStoreEntry
 	gboolean enabled;
 
 	/* bookkeeping */
-	IsStoreFamily *family;
 	GSequenceIter *iter;
 };
 
 static IsStoreEntry *
-entry_new(IsSensor *sensor,
-		    IsStoreFamily *family)
+entry_new(IsSensor *sensor)
 {
 	IsStoreEntry *entry = g_slice_new0(IsStoreEntry);
 	entry->sensor = g_object_ref(sensor);
-	entry->family = family;
 	return entry;
 }
 
@@ -191,41 +188,41 @@ static void is_store_tree_model_init(GtkTreeModelIface *iface)
 
 static GtkTreeModelFlags is_store_get_flags(GtkTreeModel *tree_model)
 {
-  g_return_val_if_fail(IS_IS_STORE(tree_model), (GtkTreeModelFlags)0);
+	g_return_val_if_fail(IS_IS_STORE(tree_model), (GtkTreeModelFlags)0);
 
-  return (GTK_TREE_MODEL_ITERS_PERSIST);
+	return (GTK_TREE_MODEL_ITERS_PERSIST);
 }
 
 static gint is_store_get_n_columns(GtkTreeModel *tree_model)
 {
-  g_return_val_if_fail(IS_IS_STORE(tree_model), 0);
+	g_return_val_if_fail(IS_IS_STORE(tree_model), 0);
 
-  return IS_STORE_N_COLUMNS;
+	return IS_STORE_N_COLUMNS;
 }
 
 static const GType column_types[IS_STORE_N_COLUMNS] = {
-  G_TYPE_STRING, /* IS_STORE_COL_FAMILY */
-  G_TYPE_STRING, /* IS_STORE_COL_ID */
-  G_TYPE_STRING, /* IS_STORE_COL_LABEL */
-  G_TYPE_OBJECT, /* IS_STORE_COL_SENSOR */
-  G_TYPE_BOOLEAN, /* IS_STORE_COL_ENABLED */
+	G_TYPE_STRING, /* IS_STORE_COL_FAMILY */
+	G_TYPE_STRING, /* IS_STORE_COL_ID */
+	G_TYPE_STRING, /* IS_STORE_COL_LABEL */
+	G_TYPE_OBJECT, /* IS_STORE_COL_SENSOR */
+	G_TYPE_BOOLEAN, /* IS_STORE_COL_ENABLED */
 };
 
 static GType is_store_get_column_type(GtkTreeModel *tree_model,
-                                             gint col)
+				      gint col)
 {
-  g_return_val_if_fail(IS_IS_STORE(tree_model), G_TYPE_INVALID);
-  g_return_val_if_fail((col >= 0) &&
-		       (col < IS_STORE_N_COLUMNS), G_TYPE_INVALID);
+	g_return_val_if_fail(IS_IS_STORE(tree_model), G_TYPE_INVALID);
+	g_return_val_if_fail((col >= 0) &&
+			     (col < IS_STORE_N_COLUMNS), G_TYPE_INVALID);
 
-  g_debug("returning type %s for col %d",
-	  g_type_name(column_types[col]), col);
-  return column_types[col];
+	g_debug("returning type %s for col %d",
+		g_type_name(column_types[col]), col);
+	return column_types[col];
 }
 
 gboolean is_store_get_iter(GtkTreeModel *tree_model,
-				  GtkTreeIter *iter,
-				  GtkTreePath *path)
+			   GtkTreeIter *iter,
+			   GtkTreePath *path)
 {
 	IsStore *self;
 	IsStorePrivate *priv;
@@ -279,7 +276,7 @@ gboolean is_store_get_iter(GtkTreeModel *tree_model,
 }
 
 static GtkTreePath *is_store_get_path(GtkTreeModel *tree_model,
-					     GtkTreeIter *iter)
+				      GtkTreeIter *iter)
 {
 	IsStore *self;
 	IsStorePrivate *priv;
@@ -306,9 +303,9 @@ static GtkTreePath *is_store_get_path(GtkTreeModel *tree_model,
 }
 
 static void is_store_get_value(GtkTreeModel *tree_model,
-				      GtkTreeIter *iter,
-				      gint column,
-				      GValue *value)
+			       GtkTreeIter *iter,
+			       gint column,
+			       GValue *value)
 {
 	IsStore *self;
 	IsStorePrivate *priv;
@@ -364,7 +361,7 @@ static void is_store_get_value(GtkTreeModel *tree_model,
 }
 
 static gboolean is_store_iter_next(GtkTreeModel *tree_model,
-					  GtkTreeIter *iter)
+				   GtkTreeIter *iter)
 {
 	IsStore *self;
 	IsStorePrivate *priv;
@@ -396,8 +393,8 @@ static gboolean is_store_iter_next(GtkTreeModel *tree_model,
 }
 
 static gboolean is_store_iter_children(GtkTreeModel *tree_model,
-					      GtkTreeIter *iter,
-					      GtkTreeIter *parent)
+				       GtkTreeIter *iter,
+				       GtkTreeIter *parent)
 {
 	IsStore *self;
 	IsStorePrivate *priv;
@@ -441,7 +438,7 @@ out:
 }
 
 static gboolean is_store_iter_has_child(GtkTreeModel *tree_model,
-					       GtkTreeIter *iter)
+					GtkTreeIter *iter)
 {
 	IsStore *self;
 	IsStorePrivate *priv;
@@ -462,7 +459,7 @@ static gboolean is_store_iter_has_child(GtkTreeModel *tree_model,
 }
 
 static gint is_store_iter_n_children(GtkTreeModel *tree_model,
-					    GtkTreeIter *iter)
+				     GtkTreeIter *iter)
 {
 	IsStore *self;
 	IsStorePrivate *priv;
@@ -494,9 +491,9 @@ out:
 
 
 static gboolean is_store_iter_nth_child(GtkTreeModel *tree_model,
-					       GtkTreeIter *iter,
-					       GtkTreeIter *parent,
-					       gint n)
+					GtkTreeIter *iter,
+					GtkTreeIter *parent,
+					gint n)
 {
 	IsStore *self;
 	IsStorePrivate *priv;
@@ -539,8 +536,8 @@ out:
 }
 
 static gboolean is_store_iter_parent(GtkTreeModel *tree_model,
-					    GtkTreeIter *iter,
-					    GtkTreeIter *child)
+				     GtkTreeIter *iter,
+				     GtkTreeIter *child)
 {
 	IsStore *self;
 	IsStorePrivate *priv;
@@ -563,60 +560,44 @@ static gboolean is_store_iter_parent(GtkTreeModel *tree_model,
 	return ret;
 }
 
-/**
- * Compare two entries - compares on id, but if cmp_data is non-NULL use that
- * instead of first param
- */
-static int
-entry_cmp(IsStoreEntry *a,
-	  IsStoreEntry *b,
-	  gpointer cmp_data)
-{
-	g_assert(a && (b || cmp_data));
-
-	return g_strcmp0(is_sensor_get_id(a->sensor),
-			 (cmp_data ? (gchar *)cmp_data : is_sensor_get_id(b->sensor)));
-}
-
 static IsStoreEntry *
 find_entry(IsStoreFamily *family,
 	   const gchar *id)
 {
+	GSequenceIter *iter;
 	IsStoreEntry *entry = NULL;
 
-	GSequenceIter *iter = g_sequence_lookup(family->entries,
-						(gpointer)id,
-						(GCompareDataFunc)entry_cmp,
-						(gpointer)id);
-	return iter ? (IsStoreEntry *)g_sequence_get(iter) : NULL;
-}
-
-/**
- * Compare two families - compares on name, but if cmp_data is non-NULL use that
- * instead of first param
- */
-static int
-family_cmp(IsStoreFamily *a,
-	   IsStoreFamily *b,
-	   gpointer cmp_data)
-{
-	g_assert(a && (b || cmp_data));
-	return g_strcmp0(a->name,
-			 (cmp_data ? (gchar *)cmp_data : b->name));
+	for (iter = g_sequence_get_begin_iter(family->entries);
+	     !g_sequence_iter_is_end(iter);
+	     iter = g_sequence_iter_next(iter))
+	{
+		entry = (IsStoreEntry *)(g_sequence_get(iter));
+		if (g_strcmp0(is_sensor_get_id(entry->sensor), id) == 0) {
+			break;
+		}
+		entry = NULL;
+	}
+	return entry;
 }
 
 static IsStoreFamily *
 find_family(IsStore *self,
 	    const gchar *name)
 {
+	GSequenceIter *iter;
 	IsStoreFamily *family = NULL;
-	IsStorePrivate *priv = self->priv;
 
-	GSequenceIter *iter = g_sequence_lookup(priv->families,
-						(gpointer)name,
-						(GCompareDataFunc)family_cmp,
-						(gpointer)name);
-	return iter ? (IsStoreFamily *)g_sequence_get(iter) : NULL;
+	for (iter = g_sequence_get_begin_iter(self->priv->families);
+	     !g_sequence_iter_is_end(iter);
+	     iter = g_sequence_iter_next(iter))
+	{
+		family = (IsStoreFamily *)(g_sequence_get(iter));
+		if (g_strcmp0(family->name, name) == 0) {
+			break;
+		}
+		family = NULL;
+	}
+	return family;
 }
 
 IsStore *
@@ -627,8 +608,8 @@ is_store_new(void)
 
 gboolean
 is_store_add_sensor(IsStore *self,
-			   IsSensor *sensor,
-			   gboolean enabled)
+		    IsSensor *sensor,
+		    gboolean enabled)
 {
 	IsStorePrivate *priv;
 	IsStoreFamily *family = NULL;
@@ -646,6 +627,7 @@ is_store_add_sensor(IsStore *self,
 		family = family_new(is_sensor_get_family(sensor));
 		family->iter = g_sequence_append(priv->families,
 						 family);
+		g_assert(find_family(self, is_sensor_get_family(sensor)) == family);
 		g_debug("IsStore: inserted new family %s at %d",
 			is_sensor_get_family(sensor),
 			g_sequence_iter_get_position(family->iter));
@@ -665,12 +647,14 @@ is_store_add_sensor(IsStore *self,
 			goto out;
 		}
 	}
-	entry = entry_new(sensor, family);
+	entry = entry_new(sensor);
 	entry->iter = g_sequence_append(family->entries,
 					entry);
+	g_assert(find_entry(family, is_sensor_get_id(sensor)) == entry);
 	entry->enabled = enabled;
 	g_debug("IsStore: inserted new entry %s at %d",
-		is_sensor_get_id(sensor), g_sequence_iter_get_position(entry->iter));
+		is_sensor_get_id(sensor),
+		g_sequence_iter_get_position(entry->iter));
 	iter.stamp = priv->stamp;
 	iter.user_data = family->iter;
 	iter.user_data2 = entry->iter;
@@ -686,7 +670,7 @@ out:
 
 gboolean
 is_store_remove_family(IsStore *self,
-			      const gchar *name)
+		       const gchar *name)
 {
 	IsStorePrivate *priv;
 	IsStoreFamily *family = NULL;
@@ -716,8 +700,8 @@ is_store_remove_family(IsStore *self,
 
 gboolean
 is_store_set_label(IsStore *self,
-			  GtkTreeIter *iter,
-			  const gchar *label)
+		   GtkTreeIter *iter,
+		   const gchar *label)
 {
 	IsStorePrivate *priv;
 	IsStoreEntry *entry = NULL;
@@ -749,8 +733,8 @@ is_store_set_label(IsStore *self,
 
 gboolean
 is_store_set_enabled(IsStore *self,
-			    GtkTreeIter *iter,
-			    gboolean enabled)
+		     GtkTreeIter *iter,
+		     gboolean enabled)
 {
 	IsStorePrivate *priv;
 	IsStoreEntry *entry = NULL;
@@ -810,3 +794,33 @@ is_store_remove_sensor(IsStore *self,
 	return TRUE;
 }
 
+gboolean is_store_get_iter_for_sensor(IsStore *self,
+				      IsSensor *sensor,
+				      GtkTreeIter *iter)
+{
+	IsStorePrivate *priv;
+	IsStoreFamily *family = NULL;
+	IsStoreEntry *entry = NULL;
+	gboolean ret = FALSE;
+
+	g_return_val_if_fail(IS_IS_STORE(self), FALSE);
+	g_return_val_if_fail(IS_IS_SENSOR(sensor), FALSE);
+
+	priv = self->priv;
+
+	/* we really shouldn't be getting passed sensors which we don't already
+	   have entries for */
+	family = find_family(self, is_sensor_get_family(sensor));
+	g_return_val_if_fail(family, FALSE);
+	entry = find_entry(family, is_sensor_get_id(sensor));
+	g_return_val_if_fail(entry, FALSE);
+
+	iter->stamp = priv->stamp;
+	iter->user_data = family->iter;
+	iter->user_data2 = entry->iter;
+	iter->user_data3 = NULL;
+	ret = TRUE;
+
+out:
+	return ret;
+}
