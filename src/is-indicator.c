@@ -17,6 +17,7 @@
 
 #include "is-indicator.h"
 #include "is-manager.h"
+#include "is-preferences-dialog.h"
 #include <glib/gi18n.h>
 
 G_DEFINE_TYPE (IsIndicator, is_indicator, APP_INDICATOR_TYPE);
@@ -180,27 +181,12 @@ static void activate_action(GtkAction *action,
 	g_debug("activated action %s", gtk_action_get_name(action));
 
 	if (!priv->prefs_dialog) {
-		GtkWidget *scrolled_window;
-		scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-					       GTK_POLICY_AUTOMATIC,
-					       GTK_POLICY_AUTOMATIC);
-		gtk_container_add(GTK_CONTAINER(scrolled_window),
-				  GTK_WIDGET(priv->manager));
-		priv->prefs_dialog = gtk_dialog_new_with_buttons(_("Preferences"),
-								 NULL,
-								 0,
-								 GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-								 NULL);
-		gtk_window_set_default_size(GTK_WINDOW(priv->prefs_dialog), 600, 500);
-
+		priv->prefs_dialog = is_preferences_dialog_new(priv->manager);
 		g_signal_connect(priv->prefs_dialog, "response",
 				 G_CALLBACK(gtk_widget_hide), NULL);
 		g_signal_connect(priv->prefs_dialog, "delete-event",
 				 G_CALLBACK(gtk_widget_hide_on_delete),
 				 NULL);
-		gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(priv->prefs_dialog))),
-				  scrolled_window);
 		gtk_widget_show_all(priv->prefs_dialog);
 	}
 	gtk_window_present(GTK_WINDOW(priv->prefs_dialog));

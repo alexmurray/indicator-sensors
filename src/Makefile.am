@@ -23,5 +23,7 @@ indicator_sensors_SOURCES = indicator-sensors.c \
 	is-store.h \
 	is-store.c \
 	is-manager.h \
-	is-manager.c
+	is-manager.c \
+	is-preferences-dialog.h \
+	is-preferences-dialog.c
 
