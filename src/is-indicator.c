@@ -327,7 +327,8 @@ sensor_enabled(IsManager *manager,
 	g_object_set_data(G_OBJECT(sensor), "menu-item", menu_item);
 	g_object_set_data(G_OBJECT(menu_item), "sensor", sensor);
 
-	gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menu_item, position);
+	/* add 1 to position so we go after the Preferences menu item */
+	gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menu_item, position + 1);
 	update_sensor_menu_item_label(self, sensor, GTK_MENU_ITEM(menu_item));
 }
 

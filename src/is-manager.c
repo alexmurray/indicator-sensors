@@ -107,7 +107,8 @@ is_manager_class_init(IsManagerClass *klass)
 						      NULL, NULL,
 						      g_cclosure_user_marshal_VOID__OBJECT_INT,
 						      G_TYPE_NONE, 2,
-						      IS_TYPE_SENSOR, G_TYPE_INT);
+						      IS_TYPE_SENSOR,
+						      G_TYPE_INT);
 
 	signals[SIGNAL_SENSOR_DISABLED] = g_signal_new("sensor-disabled",
 						       G_OBJECT_CLASS_TYPE(klass),
@@ -169,7 +170,6 @@ sensor_cmp_by_path(IsSensor *a, IsSensor *b, IsManager *self)
 	IsManagerPrivate *priv;
 	GtkTreeIter a_iter, b_iter;
 	GtkTreePath *a_path, *b_path;
-	gchar *a_path_string, *b_path_string;
 	gint ret;
 
 	priv = self->priv;
@@ -178,11 +178,7 @@ sensor_cmp_by_path(IsSensor *a, IsSensor *b, IsManager *self)
 	is_store_get_iter_for_sensor(priv->store, b, &b_iter);
 	a_path = gtk_tree_model_get_path(GTK_TREE_MODEL(priv->store), &a_iter);
 	b_path = gtk_tree_model_get_path(GTK_TREE_MODEL(priv->store), &b_iter);
-	a_path_string = gtk_tree_path_to_string(a_path);
-	b_path_string = gtk_tree_path_to_string(b_path);
-	ret = g_strcmp0(a_path_string, b_path_string);
-	g_free(b_path_string);
-	g_free(a_path_string);
+	ret = gtk_tree_path_compare(a_path, b_path);
 	gtk_tree_path_free(b_path);
 	gtk_tree_path_free(a_path);
 	return ret;
@@ -207,7 +203,8 @@ enable_sensor(IsManager *self,
 							      (GSourceFunc)update_sensors,
 							      self);
 	}
-	g_signal_emit(self, signals[SIGNAL_SENSOR_ENABLED], 0, sensor);
+	g_signal_emit(self, signals[SIGNAL_SENSOR_ENABLED], 0, sensor,
+		      g_slist_index(priv->enabled_sensors, sensor));
 }
 
 static void
