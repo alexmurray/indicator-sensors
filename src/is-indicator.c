@@ -249,6 +249,7 @@ sensor_disabled(IsManager *manager,
 	/* destroy menu item */
 	menu_item = GTK_WIDGET(g_object_get_data(G_OBJECT(sensor),
 						 "menu-item"));
+	priv->menu_items = g_slist_remove(priv->menu_items, menu_item);
 	gtk_container_remove(GTK_CONTAINER(app_indicator_get_menu(APP_INDICATOR(self))),
 			     menu_item);
 	g_object_set_data(G_OBJECT(sensor), "menu-item", NULL);
@@ -260,6 +261,23 @@ sensor_disabled(IsManager *manager,
 	g_signal_handlers_disconnect_by_func(sensor,
 					     sensor_error,
 					     self);
+	/* if this was primary sensor, get a new one */
+	if (priv->primary_sensor != sensor) {
+		goto out;
+	}
+	if (priv->menu_items == NULL) {
+		app_indicator_set_label(APP_INDICATOR(self),
+					_("No sensors"), _("No Sensors"));
+		priv->primary_sensor = NULL;
+		goto out;
+	}
+	/* choose top-most menu item */
+	menu_item = GTK_WIDGET(priv->menu_items->data);
+	/* activate it to make this the new primary sensor */
+	gtk_menu_item_activate(GTK_MENU_ITEM(menu_item));
+
+out:
+	return;
 }
 
 static void
@@ -276,6 +294,18 @@ sensor_menu_item_activated(GtkMenuItem *menu_item,
 					     "sensor"));
 	/* enable display of this sensor if not displaying it */
 	if (priv->primary_sensor != sensor) {
+		/* uncheck current primary sensor label - may be NULL as is
+		 * already disabled */
+		GtkCheckMenuItem *old_item;
+		old_item = (GtkCheckMenuItem *)(g_object_get_data(G_OBJECT(priv->primary_sensor),
+								  "menu-item"));
+		if (old_item) {
+			gtk_check_menu_item_set_active(old_item, FALSE);
+		}
+
+		/* and display new item */
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
+					       TRUE);
 		g_debug("displaying sensor [%s]:%s",
 			is_sensor_get_family(sensor),
 			is_sensor_get_id(sensor));
@@ -308,24 +338,24 @@ sensor_enabled(IsManager *manager,
 			 G_CALLBACK(sensor_error), self);
 	/* add a menu entry for this sensor */
 	menu = app_indicator_get_menu(APP_INDICATOR(self));
-	/* if this is the first sensor we are displaying, then show it by
-	   default as the main sensor */
-	if (!priv->menu_items) {
-		priv->primary_sensor = sensor;
-	}
-	menu_item = gtk_radio_menu_item_new(priv->menu_items);
-	priv->menu_items = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
-	if (priv->primary_sensor == sensor) {
-		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
-					       TRUE);
-	}
+	menu_item = gtk_check_menu_item_new();
+	gtk_check_menu_item_set_draw_as_radio(GTK_CHECK_MENU_ITEM(menu_item),
+					      TRUE);
 	g_signal_connect(menu_item, "activate",
 			 G_CALLBACK(sensor_menu_item_activated),
 			 self);
-	gtk_widget_show_all(menu_item);
-
 	g_object_set_data(G_OBJECT(sensor), "menu-item", menu_item);
 	g_object_set_data(G_OBJECT(menu_item), "sensor", sensor);
+
+	priv->menu_items = g_slist_insert(priv->menu_items, menu_item,
+					  position);
+	/* if we don't have a primary sensor, display this one by default */
+	if (!priv->primary_sensor) {
+		priv->primary_sensor = sensor;
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
+					       TRUE);
+	}
+	gtk_widget_show_all(menu_item);
 
 	/* add 1 to position so we go after the Preferences menu item */
 	gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menu_item, position + 1);
