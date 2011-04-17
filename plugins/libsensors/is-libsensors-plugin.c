@@ -243,14 +243,14 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		default:
 			g_warning("libsensors plugin: error determining type for sensor '%s'",
 				  chip_name_string);
-			goto out;
+			continue;
 		}
 
 		if (!input_feature)
 		{
 			g_warning("libsensors plugin: could not get input subfeature for sensor '%s'",
 				  chip_name_string);
-			goto out;
+			continue;
 		}
 		// if still here we got input feature so get label
 		label = sensors_get_label(chip_name, main_feature);
@@ -258,7 +258,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		{
 			g_warning("libsensors plugin: could not get label for sensor '%s'",
 				  chip_name_string);
-			goto out;
+			continue;
 		}
 
 		g_assert(chip_name_string && label);
@@ -274,7 +274,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			g_warning("libsensors plugin: could not get value for input feature of sensor '%s'",
 				  chip_name_string);
 			free(label);
-			goto out;
+			continue;
 		}
 
 		id = g_strdup_printf("%s/%d", chip_name_string,
