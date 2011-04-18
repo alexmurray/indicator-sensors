@@ -280,6 +280,8 @@ is_manager_init(IsManager *self)
 						       NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
 
+	renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "editable", TRUE, NULL);
 	col = gtk_tree_view_column_new_with_attributes(_("Label"),
 						       renderer,
 						       "text", IS_STORE_COL_LABEL,
