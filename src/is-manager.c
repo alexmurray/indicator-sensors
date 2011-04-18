@@ -494,3 +494,13 @@ is_manager_remove_all_sensors(IsManager *self,
 			       (GtkTreeModelForeachFunc)remove_sensors_with_family,
 			       &data);
 }
+
+const GSList *
+is_manager_get_enabled_sensors(IsManager *self)
+{
+	IsManagerPrivate *priv;
+
+	g_return_if_fail(IS_IS_MANAGER(self));
+
+	return self->priv->enabled_sensors;
+}

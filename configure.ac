@@ -44,6 +44,7 @@ GLIB_REQUIRED=2.24.0
 GTK_REQUIRED=2.24.0
 APPINDICATOR_REQUIRED=0.0.7
 LIBPEAS_REQUIRED=0.7.2
+LIBNOTIFY_REQUIRED=0.7.2
 
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
@@ -76,6 +77,31 @@ AM_CONDITIONAL(LIBSENSORS, test -n "$LIBSENSORS_LIBS")
 
 AC_SUBST(LIBSENSORS_CFLAGS)
 AC_SUBST(LIBSENSORS_LIBS)
+
+# libnotify
+# enable support even if not specifically asked for
+AC_ARG_ENABLE(libnotify, [  --enable-libnotify   enable libnotify support], [
+			 enable_libnotify=$enableval], [
+			 enable_libnotify="yes"
+])
+
+if test "x$enable_libnotify" = "xno"
+then
+   echo "Disabling libnotify support"
+else
+	PKG_CHECK_MODULES(LIBNOTIFY, libnotify >= $LIBNOTIFY_REQUIRED,
+	HAVE_LIBNOTIFY="yes", HAVE_LIBNOTIFY="no")
+
+	if test "x$HAVE_LIBNOTIFY" = "xyes"
+	then
+	   AC_DEFINE(HAVE_LIBNOTIFY, 1, [libnotify available])
+	fi
+fi
+
+AM_CONDITIONAL(LIBNOTIFY, test -n "$LIBNOTIFY_LIBS")
+
+AC_SUBST(LIBNOTIFY_CFLAGS)
+AC_SUBST(LIBNOTIFY_LIBS)
 
 # do nvidia by default if available
 AC_ARG_WITH(nvidia,
@@ -149,6 +175,7 @@ AC_CONFIG_FILES([
 	src/Makefile
 	pixmaps/Makefile
 	plugins/Makefile
+	plugins/libnotify/Makefile
 	plugins/libsensors/Makefile
 	po/Makefile.in
 ])
