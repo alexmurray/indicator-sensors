@@ -260,6 +260,9 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 				  chip_name_string);
 			continue;
 		}
+		// label can sometimes have leading / trailing whitespace so
+		// remove any
+		g_strstrip(label);
 
 		g_assert(chip_name_string && label);
 
