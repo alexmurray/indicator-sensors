@@ -274,10 +274,11 @@ is_manager_init(IsManager *self)
 
 	/* id column */
 	renderer = gtk_cell_renderer_text_new();
-	col = gtk_tree_view_column_new_with_attributes(_("ID"),
+	col = gtk_tree_view_column_new_with_attributes(_("Sensor"),
 						       renderer,
 						       "text", IS_STORE_COL_ID,
 						       NULL);
+	gtk_tree_view_column_set_expand(col, FALSE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
 
 	renderer = gtk_cell_renderer_text_new();
@@ -286,6 +287,7 @@ is_manager_init(IsManager *self)
 						       renderer,
 						       "text", IS_STORE_COL_LABEL,
 						       NULL);
+	gtk_tree_view_column_set_expand(col, TRUE);
 	g_signal_connect(renderer, "edited", G_CALLBACK(sensor_label_edited),
 			 self);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
@@ -295,6 +297,7 @@ is_manager_init(IsManager *self)
 						       renderer,
 						       "active", IS_STORE_COL_ENABLED,
 						       NULL);
+	gtk_tree_view_column_set_expand(col, FALSE);
 	g_signal_connect(renderer, "toggled", G_CALLBACK(sensor_toggled),
 			 self);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);

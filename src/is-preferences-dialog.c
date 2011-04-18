@@ -73,7 +73,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 				       GTK_POLICY_AUTOMATIC,
 				       GTK_POLICY_AUTOMATIC);
 	gtk_window_set_title(GTK_WINDOW(self), _("Preferences"));
-	gtk_window_set_default_size(GTK_WINDOW(self), 600, 500);
+	gtk_window_set_default_size(GTK_WINDOW(self), 400, 500);
 
 	gtk_dialog_add_button(GTK_DIALOG(self),
 			      GTK_STOCK_OK, GTK_RESPONSE_ACCEPT);
