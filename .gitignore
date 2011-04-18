@@ -30,9 +30,10 @@ po/Makevars*
 po/POTFILES
 po/Rules-quot
 po/stamp-it
+src/*.o
 src/config.h*
 src/indicator-sensors
-src/*.o
+src/marshallers.[ch]
 src/stamp-h1
 
 
