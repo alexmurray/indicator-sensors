@@ -42,8 +42,8 @@ struct _IsLibnotifyPluginPrivate
 {
 	IsManager *manager;
 	gboolean inited;
+	gboolean append;
 	GSList *sensors;
-	NotifyNotification *notification;
 };
 
 static void is_libnotify_plugin_finalize(GObject *object);
@@ -92,9 +92,20 @@ is_libnotify_plugin_init(IsLibnotifyPlugin *self)
 	IsLibnotifyPluginPrivate *priv =
 		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_LIBNOTIFY_PLUGIN,
 					    IsLibnotifyPluginPrivate);
-
 	self->priv = priv;
         priv->inited = notify_init(PACKAGE);
+	if (priv->inited) {
+		/* look for append capability */
+		GList *caps = notify_get_server_caps();
+		while (caps != NULL) {
+			gchar *cap = (gchar *)caps->data;
+			if (g_strcmp0(cap, "append") == 0) {
+				priv->append = TRUE;
+			}
+			g_free(cap);
+			caps = g_list_delete_link(caps, caps);
+		}
+	}
 }
 
 static void
@@ -126,19 +137,19 @@ sensor_notify(IsSensor *sensor,
 	priv = self->priv;
 
 	if (g_strcmp0(pspec->name, "value") == 0) {
-		if (priv->notification) {
-			/* TODO: instead re-use existing notification and append
-			   new message details to it */
-			notify_notification_close(priv->notification, NULL);
-			g_object_unref(priv->notification);
-		}
+		NotifyNotification *notification;
 		gchar *body = g_strdup_printf("%s: %f",
 					      is_sensor_get_label(sensor),
 					      is_sensor_get_value(sensor));
-		priv->notification = notify_notification_new(_("Sensor Value Updated"),
-							     body, NULL);
+		notification = notify_notification_new(_("Sensor Value Updated"),
+						       body, NULL);
 		g_free(body);
-		notify_notification_show(priv->notification, NULL);
+		if (priv->append) {
+			GVariant *cap = g_variant_new("s", "");
+			notify_notification_set_hint(notification, "x-canonical-append", cap);
+		}
+		notify_notification_show(notification, NULL);
+		g_object_unref(notification);
 	}
 }
 
