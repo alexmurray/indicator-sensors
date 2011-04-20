@@ -1,0 +1,19 @@
+<schemalist>
+  <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.sensor">
+    <key name="label" type="s">
+      <default>""</default>
+      <_summary>Label for a sensor</_summary>
+      <_description>The default label for a sensor</_description>
+    </key>
+    <key name="min" type="d">
+      <default>0.0</default>
+      <_summary>Default minimum sensor value</_summary>
+      <_description>The default minimum value for a sensor.</_description>
+    </key>
+    <key name="max" type="d">
+      <default>0.0</default>
+      <_summary>Default maximum sensor value</_summary>
+      <_description>The default maximum value for a sensor.</_description>
+    </key>
+  </schema>
+</schemalist>

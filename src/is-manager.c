@@ -504,3 +504,38 @@ is_manager_get_enabled_sensors(IsManager *self)
 
 	return self->priv->enabled_sensors;
 }
+
+gboolean add_sensor_to_list(GtkTreeModel *model,
+			    GtkTreePath *path,
+			    GtkTreeIter *iter,
+			    GSList **list)
+{
+	IsSensor *sensor;
+
+	gtk_tree_model_get(model, iter,
+			   IS_STORE_COL_SENSOR, &sensor,
+			   -1);
+
+	if (sensor) {
+		/* take reference */
+		*list = g_slist_prepend(*list, sensor);
+	}
+	return FALSE;
+}
+
+GSList *
+is_manager_get_all_sensors(IsManager *self)
+{
+	IsManagerPrivate *priv;
+	GSList *list = NULL;
+
+	g_return_val_if_fail(IS_IS_MANAGER(self), NULL);
+	priv = self->priv;
+
+	gtk_tree_model_foreach(GTK_TREE_MODEL(priv->store),
+			       (GtkTreeModelForeachFunc)add_sensor_to_list,
+			       &list);
+	list = g_slist_reverse(list);
+
+	return list;
+}

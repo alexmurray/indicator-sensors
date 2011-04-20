@@ -1,4 +1,4 @@
-SUBDIRS =
+SUBDIRS = gsettings
 
 if LIBNOTIFY
 SUBDIRS += libnotify
