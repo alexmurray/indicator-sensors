@@ -64,6 +64,8 @@ GType is_manager_get_type(void) G_GNUC_CONST;
 IsManager *is_manager_new(void);
 guint is_manager_get_poll_timeout(IsManager *self);
 void is_manager_set_poll_timeout(IsManager *self, guint poll_timeout);
+gboolean is_manager_add_sensor(IsManager *self,
+			       IsSensor *sensor);
 GSList *is_manager_get_all_sensors(IsManager *self);
 const GSList *is_manager_get_enabled_sensors(IsManager *self);
 

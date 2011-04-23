@@ -63,8 +63,7 @@ struct _IsStore
 
 enum
 {
-	IS_STORE_COL_FAMILY = 0,
-	IS_STORE_COL_ID,
+	IS_STORE_COL_NAME = 0,
 	IS_STORE_COL_LABEL,
 	IS_STORE_COL_SENSOR,
 	IS_STORE_COL_ENABLED,
@@ -74,19 +73,22 @@ enum
 GType is_store_get_type(void) G_GNUC_CONST;
 IsStore *is_store_new(void);
 gboolean is_store_add_sensor(IsStore *self,
-			     IsSensor *sensor,
-			     gboolean enabled);
-gboolean is_store_remove_family(IsStore *self,
-				const gchar *family);
+			     IsSensor *sensor);
+gboolean is_store_remove_path(IsStore *self,
+			      const gchar *path);
 gboolean is_store_set_label(IsStore *self,
 			    GtkTreeIter *iter,
 			    const gchar *label);
 gboolean is_store_set_enabled(IsStore *self,
 			      GtkTreeIter *iter,
 			      gboolean enabled);
-gboolean is_store_get_iter_for_sensor(IsStore *self,
-				      IsSensor *sensor,
-				      GtkTreeIter *iter);
+gboolean is_store_get_iter(IsStore *self,
+			   const gchar *path,
+			   GtkTreeIter *iter);
+#define is_store_get_iter_for_sensor(self, sensor, iter) \
+	is_store_get_iter(self,				\
+			  is_sensor_get_path(sensor),	\
+			  iter)
 G_END_DECLS
 
 #endif /* __IS_STORE_H__ */

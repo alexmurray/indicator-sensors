@@ -39,8 +39,7 @@ static guint signals[LAST_SIGNAL] = {0};
 /* properties */
 enum {
 	PROP_0,
-	PROP_FAMILY,
-	PROP_ID,
+	PROP_PATH,
 	PROP_LABEL,
 	PROP_VALUE,
 	PROP_MIN,
@@ -53,8 +52,7 @@ static GParamSpec *properties[LAST_PROPERTY] = {NULL};
 
 struct _IsSensorPrivate
 {
-	gchar *family;
-	gchar *id;
+	gchar *path;
 	gchar *label;
 	gdouble value;
 	gdouble min;
@@ -74,16 +72,11 @@ is_sensor_class_init(IsSensorClass *klass)
 	gobject_class->dispose = is_sensor_dispose;
 	gobject_class->finalize = is_sensor_finalize;
 
-	properties[PROP_FAMILY] = g_param_spec_string("family", "family property",
-						      "family of this sensor.",
+	properties[PROP_PATH] = g_param_spec_string("path", "path property",
+						      "path of this sensor.",
 						      NULL,
 						      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-	g_object_class_install_property(gobject_class, PROP_FAMILY, properties[PROP_FAMILY]);
-	properties[PROP_ID] = g_param_spec_string("id", "id property",
-						  "id of this sensor.",
-						  NULL,
-						  G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-	g_object_class_install_property(gobject_class, PROP_ID, properties[PROP_ID]);
+	g_object_class_install_property(gobject_class, PROP_PATH, properties[PROP_PATH]);
 	properties[PROP_VALUE] = g_param_spec_double("value", "sensor value",
 						     "value of this sensor.",
 						     -G_MAXDOUBLE, G_MAXDOUBLE, 0.0,
@@ -143,11 +136,8 @@ is_sensor_get_property(GObject *object,
 	IsSensor *self = IS_SENSOR(object);
 
 	switch (property_id) {
-	case PROP_FAMILY:
-		g_value_set_string(value, is_sensor_get_family(self));
-		break;
-	case PROP_ID:
-		g_value_set_string(value, is_sensor_get_id(self));
+	case PROP_PATH:
+		g_value_set_string(value, is_sensor_get_path(self));
 		break;
 	case PROP_LABEL:
 		g_value_set_string(value, is_sensor_get_label(self));
@@ -178,13 +168,8 @@ is_sensor_set_property(GObject *object,
 	IsSensorPrivate *priv = self->priv;
 
 	switch (property_id) {
-	case PROP_FAMILY:
-		g_assert(!priv->family);
-		priv->family = g_value_dup_string(value);
-		break;
-	case PROP_ID:
-		g_assert(!priv->id);
-		priv->id = g_value_dup_string(value);
+	case PROP_PATH:
+		priv->path = g_value_dup_string(value);
 		break;
 	case PROP_LABEL:
 		is_sensor_set_label(self, g_value_get_string(value));
@@ -223,10 +208,8 @@ is_sensor_finalize (GObject *object)
 	IsSensor *self = (IsSensor *)object;
 	IsSensorPrivate *priv = self->priv;
 
-	g_free(priv->family);
-	priv->family = NULL;
-	g_free(priv->id);
-	priv->id = NULL;
+	g_free(priv->path);
+	priv->path = NULL;
 	g_free(priv->label);
 	priv->label = NULL;
 	g_free(priv->units);
@@ -236,16 +219,14 @@ is_sensor_finalize (GObject *object)
 }
 
 IsSensor *
-is_sensor_new(const gchar *family,
-	      const gchar *id,
+is_sensor_new(const gchar *path,
 	      const gchar *label,
 	      gdouble min,
 	      gdouble max,
 	      const gchar *units)
 {
 	return g_object_new(IS_TYPE_SENSOR,
-			    "family", family,
-			    "id", id,
+			    "path", path,
 			    "label", label,
 			    "min", min,
 			    "max", max,
@@ -254,17 +235,10 @@ is_sensor_new(const gchar *family,
 }
 
 const gchar *
-is_sensor_get_family(IsSensor *self)
+is_sensor_get_path(IsSensor *self)
 {
 	g_return_val_if_fail(IS_IS_SENSOR(self), NULL);
-	return self->priv->family;
-}
-
-const gchar *
-is_sensor_get_id(IsSensor *self)
-{
-	g_return_val_if_fail(IS_IS_SENSOR(self), NULL);
-	return self->priv->id;
+	return self->priv->path;
 }
 
 const gchar *
@@ -279,9 +253,12 @@ is_sensor_set_label(IsSensor *self,
 		    const gchar *label)
 {
 	g_return_if_fail(IS_IS_SENSOR(self));
-	g_free(self->priv->label);
-	self->priv->label = label ? g_strdup(label) : NULL;
-	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_LABEL]);
+	if (label != NULL && g_strcmp0(label, "") != 0) {
+		g_free(self->priv->label);
+		self->priv->label = label ? g_strdup(label) : NULL;
+		g_object_notify_by_pspec(G_OBJECT(self),
+					 properties[PROP_LABEL]);
+	}
 }
 
 gdouble

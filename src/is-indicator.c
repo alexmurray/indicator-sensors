@@ -227,9 +227,8 @@ sensor_label_or_value_notify(IsSensor *sensor,
 static void
 sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
 {
-	g_warning("sensor [%s]:%s error: %s",
-		  is_sensor_get_family(sensor),
-		  is_sensor_get_id(sensor),
+	g_warning("sensor %s error: %s",
+		  is_sensor_get_path(sensor),
 		  error->message);
 }
 
@@ -242,9 +241,8 @@ sensor_disabled(IsManager *manager,
 	GtkWidget *menu_item;
 
 	/* debug - enable sensor */
-	g_debug("disabling sensor [%s]:%s",
-		is_sensor_get_family(sensor),
-		is_sensor_get_id(sensor));
+	g_debug("disabling sensor %s",
+		is_sensor_get_path(sensor));
 
 	/* destroy menu item */
 	menu_item = GTK_WIDGET(g_object_get_data(G_OBJECT(sensor),
@@ -306,9 +304,8 @@ sensor_menu_item_activated(GtkMenuItem *menu_item,
 		/* and display new item */
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
 					       TRUE);
-		g_debug("displaying sensor [%s]:%s",
-			is_sensor_get_family(sensor),
-			is_sensor_get_id(sensor));
+		g_debug("displaying sensor %s",
+			is_sensor_get_path(sensor));
 		priv->primary_sensor = sensor;
 		update_sensor_menu_item_label(self, sensor, menu_item);
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),

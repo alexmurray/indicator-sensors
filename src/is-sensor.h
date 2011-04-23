@@ -63,16 +63,14 @@ struct _IsSensor
 };
 
 GType is_sensor_get_type(void) G_GNUC_CONST;
-IsSensor *is_sensor_new(const gchar *family,
-			const gchar *id,
+IsSensor *is_sensor_new(const gchar *path,
 			const gchar *label,
 			gdouble min,
 			gdouble max,
 			const gchar *units);
 void is_sensor_update_value(IsSensor *self);
 void is_sensor_emit_error(IsSensor *self, GError *error);
-const gchar *is_sensor_get_family(IsSensor *self);
-const gchar *is_sensor_get_id(IsSensor *self);
+const gchar *is_sensor_get_path(IsSensor *self);
 const gchar *is_sensor_get_label(IsSensor *self);
 void is_sensor_set_label(IsSensor *self, const gchar *label);
 gdouble is_sensor_get_value(IsSensor *self);

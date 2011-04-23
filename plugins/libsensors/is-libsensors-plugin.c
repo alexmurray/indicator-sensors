@@ -20,6 +20,7 @@
 #endif
 
 #include "is-libsensors-plugin.h"
+#include "is-manager.h"
 #include <stdlib.h>
 #include <is-temperature-sensor.h>
 #include <is-manager.h>
@@ -141,20 +142,20 @@ static void
 update_sensor_value(IsSensor *sensor,
 		    IsLibsensorsPlugin *self)
 {
-	const gchar *id;
+	const gchar *path;
 	const sensors_chip_name *found_chip;
 	gchar *offset, *end;
 	int n, ret;
 	gdouble value = 0.0f;
 
-	id = is_sensor_get_id(sensor);
+	path = is_sensor_get_path(sensor);
 
 	found_chip = g_hash_table_lookup(self->priv->sensor_chip_names,
-					 id);
+					 path);
 	g_assert(found_chip != NULL);
 
-	offset = g_strrstr(id, "/");
-	/* we make these string so should always have a / */
+	/* get last separator */
+	offset = g_strrstr(path, "/");
 	g_assert(offset != NULL);
 
 	n = (int)g_ascii_strtoll(offset + 1, &end, 10);
@@ -167,7 +168,7 @@ update_sensor_value(IsSensor *sensor,
 					    /* first placeholder is sensor name,
 					     * second is error message */
 					    _("Error getting sensor value for sensor %s: %s"),
-					    id, sensors_strerror(ret));
+					    path, sensors_strerror(ret));
 		is_sensor_emit_error(sensor, error);
 		g_error_free(error);
 		goto out;
@@ -191,7 +192,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 	const sensors_feature *main_feature;
 	gint nr1 = 0;
 	gdouble value, low, high;
-	gchar *id;
+	gchar *path;
 	IsSensor *sensor;
 
 	chip_name_string = get_chip_name_string(chip_name);
@@ -280,18 +281,18 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			continue;
 		}
 
-		id = g_strdup_printf("%s/%d", chip_name_string,
-				     input_feature->number);
+		path = g_strdup_printf("libsensors/%s/%d",
+				       chip_name_string,
+				       input_feature->number);
 		switch (main_feature->type)
 		{
 		case SENSORS_FEATURE_IN:
 		case SENSORS_FEATURE_FAN:
-			sensor = is_sensor_new("libsensors", id, label,
+			sensor = is_sensor_new(path, label,
 					       low, high, "U");
 			break;
 		case SENSORS_FEATURE_TEMP:
-			sensor = is_temperature_sensor_new_full("libsensors",
-								id,
+			sensor = is_temperature_sensor_new_full(path,
 								label,
 								low, high,
 								IS_TEMPERATURE_SENSOR_UNITS_CELSIUS);
@@ -299,8 +300,8 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		default:
 			g_assert_not_reached();
 		}
-		/* take ownership of id pointer */
-		g_hash_table_insert(priv->sensor_chip_names, id, (void *)chip_name);
+		/* take ownership of path pointer */
+		g_hash_table_insert(priv->sensor_chip_names, path, (void *)chip_name);
 		/* connect to update-value signal */
 		g_signal_connect(sensor, "update-value",
 				 G_CALLBACK(update_sensor_value),

@@ -73,11 +73,10 @@ is_temperature_sensor_finalize(GObject *object)
 }
 
 IsSensor *
-is_temperature_sensor_new(const gchar *family,
-			  const gchar *id,
+is_temperature_sensor_new(const gchar *path,
 			  const gchar *label)
 {
-	return is_temperature_sensor_new_full(family, id, label,
+	return is_temperature_sensor_new_full(path, label,
 					      0.0f, 0.0f,
 					      IS_TEMPERATURE_SENSOR_UNITS_CELSIUS);
 }
@@ -102,8 +101,7 @@ is_temperature_sensor_units_to_string(IsTemperatureSensorUnits units)
 }
 
 IsSensor *
-is_temperature_sensor_new_full(const gchar *family,
-			       const gchar *id,
+is_temperature_sensor_new_full(const gchar *path,
 			       const gchar *label,
 			       gdouble min,
 			       gdouble max,
@@ -116,8 +114,7 @@ is_temperature_sensor_new_full(const gchar *family,
 			     NULL);
 
 	self = g_object_new(IS_TYPE_TEMPERATURE_SENSOR,
-			    "family", family,
-			    "id", id,
+			    "path", path,
 			    "label", label,
 			    "min", min,
 			    "max", max,

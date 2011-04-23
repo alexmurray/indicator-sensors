@@ -16,6 +16,7 @@
  */
 
 #include "is-manager.h"
+#include "is-store.h"
 #include "marshallers.h"
 #include <glib/gi18n.h>
 
@@ -243,15 +244,17 @@ static void sensor_toggled(GtkCellRendererToggle *renderer,
 	gtk_tree_model_get(model, &iter,
 			   IS_STORE_COL_SENSOR, &sensor,
 			   -1);
-	/* as was toggled need to invert */
-	enabled = !gtk_cell_renderer_toggle_get_active(renderer);
-	is_store_set_enabled(priv->store, &iter, enabled);
-	if (enabled) {
-		enable_sensor(self, sensor);
-	} else {
-		disable_sensor(self, sensor);
+	if (sensor) {
+		/* as was toggled need to invert */
+		enabled = !gtk_cell_renderer_toggle_get_active(renderer);
+		is_store_set_enabled(priv->store, &iter, enabled);
+		if (enabled) {
+			enable_sensor(self, sensor);
+		} else {
+			disable_sensor(self, sensor);
+		}
+		g_object_unref(sensor);
 	}
-	g_object_unref(sensor);
 	gtk_tree_path_free(path);
 }
 
@@ -276,7 +279,7 @@ is_manager_init(IsManager *self)
 	renderer = gtk_cell_renderer_text_new();
 	col = gtk_tree_view_column_new_with_attributes(_("Sensor"),
 						       renderer,
-						       "text", IS_STORE_COL_ID,
+						       "text", IS_STORE_COL_NAME,
 						       NULL);
 	gtk_tree_view_column_set_expand(col, FALSE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
@@ -406,8 +409,7 @@ is_manager_set_poll_timeout(IsManager *self,
 
 gboolean
 is_manager_add_sensor(IsManager *self,
-		      IsSensor *sensor,
-		      gboolean enabled)
+		      IsSensor *sensor)
 {
 	IsManagerPrivate *priv;
 	gboolean ret = FALSE;
@@ -417,82 +419,14 @@ is_manager_add_sensor(IsManager *self,
 
 	priv = self->priv;
 
-	ret = is_store_add_sensor(priv->store, sensor, enabled);
+	ret = is_store_add_sensor(priv->store, sensor);
 	if (!ret) {
 		goto out;
 	}
 	g_signal_emit(self, signals[SIGNAL_SENSOR_ADDED], 0, sensor);
-	if (!enabled) {
-		goto out;
-	}
-	enable_sensor(self, sensor);
 
 out:
 	return ret;
-}
-
-typedef struct _RemoveSensorsWithFamilyData
-{
-	IsManager *self;
-	const gchar *family;
-} RemoveSensorsWithFamilyData;
-
-static gboolean
-remove_sensors_with_family(GtkTreeModel *model,
-			   GtkTreePath *path,
-			   GtkTreeIter *iter,
-			   RemoveSensorsWithFamilyData *data)
-{
-	/* see if entry has family, and if so remove it */
-	IsManager *self;
-	IsManagerPrivate *priv;
-	IsSensor *sensor;
-	gboolean enabled;
-
-	self = data->self;
-	priv = self->priv;
-	gtk_tree_model_get(model, iter,
-			   IS_STORE_COL_SENSOR, &sensor,
-			   IS_STORE_COL_ENABLED, &enabled,
-			   -1);
-	if (!sensor)
-	{
-		goto out;
-	}
-	if (g_strcmp0(is_sensor_get_family(sensor), data->family))
-	{
-		g_object_unref(sensor);
-		goto out;
-	}
-
-	if (enabled) {
-		disable_sensor(self, sensor);
-	}
-	is_store_remove_sensor(priv->store, sensor);
-	g_signal_emit(self, signals[SIGNAL_SENSOR_REMOVED], 0, sensor);
-	g_object_unref(sensor);
-
-out:
-	return FALSE;
-}
-
-void
-is_manager_remove_all_sensors(IsManager *self,
-			      const gchar *family)
-{
-	IsManagerPrivate *priv;
-	RemoveSensorsWithFamilyData data;
-
-	g_return_if_fail(IS_IS_MANAGER(self));
-	g_return_if_fail(family != NULL);
-
-	priv = self->priv;
-
-	data.self = self;
-	data.family = family;
-	gtk_tree_model_foreach(GTK_TREE_MODEL(priv->store),
-			       (GtkTreeModelForeachFunc)remove_sensors_with_family,
-			       &data);
 }
 
 const GSList *
@@ -505,10 +439,11 @@ is_manager_get_enabled_sensors(IsManager *self)
 	return self->priv->enabled_sensors;
 }
 
-gboolean add_sensor_to_list(GtkTreeModel *model,
-			    GtkTreePath *path,
-			    GtkTreeIter *iter,
-			    GSList **list)
+static gboolean
+add_sensor_to_list(GtkTreeModel *model,
+		   GtkTreePath *path,
+		   GtkTreeIter *iter,
+		   GSList **list)
 {
 	IsSensor *sensor;
 
@@ -539,3 +474,27 @@ is_manager_get_all_sensors(IsManager *self)
 
 	return list;
 }
+
+IsSensor *
+is_manager_get_sensor(IsManager *self,
+		      const gchar *path)
+{
+	IsManagerPrivate *priv;
+	gboolean ret;
+	GtkTreeIter iter;
+	IsSensor *sensor = NULL;
+
+	g_return_val_if_fail(IS_IS_MANAGER(self), NULL);
+
+	priv = self->priv;
+
+	ret = is_store_get_iter(priv->store, path, &iter);
+	if (ret) {
+		gtk_tree_model_get(GTK_TREE_MODEL(priv->store), &iter,
+				   IS_STORE_COL_SENSOR, &sensor,
+				   -1);
+	}
+
+	return sensor;
+}
+

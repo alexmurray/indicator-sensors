@@ -113,20 +113,21 @@ sensor_added(IsManager *manager,
 	IsGSettingsPluginPrivate *priv;
 	gchar *path;
 	GSettings *settings;
+	gchar *label;
+	gdouble min, max;
 
 	priv = self->priv;
 
 	g_assert(!g_slist_find(priv->sensors, sensor));
 	priv->sensors = g_slist_append(priv->sensors, sensor);
 
-	path = g_strdup_printf("/apps/indicator-sensors/sensor/%s/%s/",
-			       is_sensor_get_family(sensor),
-			       is_sensor_get_id(sensor));
+	path = g_strdup_printf("/apps/indicator-sensors/sensor/%s/",
+			       is_sensor_get_path(sensor));
 	settings = g_settings_new_with_path("indicator-sensors.sensor",
 					    path);
 	g_free(path);
 
-	/* bind to properties so we automatically restore and save most recent
+	/* bind to properties so we automatically save and restore most recent
 	 * value */
 	g_settings_bind(settings, "label", sensor, "label",
 			G_SETTINGS_BIND_DEFAULT);
