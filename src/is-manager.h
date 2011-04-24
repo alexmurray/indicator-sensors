@@ -66,8 +66,11 @@ guint is_manager_get_poll_timeout(IsManager *self);
 void is_manager_set_poll_timeout(IsManager *self, guint poll_timeout);
 gboolean is_manager_add_sensor(IsManager *self,
 			       IsSensor *sensor);
-GSList *is_manager_get_all_sensors(IsManager *self);
-const GSList *is_manager_get_enabled_sensors(IsManager *self);
+GSList *is_manager_get_all_sensors_list(IsManager *self);
+GSList *is_manager_get_enabled_sensors_list(IsManager *self);
+gchar **is_manager_get_enabled_sensors(IsManager *self);
+gboolean is_manager_set_enabled_sensors(IsManager *self,
+					const gchar **enabled_sensors);
 
 G_END_DECLS
 

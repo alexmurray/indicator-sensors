@@ -186,7 +186,7 @@ is_libnotify_plugin_activate(PeasActivatable *activatable)
 {
 	IsLibnotifyPlugin *self = IS_LIBNOTIFY_PLUGIN(activatable);
 	IsLibnotifyPluginPrivate *priv = self->priv;
-	const GSList *enabled_sensors;
+	GSList *list;
 	gint i = 0;
 
 	/* watch for sensors enabled / disabled to monitor their values */
@@ -198,13 +198,16 @@ is_libnotify_plugin_activate(PeasActivatable *activatable)
 			 G_CALLBACK(sensor_enabled), self);
 	g_signal_connect(priv->manager, "sensor-disabled",
 			 G_CALLBACK(sensor_disabled), self);
-	for (enabled_sensors = is_manager_get_enabled_sensors(priv->manager), i = 0;
-	     enabled_sensors != NULL;
-	     enabled_sensors = enabled_sensors->next, i++)
-	{
-		IsSensor *sensor = IS_SENSOR(enabled_sensors->data);
-		sensor_enabled(priv->manager, sensor, i, self);
+
+	list = is_manager_get_enabled_sensors_list(priv->manager);
+	i = 0;
+	while (list != NULL) {
+		IsSensor *sensor = IS_SENSOR(list->data);
+		sensor_enabled(priv->manager, sensor, i++, self);
+		g_object_unref(sensor);
+		list = g_slist_delete_link(list, list);
 	}
+
 out:
 	return;
 }

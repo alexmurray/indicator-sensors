@@ -158,8 +158,9 @@ is_gsettings_plugin_activate(PeasActivatable *activatable)
 	IsGSettingsPlugin *self = IS_GSETTINGS_PLUGIN(activatable);
 	IsGSettingsPluginPrivate *priv = self->priv;
 	GSList *sensors;
+	GSettings *settings;
 
-	sensors = is_manager_get_all_sensors(priv->manager);
+	sensors = is_manager_get_all_sensors_list(priv->manager);
 	while (sensors != NULL) {
 		IsSensor *sensor = IS_SENSOR(sensors->data);
 		sensor_added(priv->manager, sensor, self);
@@ -174,6 +175,15 @@ is_gsettings_plugin_activate(PeasActivatable *activatable)
 	g_signal_connect(priv->manager, "sensor-removed",
 			 G_CALLBACK(sensor_removed), self);
 
+	/* bind the enabled-sensors property of the manager as well so we save /
+	 * restore the list of enabled sensors too */
+	settings = g_settings_new("indicator-sensors.manager");
+	g_settings_bind(settings, "enabled-sensors",
+			priv->manager, "enabled-sensors",
+			G_SETTINGS_BIND_DEFAULT);
+	g_object_set_data_full(G_OBJECT(priv->manager), "gsettings", settings,
+			       (GDestroyNotify)g_object_unref);
+
 out:
 	return;
 }
@@ -184,6 +194,7 @@ is_gsettings_plugin_deactivate(PeasActivatable *activatable)
 	IsGSettingsPlugin *self = IS_GSETTINGS_PLUGIN(activatable);
 	IsGSettingsPluginPrivate *priv = self->priv;
 
+	g_object_set_data(G_OBJECT(priv->manager), "gsettings", NULL);
 	g_signal_handlers_disconnect_by_func(priv->manager, sensor_added, self);
 	g_signal_handlers_disconnect_by_func(priv->manager, sensor_removed, self);
 	while (priv->sensors) {
