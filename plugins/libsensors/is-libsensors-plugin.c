@@ -185,15 +185,8 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 {
 	IsLibsensorsPluginPrivate *priv = self->priv;
 	gchar *chip_name_string = NULL;
-	gchar *label = NULL;
-	const sensors_subfeature *input_feature;
-	const sensors_subfeature *low_feature;
-	const sensors_subfeature *high_feature;
 	const sensors_feature *main_feature;
 	gint nr1 = 0;
-	gdouble value, low, high;
-	gchar *path;
-	IsSensor *sensor;
 
 	chip_name_string = get_chip_name_string(chip_name);
 	if (chip_name_string == NULL) {
@@ -203,6 +196,14 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 	}
 	while ((main_feature = sensors_get_features(chip_name, &nr1)))
 	{
+		gchar *label = NULL;
+		const sensors_subfeature *input_feature;
+		const sensors_subfeature *low_feature;
+		const sensors_subfeature *high_feature;
+		gdouble value, low, high;
+		gchar *path;
+		IsSensor *sensor;
+
 		switch (main_feature->type)
 		{
 		case SENSORS_FEATURE_IN:
