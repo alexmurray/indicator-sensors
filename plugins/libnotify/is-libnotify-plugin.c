@@ -24,6 +24,7 @@
 #include <libnotify/notify.h>
 #include <libnotify/notification.h>
 #include <glib/gi18n.h>
+#include <math.h>
 
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
@@ -127,6 +128,7 @@ is_libnotify_plugin_finalize(GObject *object)
 	G_OBJECT_CLASS(is_libnotify_plugin_parent_class)->finalize(object);
 }
 
+
 static void
 sensor_notify(IsSensor *sensor,
 	      GParamSpec *pspec,
@@ -136,20 +138,47 @@ sensor_notify(IsSensor *sensor,
 
 	priv = self->priv;
 
-	if (g_strcmp0(pspec->name, "value") == 0) {
+	if (g_strcmp0(pspec->name, "value") == 0 ||
+	    g_strcmp0(pspec->name, "min") == 0 ||
+	    g_strcmp0(pspec->name, "min") == 0) {
 		NotifyNotification *notification;
-		gchar *body = g_strdup_printf("%s: %f",
-					      is_sensor_get_label(sensor),
-					      is_sensor_get_value(sensor));
-		notification = notify_notification_new(_("Sensor Value Updated"),
-						       body, NULL);
-		g_free(body);
-		if (priv->append) {
-			GVariant *cap = g_variant_new("s", "");
-			notify_notification_set_hint(notification, "x-canonical-append", cap);
+		gdouble value, min, max;
+
+		value = is_sensor_get_value(sensor);
+		min = is_sensor_get_min(sensor);
+		max = is_sensor_get_max(sensor);
+
+		/* if min and max are not equal (and max is greater than min),
+		   something has set them to reasonable values so assume we can
+		   use them to check for alarm conditions and notify as a
+		   result */
+		if ((max - min) > DBL_EPSILON &&
+		    (value <= min || value >= max))
+		{
+			const gchar *low_value = N_("low value");
+			const gchar *high_value = N_("high value");
+
+			gchar *body = g_strdup_printf("%s: %s %f%s",
+						      is_sensor_get_label(sensor),
+						      (value <= min ?
+						       low_value :
+						       high_value),
+						      value,
+						      is_sensor_get_units(sensor));
+			g_debug("Alarm for %s: %s value %f [min %f, max %f]",
+				is_sensor_get_path(sensor),
+				(value <= min ? "low" : "high"),
+				value, min, max);
+			notification = notify_notification_new(_("Sensor Alarm"),
+							       body, NULL);
+			g_free(body);
+			if (priv->append) {
+				GVariant *cap = g_variant_new("s", "");
+				notify_notification_set_hint(notification, "x-canonical-append", cap);
+			}
+			notify_notification_show(notification, NULL);
+			g_object_unref(notification);
 		}
-		notify_notification_show(notification, NULL);
-		g_object_unref(notification);
 	}
 }
 
