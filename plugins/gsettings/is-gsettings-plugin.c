@@ -119,7 +119,7 @@ sensor_added(IsManager *manager,
 	g_assert(!g_slist_find(priv->sensors, sensor));
 	priv->sensors = g_slist_append(priv->sensors, sensor);
 
-	path = g_strdup_printf("/apps/indicator-sensors/sensor/%s/",
+	path = g_strdup_printf("/apps/indicator-sensors/sensors/%s/",
 			       is_sensor_get_path(sensor));
 	settings = g_settings_new_with_path("indicator-sensors.sensor",
 					    path);
