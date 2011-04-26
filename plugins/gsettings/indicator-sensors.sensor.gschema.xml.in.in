@@ -13,12 +13,12 @@
       <_description>The default label for a sensor</_description>
     </key>
     <key name="min" type="d">
-      <default>0.0</default>
+      <default>-1e37</default>
       <_summary>Default minimum sensor value</_summary>
       <_description>The default minimum value for a sensor.</_description>
     </key>
     <key name="max" type="d">
-      <default>0.0</default>
+      <default>1e37</default>
       <_summary>Default maximum sensor value</_summary>
       <_description>The default maximum value for a sensor.</_description>
     </key>

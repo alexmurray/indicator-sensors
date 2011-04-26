@@ -87,12 +87,14 @@ is_sensor_class_init(IsSensorClass *klass)
 	g_object_class_install_property(gobject_class, PROP_LABEL, properties[PROP_LABEL]);
 	properties[PROP_MIN] = g_param_spec_double("min", "sensor min",
 						   "min of this sensor.",
-						   -G_MAXDOUBLE, G_MAXDOUBLE, 0.0,
+						   -G_MAXDOUBLE, G_MAXDOUBLE,
+						   -G_MAXDOUBLE,
 						   G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_MIN, properties[PROP_MIN]);
 	properties[PROP_MAX] = g_param_spec_double("max", "sensor max",
 						   "max of this sensor.",
-						   -G_MAXDOUBLE, G_MAXDOUBLE, 0.0,
+						   -G_MAXDOUBLE, G_MAXDOUBLE,
+						   G_MAXDOUBLE,
 						   G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_MAX, properties[PROP_MAX]);
 	properties[PROP_UNITS] = g_param_spec_string("units", "sensor units",

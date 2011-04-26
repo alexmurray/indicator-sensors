@@ -148,12 +148,7 @@ sensor_notify(IsSensor *sensor,
 		min = is_sensor_get_min(sensor);
 		max = is_sensor_get_max(sensor);
 
-		/* if min and max are not equal (and max is greater than min),
-		   something has set them to reasonable values so assume we can
-		   use them to check for alarm conditions and notify as a
-		   result */
-		if ((max - min) > DBL_EPSILON &&
-		    (value <= min || value >= max))
+		if (value <= min || value >= max)
 		{
 			const gchar *low_value = N_("low value");
 			const gchar *high_value = N_("high value");
