@@ -113,8 +113,6 @@ sensor_added(IsManager *manager,
 	IsGSettingsPluginPrivate *priv;
 	gchar *path;
 	GSettings *settings;
-	gchar *label;
-	gdouble min, max;
 
 	priv = self->priv;
 
@@ -183,9 +181,6 @@ is_gsettings_plugin_activate(PeasActivatable *activatable)
 			G_SETTINGS_BIND_DEFAULT);
 	g_object_set_data_full(G_OBJECT(priv->manager), "gsettings", settings,
 			       (GDestroyNotify)g_object_unref);
-
-out:
-	return;
 }
 
 static void

@@ -20,7 +20,6 @@
 
 G_DEFINE_TYPE (IsSensor, is_sensor, G_TYPE_OBJECT);
 
-static void is_sensor_dispose(GObject *object);
 static void is_sensor_finalize(GObject *object);
 static void is_sensor_get_property(GObject *object,
 				   guint property_id, GValue *value, GParamSpec *pspec);
@@ -69,7 +68,6 @@ is_sensor_class_init(IsSensorClass *klass)
 
 	gobject_class->get_property = is_sensor_get_property;
 	gobject_class->set_property = is_sensor_set_property;
-	gobject_class->dispose = is_sensor_dispose;
 	gobject_class->finalize = is_sensor_finalize;
 
 	properties[PROP_PATH] = g_param_spec_string("path", "path property",
@@ -192,15 +190,6 @@ is_sensor_set_property(GObject *object,
 	}
 }
 
-
-static void
-is_sensor_dispose (GObject *object)
-{
-	IsSensor *self = (IsSensor *)object;
-	IsSensorPrivate *priv = self->priv;
-
-	G_OBJECT_CLASS(is_sensor_parent_class)->dispose(object);
-}
 
 static void
 is_sensor_finalize (GObject *object)

@@ -322,8 +322,6 @@ sensor_enabled(IsManager *manager,
 	IsIndicatorPrivate *priv = self->priv;
 	GtkMenu *menu;
 	GtkWidget *menu_item;
-	GtkWidget *hbox;
-	GtkWidget *label;
 
 	g_signal_connect(sensor, "notify::value",
 			 G_CALLBACK(sensor_label_or_value_notify),

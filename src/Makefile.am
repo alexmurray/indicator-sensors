@@ -22,8 +22,6 @@ BUILT_SOURCES = marshallers.h marshallers.c
 
 bin_PROGRAMS = indicator-sensors
 indicator_sensors_SOURCES = \
-	marshallers.h \
-	marshallers.c \
 	indicator-sensors.c \
 	is-indicator.h \
 	is-indicator.c \

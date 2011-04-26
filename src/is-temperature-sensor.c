@@ -19,7 +19,6 @@
 
 G_DEFINE_TYPE(IsTemperatureSensor, is_temperature_sensor, IS_TYPE_SENSOR);
 
-static void is_temperature_sensor_dispose(GObject *object);
 static void is_temperature_sensor_finalize(GObject *object);
 
 
@@ -35,9 +34,7 @@ is_temperature_sensor_class_init(IsTemperatureSensorClass *klass)
 
 	g_type_class_add_private(klass, sizeof(IsTemperatureSensorPrivate));
 
-	gobject_class->dispose = is_temperature_sensor_dispose;
 	gobject_class->finalize = is_temperature_sensor_finalize;
-
 }
 
 static void
@@ -51,15 +48,6 @@ is_temperature_sensor_init(IsTemperatureSensor *self)
 }
 
 
-
-static void
-is_temperature_sensor_dispose(GObject *object)
-{
-	IsTemperatureSensor *self = (IsTemperatureSensor *)object;
-	IsTemperatureSensorPrivate *priv = self->priv;
-
-	G_OBJECT_CLASS(is_temperature_sensor_parent_class)->dispose(object);
-}
 
 static void
 is_temperature_sensor_finalize(GObject *object)
@@ -93,6 +81,7 @@ is_temperature_sensor_units_to_string(IsTemperatureSensorUnits units)
 	case IS_TEMPERATURE_SENSOR_UNITS_FAHRENHEIT:
 		string = "\302\260F";
 		break;
+	case NUM_IS_TEMPERATURE_SENSOR_UNITS:
 	default:
 		g_warning("Unable to convert IsTemperatureSensorUnits %d to string",
 			  units);
@@ -175,6 +164,7 @@ void is_temperature_sensor_set_units(IsTemperatureSensor *self,
 			min = fahrenheit_to_celcius(min);
 			max = fahrenheit_to_celcius(max);
 			break;
+		case NUM_IS_TEMPERATURE_SENSOR_UNITS:
 		default:
 			g_assert_not_reached();
 		}

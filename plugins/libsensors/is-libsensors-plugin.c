@@ -242,6 +242,17 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 								      main_feature,
 								      SENSORS_SUBFEATURE_TEMP_CRIT);
 			break;
+
+		case SENSORS_FEATURE_POWER:
+		case SENSORS_FEATURE_ENERGY:
+		case SENSORS_FEATURE_CURR:
+		case SENSORS_FEATURE_VID:
+		case SENSORS_FEATURE_BEEP_ENABLE:
+		case SENSORS_FEATURE_UNKNOWN:
+			g_debug("Ignoring unimplemented sensor type %d",
+				main_feature->type);
+			break;
+
 		default:
 			g_warning("libsensors plugin: error determining type for sensor '%s'",
 				  chip_name_string);
@@ -285,21 +296,15 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		path = g_strdup_printf("libsensors/%s/%d",
 				       chip_name_string,
 				       input_feature->number);
-		switch (main_feature->type)
+		if (main_feature->type == SENSORS_FEATURE_TEMP)
 		{
-		case SENSORS_FEATURE_IN:
-		case SENSORS_FEATURE_FAN:
-			sensor = is_sensor_new(path, label,
-					       low, high, "U");
-			break;
-		case SENSORS_FEATURE_TEMP:
 			sensor = is_temperature_sensor_new_full(path,
 								label,
 								low, high,
 								IS_TEMPERATURE_SENSOR_UNITS_CELSIUS);
-			break;
-		default:
-			g_assert_not_reached();
+		} else {
+			sensor = is_sensor_new(path, label,
+					       low, high, "U");
 		}
 		/* take ownership of path pointer */
 		g_hash_table_insert(priv->sensor_chip_names, path, (void *)chip_name);
@@ -321,7 +326,6 @@ is_libsensors_plugin_activate(PeasActivatable *activatable)
 	IsLibsensorsPlugin *self = IS_LIBSENSORS_PLUGIN(activatable);
 	IsLibsensorsPluginPrivate *priv = self->priv;
 	const sensors_chip_name *chip_name;
-	int i = 0;
         int nr = 0;
 
 	/* search for sensors and add them to manager */
@@ -344,8 +348,9 @@ is_libsensors_plugin_deactivate(PeasActivatable *activatable)
 	IsLibsensorsPlugin *plugin = IS_LIBSENSORS_PLUGIN(activatable);
 	IsLibsensorsPluginPrivate *priv = plugin->priv;
 
-	/* remove sensors from manager */
-	is_manager_remove_all_sensors(priv->manager, "libsensors");
+	(void)priv;
+
+	/* TODO: remove sensors from manager since we are being unloaded */
 }
 
 static void

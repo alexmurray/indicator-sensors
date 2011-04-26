@@ -246,9 +246,7 @@ gboolean _is_store_get_iter(GtkTreeModel *tree_model,
 {
 	IsStore *self;
 	IsStorePrivate *priv;
-	IsStoreEntry *entry;
-	gint *indices, i, depth, index;
-	GSequence *entries;
+	gint *indices, depth;
 	gboolean ret = FALSE;
 
 	g_return_val_if_fail(IS_IS_STORE(tree_model), FALSE);
@@ -262,13 +260,6 @@ gboolean _is_store_get_iter(GtkTreeModel *tree_model,
 
 	ret = get_iter_for_indices(self, indices, depth, 0, priv->entries, iter);
 	return ret;
-}
-
-static void
-prepend_path(GtkTreePath *path,
-	     GSequenceIter *iter)
-{
-
 }
 
 static GtkTreePath *_is_store_get_path(GtkTreeModel *tree_model,
@@ -682,7 +673,7 @@ remove_entry(IsStore *self,
 	parent_iter = entry->parent;
 	iter.stamp = priv->stamp;
 	iter.user_data = entry->iter;
-	gtk_tree_model_get_path(GTK_TREE_MODEL(self), &iter);
+	path = gtk_tree_model_get_path(GTK_TREE_MODEL(self), &iter);
 	g_sequence_remove(entry->iter);
 	gtk_tree_model_row_deleted(GTK_TREE_MODEL(self), path);
 	gtk_tree_path_free(path);
@@ -702,7 +693,6 @@ is_store_remove_path(IsStore *self,
 {
 	IsStorePrivate *priv;
 	IsStoreEntry *entry = NULL;
-	gchar **names = NULL;
 	gboolean ret = FALSE;
 
 	g_return_val_if_fail(IS_IS_STORE(self), FALSE);
@@ -725,7 +715,6 @@ is_store_set_label(IsStore *self,
 {
 	IsStorePrivate *priv;
 	IsStoreEntry *entry = NULL;
-	gchar *ascii_label1, *ascii_label2;
 	gboolean ret = FALSE;
 
 	g_return_val_if_fail(IS_IS_STORE(self), FALSE);
@@ -789,9 +778,7 @@ is_store_remove(IsStore *self,
 		GtkTreeIter *iter)
 {
 	IsStorePrivate *priv;
-	GtkTreePath *path;
 	IsStoreEntry *entry;
-	GSequenceIter *parent;
 
 	g_return_val_if_fail(IS_IS_STORE(self), FALSE);
 	g_return_val_if_fail(iter != NULL, FALSE);
@@ -813,7 +800,6 @@ gboolean is_store_get_iter(IsStore *self,
 {
 	IsStorePrivate *priv;
 	IsStoreEntry *entry = NULL;
-	gchar **names = NULL;
 	gboolean ret = FALSE;
 
 	g_return_val_if_fail(IS_IS_STORE(self), FALSE);

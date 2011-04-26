@@ -18,6 +18,7 @@
 #include "is-manager.h"
 #include "is-store.h"
 #include "marshallers.h"
+#include "marshallers.c"
 #include <glib/gi18n.h>
 
 G_DEFINE_TYPE(IsManager, is_manager, GTK_TYPE_TREE_VIEW);
@@ -138,7 +139,7 @@ update_sensors(IsManager *self)
 {
 	IsManagerPrivate *priv;
 
-	g_return_if_fail(IS_IS_MANAGER(self));
+	g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
 
 	priv = self->priv;
 	g_slist_foreach(priv->enabled_list,
@@ -290,7 +291,6 @@ is_manager_init(IsManager *self)
 	IsManagerPrivate *priv;
 	GtkCellRenderer *renderer;
 	GtkTreeViewColumn *col;
-	GtkTreeModel *model;
 
 	priv = G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_MANAGER,
 					   IsManagerPrivate);
@@ -471,7 +471,7 @@ is_manager_get_enabled_sensors_list(IsManager *self)
 	IsManagerPrivate *priv;
 	GSList *_list, *list = NULL;
 
-	g_return_if_fail(IS_IS_MANAGER(self));
+	g_return_val_if_fail(IS_IS_MANAGER(self), NULL);
 	priv = self->priv;
 
 	for (_list = priv->enabled_list;
@@ -490,8 +490,6 @@ is_manager_set_enabled_sensors(IsManager *self,
 	IsManagerPrivate *priv;
 	int i, n;
 	GSList *list;
-	const gchar *path;
-	gboolean ret = FALSE;
 	GTree *tree;
 
 	g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
@@ -537,6 +535,7 @@ is_manager_set_enabled_sensors(IsManager *self,
 	priv->enabled_paths = tree;
 	g_object_notify_by_pspec(G_OBJECT(self),
 				 properties[PROP_ENABLED_SENSORS]);
+	return TRUE;
 }
 
 static gboolean
@@ -556,7 +555,6 @@ is_manager_get_enabled_sensors(IsManager *self)
 {
 	IsManagerPrivate *priv;
 	GArray *array;
-	int i;
 
 	g_return_val_if_fail(IS_IS_MANAGER(self), NULL);
 
