@@ -160,6 +160,31 @@ AM_CONDITIONAL(NVIDIA, test -n "$NVIDIA_LIBS")
 AC_SUBST(NVIDIA_CFLAGS)
 AC_SUBST(NVIDIA_LIBS)
 
+# ============ enable extra warnings etc ============= #
+if test "$USE_MAINTAINER_MODE" = "yes"; then
+   CFLAGS+=" -Werror -Wall -Wextra"
+   CFLAGS+=" -Wno-missing-field-initializers"
+   CFLAGS+=" -Wno-unused-parameter"
+   CFLAGS+=" -Wmissing-declarations"
+   CFLAGS+=" -Wredundant-decls"
+   CFLAGS+=" -Wmissing-noreturn"
+   CFLAGS+=" -Wshadow"
+   CFLAGS+=" -Wpointer-arith"
+   CFLAGS+=" -Wcast-align"
+   CFLAGS+=" -Wwrite-strings"
+   CFLAGS+=" -Winline"
+   CFLAGS+=" -Wformat-nonliteral"
+   CFLAGS+=" -Wformat-security"
+   CFLAGS+=" -Wswitch-enum"
+   CFLAGS+=" -Wswitch-default"
+   CFLAGS+=" -Winit-self"
+   CFLAGS+=" -Wmissing-include-dirs"
+   CFLAGS+=" -Wundef"
+   CFLAGS+=" -Waggregate-return"
+   CFLAGS+=" -Wmissing-format-attribute"
+   CFLAGS+=" -Wnested-externs"
+fi
+
 AC_SUBST(CFLAGS)
 # for help docs stuff
 AC_PATH_PROG(XSLTPROC, xsltproc, no)
@@ -167,7 +192,13 @@ if test x"$XSLTPROC" = xno; then
   AC_MSG_ERROR([xsltproc executable not found in your path - should be installed with libxslt])
 fi
 
+# =========== we need glib-genmarshal ================ #
+AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
+
 GNOME_COMPILE_WARNINGS(maximum)
+
+# Use --enable-maintainer-mode to disabled deprecated symbols
+GNOME_MAINTAINER_MODE_DEFINES
 
 # ================ gnome-doc-utils stuff ============= #
 GNOME_DOC_INIT
