@@ -213,10 +213,10 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 							       SENSORS_SUBFEATURE_IN_INPUT);
 			low_feature = sensors_get_subfeature(chip_name,
 							     main_feature,
-							     SENSORS_SUBFEATURE_IN_MIN);
+							     SENSORS_SUBFEATURE_IN_MIN_ALARM);
 			high_feature = sensors_get_subfeature(chip_name,
 							      main_feature,
-							      SENSORS_SUBFEATURE_IN_MAX);
+							      SENSORS_SUBFEATURE_IN_MAX_ALARM);
 			break;
 		case SENSORS_FEATURE_FAN:
 			input_feature = sensors_get_subfeature(chip_name,
@@ -224,7 +224,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 							       SENSORS_SUBFEATURE_FAN_INPUT);
 			low_feature = sensors_get_subfeature(chip_name,
 							     main_feature,
-							     SENSORS_SUBFEATURE_FAN_MIN);
+							     SENSORS_SUBFEATURE_FAN_ALARM);
 			// no fan max feature
 			high_feature = NULL;
 			break;
@@ -234,14 +234,14 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 							       SENSORS_SUBFEATURE_TEMP_INPUT);
 			low_feature = sensors_get_subfeature(chip_name,
 							     main_feature,
-							     SENSORS_SUBFEATURE_TEMP_MIN);
+							     SENSORS_SUBFEATURE_TEMP_MIN_ALARM);
 			high_feature = sensors_get_subfeature(chip_name,
 							      main_feature,
-							      SENSORS_SUBFEATURE_TEMP_MAX);
+							      SENSORS_SUBFEATURE_TEMP_MAX_ALARM);
 			if (!high_feature) {
 				high_feature = sensors_get_subfeature(chip_name,
 								      main_feature,
-								      SENSORS_SUBFEATURE_TEMP_CRIT);
+								      SENSORS_SUBFEATURE_TEMP_CRIT_ALARM);
 			}
 			break;
 
