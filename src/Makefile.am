@@ -29,6 +29,8 @@ indicator_sensors_SOURCES = \
 	is-sensor.c \
 	is-temperature-sensor.h \
 	is-temperature-sensor.c \
+	is-fan-sensor.h \
+	is-fan-sensor.c \
 	is-store.h \
 	is-store.c \
 	is-manager.h \

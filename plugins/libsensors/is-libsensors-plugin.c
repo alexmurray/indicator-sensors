@@ -23,6 +23,7 @@
 #include "is-manager.h"
 #include <stdlib.h>
 #include <is-temperature-sensor.h>
+#include <is-fan-sensor.h>
 #include <is-manager.h>
 #include <sensors/sensors.h>
 #include <sensors/error.h>
@@ -237,10 +238,11 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			high_feature = sensors_get_subfeature(chip_name,
 							      main_feature,
 							      SENSORS_SUBFEATURE_TEMP_MAX);
-			if (!high_feature)
+			if (!high_feature) {
 				high_feature = sensors_get_subfeature(chip_name,
 								      main_feature,
 								      SENSORS_SUBFEATURE_TEMP_CRIT);
+			}
 			break;
 
 		case SENSORS_FEATURE_POWER:
@@ -302,10 +304,13 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 								label,
 								low, high,
 								IS_TEMPERATURE_SENSOR_UNITS_CELSIUS);
+		} else if (main_feature->type == SENSORS_FEATURE_FAN) {
+			sensor = is_fan_sensor_new_full(path, label, low, high);
 		} else {
 			sensor = is_sensor_new(path, label,
 					       low, high, "U");
 		}
+
 		/* take ownership of path pointer */
 		g_hash_table_insert(priv->sensor_chip_names, path, (void *)chip_name);
 		/* connect to update-value signal */
