@@ -1,4 +1,5 @@
 *~
+indicator-sensors*.tar.*
 *.lo
 *.la
 *.so
@@ -33,11 +34,11 @@ po/Makevars*
 po/POTFILES
 po/Rules-quot
 po/stamp-it
-src/*.o
-src/config.h*
-src/indicator-sensors
-src/marshallers.[ch]
-src/stamp-h1
+indicator-sensors/*.o
+indicator-sensors/config.h*
+indicator-sensors/indicator-sensors
+indicator-sensors/marshallers.[ch]
+indicator-sensors/stamp-h1
 
 
 
