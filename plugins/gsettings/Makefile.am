@@ -24,7 +24,7 @@ libgsettings_la_LIBADD  = 	\
 
 plugin_DATA = gsettings.plugin
 
-gsettings_SCHEMAS = indicator-sensors.sensor.gschema.xml
+gsettings_SCHEMAS = indicator-sensors.gschema.xml
 @INTLTOOL_XML_NOMERGE_RULE@
 
 @GSETTINGS_RULES@
@@ -38,5 +38,5 @@ DISTCLEANFILES = \
 MAINTAINERCLEANFILES = $(gsettings_SCHEMAS:.xml=.valid)
 
 EXTRA_DIST =  $(plugin_DATA) \
-	indicator-sensors.sensor.gschema.xml.in.in
+	indicator-sensors.gschema.xml.in.in
 

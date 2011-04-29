@@ -21,6 +21,9 @@ ltmain.sh
 missing
 mkinstalldirs
 m4/*
+plugins/gsettings/indicator-sensors.gschema.valid
+plugins/gsettings/indicator-sensors.gschema.xml*
+po/*.gmo
 po/*.sed
 po/*.sin
 po/*.header

@@ -216,7 +216,7 @@ AC_CONFIG_FILES([
 	pixmaps/Makefile
 	plugins/Makefile
 	plugins/gsettings/Makefile
-	plugins/gsettings/indicator-sensors.sensor.gschema.xml.in
+	plugins/gsettings/indicator-sensors.gschema.xml.in
 	plugins/libnotify/Makefile
 	plugins/libsensors/Makefile
 	plugins/nvidia/Makefile
