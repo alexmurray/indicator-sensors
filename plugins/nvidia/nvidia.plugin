@@ -1,0 +1,9 @@
+[Plugin]
+Module=libnvidia
+IAge=2
+Name=NVidia
+Description=Provides sensors from NVidia GPUs
+Authors=Alex Murray <murray.alex@gmail.com>
+Copyright=Copyright © 2011 Alex Murray
+Website=http://github.com/alexmurray/indicator-sensors
+Help=http://github.com/alexmurray/indicator-sensors

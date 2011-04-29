@@ -217,6 +217,7 @@ AC_CONFIG_FILES([
 	plugins/gsettings/indicator-sensors.sensor.gschema.xml.in
 	plugins/libnotify/Makefile
 	plugins/libsensors/Makefile
+	plugins/nvidia/Makefile
 	po/Makefile.in
 ])
 AC_OUTPUT
