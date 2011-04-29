@@ -1,0 +1,43 @@
+# German translation for indicator-sensors
+# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
+# This file is distributed under the same license as the indicator-sensors package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: indicator-sensors\n"
+"Report-Msgid-Bugs-To: murray.alex@gmail.com\n"
+"POT-Creation-Date: 2011-04-29 23:00+0930\n"
+"PO-Revision-Date: 2011-04-22 15:24+0000\n"
+"Last-Translator: T-Lo <Unknown>\n"
+"Language-Team: German <de@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2011-04-29 13:20+0000\n"
+"X-Generator: Launchpad (build 12915)\n"
+
+#. first placeholder is sensor name,
+#. * second is error message
+#: ../plugins/libsensors/is-libsensors-plugin.c:171
+#, c-format
+msgid "Error getting sensor value for sensor %s: %s"
+msgstr "Fehler beim Auslesen des Wertes für Sensor %s: %s"
+
+#: ../src/is-indicator.c:163
+msgid "_Preferences"
+msgstr "_Einstellungen"
+
+#: ../src/is-indicator.c:164
+msgid "Preferences"
+msgstr "Einstellungen"
+
+#. TODO: translate me
+#: ../src/is-indicator.c:268 ../src/is-indicator.c:394
+msgid "No sensors"
+msgstr "Keine Sensoren"
+
+#: ../src/is-indicator.c:268 ../src/is-indicator.c:394
+msgid "No Sensors"
+msgstr "Keine Sensoren"

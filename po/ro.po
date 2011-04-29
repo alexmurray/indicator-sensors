@@ -1,21 +1,22 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Romanian translation for indicator-sensors
+# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
+# This file is distributed under the same license as the indicator-sensors package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: murray.alex@gmail.com\n"
 "POT-Creation-Date: 2011-04-29 23:00+0930\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2011-04-23 00:14+0000\n"
+"Last-Translator: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>\n"
+"Language-Team: Romanian <ro@li.org>\n"
+"Language: ro\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2011-04-29 13:20+0000\n"
+"X-Generator: Launchpad (build 12915)\n"
 
 #. first placeholder is sensor name,
 #. * second is error message
@@ -26,16 +27,16 @@ msgstr ""
 
 #: ../src/is-indicator.c:163
 msgid "_Preferences"
-msgstr ""
+msgstr "_Preferințe"
 
 #: ../src/is-indicator.c:164
 msgid "Preferences"
-msgstr ""
+msgstr "Preferințe"
 
 #. TODO: translate me
 #: ../src/is-indicator.c:268 ../src/is-indicator.c:394
 msgid "No sensors"
-msgstr ""
+msgstr "Niciun senzor"
 
 #: ../src/is-indicator.c:268 ../src/is-indicator.c:394
 msgid "No Sensors"
