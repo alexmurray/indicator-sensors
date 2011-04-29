@@ -38,5 +38,5 @@ DISTCLEANFILES = \
 MAINTAINERCLEANFILES = $(gsettings_SCHEMAS:.xml=.valid)
 
 EXTRA_DIST =  $(plugin_DATA) \
-	indicator-sensors.gschema.xml.in.in
+	indicator-sensors.gschema.xml.in
 

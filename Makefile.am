@@ -1,4 +1,4 @@
-SUBDIRS = pixmaps plugins po src
+SUBDIRS = pixmaps plugins po indicator-sensors
 
 ACLOCAL_AMFLAGS = -I m4
 

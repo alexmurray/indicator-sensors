@@ -1,2 +1,9 @@
+indicator-sensors/is-fan-sensor.c
+indicator-sensors/is-indicator.c
+indicator-sensors/is-manager.c
+indicator-sensors/is-preferences-dialog.c
+plugins/gsettings/indicator-sensors.gschema.xml.in
+plugins/gsettings/indicator-sensors.gschema.xml.in.in
+plugins/libnotify/is-libnotify-plugin.c
 plugins/libsensors/is-libsensors-plugin.c
-src/is-indicator.c
+plugins/nvidia/is-nvidia-plugin.c

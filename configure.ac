@@ -2,8 +2,8 @@
 AC_PREREQ(2.67)
 AC_INIT([indicator-sensors], [0.1], [https://bugs.launchpad.net/indicator-sensors], [indicator-sensors])
 
-AM_CONFIG_HEADER([src/config.h])
-AC_CONFIG_SRCDIR([src/indicator-sensors.c])
+AM_CONFIG_HEADER([indicator-sensors/config.h])
+AC_CONFIG_SRCDIR([indicator-sensors/indicator-sensors.c])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([1.11 dist-bzip2])
@@ -212,7 +212,7 @@ AC_SUBST(PLUGIN_LIBTOOL_FLAGS)
 # ================= generate files =================== #
 AC_CONFIG_FILES([
 	Makefile
-	src/Makefile
+	indicator-sensors/Makefile
 	pixmaps/Makefile
 	plugins/Makefile
 	plugins/gsettings/Makefile

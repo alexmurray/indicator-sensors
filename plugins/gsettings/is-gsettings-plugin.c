@@ -20,7 +20,7 @@
 #endif
 
 #include "is-gsettings-plugin.h"
-#include <is-manager.h>
+#include <indicator-sensors/is-manager.h>
 #include <gio/gio.h>
 #include <glib/gi18n.h>
 

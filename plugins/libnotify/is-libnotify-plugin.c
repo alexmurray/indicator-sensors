@@ -20,7 +20,7 @@
 #endif
 
 #include "is-libnotify-plugin.h"
-#include <is-manager.h>
+#include <indicator-sensors/is-manager.h>
 #include <libnotify/notify.h>
 #include <libnotify/notification.h>
 #include <glib/gi18n.h>

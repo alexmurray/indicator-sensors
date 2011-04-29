@@ -20,11 +20,10 @@
 #endif
 
 #include "is-libsensors-plugin.h"
-#include "is-manager.h"
 #include <stdlib.h>
-#include <is-temperature-sensor.h>
-#include <is-fan-sensor.h>
-#include <is-manager.h>
+#include <indicator-sensors/is-temperature-sensor.h>
+#include <indicator-sensors/is-fan-sensor.h>
+#include <indicator-sensors/is-manager.h>
 #include <sensors/sensors.h>
 #include <sensors/error.h>
 #include <glib/gi18n.h>
@@ -198,9 +197,9 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 	while ((main_feature = sensors_get_features(chip_name, &nr1)))
 	{
 		gchar *label = NULL;
-		const sensors_subfeature *input_feature;
-		const sensors_subfeature *low_feature;
-		const sensors_subfeature *high_feature;
+		const sensors_subfeature *input_feature = NULL;
+		const sensors_subfeature *low_feature = NULL;
+		const sensors_subfeature *high_feature = NULL;
 		gdouble value, low, high;
 		gchar *path;
 		IsSensor *sensor;
