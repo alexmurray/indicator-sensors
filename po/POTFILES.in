@@ -1,3 +1,4 @@
+data/indicator-sensors.desktop.in
 indicator-sensors/is-fan-sensor.c
 indicator-sensors/is-indicator.c
 indicator-sensors/is-manager.c

@@ -71,8 +71,8 @@ int main(int argc, char **argv)
 	g_free(plugin_dir);
 
 	manager = is_manager_new();
-	/* create indicator - TODO: fixup icon name etc */
-	indicator = is_indicator_new(PACKAGE, PACKAGE, manager);
+	/* create indicator which uses this manager */
+	indicator = is_indicator_new(manager);
 
 	/* create extension set and set manager as object */
 	set = peas_extension_set_new(engine, PEAS_TYPE_ACTIVATABLE,

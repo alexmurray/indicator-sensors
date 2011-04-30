@@ -15,6 +15,10 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "is-indicator.h"
 #include "is-manager.h"
 #include "is-preferences-dialog.h"
@@ -265,7 +269,8 @@ sensor_disabled(IsManager *manager,
 	}
 	if (priv->menu_items == NULL) {
 		app_indicator_set_label(APP_INDICATOR(self),
-					_("No sensors"), _("No Sensors"));
+					_("No active sensors"),
+					_("No active sensors"));
 		priv->primary_sensor = NULL;
 		goto out;
 	}
@@ -358,9 +363,7 @@ sensor_enabled(IsManager *manager,
 }
 
 IsIndicator *
-is_indicator_new(const gchar *id,
-		 const gchar *icon_name,
-		 IsManager *manager)
+is_indicator_new(IsManager *manager)
 {
 	GtkActionGroup *action_group;
 	GtkUIManager *ui_manager;
@@ -368,8 +371,13 @@ is_indicator_new(const gchar *id,
 	GtkWidget *menu;
 
 	AppIndicator *self = g_object_new(IS_TYPE_INDICATOR,
-					  "id", id,
-					  "icon-name", icon_name,
+					  "id", PACKAGE,
+					  /* seems we have to specify an icon
+					     for the indicator to display label,
+					     but since we don't actually want an
+					     icon displayed for now, set to a
+					     non-existent icon name */
+					  "icon-name", "no-icon",
 					  "category", "Hardware",
 					  "manager", manager,
 					  NULL);
@@ -388,11 +396,9 @@ is_indicator_new(const gchar *id,
 	menu = gtk_ui_manager_get_widget(ui_manager, "/ui/Indicator");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),
 			      gtk_separator_menu_item_new());
-	app_indicator_set_status(self, APP_INDICATOR_STATUS_ACTIVE);
-	app_indicator_set_attention_icon(self, "sensors-indicator");
-	/* TODO: translate me */
-	app_indicator_set_label(self, _("No sensors"), _("No Sensors"));
+	app_indicator_set_label(self, _("No Sensors"), _("No Sensors"));
 	app_indicator_set_menu(self, GTK_MENU(menu));
+	app_indicator_set_status(self, APP_INDICATOR_STATUS_ACTIVE);
 
 	return IS_INDICATOR(self);
 }

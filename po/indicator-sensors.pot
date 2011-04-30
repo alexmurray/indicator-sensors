@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: murray.alex@gmail.com\n"
-"POT-Creation-Date: 2011-04-29 23:33+0930\n"
+"POT-Creation-Date: 2011-04-30 14:14+0930\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,27 +17,33 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: ../data/indicator-sensors.desktop.in.h:1
+msgid "An indicator for Unity which displays hardware sensor readings"
+msgstr ""
+
+#: ../data/indicator-sensors.desktop.in.h:2
+msgid "Hardware Sensors Indicator"
+msgstr ""
+
 #: ../indicator-sensors/is-fan-sensor.c:53
 msgid "RPM"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:163
+#: ../indicator-sensors/is-indicator.c:167
 msgid "_Preferences"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:164
+#: ../indicator-sensors/is-indicator.c:168
 #: ../indicator-sensors/is-preferences-dialog.c:75
 msgid "Preferences"
 msgstr ""
 
-#. TODO: translate me
-#: ../indicator-sensors/is-indicator.c:268
-#: ../indicator-sensors/is-indicator.c:394
-msgid "No sensors"
+#: ../indicator-sensors/is-indicator.c:272
+#: ../indicator-sensors/is-indicator.c:273
+msgid "No active sensors"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:268
-#: ../indicator-sensors/is-indicator.c:394
+#: ../indicator-sensors/is-indicator.c:399
 msgid "No Sensors"
 msgstr ""
 

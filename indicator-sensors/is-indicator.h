@@ -62,8 +62,7 @@ struct _IsIndicator
 };
 
 GType is_indicator_get_type(void) G_GNUC_CONST;
-IsIndicator *is_indicator_new(const gchar *id, const gchar *icon_name,
-			      IsManager *manager);
+IsIndicator *is_indicator_new(IsManager *manager);
 
 G_END_DECLS
 

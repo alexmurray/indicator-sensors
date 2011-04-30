@@ -1,0 +1,10 @@
+[Desktop Entry]
+_Name=Hardware Sensors Indicator
+_GenericName=Hardware Sensors Indicator
+_Comment=An indicator for Unity which displays hardware sensor readings
+Exec=indicator-sensors
+Icon=indicator-sensors
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=System;
