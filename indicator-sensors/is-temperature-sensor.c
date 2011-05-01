@@ -167,6 +167,7 @@ void is_temperature_sensor_set_units(IsTemperatureSensor *self,
 		case NUM_IS_TEMPERATURE_SENSOR_UNITS:
 		default:
 			g_assert_not_reached();
+			break;
 		}
 		/* set all in one go */
 		g_object_set(self,
@@ -178,3 +179,28 @@ void is_temperature_sensor_set_units(IsTemperatureSensor *self,
 
 }
 
+void
+is_temperature_sensor_set_celsius_value(IsTemperatureSensor *self,
+					gdouble value)
+{
+	IsTemperatureSensorPrivate *priv;
+
+	g_return_if_fail(IS_IS_TEMPERATURE_SENSOR(self));
+
+	priv = self->priv;
+
+	switch (priv->scale) {
+	case IS_TEMPERATURE_SENSOR_SCALE_CELSIUS:
+		break;
+
+	case IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT:
+		value = celcius_to_fahrenheit(value);
+		break;
+
+	case IS_TEMPERATURE_SENSOR_SCALE_INVALID:
+	case NUM_IS_TEMPERATURE_SENSOR_SCALE:
+	default:
+		g_assert_not_reached();
+	}
+	is_sensor_set_value(IS_SENSOR(self), value);
+}

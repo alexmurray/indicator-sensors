@@ -1,0 +1,9 @@
+[Plugin]
+Module=libudisks
+IAge=2
+Name=udisks
+Description=Provides disk temperature monitoring via udisks
+Authors=Alex Murray <murray.alex@gmail.com>
+Copyright=Copyright © 2011 Alex Murray
+Website=http://github.com/alexmurray/indicator-sensors
+Help=http://github.com/alexmurray/indicator-sensors

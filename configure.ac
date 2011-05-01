@@ -1,4 +1,4 @@
-# ================= initialization =================== #
+ ================= initialization =================== #
 AC_PREREQ(2.67)
 AC_INIT([indicator-sensors], [0.1-alpha], [https://bugs.launchpad.net/indicator-sensors], [indicator-sensors])
 
@@ -42,12 +42,13 @@ AC_SUBST(LIBS)
 # check for headers needed for standard interfaces
 #AC_CHECK_HEADERS()
 
-GLIB_REQUIRED=2.24.0
+GLIB_REQUIRED=2.26.0
 GIO_REQUIRED=2.26.0
 GTK_REQUIRED=2.24.0
 APPINDICATOR_REQUIRED=0.0.7
 LIBPEAS_REQUIRED=0.7.2
 LIBNOTIFY_REQUIRED=0.7.2
+LIBATASMART_REQUIRED=0.16
 
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
@@ -162,6 +163,12 @@ AM_CONDITIONAL(NVIDIA, test -n "$NVIDIA_LIBS")
 AC_SUBST(NVIDIA_CFLAGS)
 AC_SUBST(NVIDIA_LIBS)
 
+PKG_CHECK_MODULES(LIBATASMART, libatasmart >= $LIBATASMART_REQUIRED,
+		  HAVE_LIBATASMART="yes", HAVE_LIBATASMART="no")
+AC_SUBST(LIBATASMART_CFLAGS)
+AC_SUBST(LIBATASMART_LIBS)
+AM_CONDITIONAL(UDISKS, test -n "$LIBATASMART_CFLAGS")
+
 # ============ enable extra warnings etc ============= #
 if test "$USE_MAINTAINER_MODE" = "yes"; then
    CFLAGS+=" -Werror -Wall -Wextra"
@@ -221,6 +228,7 @@ AC_CONFIG_FILES([
 	plugins/libnotify/Makefile
 	plugins/libsensors/Makefile
 	plugins/nvidia/Makefile
+	plugins/udisks/Makefile
 	po/Makefile.in
 ])
 AC_OUTPUT

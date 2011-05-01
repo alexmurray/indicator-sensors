@@ -11,3 +11,7 @@ endif
 if NVIDIA
 SUBDIRS += nvidia
 endif
+
+if UDISKS
+SUBDIRS += udisks
+endif
