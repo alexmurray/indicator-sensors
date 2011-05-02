@@ -60,10 +60,11 @@ struct _IsTemperatureSensor
 };
 
 typedef enum {
-	IS_TEMPERATURE_SENSOR_UNITS_CELSIUS,
-	IS_TEMPERATURE_SENSOR_UNITS_FAHRENHEIT,
-	NUM_IS_TEMPERATURE_SENSOR_UNITS,
-} IsTemperatureSensorUnits;
+	IS_TEMPERATURE_SENSOR_SCALE_INVALID,
+	IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
+	IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT,
+	NUM_IS_TEMPERATURE_SENSOR_SCALE,
+} IsTemperatureSensorScale;
 
 GType is_temperature_sensor_get_type(void) G_GNUC_CONST;
 IsSensor *is_temperature_sensor_new(const gchar *path,
@@ -72,13 +73,12 @@ IsSensor *is_temperature_sensor_new_full(const gchar *path,
 					 const gchar *label,
 					 gdouble min,
 					 gdouble max,
-					 IsTemperatureSensorUnits units);
-void is_temperature_sensor_set_units(IsTemperatureSensor *sensor,
-				     IsTemperatureSensorUnits units);
-IsTemperatureSensorUnits is_temperature_sensor_get_units(IsTemperatureSensor *sensor);
-gdouble celcius_to_fahrenheit(gdouble celcius);
-gdouble fahrenheit_to_celcius(gdouble fahrenheit);
-
+					 IsTemperatureSensorScale scale);
+void is_temperature_sensor_set_scale(IsTemperatureSensor *sensor,
+				     IsTemperatureSensorScale scale);
+IsTemperatureSensorScale is_temperature_sensor_get_scale(IsTemperatureSensor *sensor);
+void is_temperature_sensor_set_celsius_value(IsTemperatureSensor *sensor,
+					     gdouble value);
 
 G_END_DECLS
 

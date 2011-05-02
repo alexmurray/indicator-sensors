@@ -302,7 +302,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			sensor = is_temperature_sensor_new_full(path,
 								label,
 								low, high,
-								IS_TEMPERATURE_SENSOR_UNITS_CELSIUS);
+								IS_TEMPERATURE_SENSOR_SCALE_CELSIUS);
 		} else if (main_feature->type == SENSORS_FEATURE_FAN) {
 			sensor = is_fan_sensor_new_full(path, label, low, high);
 		} else {
