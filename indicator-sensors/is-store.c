@@ -628,8 +628,6 @@ is_store_add_sensor(IsStore *self,
 			iter.user_data = entry->iter;
 			path = gtk_tree_model_get_path(GTK_TREE_MODEL(self),
 						       &iter);
-			g_debug("IsStore: inserted new entry %s at path %s",
-				name, gtk_tree_path_to_string(path));
 			gtk_tree_model_row_inserted(GTK_TREE_MODEL(self), path,
 						    &iter);
 			gtk_tree_path_free(path);
@@ -656,7 +654,7 @@ is_store_add_sensor(IsStore *self,
 	ret = TRUE;
 
 out:
-	return TRUE;
+	return ret;
 }
 
 static void
