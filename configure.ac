@@ -171,6 +171,7 @@ AM_CONDITIONAL(UDISKS, test -n "$LIBATASMART_CFLAGS")
 
 # ============ enable extra warnings etc ============= #
 if test "$USE_MAINTAINER_MODE" = "yes"; then
+   CFLAGS+=" -ggdb"
    CFLAGS+=" -Werror -Wall -Wextra"
    CFLAGS+=" -Wno-missing-field-initializers"
    CFLAGS+=" -Wno-unused-parameter"
