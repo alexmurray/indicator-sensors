@@ -200,7 +200,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		const sensors_subfeature *input_feature = NULL;
 		const sensors_subfeature *low_feature = NULL;
 		const sensors_subfeature *high_feature = NULL;
-		gdouble value, low, high;
+		gdouble value = 0.0, low = -G_MAXDOUBLE, high = G_MAXDOUBLE;
 		gchar *path;
 		IsSensor *sensor;
 
@@ -221,6 +221,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			input_feature = sensors_get_subfeature(chip_name,
 							       main_feature,
 							       SENSORS_SUBFEATURE_FAN_INPUT);
+			low = 0.0f;
 			low_feature = sensors_get_subfeature(chip_name,
 							     main_feature,
 							     SENSORS_SUBFEATURE_FAN_ALARM);
