@@ -20,7 +20,6 @@
 #endif
 
 #include "is-udisks-plugin.h"
-#include "is-udisks-sensor.h"
 #include <indicator-sensors/is-manager.h>
 #include <indicator-sensors/is-temperature-sensor.h>
 #include <atasmart.h>
@@ -116,15 +115,61 @@ is_udisks_plugin_finalize(GObject *object)
 
 static void
 update_sensor_value(IsTemperatureSensor *sensor,
-		    GDBusProxy *proxy)
+		    IsUdisksPlugin *self)
 
 {
+	IsUdisksPluginPrivate *priv;
+	gchar *device, *path;
+	GDBusProxy *proxy;
 	GVariant *var;
+	GError *error = NULL;
 	SkDisk *sk_disk;
 	const gchar *blob;
 	gsize len;
 	guint64 temperature;
 	gdouble value;
+
+	priv = self->priv;
+
+	device = g_path_get_basename(is_sensor_get_path(IS_SENSOR(sensor)));
+	path = g_strdup_printf("%s/devices/%s", UDISKS_OBJECT_PATH, device);
+	proxy = g_dbus_proxy_new_sync(priv->connection,
+				      G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS,
+				      NULL,
+				      UDISKS_BUS_NAME,
+				      path,
+				      UDISKS_DEVICE_INTERFACE_NAME,
+				      NULL, &error);
+	g_free(path);
+	g_free(device);
+
+	if (!proxy) {
+		g_prefix_error(&error,
+			       _("Error reading new SMART data for sensor %s"),
+			       is_sensor_get_path(IS_SENSOR(sensor)));
+		is_sensor_emit_error(IS_SENSOR(sensor), error);
+		g_error_free(error);
+		goto out;
+	}
+
+	/* update smart data
+	 TODO: only do if we haven't in the last minute to avoid too many disk
+	 wakeups - perhaps give sensors and update-frequency property which we
+	 can set? */
+	var = g_variant_new_strv(NULL, 0);
+	var = g_dbus_proxy_call_sync(proxy, "DriveAtaSmartRefreshData",
+				     g_variant_new_tuple(&var,
+							 1),
+				     G_DBUS_CALL_FLAGS_NONE,
+				     -1, NULL, &error);
+	if (!var) {
+		g_prefix_error(&error,
+			       _("Error refreshing SMART data for sensor %s"),
+			       is_sensor_get_path(IS_SENSOR(sensor)));
+		is_sensor_emit_error(IS_SENSOR(sensor), error);
+		g_error_free(error);
+		goto out;
+	}
 
 	var = g_dbus_proxy_get_cached_property(proxy,
 					       "DriveAtaSmartBlob");
@@ -133,6 +178,8 @@ update_sensor_value(IsTemperatureSensor *sensor,
 			is_sensor_get_path(IS_SENSOR(sensor)));
 		goto out;
 	}
+
+	g_object_unref(proxy);
 
 	blob = g_variant_get_fixed_array(var, &len, sizeof(gchar));
 	sk_disk_open(NULL, &sk_disk);
@@ -274,15 +321,14 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 		sensor_path = g_strdup_printf("udisks/%s", name);
 		sensor = is_temperature_sensor_new(sensor_path,
 						   g_variant_get_string(model, NULL));
-		/* give reference on sensor_proxy to signal connection */
-		g_signal_connect_data(sensor, "update-value",
-				      G_CALLBACK(update_sensor_value), sensor_proxy,
-				      (GClosureNotify)g_object_unref, 0);
+		g_signal_connect(sensor, "update-value",
+				 G_CALLBACK(update_sensor_value), self);
 		is_manager_add_sensor(priv->manager, sensor);
 
 		g_free(sensor_path);
 		g_free(name);
 		g_object_unref(sensor);
+		g_object_unref(proxy);
 	}
 	g_variant_unref(paths);
 	g_object_unref(proxy);
