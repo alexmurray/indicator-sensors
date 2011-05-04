@@ -67,7 +67,8 @@ IsSensor *is_sensor_new(const gchar *path,
 			const gchar *label,
 			gdouble min,
 			gdouble max,
-			const gchar *units);
+			const gchar *units,
+			guint update_interval);
 void is_sensor_update_value(IsSensor *self);
 void is_sensor_emit_error(IsSensor *self, GError *error);
 const gchar *is_sensor_get_path(IsSensor *self);
@@ -81,6 +82,8 @@ gdouble is_sensor_get_max(IsSensor *self);
 void is_sensor_set_max(IsSensor *self, gdouble max);
 const gchar *is_sensor_get_units(IsSensor *self);
 void is_sensor_set_units(IsSensor *self, const gchar *units);
+guint is_sensor_get_update_interval(IsSensor *self);
+void is_sensor_set_update_interval(IsSensor *self, guint update_interval);
 
 G_END_DECLS
 

@@ -308,7 +308,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			sensor = is_fan_sensor_new_full(path, label, low, high);
 		} else {
 			sensor = is_sensor_new(path, label,
-					       low, high, "U");
+					       low, high, "U", 5);
 		}
 
 		/* take ownership of path pointer */

@@ -44,6 +44,7 @@ enum {
 	PROP_MIN,
 	PROP_MAX,
 	PROP_UNITS,
+	PROP_UPDATE_INTERVAL,
 	LAST_PROPERTY
 };
 
@@ -57,6 +58,8 @@ struct _IsSensorPrivate
 	gdouble min;
 	gdouble max;
 	gchar *units;
+	guint update_interval;
+	gint64 last_update;
 };
 
 static void
@@ -89,19 +92,26 @@ is_sensor_class_init(IsSensorClass *klass)
 						   "min of this sensor.",
 						   -G_MAXDOUBLE, G_MAXDOUBLE,
 						   -G_MAXDOUBLE,
-						   G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+						   G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_MIN, properties[PROP_MIN]);
 	properties[PROP_MAX] = g_param_spec_double("max", "sensor max",
 						   "max of this sensor.",
 						   -G_MAXDOUBLE, G_MAXDOUBLE,
 						   G_MAXDOUBLE,
-						   G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+						   G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_MAX, properties[PROP_MAX]);
 	properties[PROP_UNITS] = g_param_spec_string("units", "sensor units",
 						     "units of this sensor.",
 						     NULL,
 						     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_UNITS, properties[PROP_UNITS]);
+	properties[PROP_UPDATE_INTERVAL] = g_param_spec_uint("update-interval",
+							     "sensor update interval",
+							     "update interval of this sensor in seconds.",
+							     0, G_MAXUINT,
+							     5,
+							     G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_UPDATE_INTERVAL, properties[PROP_UPDATE_INTERVAL]);
 
 	signals[SIGNAL_UPDATE_VALUE] = g_signal_new("update-value",
 						    G_OBJECT_CLASS_TYPE(klass),
@@ -154,6 +164,9 @@ is_sensor_get_property(GObject *object,
 	case PROP_UNITS:
 		g_value_set_string(value, is_sensor_get_units(self));
 		break;
+	case PROP_UPDATE_INTERVAL:
+		g_value_set_uint(value, is_sensor_get_update_interval(self));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 		break;
@@ -186,6 +199,9 @@ is_sensor_set_property(GObject *object,
 	case PROP_UNITS:
 		is_sensor_set_units(self, g_value_get_string(value));
 		break;
+	case PROP_UPDATE_INTERVAL:
+		is_sensor_set_update_interval(self, g_value_get_uint(value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 		break;
@@ -214,7 +230,8 @@ is_sensor_new(const gchar *path,
 	      const gchar *label,
 	      gdouble min,
 	      gdouble max,
-	      const gchar *units)
+	      const gchar *units,
+	      guint update_interval)
 {
 	return g_object_new(IS_TYPE_SENSOR,
 			    "path", path,
@@ -222,6 +239,7 @@ is_sensor_new(const gchar *path,
 			    "min", min,
 			    "max", max,
 			    "units", units,
+			    "update-interval", update_interval,
 			    NULL);
 }
 
@@ -323,12 +341,42 @@ is_sensor_set_units(IsSensor *self,
 	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_UNITS]);
 }
 
+guint
+is_sensor_get_update_interval(IsSensor *self)
+{
+	g_return_val_if_fail(IS_IS_SENSOR(self), 0);
+	return self->priv->update_interval;
+}
+
+void
+is_sensor_set_update_interval(IsSensor *self,
+			      guint update_interval)
+{
+	g_return_if_fail(IS_IS_SENSOR(self));
+	if (self->priv->update_interval != update_interval) {
+		self->priv->update_interval = update_interval;
+		g_object_notify_by_pspec(G_OBJECT(self),
+					 properties[PROP_UPDATE_INTERVAL]);
+	}
+}
+
 void
 is_sensor_update_value(IsSensor *self)
 {
+	IsSensorPrivate *priv;
+	gint64 secs;
+
 	g_return_if_fail(IS_IS_SENSOR(self));
 
-	g_signal_emit(self, signals[SIGNAL_UPDATE_VALUE], 0);
+	priv = self->priv;
+
+	/* respect update_interval */
+	secs = g_get_monotonic_time() / G_USEC_PER_SEC;
+	if (!priv->last_update ||
+	    secs - priv->last_update >= priv->update_interval) {
+		priv->last_update = secs;
+		g_signal_emit(self, signals[SIGNAL_UPDATE_VALUE], 0);
+	}
 }
 
 void

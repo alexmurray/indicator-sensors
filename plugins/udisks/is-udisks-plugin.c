@@ -49,7 +49,6 @@ struct _IsUdisksPluginPrivate
 	IsManager *manager;
 	GHashTable *sensors;
 	GDBusConnection *connection;
-	gint64 last_update_usecs;
 };
 
 static void is_udisks_plugin_finalize(GObject *object);
@@ -120,7 +119,6 @@ update_sensor_value(IsTemperatureSensor *sensor,
 
 {
 	IsUdisksPluginPrivate *priv;
-	gint64 usecs;
 	gchar *device, *path;
 	GDBusProxy *proxy;
 	GVariant *var;
@@ -132,14 +130,6 @@ update_sensor_value(IsTemperatureSensor *sensor,
 	gdouble value;
 
 	priv = self->priv;
-
-	/* only update if haven't yet updated or if haven't updated in the last
-	   minute to avoid waking up the disk too much */
-	usecs = g_get_monotonic_time();
-	if (priv->last_update_usecs > 0 &&
-	    usecs - priv->last_update_usecs < 60 * G_USEC_PER_SEC) {
-		goto out;
-	}
 
 	device = g_path_get_basename(is_sensor_get_path(IS_SENSOR(sensor)));
 	path = g_strdup_printf("%s/devices/%s", UDISKS_OBJECT_PATH, device);
@@ -217,9 +207,6 @@ update_sensor_value(IsTemperatureSensor *sensor,
 	temperature /= 1000;
 	value = (gdouble)temperature - 273.15;
 	is_temperature_sensor_set_celsius_value(sensor, value);
-
-	/* we have a successful update */
-	priv->last_update_usecs = usecs;
 
 out:
 	return;
@@ -341,6 +328,8 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 		sensor_path = g_strdup_printf("udisks/%s", name);
 		sensor = is_temperature_sensor_new(sensor_path,
 						   g_variant_get_string(model, NULL));
+		/* only update every minute to avoid waking disk too much */
+		is_sensor_set_update_interval(sensor, 60);
 		g_signal_connect(sensor, "update-value",
 				 G_CALLBACK(update_sensor_value), self);
 		is_manager_add_sensor(priv->manager, sensor);
