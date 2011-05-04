@@ -348,7 +348,7 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 		g_free(sensor_path);
 		g_free(name);
 		g_object_unref(sensor);
-		g_object_unref(proxy);
+		g_object_unref(sensor_proxy);
 	}
 	g_variant_unref(paths);
 	g_object_unref(proxy);
