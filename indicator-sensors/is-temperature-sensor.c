@@ -145,7 +145,7 @@ is_temperature_sensor_new(const gchar *path,
 			  const gchar *label)
 {
 	return is_temperature_sensor_new_full(path, label,
-					      0.0f, 0.0f,
+					      -G_MAXDOUBLE, G_MAXDOUBLE,
 					      IS_TEMPERATURE_SENSOR_SCALE_CELSIUS);
 }
 
