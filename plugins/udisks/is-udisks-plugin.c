@@ -152,10 +152,7 @@ update_sensor_value(IsTemperatureSensor *sensor,
 		goto out;
 	}
 
-	/* update smart data
-	 TODO: only do if we haven't in the last minute to avoid too many disk
-	 wakeups - perhaps give sensors and update-frequency property which we
-	 can set? */
+	/* update smart data */
 	var = g_variant_new_strv(NULL, 0);
 	var = g_dbus_proxy_call_sync(proxy, "DriveAtaSmartRefreshData",
 				     g_variant_new_tuple(&var,
@@ -168,38 +165,48 @@ update_sensor_value(IsTemperatureSensor *sensor,
 			       is_sensor_get_path(IS_SENSOR(sensor)));
 		is_sensor_emit_error(IS_SENSOR(sensor), error);
 		g_error_free(error);
+		g_object_unref(proxy);
 		goto out;
 	}
+	g_variant_unref(var);
 
 	var = g_dbus_proxy_get_cached_property(proxy,
 					       "DriveAtaSmartBlob");
 	if (!var) {
 		g_debug("udisks plugin: unable to get atasmartblob for sensor %s",
 			is_sensor_get_path(IS_SENSOR(sensor)));
+		g_object_unref(proxy);
 		goto out;
 	}
-
 	g_object_unref(proxy);
 
+	/* can't unref var until done with blob */
 	blob = g_variant_get_fixed_array(var, &len, sizeof(gchar));
+	if (!blob) {
+		/* this can occur if udisks doesn't update immediately,
+		 * ignore */
+		g_variant_unref(var);
+		goto out;
+	}
 	sk_disk_open(NULL, &sk_disk);
 	sk_disk_set_blob(sk_disk, blob, len);
 	if (sk_disk_smart_get_temperature(sk_disk, &temperature) < 0)
 	{
 		g_debug("udisks plugin: Error getting temperature from AtaSmartBlob for sensor %s",
 			is_sensor_get_path(IS_SENSOR(sensor)));
-		g_free(sk_disk);
+		sk_disk_free(sk_disk);
+		g_variant_unref(var);
 		/* TODO: emit error */
 		goto out;
 	}
+
+	sk_disk_free(sk_disk);
+	g_variant_unref(var);
 
 	/* Temperature is in mK, so convert it to K first */
 	temperature /= 1000;
 	value = (gdouble)temperature - 273.15;
 	is_temperature_sensor_set_celsius_value(sensor, value);
-
-	sk_disk_free(sk_disk);
-	g_variant_unref(var);
 
 out:
 	return;
