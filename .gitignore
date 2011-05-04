@@ -14,8 +14,14 @@ aclocal.m4
 autom4te.cache*
 config.*
 configure
+data/indicator-sensors.desktop
 depcomp
 gnome-doc-utils.make
+indicator-sensors/*.o
+indicator-sensors/config.h*
+indicator-sensors/indicator-sensors
+indicator-sensors/marshallers.[ch]
+indicator-sensors/stamp-h1
 install-sh
 libtool
 ltmain.sh
@@ -34,11 +40,6 @@ po/Makevars*
 po/POTFILES
 po/Rules-quot
 po/stamp-it
-indicator-sensors/*.o
-indicator-sensors/config.h*
-indicator-sensors/indicator-sensors
-indicator-sensors/marshallers.[ch]
-indicator-sensors/stamp-h1
 
 
 
