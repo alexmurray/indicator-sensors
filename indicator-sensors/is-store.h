@@ -73,7 +73,8 @@ enum
 GType is_store_get_type(void) G_GNUC_CONST;
 IsStore *is_store_new(void);
 gboolean is_store_add_sensor(IsStore *self,
-			     IsSensor *sensor);
+			     IsSensor *sensor,
+			     GtkTreeIter *iter);
 gboolean is_store_remove(IsStore *self,
 			 GtkTreeIter *iter);
 gboolean is_store_remove_path(IsStore *self,

@@ -448,6 +448,7 @@ is_manager_add_sensor(IsManager *self,
 		      IsSensor *sensor)
 {
 	IsManagerPrivate *priv;
+	GtkTreeIter iter;
 	gboolean ret = FALSE;
 
 	g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
@@ -455,11 +456,15 @@ is_manager_add_sensor(IsManager *self,
 
 	priv = self->priv;
 
-	ret = is_store_add_sensor(priv->store, sensor);
+	ret = is_store_add_sensor(priv->store, sensor, &iter);
 	if (!ret) {
 		goto out;
 	}
 	g_signal_emit(self, signals[SIGNAL_SENSOR_ADDED], 0, sensor);
+	/* enable sensor if is in enabled-sensors list */
+	if (g_tree_lookup(priv->enabled_paths, is_sensor_get_path(sensor))) {
+		enable_sensor(self, &iter, sensor);
+	}
 
 out:
 	return ret;

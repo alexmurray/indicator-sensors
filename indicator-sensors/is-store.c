@@ -574,7 +574,8 @@ is_store_new(void)
 
 gboolean
 is_store_add_sensor(IsStore *self,
-		    IsSensor *sensor)
+		    IsSensor *sensor,
+		    GtkTreeIter *iter)
 {
 	IsStorePrivate *priv;
 	GSequence *entries;
@@ -583,7 +584,7 @@ is_store_add_sensor(IsStore *self,
 	gchar **names = NULL;
 	int i;
 	GtkTreePath *path;
-	GtkTreeIter iter;
+	GtkTreeIter _iter;
 	gboolean ret = FALSE;
 
 	g_return_val_if_fail(IS_IS_STORE(self), FALSE);
@@ -624,12 +625,12 @@ is_store_add_sensor(IsStore *self,
 			entry->iter = g_sequence_append(entries, entry);
 			entry->parent = parent;
 			entries = entry->entries;
-			iter.stamp = priv->stamp;
-			iter.user_data = entry->iter;
+			_iter.stamp = priv->stamp;
+			_iter.user_data = entry->iter;
 			path = gtk_tree_model_get_path(GTK_TREE_MODEL(self),
-						       &iter);
+						       &_iter);
 			gtk_tree_model_row_inserted(GTK_TREE_MODEL(self), path,
-						    &iter);
+						    &_iter);
 			gtk_tree_path_free(path);
 			/* parent of the next entry we create will be this
 			 * entry */
@@ -644,13 +645,18 @@ is_store_add_sensor(IsStore *self,
 	g_debug("IsStore: inserted sensor %s with label %s",
 		is_sensor_get_path(sensor), is_sensor_get_label(sensor));
 	entry->sensor = g_object_ref(sensor);
-	iter.stamp = priv->stamp;
-	iter.user_data = entry->iter;
+	_iter.stamp = priv->stamp;
+	_iter.user_data = entry->iter;
 	path = gtk_tree_model_get_path(GTK_TREE_MODEL(self),
-				       &iter);
+				       &_iter);
 	gtk_tree_model_row_changed(GTK_TREE_MODEL(self), path,
-				   &iter);
+				   &_iter);
 	gtk_tree_path_free(path);
+	/* return a copy of iter */
+	if (iter != NULL) {
+		iter->stamp = priv->stamp;
+		iter->user_data = entry->iter;
+	}
 	ret = TRUE;
 
 out:
