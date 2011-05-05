@@ -15,11 +15,18 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "is-manager.h"
 #include "is-store.h"
 #include "marshallers.h"
 #include "marshallers.c"
 #include <glib/gi18n.h>
+#include <gio/gio.h>
+
+#define DESKTOP_FILENAME PACKAGE ".desktop"
 
 G_DEFINE_TYPE(IsManager, is_manager, GTK_TYPE_TREE_VIEW);
 
@@ -50,6 +57,7 @@ static guint signals[LAST_SIGNAL] = {0};
 enum {
 	PROP_POLL_TIMEOUT = 1,
 	PROP_ENABLED_SENSORS,
+	PROP_AUTOSTART,
 	LAST_PROPERTY
 };
 
@@ -62,6 +70,7 @@ struct _IsManagerPrivate
 	glong poll_timeout_id;
 	GTree *enabled_paths;
 	GSList *enabled_list;
+	GFileMonitor *monitor;
 };
 
 static void
@@ -94,6 +103,15 @@ is_manager_class_init(IsManagerClass *klass)
 
 	g_object_class_install_property(gobject_class, PROP_ENABLED_SENSORS,
 					properties[PROP_ENABLED_SENSORS]);
+
+	properties[PROP_AUTOSTART] = g_param_spec_boolean("autostart",
+							  "autostart property",
+							  "start " PACKAGE " automatically on login.",
+							  FALSE,
+							  G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+	g_object_class_install_property(gobject_class, PROP_AUTOSTART,
+					properties[PROP_AUTOSTART]);
 
 	signals[SIGNAL_SENSOR_ADDED] = g_signal_new("sensor-added",
 						    G_OBJECT_CLASS_TYPE(klass),
@@ -286,11 +304,23 @@ static void sensor_toggled(GtkCellRendererToggle *renderer,
 }
 
 static void
+file_monitor_changed(GFileMonitor *monitor,
+		     GFile *file,
+		     GFile *other_file,
+		     GFileMonitorEvent event_type,
+		     IsManager *self)
+{
+	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_AUTOSTART]);
+}
+
+static void
 is_manager_init(IsManager *self)
 {
 	IsManagerPrivate *priv;
 	GtkCellRenderer *renderer;
 	GtkTreeViewColumn *col;
+	gchar *path;
+	GFile *file;
 
 	priv = G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_MANAGER,
 					   IsManagerPrivate);
@@ -302,6 +332,15 @@ is_manager_init(IsManager *self)
 	gtk_tree_view_set_model(GTK_TREE_VIEW(self),
 				GTK_TREE_MODEL(priv->store));
 	priv->poll_timeout = DEFAULT_POLL_TIMEOUT;
+	path = g_build_filename(g_get_user_config_dir(), "autostart",
+				DESKTOP_FILENAME, NULL);
+	file = g_file_new_for_path(path);
+	priv->monitor = g_file_monitor_file(file, G_FILE_MONITOR_NONE,
+					    NULL, NULL);
+	g_signal_connect(priv->monitor, "changed",
+			 G_CALLBACK(file_monitor_changed), self);
+	g_object_unref(file);
+	g_free(path);
 
 	/* id column */
 	renderer = gtk_cell_renderer_text_new();
@@ -332,7 +371,6 @@ is_manager_init(IsManager *self)
 	g_signal_connect(renderer, "toggled", G_CALLBACK(sensor_toggled),
 			 self);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
-
 }
 
 static void
@@ -340,10 +378,6 @@ is_manager_get_property(GObject *object,
 			guint property_id, GValue *value, GParamSpec *pspec)
 {
 	IsManager *self = IS_MANAGER(object);
-	IsManagerPrivate *priv = self->priv;
-
-	/* Make compiler happy */
-	(void)priv;
 
 	switch (property_id) {
 	case PROP_POLL_TIMEOUT:
@@ -351,6 +385,9 @@ is_manager_get_property(GObject *object,
 		break;
 	case PROP_ENABLED_SENSORS:
 		g_value_take_boxed(value, is_manager_get_enabled_sensors(self));
+		break;
+	case PROP_AUTOSTART:
+		g_value_set_boolean(value, is_manager_get_autostart(self));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -363,10 +400,6 @@ is_manager_set_property(GObject *object,
 			guint property_id, const GValue *value, GParamSpec *pspec)
 {
 	IsManager *self = IS_MANAGER(object);
-	IsManagerPrivate *priv = self->priv;
-
-	/* Make compiler happy */
-	(void)priv;
 
 	switch (property_id) {
 	case PROP_POLL_TIMEOUT:
@@ -375,6 +408,9 @@ is_manager_set_property(GObject *object,
 	case PROP_ENABLED_SENSORS:
 		is_manager_set_enabled_sensors(self,
 					       (const gchar **)g_value_get_boxed(value));
+		break;
+	case PROP_AUTOSTART:
+		is_manager_set_autostart(self, g_value_get_boolean(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -392,6 +428,7 @@ is_manager_dispose(GObject *object)
 		g_source_remove(priv->poll_timeout_id);
 		priv->poll_timeout_id = 0;
 	}
+	g_object_unref(priv->monitor);
 
 	G_OBJECT_CLASS(is_manager_parent_class)->dispose(object);
 }
@@ -535,7 +572,7 @@ is_manager_set_enabled_sensors(IsManager *self,
 			is_store_get_iter(priv->store, path, &iter);
 			disable_sensor(self, &iter, sensor);
 		}
-        }
+	}
 	g_tree_destroy(priv->enabled_paths);
 	priv->enabled_paths = tree;
 	g_object_notify_by_pspec(G_OBJECT(self),
@@ -634,3 +671,117 @@ is_manager_get_sensor(IsManager *self,
 	return sensor;
 }
 
+#define AUTOSTART_KEY "X-GNOME-Autostart-enabled"
+
+gboolean
+is_manager_get_autostart(IsManager *self)
+{
+	GKeyFile *key_file;
+	gchar *path;
+	GError *error = NULL;
+	gboolean ret = FALSE;
+
+	g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
+
+	key_file = g_key_file_new();
+	path = g_build_filename(g_get_user_config_dir(), "autostart",
+				DESKTOP_FILENAME, NULL);
+	ret = g_key_file_load_from_file(key_file, path, G_KEY_FILE_NONE, &error);
+	if (!ret) {
+		g_debug("Failed to load autostart desktop file '%s': %s",
+			path, error->message);
+		g_error_free(error);
+		goto out;
+	}
+	ret = g_key_file_get_boolean(key_file, G_KEY_FILE_DESKTOP_GROUP,
+				     AUTOSTART_KEY, &error);
+	if (error) {
+		g_debug("Failed to get key '%s' from autostart desktop file '%s': %s",
+			AUTOSTART_KEY, path, error->message);
+		g_error_free(error);
+	}
+
+out:
+	g_free(path);
+	g_key_file_free(key_file);
+	return ret;
+}
+
+void
+is_manager_set_autostart(IsManager *self,
+			 gboolean autostart)
+{
+	GKeyFile *key_file;
+	gboolean ret;
+	gchar *autostart_file;
+	GError *error = NULL;
+
+	g_return_if_fail(IS_IS_MANAGER(self));
+
+	key_file = g_key_file_new();
+	autostart_file = g_build_filename(g_get_user_config_dir(), "autostart",
+					  DESKTOP_FILENAME, NULL);
+	ret = g_key_file_load_from_file(key_file, autostart_file,
+					G_KEY_FILE_KEEP_COMMENTS |
+					G_KEY_FILE_KEEP_TRANSLATIONS,
+					&error);
+	if (!ret) {
+		gchar *application_file;
+
+		g_debug("Failed to load autostart desktop file '%s': %s",
+			autostart_file, error->message);
+		g_clear_error(&error);
+		application_file = g_build_filename("applications",
+						    DESKTOP_FILENAME, NULL);
+		ret = g_key_file_load_from_data_dirs(key_file,
+						     application_file,
+						     NULL,
+						     G_KEY_FILE_KEEP_COMMENTS |
+						     G_KEY_FILE_KEEP_TRANSLATIONS,
+						     &error);
+		if (!ret) {
+			g_warning("Failed to load application desktop file: %s",
+				  error->message);
+			g_clear_error(&error);
+			/* create file by hand */
+			g_key_file_set_string(key_file,
+					      G_KEY_FILE_DESKTOP_GROUP,
+					      G_KEY_FILE_DESKTOP_KEY_TYPE,
+					      "Application");
+			g_key_file_set_string(key_file,
+					      G_KEY_FILE_DESKTOP_GROUP,
+					      G_KEY_FILE_DESKTOP_KEY_NAME,
+					      _("Hardware Sensors Indicator"));
+			g_key_file_set_string(key_file,
+					      G_KEY_FILE_DESKTOP_GROUP,
+					      G_KEY_FILE_DESKTOP_KEY_GENERIC_NAME,
+					      _("Hardware Sensors Indicator"));
+ 			g_key_file_set_string(key_file,
+					      G_KEY_FILE_DESKTOP_GROUP,
+					      G_KEY_FILE_DESKTOP_KEY_EXEC,
+					      PACKAGE);
+ 			g_key_file_set_string(key_file,
+					      G_KEY_FILE_DESKTOP_GROUP,
+					      G_KEY_FILE_DESKTOP_KEY_ICON,
+					      PACKAGE);
+ 			g_key_file_set_string(key_file,
+					      G_KEY_FILE_DESKTOP_GROUP,
+					      G_KEY_FILE_DESKTOP_KEY_CATEGORIES,
+					      "System;");
+                }
+		g_free(application_file);
+	}
+	g_key_file_set_boolean(key_file, G_KEY_FILE_DESKTOP_GROUP,
+			       AUTOSTART_KEY, autostart);
+	ret = g_file_set_contents(autostart_file,
+				  g_key_file_to_data(key_file, NULL, NULL),
+				  -1,
+				  &error);
+	if (!ret) {
+		g_warning("Failed to write autostart desktop file '%s': %s",
+			  autostart_file, error->message);
+		g_clear_error(&error);
+	}
+	g_free(autostart_file);
+	g_key_file_free(key_file);
+}

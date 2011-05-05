@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2011 Alex Murray <murray.alex@gmail.com>
-
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,6 +72,8 @@ GSList *is_manager_get_enabled_sensors_list(IsManager *self);
 gchar **is_manager_get_enabled_sensors(IsManager *self);
 gboolean is_manager_set_enabled_sensors(IsManager *self,
 					const gchar **enabled_sensors);
+gboolean is_manager_get_autostart(IsManager *self);
+void is_manager_set_autostart(IsManager *self, gboolean autostart);
 
 G_END_DECLS
 

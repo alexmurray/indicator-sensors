@@ -35,8 +35,9 @@ enum {
 
 struct _IsPreferencesDialogPrivate
 {
-	GtkWidget *scrolled_window;
 	IsManager *manager;
+	GtkWidget *vbox;
+	GtkWidget *autostart_check_button;
 };
 
 static void
@@ -68,18 +69,20 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_PREFERENCES_DIALOG,
 					    IsPreferencesDialogPrivate);
 
-	priv->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(priv->scrolled_window),
-				       GTK_POLICY_AUTOMATIC,
-				       GTK_POLICY_AUTOMATIC);
 	gtk_window_set_title(GTK_WINDOW(self), _("Preferences"));
 	gtk_window_set_default_size(GTK_WINDOW(self), 400, 500);
 
 	gtk_dialog_add_button(GTK_DIALOG(self),
 			      GTK_STOCK_OK, GTK_RESPONSE_ACCEPT);
 
+	priv->autostart_check_button = gtk_check_button_new_with_label
+		(_("Start automatically on login"));
+	gtk_widget_set_sensitive(priv->autostart_check_button, FALSE);
+	priv->vbox = gtk_vbox_new(FALSE, 5);
+	gtk_box_pack_end(GTK_BOX(priv->vbox), priv->autostart_check_button,
+			 FALSE, FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),
-			  priv->scrolled_window);
+			  priv->vbox);
 }
 
 static void
@@ -100,17 +103,50 @@ is_preferences_dialog_get_property(GObject *object,
 }
 
 static void
+autostart_toggled(GtkToggleButton *toggle_button,
+		  IsManager *manager)
+{
+	is_manager_set_autostart(manager,
+				 gtk_toggle_button_get_active(toggle_button));
+}
+
+static void
+manager_notify_autostart(IsManager *manager,
+			 GParamSpec *pspec,
+			 GtkToggleButton *check_button)
+{
+	gtk_toggle_button_set_active(check_button,
+				     is_manager_get_autostart(manager));
+}
+
+static void
 is_preferences_dialog_set_property(GObject *object,
 				   guint property_id, const GValue *value, GParamSpec *pspec)
 {
 	IsPreferencesDialog *self = IS_PREFERENCES_DIALOG(object);
 	IsPreferencesDialogPrivate *priv = self->priv;
+	GtkWidget *scrolled_window;
 
 	switch (property_id) {
 	case PROP_MANAGER:
 		priv->manager = g_object_ref(g_value_get_object(value));
-		gtk_container_add(GTK_CONTAINER(priv->scrolled_window),
+		/* set state of autostart checkbutton */
+		gtk_widget_set_sensitive(priv->autostart_check_button, TRUE);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->autostart_check_button),
+					     is_manager_get_autostart(priv->manager));
+		g_signal_connect(priv->autostart_check_button, "toggled",
+				 G_CALLBACK(autostart_toggled), priv->manager);
+		g_signal_connect(priv->manager, "notify::autostart",
+				 G_CALLBACK(manager_notify_autostart),
+				 priv->autostart_check_button);
+		scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+					       GTK_POLICY_AUTOMATIC,
+					       GTK_POLICY_AUTOMATIC);
+		gtk_container_add(GTK_CONTAINER(scrolled_window),
 				  GTK_WIDGET(priv->manager));
+		gtk_box_pack_start(GTK_BOX(priv->vbox),
+				   scrolled_window, TRUE, TRUE, 0);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
