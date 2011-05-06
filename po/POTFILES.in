@@ -8,3 +8,4 @@ plugins/gsettings/indicator-sensors.gschema.xml.in.in
 plugins/libnotify/is-libnotify-plugin.c
 plugins/libsensors/is-libsensors-plugin.c
 plugins/nvidia/is-nvidia-plugin.c
+plugins/udisks/is-udisks-plugin.c
