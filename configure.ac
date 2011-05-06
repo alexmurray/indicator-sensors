@@ -1,6 +1,6 @@
  ================= initialization =================== #
 AC_PREREQ(2.67)
-AC_INIT([indicator-sensors], [0.1-alpha], [https://bugs.launchpad.net/indicator-sensors], [indicator-sensors])
+AC_INIT([indicator-sensors], [0.1-alpha2], [https://bugs.launchpad.net/indicator-sensors], [indicator-sensors])
 
 AM_CONFIG_HEADER([indicator-sensors/config.h])
 AC_CONFIG_SRCDIR([indicator-sensors/indicator-sensors.c])
