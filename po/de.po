@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: murray.alex@gmail.com\n"
-"POT-Creation-Date: 2011-04-29 23:33+0930\n"
+"POT-Creation-Date: 2011-05-06 10:29+0930\n"
 "PO-Revision-Date: 2011-04-22 15:24+0000\n"
 "Last-Translator: T-Lo <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
@@ -15,44 +15,54 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-29 13:20+0000\n"
-"X-Generator: Launchpad (build 12915)\n"
+"X-Launchpad-Export-Date: 2011-05-06 00:56+0000\n"
+"X-Generator: Launchpad (build 12959)\n"
+
+#: ../data/indicator-sensors.desktop.in.h:1
+msgid "An indicator for Unity which displays hardware sensor readings"
+msgstr ""
+
+#: ../data/indicator-sensors.desktop.in.h:2
+#: ../indicator-sensors/is-manager.c:754 ../indicator-sensors/is-manager.c:758
+msgid "Hardware Sensors Indicator"
+msgstr ""
 
 #: ../indicator-sensors/is-fan-sensor.c:53
 msgid "RPM"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:163
+#: ../indicator-sensors/is-indicator.c:167
 msgid "_Preferences"
 msgstr "_Einstellungen"
 
-#: ../indicator-sensors/is-indicator.c:164
-#: ../indicator-sensors/is-preferences-dialog.c:75
+#: ../indicator-sensors/is-indicator.c:168
+#: ../indicator-sensors/is-preferences-dialog.c:72
 msgid "Preferences"
 msgstr "Einstellungen"
 
-#. TODO: translate me
-#: ../indicator-sensors/is-indicator.c:268
-#: ../indicator-sensors/is-indicator.c:394
-msgid "No sensors"
-msgstr "Keine Sensoren"
+#: ../indicator-sensors/is-indicator.c:272
+#: ../indicator-sensors/is-indicator.c:273
+msgid "No active sensors"
+msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:268
-#: ../indicator-sensors/is-indicator.c:394
+#: ../indicator-sensors/is-indicator.c:399
 msgid "No Sensors"
 msgstr "Keine Sensoren"
 
-#: ../indicator-sensors/is-manager.c:308
-#, fuzzy
+#: ../indicator-sensors/is-manager.c:347
 msgid "Sensor"
-msgstr "Keine Sensoren"
+msgstr ""
 
-#: ../indicator-sensors/is-manager.c:317
+#: ../indicator-sensors/is-manager.c:356
 msgid "Label"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:327
+#: ../indicator-sensors/is-manager.c:366
 msgid "Enabled"
+msgstr ""
+
+#: ../indicator-sensors/is-preferences-dialog.c:79
+msgid "Start automatically on login"
 msgstr ""
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:1
@@ -67,9 +77,8 @@ msgstr ""
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:3
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:3
-#, fuzzy
 msgid "Enabled sensors"
-msgstr "Keine Sensoren"
+msgstr ""
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:4
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:4
@@ -118,6 +127,19 @@ msgstr "Fehler beim Auslesen des Wertes für Sensor %s: %s"
 #. first placeholder is
 #. * sensor name
 #: ../plugins/nvidia/is-nvidia-plugin.c:170
-#, fuzzy, c-format
+#, c-format
 msgid "Error getting sensor value for sensor %s"
+msgstr ""
+
+#: ../plugins/udisks/is-udisks-plugin.c:148
+#, fuzzy, c-format
+msgid "Error reading new SMART data for sensor %s"
 msgstr "Fehler beim Auslesen des Wertes für Sensor %s: %s"
+
+#: ../plugins/udisks/is-udisks-plugin.c:164
+#, fuzzy, c-format
+msgid "Error refreshing SMART data for sensor %s"
+msgstr "Fehler beim Auslesen des Wertes für Sensor %s: %s"
+
+#~ msgid "No sensors"
+#~ msgstr "Keine Sensoren"
