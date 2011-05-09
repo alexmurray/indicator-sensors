@@ -58,6 +58,7 @@ enum {
 	PROP_POLL_TIMEOUT = 1,
 	PROP_ENABLED_SENSORS,
 	PROP_AUTOSTART,
+	PROP_TEMPERATURE_SCALE,
 	LAST_PROPERTY
 };
 
@@ -71,6 +72,7 @@ struct _IsManagerPrivate
 	GTree *enabled_paths;
 	GSList *enabled_list;
 	GFileMonitor *monitor;
+	IsTemperatureSensorScale temperature_scale;
 };
 
 static void
@@ -112,6 +114,16 @@ is_manager_class_init(IsManagerClass *klass)
 
 	g_object_class_install_property(gobject_class, PROP_AUTOSTART,
 					properties[PROP_AUTOSTART]);
+
+	/* TODO: convert to an enum type */
+	properties[PROP_TEMPERATURE_SCALE] = g_param_spec_int("temperature-scale", "temperature scale",
+							      "Sensor temperature scale.",
+							      IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
+							      IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT,
+							      IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
+							      G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_TEMPERATURE_SCALE,
+					properties[PROP_TEMPERATURE_SCALE]);
 
 	signals[SIGNAL_SENSOR_ADDED] = g_signal_new("sensor-added",
 						    G_OBJECT_CLASS_TYPE(klass),
@@ -341,6 +353,7 @@ is_manager_init(IsManager *self)
 			 G_CALLBACK(file_monitor_changed), self);
 	g_object_unref(file);
 	g_free(path);
+	priv->temperature_scale = IS_TEMPERATURE_SENSOR_SCALE_CELSIUS;
 
 	/* id column */
 	renderer = gtk_cell_renderer_text_new();
@@ -389,6 +402,9 @@ is_manager_get_property(GObject *object,
 	case PROP_AUTOSTART:
 		g_value_set_boolean(value, is_manager_get_autostart(self));
 		break;
+	case PROP_TEMPERATURE_SCALE:
+		g_value_set_int(value, is_manager_get_temperature_scale(self));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 		break;
@@ -411,6 +427,10 @@ is_manager_set_property(GObject *object,
 		break;
 	case PROP_AUTOSTART:
 		is_manager_set_autostart(self, g_value_get_boolean(value));
+		break;
+	case PROP_TEMPERATURE_SCALE:
+		is_manager_set_temperature_scale(self,
+						 g_value_get_int(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -785,3 +805,56 @@ is_manager_set_autostart(IsManager *self,
 	g_free(autostart_file);
 	g_key_file_free(key_file);
 }
+
+IsTemperatureSensorScale is_manager_get_temperature_scale(IsManager *self)
+{
+	g_return_val_if_fail(IS_IS_MANAGER(self),
+			     IS_TEMPERATURE_SENSOR_SCALE_INVALID);
+
+	return self->priv->temperature_scale;
+}
+
+static gboolean
+set_temperature_sensor_scale(GtkTreeModel *model,
+			     GtkTreePath *path,
+			     GtkTreeIter *iter,
+			     IsTemperatureSensorScale *scale)
+{
+	IsSensor *sensor;
+
+	gtk_tree_model_get(model, iter,
+			   IS_STORE_COL_SENSOR, &sensor,
+			   -1);
+
+	if (sensor) {
+		if (IS_IS_TEMPERATURE_SENSOR(sensor)) {
+			is_temperature_sensor_set_scale(IS_TEMPERATURE_SENSOR(sensor),
+							*scale);
+		}
+		g_object_unref(sensor);
+	}
+	return FALSE;
+}
+
+void is_manager_set_temperature_scale(IsManager *self,
+				      IsTemperatureSensorScale scale)
+{
+	IsManagerPrivate *priv;
+
+	g_return_if_fail(IS_IS_MANAGER(self));
+	g_return_if_fail(scale == IS_TEMPERATURE_SENSOR_SCALE_CELSIUS ||
+			 scale == IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT);
+
+	priv = self->priv;
+
+	/* set scale on all temperature sensors */
+	if (priv->temperature_scale != scale) {
+		priv->temperature_scale = scale;
+		gtk_tree_model_foreach(GTK_TREE_MODEL(priv->store),
+				       (GtkTreeModelForeachFunc)set_temperature_sensor_scale,
+				       &priv->temperature_scale);
+		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_TEMPERATURE_SCALE]);
+	}
+}
+
+

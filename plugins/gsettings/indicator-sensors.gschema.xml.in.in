@@ -5,6 +5,12 @@
       <_summary>Enabled sensors</_summary>
       <_description>The list of enabled sensors to monitor, each identified by it's path.</_description>
     </key>
+    <!-- consider making this an enum -->
+    <key type="i" name="temperature-scale">
+      <default>1</default>
+      <_summary>Temperature scale</_summary>
+      <_description>The temperature scale to display temperature sensor values.</_description>
+    </key>
   </schema>
   <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.sensor">
     <key name="label" type="s">

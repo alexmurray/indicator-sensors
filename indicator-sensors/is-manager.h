@@ -20,6 +20,7 @@
 
 #include <gtk/gtk.h>
 #include "is-store.h"
+#include "is-temperature-sensor.h"
 
 G_BEGIN_DECLS
 
@@ -74,7 +75,9 @@ gboolean is_manager_set_enabled_sensors(IsManager *self,
 					const gchar **enabled_sensors);
 gboolean is_manager_get_autostart(IsManager *self);
 void is_manager_set_autostart(IsManager *self, gboolean autostart);
-
+IsTemperatureSensorScale is_manager_get_temperature_scale(IsManager *self);
+void is_manager_set_temperature_scale(IsManager *self,
+				      IsTemperatureSensorScale scale);
 G_END_DECLS
 
 #endif /* __IS_MANAGER_H__ */

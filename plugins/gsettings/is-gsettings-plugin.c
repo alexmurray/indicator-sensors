@@ -181,6 +181,9 @@ is_gsettings_plugin_activate(PeasActivatable *activatable)
 			G_SETTINGS_BIND_DEFAULT);
 	g_object_set_data_full(G_OBJECT(priv->manager), "gsettings", settings,
 			       (GDestroyNotify)g_object_unref);
+	g_settings_bind(settings, "temperature-scale",
+			priv->manager, "temperature-scale",
+			G_SETTINGS_BIND_DEFAULT);
 }
 
 static void
