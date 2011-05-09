@@ -517,6 +517,11 @@ is_manager_add_sensor(IsManager *self,
 	if (!ret) {
 		goto out;
 	}
+	/* set scale as appropriate */
+	if (IS_IS_TEMPERATURE_SENSOR(sensor)) {
+		is_temperature_sensor_set_scale(IS_TEMPERATURE_SENSOR(sensor),
+						priv->temperature_scale);
+	}
 	g_signal_emit(self, signals[SIGNAL_SENSOR_ADDED], 0, sensor);
 	/* enable sensor if is in enabled-sensors list */
 	if (g_tree_lookup(priv->enabled_paths, is_sensor_get_path(sensor))) {
