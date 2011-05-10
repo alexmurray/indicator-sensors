@@ -173,7 +173,12 @@ update_sensor_value(IsSensor *sensor,
 			g_error_free(error);
 			continue;
 		}
-		is_sensor_set_value(sensor, (gdouble)value);
+		if (IS_IS_TEMPERATURE_SENSOR(sensor)) {
+			is_temperature_sensor_set_celsius_value(IS_TEMPERATURE_SENSOR(sensor),
+								value);
+		} else {
+			is_sensor_set_value(sensor, value);
+		}
 	}
 }
 
@@ -226,7 +231,11 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 				path = g_strdup_printf(NVIDIA_PATH_PREFIX "%d%s", j, map[i].description);
 				label = g_strdup_printf("GPU%d %s", j, map[i].description);
 				if (map[i].target == NV_CTRL_TARGET_TYPE_COOLER) {
-					sensor = is_fan_sensor_new(path, label);
+					/* fan sensors are given as a percentage
+					   from 0 to 100 */
+					sensor = is_sensor_new_full(path, label,
+								    0, 100, "%",
+								    5);
 				} else {
 					sensor = is_temperature_sensor_new(path, label);
 				}

@@ -173,7 +173,12 @@ update_sensor_value(IsSensor *sensor,
 		g_error_free(error);
 		goto out;
 	}
-	is_sensor_set_value(sensor, value);
+	if (IS_IS_TEMPERATURE_SENSOR(sensor)) {
+		is_temperature_sensor_set_celsius_value(IS_TEMPERATURE_SENSOR(sensor),
+							value);
+	} else {
+		is_sensor_set_value(sensor, value);
+	}
 
 out:
 	return;
@@ -307,8 +312,8 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		} else if (main_feature->type == SENSORS_FEATURE_FAN) {
 			sensor = is_fan_sensor_new_full(path, label, low, high);
 		} else {
-			sensor = is_sensor_new(path, label,
-					       low, high, "U", 5);
+			sensor = is_sensor_new_full(path, label,
+						    low, high, "U", 5);
 		}
 
 		/* take ownership of path pointer */

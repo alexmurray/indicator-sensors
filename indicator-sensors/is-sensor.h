@@ -65,10 +65,13 @@ struct _IsSensor
 GType is_sensor_get_type(void) G_GNUC_CONST;
 IsSensor *is_sensor_new(const gchar *path,
 			const gchar *label,
-			gdouble min,
-			gdouble max,
-			const gchar *units,
-			guint update_interval);
+			const gchar *units);
+IsSensor *is_sensor_new_full(const gchar *path,
+			     const gchar *label,
+			     gdouble min,
+			     gdouble max,
+			     const gchar *units,
+			     guint update_interval);
 void is_sensor_update_value(IsSensor *self);
 void is_sensor_emit_error(IsSensor *self, GError *error);
 const gchar *is_sensor_get_path(IsSensor *self);

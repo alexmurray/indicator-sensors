@@ -228,10 +228,25 @@ is_sensor_finalize (GObject *object)
 IsSensor *
 is_sensor_new(const gchar *path,
 	      const gchar *label,
-	      gdouble min,
-	      gdouble max,
-	      const gchar *units,
-	      guint update_interval)
+	      const gchar *units)
+{
+	return g_object_new(IS_TYPE_SENSOR,
+			    "path", path,
+			    "label", label,
+			    "min", -G_MAXDOUBLE,
+			    "max", G_MAXDOUBLE,
+			    "units", units,
+			    "update-interval", 5,
+			    NULL);
+}
+
+IsSensor *
+is_sensor_new_full(const gchar *path,
+		   const gchar *label,
+		   gdouble min,
+		   gdouble max,
+		   const gchar *units,
+		   guint update_interval)
 {
 	return g_object_new(IS_TYPE_SENSOR,
 			    "path", path,
