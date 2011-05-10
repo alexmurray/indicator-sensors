@@ -201,7 +201,7 @@ update_sensor_menu_item_label(IsIndicator *self,
 			      IsSensor *sensor,
 			      GtkMenuItem *menu_item)
 {
-	gchar *text = g_strdup_printf("%s: %2.1f%s",
+	gchar *text = g_strdup_printf("%s %2.1f%s",
 				      is_sensor_get_label(sensor),
 				      is_sensor_get_value(sensor),
 				      is_sensor_get_units(sensor));
