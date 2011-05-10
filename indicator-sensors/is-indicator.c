@@ -357,8 +357,7 @@ sensor_enabled(IsManager *manager,
 	}
 	gtk_widget_show_all(menu_item);
 
-	/* add 1 to position so we go after the Preferences menu item */
-	gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menu_item, position + 1);
+	gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menu_item, position);
 	update_sensor_menu_item_label(self, sensor, GTK_MENU_ITEM(menu_item));
 }
 
@@ -394,8 +393,14 @@ is_indicator_new(IsManager *manager)
 	}
 
 	menu = gtk_ui_manager_get_widget(ui_manager, "/ui/Indicator");
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu),
-			      gtk_separator_menu_item_new());
+	/* manually add separator since specifying it in the ui description
+	   means it gets optimised out (since there is no menu item above it)
+	   but if we manually add it and show the whole menu then all is
+	   good... */
+	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu),
+			       gtk_separator_menu_item_new());
+	gtk_widget_show_all(menu);
+
 	app_indicator_set_label(self, _("No Sensors"), _("No Sensors"));
 	app_indicator_set_menu(self, GTK_MENU(menu));
 	app_indicator_set_status(self, APP_INDICATOR_STATUS_ACTIVE);
