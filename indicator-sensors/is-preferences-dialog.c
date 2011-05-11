@@ -15,6 +15,10 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "is-preferences-dialog.h"
 #include <glib/gi18n.h>
 
@@ -90,7 +94,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_PREFERENCES_DIALOG,
 					    IsPreferencesDialogPrivate);
 
-	gtk_window_set_title(GTK_WINDOW(self), _("Hardware Sensors Indicator Preferences"));
+	gtk_window_set_title(GTK_WINDOW(self), _(PACKAGE_NAME " Preferences"));
 	gtk_window_set_default_size(GTK_WINDOW(self), 400, 500);
 
 	gtk_dialog_add_button(GTK_DIALOG(self),

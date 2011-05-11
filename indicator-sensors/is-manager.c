@@ -776,11 +776,11 @@ is_manager_set_autostart(IsManager *self,
 			g_key_file_set_string(key_file,
 					      G_KEY_FILE_DESKTOP_GROUP,
 					      G_KEY_FILE_DESKTOP_KEY_NAME,
-					      _("Hardware Sensors Indicator"));
+					      _(PACKAGE_NAME));
 			g_key_file_set_string(key_file,
 					      G_KEY_FILE_DESKTOP_GROUP,
 					      G_KEY_FILE_DESKTOP_KEY_GENERIC_NAME,
-					      _("Hardware Sensors Indicator"));
+					      _(PACKAGE_NAME));
  			g_key_file_set_string(key_file,
 					      G_KEY_FILE_DESKTOP_GROUP,
 					      G_KEY_FILE_DESKTOP_KEY_EXEC,
