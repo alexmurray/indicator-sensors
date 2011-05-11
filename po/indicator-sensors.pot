@@ -8,13 +8,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: murray.alex@gmail.com\n"
-"POT-Creation-Date: 2011-05-06 10:30+0930\n"
+"POT-Creation-Date: 2011-05-11 22:46+0930\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../data/indicator-sensors.desktop.in.h:1
@@ -22,7 +22,6 @@ msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr ""
 
 #: ../data/indicator-sensors.desktop.in.h:2
-#: ../indicator-sensors/is-manager.c:754 ../indicator-sensors/is-manager.c:758
 msgid "Hardware Sensors Indicator"
 msgstr ""
 
@@ -35,7 +34,6 @@ msgid "_Preferences"
 msgstr ""
 
 #: ../indicator-sensors/is-indicator.c:168
-#: ../indicator-sensors/is-preferences-dialog.c:72
 msgid "Preferences"
 msgstr ""
 
@@ -44,24 +42,44 @@ msgstr ""
 msgid "No active sensors"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:399
+#: ../indicator-sensors/is-indicator.c:404
 msgid "No Sensors"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:347
+#: ../indicator-sensors/is-manager.c:360
 msgid "Sensor"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:356
+#: ../indicator-sensors/is-manager.c:369
 msgid "Label"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:366
+#: ../indicator-sensors/is-manager.c:379
 msgid "Enabled"
 msgstr ""
 
-#: ../indicator-sensors/is-preferences-dialog.c:79
+#: ../indicator-sensors/is-preferences-dialog.c:97
+msgid " Preferences"
+msgstr ""
+
+#: ../indicator-sensors/is-preferences-dialog.c:111
+msgid "General"
+msgstr ""
+
+#: ../indicator-sensors/is-preferences-dialog.c:122
 msgid "Start automatically on login"
+msgstr ""
+
+#: ../indicator-sensors/is-preferences-dialog.c:132
+msgid "Temperature Scale"
+msgstr ""
+
+#: ../indicator-sensors/is-preferences-dialog.c:143
+msgid "Celsius (°C)"
+msgstr ""
+
+#: ../indicator-sensors/is-preferences-dialog.c:155
+msgid "Fahrenheit (°F)"
 msgstr ""
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:1
@@ -86,22 +104,32 @@ msgstr ""
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:5
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:5
-msgid "The default label for a sensor"
+msgid "Temperature scale"
 msgstr ""
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:6
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:6
-msgid "The default maximum value for a sensor."
+msgid "The default label for a sensor"
 msgstr ""
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:7
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:7
-msgid "The default minimum value for a sensor."
+msgid "The default maximum value for a sensor."
 msgstr ""
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:8
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:8
+msgid "The default minimum value for a sensor."
+msgstr ""
+
+#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:9
+#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:9
 msgid "The list of enabled sensors to monitor, each identified by it's path."
+msgstr ""
+
+#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:10
+#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:10
+msgid "The temperature scale to display temperature sensor values."
 msgstr ""
 
 #: ../plugins/libnotify/is-libnotify-plugin.c:153
