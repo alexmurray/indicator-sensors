@@ -70,9 +70,8 @@ int main(int argc, char **argv)
 	peas_engine_add_search_path(engine, plugin_dir, NULL);
 	g_free(plugin_dir);
 
-	manager = is_manager_new();
-	/* create indicator which uses this manager */
-	indicator = is_indicator_new(manager);
+	indicator = is_indicator_get_default();
+	manager = is_indicator_get_manager(indicator);
 
 	/* create extension set and set manager as object */
 	set = peas_extension_set_new(engine, PEAS_TYPE_ACTIVATABLE,

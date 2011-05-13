@@ -21,6 +21,7 @@
 
 #include "is-gsettings-plugin.h"
 #include <indicator-sensors/is-manager.h>
+#include <indicator-sensors/is-indicator.h>
 #include <gio/gio.h>
 #include <glib/gi18n.h>
 
@@ -157,6 +158,7 @@ is_gsettings_plugin_activate(PeasActivatable *activatable)
 	IsGSettingsPluginPrivate *priv = self->priv;
 	GSList *sensors;
 	GSettings *settings;
+	IsIndicator *indicator;
 
 	sensors = is_manager_get_all_sensors_list(priv->manager);
 	while (sensors != NULL) {
@@ -184,6 +186,15 @@ is_gsettings_plugin_activate(PeasActivatable *activatable)
 	g_settings_bind(settings, "temperature-scale",
 			priv->manager, "temperature-scale",
 			G_SETTINGS_BIND_DEFAULT);
+	/* get default indicator and bind its primary_sensor property */
+	indicator = is_indicator_get_default();
+	settings = g_settings_new("indicator-sensors.indicator");
+	g_settings_bind(settings, "primary-sensor",
+			indicator, "primary-sensor",
+			G_SETTINGS_BIND_DEFAULT);
+	g_object_set_data_full(G_OBJECT(indicator), "gsettings", settings,
+			       (GDestroyNotify)g_object_unref);
+	g_object_unref(indicator);
 }
 
 static void

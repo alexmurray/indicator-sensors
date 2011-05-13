@@ -1,4 +1,11 @@
 <schemalist>
+  <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.indicator" path="/apps/indicator-sensors/indicator/">
+    <key type="s" name="primary-sensor">
+      <default>""</default>
+      <_summary>Primary sensor to display</_summary>
+      <_description>The primary sensor to display in the indicator, identified by it's path.</_description>
+    </key>
+  </schema>
   <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.manager" path="/apps/indicator-sensors/manager/">
     <key type="as" name="enabled-sensors">
       <default>[]</default>

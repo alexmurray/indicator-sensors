@@ -62,7 +62,11 @@ struct _IsIndicator
 };
 
 GType is_indicator_get_type(void) G_GNUC_CONST;
-IsIndicator *is_indicator_new(IsManager *manager);
+IsIndicator *is_indicator_get_default(void);
+IsManager *is_indicator_get_manager(IsIndicator *self);
+void is_indicator_set_primary_sensor(IsIndicator *self,
+				     const gchar *primary_sensor);
+const gchar *is_indicator_get_primary_sensor(IsIndicator *self);
 
 G_END_DECLS
 
