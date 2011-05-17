@@ -51,6 +51,7 @@ static guint signals[LAST_SIGNAL] = {0};
 enum {
 	PROP_MANAGER = 1,
 	PROP_PRIMARY_SENSOR,
+	PROP_DISPLAY_MODE,
 	LAST_PROPERTY
 };
 
@@ -59,8 +60,9 @@ static GParamSpec *properties[LAST_PROPERTY] = {NULL};
 struct _IsIndicatorPrivate
 {
 	IsManager *manager;
-	GSList *menu_items;
 	gchar *primary_sensor;
+	IsIndicatorDisplayMode display_mode;
+	GSList *menu_items;
 	GtkWidget *prefs_dialog;
 };
 
@@ -92,6 +94,16 @@ is_indicator_class_init(IsIndicatorClass *klass)
 	g_object_class_install_property(gobject_class, PROP_PRIMARY_SENSOR,
 					properties[PROP_PRIMARY_SENSOR]);
 
+	properties[PROP_DISPLAY_MODE] = g_param_spec_int("display-mode",
+							 "display mode property",
+							 "display mode property blurp.",
+							 IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY,
+							 IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE,
+							 IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE,
+							 G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_DISPLAY_MODE,
+					properties[PROP_DISPLAY_MODE]);
+
 	signals[SIGNAL_DUMMY] = g_signal_new("dummy",
 					     G_OBJECT_CLASS_TYPE(klass),
 					     G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
@@ -122,6 +134,9 @@ is_indicator_get_property(GObject *object,
 	case PROP_PRIMARY_SENSOR:
 		g_value_set_string(value, is_indicator_get_primary_sensor(self));
 		break;
+	case PROP_DISPLAY_MODE:
+		g_value_set_int(value, is_indicator_get_display_mode(self));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 		break;
@@ -146,6 +161,9 @@ is_indicator_set_property(GObject *object,
 		break;
 	case PROP_PRIMARY_SENSOR:
 		is_indicator_set_primary_sensor(self, g_value_get_string(value));
+		break;
+	case PROP_DISPLAY_MODE:
+		is_indicator_set_display_mode(self, g_value_get_int(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -200,14 +218,14 @@ static const gchar *ui_info =
 "</ui>";
 
 static void prefs_action(GtkAction *action,
-			    IsIndicator *self)
+			 IsIndicator *self)
 {
 	IsIndicatorPrivate *priv;
 
 	priv = self->priv;
 
 	if (!priv->prefs_dialog) {
-		priv->prefs_dialog = is_preferences_dialog_new(priv->manager);
+		priv->prefs_dialog = is_preferences_dialog_new(self);
 		g_signal_connect(priv->prefs_dialog, "response",
 				 G_CALLBACK(gtk_widget_hide), NULL);
 		g_signal_connect(priv->prefs_dialog, "delete-event",
@@ -238,8 +256,21 @@ update_sensor_menu_item_label(IsIndicator *self,
 	gtk_menu_item_set_label(menu_item, text);
 
 	if (g_strcmp0(priv->primary_sensor, is_sensor_get_path(sensor)) == 0) {
-		app_indicator_set_label(APP_INDICATOR(self),
-					text, text);
+		/* set display based on current display_mode */
+		switch (priv->display_mode) {
+		case IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY:
+			app_indicator_set_label(APP_INDICATOR(self),
+						text + strlen(is_sensor_get_label(sensor)) + 1,
+						text + strlen(is_sensor_get_label(sensor)) + 1);
+			break;
+		case IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE:
+			app_indicator_set_label(APP_INDICATOR(self),
+						text, text);
+			break;
+		case IS_INDICATOR_DISPLAY_MODE_INVALID:
+		default:
+			g_assert_not_reached();
+		}
 	}
 	g_free(text);
 }
@@ -499,3 +530,45 @@ IsManager *is_indicator_get_manager(IsIndicator *self)
 
 	return self->priv->manager;
 }
+
+void is_indicator_set_display_mode(IsIndicator *self,
+				   IsIndicatorDisplayMode display_mode)
+{
+	IsIndicatorPrivate *priv;
+
+	g_return_if_fail(IS_IS_INDICATOR(self));
+	g_return_if_fail(display_mode == IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY ||
+			 display_mode == IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE);
+
+	priv = self->priv;
+
+	if (display_mode != priv->display_mode) {
+		IsSensor *sensor;
+		GtkMenuItem *item;
+
+		priv->display_mode = display_mode;
+
+		/* redisplay primary sensor */
+		sensor = is_manager_get_sensor(priv->manager,
+					       priv->primary_sensor);
+		item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(sensor),
+						       "menu-item"));
+		update_sensor_menu_item_label(self, sensor, item);
+		g_object_unref(sensor);
+		g_object_notify_by_pspec(G_OBJECT(self),
+					 properties[PROP_DISPLAY_MODE]);
+	}
+}
+
+IsIndicatorDisplayMode
+is_indicator_get_display_mode(IsIndicator *self)
+{
+	g_return_val_if_fail(IS_IS_INDICATOR(self),
+			     IS_INDICATOR_DISPLAY_MODE_INVALID);
+
+	return self->priv->display_mode;
+}
+
+
+
+

@@ -5,6 +5,12 @@
       <_summary>Primary sensor to display</_summary>
       <_description>The primary sensor to display in the indicator, identified by it's path.</_description>
     </key>
+    <!-- consider making this an enum -->
+    <key type="i" name="display-mode">
+      <default>2</default>
+      <_summary>Display mode for the indicator</_summary>
+      <_description>The mode to display the primary sensor within the indicator.</_description>
+    </key>
   </schema>
   <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.manager" path="/apps/indicator-sensors/manager/">
     <key type="as" name="enabled-sensors">

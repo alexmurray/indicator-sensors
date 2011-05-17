@@ -61,13 +61,21 @@ struct _IsIndicator
 	IsIndicatorPrivate *priv;
 };
 
+typedef enum {
+	IS_INDICATOR_DISPLAY_MODE_INVALID = 0,
+	IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY,
+	IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE,
+} IsIndicatorDisplayMode;
+
 GType is_indicator_get_type(void) G_GNUC_CONST;
 IsIndicator *is_indicator_get_default(void);
 IsManager *is_indicator_get_manager(IsIndicator *self);
 void is_indicator_set_primary_sensor(IsIndicator *self,
 				     const gchar *primary_sensor);
 const gchar *is_indicator_get_primary_sensor(IsIndicator *self);
-
+void is_indicator_set_display_mode(IsIndicator *self,
+				   IsIndicatorDisplayMode mode);
+IsIndicatorDisplayMode is_indicator_get_display_mode(IsIndicator *self);
 G_END_DECLS
 
 #endif /* __IS_INDICATOR_H__ */
