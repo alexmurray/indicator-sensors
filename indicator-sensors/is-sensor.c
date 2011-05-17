@@ -276,10 +276,15 @@ void
 is_sensor_set_label(IsSensor *self,
 		    const gchar *label)
 {
+	IsSensorPrivate *priv;
+
 	g_return_if_fail(IS_IS_SENSOR(self));
+
+	priv = self->priv;
+
 	if (label != NULL && g_strcmp0(label, "") != 0) {
-		g_free(self->priv->label);
-		self->priv->label = label ? g_strdup(label) : NULL;
+		g_free(priv->label);
+		priv->label = g_strdup(label);
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_LABEL]);
 	}
