@@ -271,14 +271,18 @@ update_sensor_menu_item_label(IsIndicator *self,
 		default:
 			g_assert_not_reached();
 		}
+		app_indicator_set_status(APP_INDICATOR(self),
+					 is_sensor_get_alarmed(sensor) ?
+					 APP_INDICATOR_STATUS_ATTENTION :
+					 APP_INDICATOR_STATUS_ACTIVE);
 	}
 	g_free(text);
 }
 
 static void
-sensor_label_or_value_notify(IsSensor *sensor,
-			     GParamSpec *psec,
-			     IsIndicator *self)
+sensor_notify(IsSensor *sensor,
+	      GParamSpec *psec,
+	      IsIndicator *self)
 {
 	GtkMenuItem *menu_item;
 
@@ -320,7 +324,7 @@ sensor_disabled(IsManager *manager,
 	g_object_set_data(G_OBJECT(sensor), "value-item", NULL);
 
 	g_signal_handlers_disconnect_by_func(sensor,
-					     sensor_label_or_value_notify,
+					     sensor_notify,
 					     self);
 	g_signal_handlers_disconnect_by_func(sensor,
 					     sensor_error,
@@ -372,10 +376,13 @@ sensor_enabled(IsManager *manager,
 	GtkWidget *menu_item;
 
 	g_signal_connect(sensor, "notify::value",
-			 G_CALLBACK(sensor_label_or_value_notify),
+			 G_CALLBACK(sensor_notify),
 			 self);
 	g_signal_connect(sensor, "notify::label",
-			 G_CALLBACK(sensor_label_or_value_notify),
+			 G_CALLBACK(sensor_notify),
+			 self);
+	g_signal_connect(sensor, "notify::alarmed",
+			 G_CALLBACK(sensor_notify),
 			 self);
 	g_signal_connect(sensor, "error",
 			 G_CALLBACK(sensor_error), self);
