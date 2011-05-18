@@ -341,6 +341,18 @@ is_sensor_get_value(IsSensor *self)
 	return self->priv->value;
 }
 
+static void
+update_alarmed(IsSensor *self)
+{
+	IsSensorPrivate *priv = self->priv;
+	gboolean alarmed = (priv->value >= priv->alarm_max ||
+			    priv->value <= priv->alarm_min);
+	if (priv->alarmed != alarmed) {
+		priv->alarmed = alarmed;
+		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ALARMED]);
+	}
+}
+
 void
 is_sensor_set_value(IsSensor *self,
 		    gdouble value)
@@ -352,15 +364,9 @@ is_sensor_set_value(IsSensor *self,
 	priv = self->priv;
 
 	if (priv->value != value) {
-		gboolean alarmed;
 		priv->value = value;
 		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_VALUE]);
-		alarmed = (priv->value >= priv->alarm_max ||
-			   priv->value <= priv->alarm_min);
-		if (priv->alarmed != alarmed) {
-			priv->alarmed = alarmed;
-			g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ALARMED]);
-		}
+		update_alarmed(self);
 	}
 }
 
@@ -375,10 +381,17 @@ void
 is_sensor_set_min(IsSensor *self,
 		  gdouble min)
 {
+	IsSensorPrivate *priv;
+
 	g_return_if_fail(IS_IS_SENSOR(self));
-	if (self->priv->min != min) {
-		self->priv->min = min;
+
+	priv = self->priv;
+
+	if (priv->min != min) {
+		priv->min = min;
 		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_MIN]);
+		/* ensure we bound alarm_min as appropriate */
+		is_sensor_set_alarm_min(self, MAX(priv->min, priv->alarm_min));
 	}
 }
 
@@ -393,10 +406,17 @@ void
 is_sensor_set_max(IsSensor *self,
 		  gdouble max)
 {
+	IsSensorPrivate *priv;
+
 	g_return_if_fail(IS_IS_SENSOR(self));
-	if (self->priv->max != max) {
-		self->priv->max = max;
+
+	priv = self->priv;
+
+	if (priv->max != max) {
+		priv->max = max;
 		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_MAX]);
+		/* ensure we bound alarm_max as appropriate */
+		is_sensor_set_alarm_max(self, MIN(priv->max, priv->alarm_max));
 	}
 }
 
@@ -409,13 +429,22 @@ is_sensor_get_alarm_min(IsSensor *self)
 
 void
 is_sensor_set_alarm_min(IsSensor *self,
-		  gdouble alarm_min)
+			gdouble alarm_min)
 {
+	IsSensorPrivate *priv;
+
 	g_return_if_fail(IS_IS_SENSOR(self));
-	if (self->priv->alarm_min != alarm_min) {
-		self->priv->alarm_min = alarm_min;
+
+	priv = self->priv;
+
+	/* limit alarm_min to min of sensor */
+	alarm_min = MAX(alarm_min, priv->min);
+
+	if (priv->alarm_min != alarm_min) {
+		priv->alarm_min = alarm_min;
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_ALARM_MIN]);
+		update_alarmed(self);
 	}
 }
 
@@ -428,13 +457,22 @@ is_sensor_get_alarm_max(IsSensor *self)
 
 void
 is_sensor_set_alarm_max(IsSensor *self,
-		  gdouble alarm_max)
+			gdouble alarm_max)
 {
+	IsSensorPrivate *priv;
+
 	g_return_if_fail(IS_IS_SENSOR(self));
-	if (self->priv->alarm_max != alarm_max) {
-		self->priv->alarm_max = alarm_max;
+
+	priv = self->priv;
+
+	/* limit alarm_max to max of sensor */
+	alarm_max = MIN(alarm_max, priv->max);
+
+	if (priv->alarm_max != alarm_max) {
+		priv->alarm_max = alarm_max;
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_ALARM_MAX]);
+		update_alarmed(self);
 	}
 }
 
