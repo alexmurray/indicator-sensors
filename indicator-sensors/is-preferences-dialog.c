@@ -133,7 +133,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 
 	label = gtk_label_new(NULL);
 	markup = g_strdup_printf("<span weight='bold'>%s</span>",
-				 _("Temperature Scale"));
+				 _("Application Indicator"));
 	gtk_label_set_markup(GTK_LABEL(label), markup);
 	g_free(markup);
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
@@ -142,48 +142,11 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 			 2, 3,
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
-
-	priv->celsius_radio_button = gtk_radio_button_new_with_label
-		(NULL, _("Celsius (\302\260C)"));
-	gtk_widget_set_sensitive(priv->celsius_radio_button, FALSE);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->celsius_radio_button,
-			 0, 1,
-			 3, 4,
-			 GTK_EXPAND | GTK_FILL, GTK_FILL,
-			 6, 0);
-	g_signal_connect(priv->celsius_radio_button, "toggled",
-			 G_CALLBACK(temperature_scale_toggled), self);
-	priv->fahrenheit_radio_button =
-		gtk_radio_button_new_with_label_from_widget
-		(GTK_RADIO_BUTTON(priv->celsius_radio_button),
-		 _("Fahrenheit (\302\260F)"));
-	gtk_widget_set_sensitive(priv->fahrenheit_radio_button, FALSE);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->fahrenheit_radio_button,
-			 1, 2,
-			 3, 4,
-			 GTK_EXPAND | GTK_FILL, GTK_FILL,
-			 6, 0);
-	g_signal_connect(priv->fahrenheit_radio_button, "toggled",
-			 G_CALLBACK(temperature_scale_toggled), self);
-
-	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 3, 6);
-	label = gtk_label_new(NULL);
-	markup = g_strdup_printf("<span weight='bold'>%s</span>",
-				 _("Application Indicator"));
-	gtk_label_set_markup(GTK_LABEL(label), markup);
-	g_free(markup);
+	label = gtk_label_new(_("Primary sensor display"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
 	gtk_table_attach(GTK_TABLE(priv->table), label,
 			 0, 1,
-			 4, 5,
-			 GTK_FILL, GTK_FILL,
-			 0, 0);
-
-	label = gtk_label_new(_("Display mode"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-	gtk_table_attach(GTK_TABLE(priv->table), label,
-			 0, 1,
-			 5, 6,
+			 3, 4,
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
 	priv->display_mode_combo_box = gtk_combo_box_text_new();
@@ -196,9 +159,46 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 	gtk_widget_set_sensitive(priv->display_mode_combo_box, FALSE);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->display_mode_combo_box,
 			 1, 2,
-			 5, 6,
+			 3, 4,
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
+	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 3, 6);
+
+	label = gtk_label_new(NULL);
+	markup = g_strdup_printf("<span weight='bold'>%s</span>",
+				 _("Temperature Scale"));
+	gtk_label_set_markup(GTK_LABEL(label), markup);
+	g_free(markup);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_table_attach(GTK_TABLE(priv->table), label,
+			 0, 1,
+			 4, 5,
+			 GTK_FILL, GTK_FILL,
+			 0, 0);
+
+	priv->celsius_radio_button = gtk_radio_button_new_with_label
+		(NULL, _("Celsius (\302\260C)"));
+	gtk_widget_set_sensitive(priv->celsius_radio_button, FALSE);
+	gtk_table_attach(GTK_TABLE(priv->table), priv->celsius_radio_button,
+			 0, 1,
+			 5, 6,
+			 GTK_EXPAND | GTK_FILL, GTK_FILL,
+			 6, 0);
+	g_signal_connect(priv->celsius_radio_button, "toggled",
+			 G_CALLBACK(temperature_scale_toggled), self);
+	priv->fahrenheit_radio_button =
+		gtk_radio_button_new_with_label_from_widget
+		(GTK_RADIO_BUTTON(priv->celsius_radio_button),
+		 _("Fahrenheit (\302\260F)"));
+	gtk_widget_set_sensitive(priv->fahrenheit_radio_button, FALSE);
+	gtk_table_attach(GTK_TABLE(priv->table), priv->fahrenheit_radio_button,
+			 1, 2,
+			 5, 6,
+			 GTK_EXPAND | GTK_FILL, GTK_FILL,
+			 6, 0);
+	g_signal_connect(priv->fahrenheit_radio_button, "toggled",
+			 G_CALLBACK(temperature_scale_toggled), self);
+	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 6, 6);
 
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),
 			  priv->table);
