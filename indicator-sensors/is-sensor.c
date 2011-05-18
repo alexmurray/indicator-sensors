@@ -43,8 +43,11 @@ enum {
 	PROP_VALUE,
 	PROP_MIN,
 	PROP_MAX,
+	PROP_ALARM_MIN,
+	PROP_ALARM_MAX,
 	PROP_UNITS,
 	PROP_UPDATE_INTERVAL,
+	PROP_ALARMED,
 	LAST_PROPERTY
 };
 
@@ -57,9 +60,12 @@ struct _IsSensorPrivate
 	gdouble value;
 	gdouble min;
 	gdouble max;
+	gdouble alarm_min;
+	gdouble alarm_max;
 	gchar *units;
 	guint update_interval;
 	gint64 last_update;
+	gboolean alarmed;
 };
 
 static void
@@ -74,9 +80,9 @@ is_sensor_class_init(IsSensorClass *klass)
 	gobject_class->finalize = is_sensor_finalize;
 
 	properties[PROP_PATH] = g_param_spec_string("path", "path property",
-						      "path of this sensor.",
-						      NULL,
-						      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+						    "path of this sensor.",
+						    NULL,
+						    G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_PATH, properties[PROP_PATH]);
 	properties[PROP_VALUE] = g_param_spec_double("value", "sensor value",
 						     "value of this sensor.",
@@ -100,6 +106,18 @@ is_sensor_class_init(IsSensorClass *klass)
 						   G_MAXDOUBLE,
 						   G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_MAX, properties[PROP_MAX]);
+	properties[PROP_ALARM_MIN] = g_param_spec_double("alarm-min", "sensor alarm min",
+						   "alarm min of this sensor.",
+							 -G_MAXDOUBLE, G_MAXDOUBLE,
+							 -G_MAXDOUBLE,
+							 G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_ALARM_MIN, properties[PROP_ALARM_MIN]);
+	properties[PROP_ALARM_MAX] = g_param_spec_double("alarm-max", "sensor alarm max",
+							 "alarm max of this sensor.",
+							 -G_MAXDOUBLE, G_MAXDOUBLE,
+							 G_MAXDOUBLE,
+							 G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_ALARM_MAX, properties[PROP_ALARM_MAX]);
 	properties[PROP_UNITS] = g_param_spec_string("units", "sensor units",
 						     "units of this sensor.",
 						     NULL,
@@ -112,6 +130,11 @@ is_sensor_class_init(IsSensorClass *klass)
 							     5,
 							     G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_UPDATE_INTERVAL, properties[PROP_UPDATE_INTERVAL]);
+	properties[PROP_ALARMED] = g_param_spec_boolean("alarmed", "is sensor alarmed",
+							"alarmed state of this sensor.",
+							FALSE,
+							G_PARAM_CONSTRUCT | G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_ALARMED, properties[PROP_ALARMED]);
 
 	signals[SIGNAL_UPDATE_VALUE] = g_signal_new("update-value",
 						    G_OBJECT_CLASS_TYPE(klass),
@@ -161,11 +184,20 @@ is_sensor_get_property(GObject *object,
 	case PROP_MAX:
 		g_value_set_double(value, is_sensor_get_max(self));
 		break;
+	case PROP_ALARM_MIN:
+		g_value_set_double(value, is_sensor_get_alarm_min(self));
+		break;
+	case PROP_ALARM_MAX:
+		g_value_set_double(value, is_sensor_get_alarm_max(self));
+		break;
 	case PROP_UNITS:
 		g_value_set_string(value, is_sensor_get_units(self));
 		break;
 	case PROP_UPDATE_INTERVAL:
 		g_value_set_uint(value, is_sensor_get_update_interval(self));
+		break;
+	case PROP_ALARMED:
+		g_value_set_boolean(value, is_sensor_get_alarmed(self));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -195,6 +227,12 @@ is_sensor_set_property(GObject *object,
 		break;
 	case PROP_MAX:
 		is_sensor_set_max(self, g_value_get_double(value));
+		break;
+	case PROP_ALARM_MIN:
+		is_sensor_set_alarm_min(self, g_value_get_double(value));
+		break;
+	case PROP_ALARM_MAX:
+		is_sensor_set_alarm_max(self, g_value_get_double(value));
 		break;
 	case PROP_UNITS:
 		is_sensor_set_units(self, g_value_get_string(value));
@@ -235,6 +273,8 @@ is_sensor_new(const gchar *path,
 			    "label", label,
 			    "min", -G_MAXDOUBLE,
 			    "max", G_MAXDOUBLE,
+			    "alarm-min", -G_MAXDOUBLE,
+			    "alarm-max", G_MAXDOUBLE,
 			    "units", units,
 			    "update-interval", 5,
 			    NULL);
@@ -245,6 +285,8 @@ is_sensor_new_full(const gchar *path,
 		   const gchar *label,
 		   gdouble min,
 		   gdouble max,
+		   gdouble alarm_min,
+		   gdouble alarm_max,
 		   const gchar *units,
 		   guint update_interval)
 {
@@ -253,6 +295,8 @@ is_sensor_new_full(const gchar *path,
 			    "label", label,
 			    "min", min,
 			    "max", max,
+			    "alarm-min", alarm_min,
+			    "alarm-max", alarm_max,
 			    "units", units,
 			    "update-interval", update_interval,
 			    NULL);
@@ -301,10 +345,22 @@ void
 is_sensor_set_value(IsSensor *self,
 		    gdouble value)
 {
+	IsSensorPrivate *priv;
+
 	g_return_if_fail(IS_IS_SENSOR(self));
-	if (self->priv->value != value) {
-		self->priv->value = value;
+
+	priv = self->priv;
+
+	if (priv->value != value) {
+		gboolean alarmed;
+		priv->value = value;
 		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_VALUE]);
+		alarmed = (priv->value >= priv->alarm_max ||
+			   priv->value <= priv->alarm_min);
+		if (priv->alarmed != alarmed) {
+			priv->alarmed = alarmed;
+			g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ALARMED]);
+		}
 	}
 }
 
@@ -344,6 +400,44 @@ is_sensor_set_max(IsSensor *self,
 	}
 }
 
+gdouble
+is_sensor_get_alarm_min(IsSensor *self)
+{
+	g_return_val_if_fail(IS_IS_SENSOR(self), 0.0f);
+	return self->priv->alarm_min;
+}
+
+void
+is_sensor_set_alarm_min(IsSensor *self,
+		  gdouble alarm_min)
+{
+	g_return_if_fail(IS_IS_SENSOR(self));
+	if (self->priv->alarm_min != alarm_min) {
+		self->priv->alarm_min = alarm_min;
+		g_object_notify_by_pspec(G_OBJECT(self),
+					 properties[PROP_ALARM_MIN]);
+	}
+}
+
+gdouble
+is_sensor_get_alarm_max(IsSensor *self)
+{
+	g_return_val_if_fail(IS_IS_SENSOR(self), 0.0f);
+	return self->priv->alarm_max;
+}
+
+void
+is_sensor_set_alarm_max(IsSensor *self,
+		  gdouble alarm_max)
+{
+	g_return_if_fail(IS_IS_SENSOR(self));
+	if (self->priv->alarm_max != alarm_max) {
+		self->priv->alarm_max = alarm_max;
+		g_object_notify_by_pspec(G_OBJECT(self),
+					 properties[PROP_ALARM_MAX]);
+	}
+}
+
 const gchar *
 is_sensor_get_units(IsSensor *self)
 {
@@ -378,6 +472,13 @@ is_sensor_set_update_interval(IsSensor *self,
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_UPDATE_INTERVAL]);
 	}
+}
+
+gboolean
+is_sensor_get_alarmed(IsSensor *self)
+{
+	g_return_val_if_fail(IS_IS_SENSOR(self), 0.0f);
+	return self->priv->alarmed;
 }
 
 void

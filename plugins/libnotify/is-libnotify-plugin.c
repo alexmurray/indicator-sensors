@@ -130,50 +130,33 @@ is_libnotify_plugin_finalize(GObject *object)
 
 
 static void
-sensor_notify(IsSensor *sensor,
-	      GParamSpec *pspec,
-	      IsLibnotifyPlugin *self)
+sensor_notify_alarmed(IsSensor *sensor,
+		      GParamSpec *pspec,
+		      IsLibnotifyPlugin *self)
 {
 	IsLibnotifyPluginPrivate *priv;
+	gboolean alarmed;
 
 	priv = self->priv;
 
-	if (g_strcmp0(pspec->name, "value") == 0 ||
-	    g_strcmp0(pspec->name, "min") == 0 ||
-	    g_strcmp0(pspec->name, "min") == 0) {
+	alarmed = is_sensor_get_alarmed(sensor);
+
+	if (alarmed) {
 		NotifyNotification *notification;
-		gdouble value, min, max;
-
-		value = is_sensor_get_value(sensor);
-		min = is_sensor_get_min(sensor);
-		max = is_sensor_get_max(sensor);
-
-		if (value <= min || value >= max)
-		{
-			const gchar *low_value = N_("low value");
-			const gchar *high_value = N_("high value");
-
-			gchar *body = g_strdup_printf("%s: %s %f%s",
-						      is_sensor_get_label(sensor),
-						      (value <= min ?
-						       low_value :
-						       high_value),
-						      value,
-						      is_sensor_get_units(sensor));
-			g_debug("Alarm for %s: %s value %f [min %f, max %f]",
-				is_sensor_get_path(sensor),
-				(value <= min ? "low" : "high"),
-				value, min, max);
-			notification = notify_notification_new(_("Sensor Alarm"),
-							       body, NULL);
-			g_free(body);
-			if (priv->append) {
-				GVariant *cap = g_variant_new("s", "");
-				notify_notification_set_hint(notification, "x-canonical-append", cap);
-			}
-			notify_notification_show(notification, NULL);
-			g_object_unref(notification);
+		gchar *body = g_strdup_printf("%s: %f%s",
+					      is_sensor_get_label(sensor),
+					      is_sensor_get_value(sensor),
+					      is_sensor_get_units(sensor));
+		g_debug("Alarm for %s", is_sensor_get_path(sensor));
+		notification = notify_notification_new(_("Sensor Alarm"),
+						       body, NULL);
+		g_free(body);
+		if (priv->append) {
+			GVariant *cap = g_variant_new("s", "");
+			notify_notification_set_hint(notification, "x-canonical-append", cap);
 		}
+		notify_notification_show(notification, NULL);
+		g_object_unref(notification);
 	}
 }
 
@@ -188,7 +171,8 @@ sensor_enabled(IsManager *manager,
 	priv = self->priv;
 
 	g_assert(!g_slist_find(priv->sensors, sensor));
-	g_signal_connect(sensor, "notify", G_CALLBACK(sensor_notify), self);
+	g_signal_connect(sensor, "notify::alarmed",
+			 G_CALLBACK(sensor_notify_alarmed), self);
 	priv->sensors = g_slist_insert(priv->sensors, sensor, position);
 }
 
@@ -201,7 +185,7 @@ sensor_disabled(IsManager *manager,
 
 	priv = self->priv;
 
-	g_signal_handlers_disconnect_by_func(sensor, sensor_notify, self);
+	g_signal_handlers_disconnect_by_func(sensor, sensor_notify_alarmed, self);
 	priv->sensors = g_slist_remove(priv->sensors, sensor);
 }
 
@@ -242,12 +226,17 @@ is_libnotify_plugin_deactivate(PeasActivatable *activatable)
 	IsLibnotifyPlugin *self = IS_LIBNOTIFY_PLUGIN(activatable);
 	IsLibnotifyPluginPrivate *priv = self->priv;
 
-	g_signal_handlers_disconnect_by_func(priv->manager, sensor_enabled, self);
-	g_signal_handlers_disconnect_by_func(priv->manager, sensor_disabled, self);
+	g_signal_handlers_disconnect_by_func(priv->manager, sensor_enabled,
+					     self);
+	g_signal_handlers_disconnect_by_func(priv->manager, sensor_disabled,
+					     self);
 	while (priv->sensors) {
 		IsSensor *sensor = IS_SENSOR(priv->sensors->data);
-		g_signal_handlers_disconnect_by_func(sensor, sensor_notify, self);
-		priv->sensors = g_slist_delete_link(priv->sensors, priv->sensors);
+		g_signal_handlers_disconnect_by_func(sensor,
+						     sensor_notify_alarmed,
+						     self);
+		priv->sensors = g_slist_delete_link(priv->sensors,
+						    priv->sensors);
 	}
 }
 

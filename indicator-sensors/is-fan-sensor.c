@@ -36,20 +36,26 @@ IsSensor *
 is_fan_sensor_new(const gchar *path,
 		  const gchar *label)
 {
-	return is_fan_sensor_new_full(path, label, 0.0, G_MAXDOUBLE);
+	return is_fan_sensor_new_full(path, label,
+				      0.0, G_MAXDOUBLE,
+				      0.0, G_MAXDOUBLE);
 }
 
 IsSensor *
 is_fan_sensor_new_full(const gchar *path,
 		       const gchar *label,
 		       gdouble min,
-		       gdouble max)
+		       gdouble max,
+		       gdouble alarm_min,
+		       gdouble alarm_max)
 {
 	return g_object_new(IS_TYPE_FAN_SENSOR,
 			    "path", path,
 			    "label", label,
 			    "min", min,
 			    "max", max,
+			    "alarm-min", alarm_min,
+			    "alarm-max", alarm_max,
 			    "units", _("RPM"),
 			    NULL);
 }

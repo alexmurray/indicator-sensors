@@ -73,6 +73,8 @@ IsSensor *is_temperature_sensor_new_full(const gchar *path,
 					 const gchar *label,
 					 gdouble min,
 					 gdouble max,
+					 gdouble alarm_min,
+					 gdouble alarm_max,
 					 IsTemperatureSensorScale scale);
 void is_temperature_sensor_set_scale(IsTemperatureSensor *sensor,
 				     IsTemperatureSensorScale scale);

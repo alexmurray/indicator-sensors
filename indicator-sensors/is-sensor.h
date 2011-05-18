@@ -70,6 +70,8 @@ IsSensor *is_sensor_new_full(const gchar *path,
 			     const gchar *label,
 			     gdouble min,
 			     gdouble max,
+			     gdouble alarm_min,
+			     gdouble alarm_max,
 			     const gchar *units,
 			     guint update_interval);
 void is_sensor_update_value(IsSensor *self);
@@ -83,10 +85,15 @@ gdouble is_sensor_get_min(IsSensor *self);
 void is_sensor_set_min(IsSensor *self, gdouble min);
 gdouble is_sensor_get_max(IsSensor *self);
 void is_sensor_set_max(IsSensor *self, gdouble max);
+gdouble is_sensor_get_alarm_min(IsSensor *self);
+void is_sensor_set_alarm_min(IsSensor *self, gdouble alarm_min);
+gdouble is_sensor_get_alarm_max(IsSensor *self);
+void is_sensor_set_alarm_max(IsSensor *self, gdouble alarm_max);
 const gchar *is_sensor_get_units(IsSensor *self);
 void is_sensor_set_units(IsSensor *self, const gchar *units);
 guint is_sensor_get_update_interval(IsSensor *self);
 void is_sensor_set_update_interval(IsSensor *self, guint update_interval);
+gboolean is_sensor_get_alarmed(IsSensor *self);
 
 G_END_DECLS
 

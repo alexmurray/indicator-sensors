@@ -41,5 +41,15 @@
       <_summary>Default maximum sensor value</_summary>
       <_description>The default maximum value for a sensor.</_description>
     </key>
+    <key name="alarm-min" type="d">
+      <default>-1e37</default>
+      <_summary>Default alarm minimum sensor value</_summary>
+      <_description>The default alarm minimum value for a sensor.</_description>
+    </key>
+    <key name="alarm-max" type="d">
+      <default>1e37</default>
+      <_summary>Default alarm maximum sensor value</_summary>
+      <_description>The default alarm maximum value for a sensor.</_description>
+    </key>
   </schema>
 </schemalist>

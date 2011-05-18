@@ -146,6 +146,7 @@ is_temperature_sensor_new(const gchar *path,
 {
 	return is_temperature_sensor_new_full(path, label,
 					      -G_MAXDOUBLE, G_MAXDOUBLE,
+					      -G_MAXDOUBLE, G_MAXDOUBLE,
 					      IS_TEMPERATURE_SENSOR_SCALE_CELSIUS);
 }
 
@@ -155,6 +156,8 @@ is_temperature_sensor_new_full(const gchar *path,
 			       const gchar *label,
 			       gdouble min,
 			       gdouble max,
+			       gdouble alarm_min,
+			       gdouble alarm_max,
 			       IsTemperatureSensorScale scale)
 {
 	IsTemperatureSensor *self;
@@ -168,6 +171,8 @@ is_temperature_sensor_new_full(const gchar *path,
 			    "label", label,
 			    "min", min,
 			    "max", max,
+			    "alarm-min", alarm_min,
+			    "alarm-max", alarm_max,
 			    "scale", scale,
 			    NULL);
 	return IS_SENSOR(self);
@@ -209,6 +214,8 @@ void is_temperature_sensor_set_scale(IsTemperatureSensor *self,
 		gdouble value = is_sensor_get_value(IS_SENSOR(self));
 		gdouble min = is_sensor_get_min(IS_SENSOR(self));
 		gdouble max = is_sensor_get_max(IS_SENSOR(self));
+		gdouble alarm_min = is_sensor_get_alarm_min(IS_SENSOR(self));
+		gdouble alarm_max = is_sensor_get_alarm_max(IS_SENSOR(self));
 
 		/* convert from current scale to new */
 		switch (priv->scale) {
@@ -216,11 +223,15 @@ void is_temperature_sensor_set_scale(IsTemperatureSensor *self,
 			value = celcius_to_fahrenheit(value);
 			min = celcius_to_fahrenheit(min);
 			max = celcius_to_fahrenheit(max);
+			alarm_min = celcius_to_fahrenheit(alarm_min);
+			alarm_max = celcius_to_fahrenheit(alarm_max);
 			break;
 		case IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT:
 			value = fahrenheit_to_celcius(value);
 			min = fahrenheit_to_celcius(min);
 			max = fahrenheit_to_celcius(max);
+			alarm_min = fahrenheit_to_celcius(alarm_min);
+			alarm_max = fahrenheit_to_celcius(alarm_max);
 			break;
 		case IS_TEMPERATURE_SENSOR_SCALE_INVALID:
 		case NUM_IS_TEMPERATURE_SENSOR_SCALE:
@@ -236,6 +247,8 @@ void is_temperature_sensor_set_scale(IsTemperatureSensor *self,
 			     "value", value,
 			     "min", min,
 			     "max", max,
+			     "alarm-min", alarm_min,
+			     "alarm-max", alarm_max,
 			     NULL);
 	}
 

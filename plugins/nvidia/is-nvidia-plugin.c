@@ -234,8 +234,9 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 					/* fan sensors are given as a percentage
 					   from 0 to 100 */
 					sensor = is_sensor_new_full(path, label,
-								    0, 100, "%",
-								    5);
+								    0, 100,
+								    0, 100,
+								    "%", 5);
 				} else {
 					sensor = is_temperature_sensor_new(path, label);
 				}

@@ -63,7 +63,9 @@ IsSensor *is_fan_sensor_new(const gchar *path,
 IsSensor *is_fan_sensor_new_full(const gchar *path,
 				 const gchar *label,
 				 gdouble min,
-				 gdouble max);
+				 gdouble max,
+				 gdouble alarm_min,
+				 gdouble alarm_max);
 G_END_DECLS
 
 #endif /* __IS_FAN_SENSOR_H__ */
