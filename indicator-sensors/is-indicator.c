@@ -555,15 +555,18 @@ void is_indicator_set_display_mode(IsIndicator *self,
 
 		priv->display_mode = display_mode;
 
-		/* redisplay primary sensor */
-		sensor = is_manager_get_sensor(priv->manager,
-					       priv->primary_sensor);
-		item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(sensor),
-						       "menu-item"));
-		update_sensor_menu_item_label(self, sensor, item);
-		g_object_unref(sensor);
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_DISPLAY_MODE]);
+
+		if (priv->primary_sensor) {
+			/* redisplay primary sensor */
+			sensor = is_manager_get_sensor(priv->manager,
+						       priv->primary_sensor);
+			item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(sensor),
+							       "menu-item"));
+			update_sensor_menu_item_label(self, sensor, item);
+			g_object_unref(sensor);
+		}
 	}
 }
 
