@@ -23,6 +23,9 @@
 
 G_BEGIN_DECLS
 
+/* response id returned when clicking on properties button */
+#define IS_PREFERENCES_DIALOG_RESPONSE_SENSOR_PROPERTIES 1
+
 #define IS_TYPE_PREFERENCES_DIALOG		\
 	(is_preferences_dialog_get_type())
 #define IS_PREFERENCES_DIALOG(obj)				\

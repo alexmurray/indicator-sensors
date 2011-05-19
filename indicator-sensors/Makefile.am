@@ -36,7 +36,9 @@ indicator_sensors_SOURCES = \
 	is-manager.h \
 	is-manager.c \
 	is-preferences-dialog.h \
-	is-preferences-dialog.c
+	is-preferences-dialog.c \
+	is-sensor-dialog.h \
+	is-sensor-dialog.c
 
 EXTRA_DIST = marshallers.list
 DISTCLEANFILES = $(BUILT_SOURCES)

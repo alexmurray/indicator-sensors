@@ -78,6 +78,8 @@ void is_manager_set_autostart(IsManager *self, gboolean autostart);
 IsTemperatureSensorScale is_manager_get_temperature_scale(IsManager *self);
 void is_manager_set_temperature_scale(IsManager *self,
 				      IsTemperatureSensorScale scale);
+IsSensor *is_manager_get_selected_sensor(IsManager *self);
+
 G_END_DECLS
 
 #endif /* __IS_MANAGER_H__ */

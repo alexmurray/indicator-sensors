@@ -315,7 +315,8 @@ update_alarmed(IsSensor *self)
 
 	if (priv->alarmed != alarmed) {
 		priv->alarmed = alarmed;
-		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ALARMED]);
+		g_object_notify_by_pspec(G_OBJECT(self),
+					 properties[PROP_ALARMED]);
 	}
 }
 

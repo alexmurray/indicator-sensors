@@ -22,6 +22,7 @@
 #include "is-indicator.h"
 #include "is-manager.h"
 #include "is-preferences-dialog.h"
+#include "is-sensor-dialog.h"
 #include <glib/gi18n.h>
 
 G_DEFINE_TYPE (IsIndicator, is_indicator, APP_INDICATOR_TYPE);
@@ -217,6 +218,31 @@ static const gchar *ui_info =
 "  </popup>"
 "</ui>";
 
+static void
+prefs_dialog_response(IsPreferencesDialog *dialog,
+		      gint response_id,
+		      IsIndicator *self)
+{
+	IsIndicatorPrivate *priv;
+
+	priv = self->priv;
+
+	if (response_id == IS_PREFERENCES_DIALOG_RESPONSE_SENSOR_PROPERTIES) {
+		IsSensor *sensor = is_manager_get_selected_sensor(priv->manager);
+		if (sensor) {
+			GtkWidget *sensor_dialog = is_sensor_dialog_new(sensor);
+			g_signal_connect(sensor_dialog, "response",
+					 G_CALLBACK(gtk_widget_destroy), NULL);
+			g_signal_connect(sensor_dialog, "delete-event",
+					 G_CALLBACK(gtk_widget_destroy), NULL);
+			gtk_widget_show_all(sensor_dialog);
+			g_object_unref(sensor);
+		}
+	} else {
+		gtk_widget_hide(GTK_WIDGET(dialog));
+	}
+}
+
 static void prefs_action(GtkAction *action,
 			 IsIndicator *self)
 {
@@ -227,7 +253,7 @@ static void prefs_action(GtkAction *action,
 	if (!priv->prefs_dialog) {
 		priv->prefs_dialog = is_preferences_dialog_new(self);
 		g_signal_connect(priv->prefs_dialog, "response",
-				 G_CALLBACK(gtk_widget_hide), NULL);
+				 G_CALLBACK(prefs_dialog_response), self);
 		g_signal_connect(priv->prefs_dialog, "delete-event",
 				 G_CALLBACK(gtk_widget_hide_on_delete),
 				 NULL);

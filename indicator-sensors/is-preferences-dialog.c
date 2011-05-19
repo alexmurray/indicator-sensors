@@ -98,13 +98,16 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 					    IsPreferencesDialogPrivate);
 
 	gtk_window_set_title(GTK_WINDOW(self), _(PACKAGE_NAME " Preferences"));
-	gtk_window_set_default_size(GTK_WINDOW(self), 400, 500);
+	gtk_window_set_default_size(GTK_WINDOW(self), 350, 500);
 
+	gtk_dialog_add_button(GTK_DIALOG(self),
+			      GTK_STOCK_PROPERTIES,
+			      IS_PREFERENCES_DIALOG_RESPONSE_SENSOR_PROPERTIES);
 	gtk_dialog_add_button(GTK_DIALOG(self),
 			      GTK_STOCK_CLOSE, GTK_RESPONSE_ACCEPT);
 
 	/* pack content into box */
-	priv->table = gtk_table_new(7, 3, FALSE);
+	priv->table = gtk_table_new(6, 3, FALSE);
 	gtk_table_set_col_spacings(GTK_TABLE(priv->table), 6);
 	gtk_table_set_row_spacings(GTK_TABLE(priv->table), 1);
 	gtk_container_set_border_width(GTK_CONTAINER(priv->table), 12);
@@ -129,26 +132,15 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 			 1, 2,
 			 GTK_FILL, GTK_FILL,
 			 6, 0);
-	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 1, 6);
 
-	label = gtk_label_new(NULL);
-	markup = g_strdup_printf("<span weight='bold'>%s</span>",
-				 _("Application Indicator"));
-	gtk_label_set_markup(GTK_LABEL(label), markup);
-	g_free(markup);
+	label = gtk_label_new(_("Primary sensor display"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_misc_set_padding(GTK_MISC(label), 2, 0);
 	gtk_table_attach(GTK_TABLE(priv->table), label,
 			 0, 1,
 			 2, 3,
 			 GTK_FILL, GTK_FILL,
-			 0, 0);
-	label = gtk_label_new(_("Primary sensor display"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-	gtk_table_attach(GTK_TABLE(priv->table), label,
-			 0, 1,
-			 3, 4,
-			 GTK_FILL, GTK_FILL,
-			 0, 0);
+			 6, 0);
 	priv->display_mode_combo_box = gtk_combo_box_text_new();
 	gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(priv->display_mode_combo_box),
 				       IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY,
@@ -159,10 +151,10 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 	gtk_widget_set_sensitive(priv->display_mode_combo_box, FALSE);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->display_mode_combo_box,
 			 1, 2,
-			 3, 4,
+			 2, 3,
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
-	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 3, 6);
+	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 2, 6);
 
 	label = gtk_label_new(NULL);
 	markup = g_strdup_printf("<span weight='bold'>%s</span>",
@@ -172,7 +164,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
 	gtk_table_attach(GTK_TABLE(priv->table), label,
 			 0, 1,
-			 4, 5,
+			 3, 4,
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
 
@@ -181,7 +173,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 	gtk_widget_set_sensitive(priv->celsius_radio_button, FALSE);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->celsius_radio_button,
 			 0, 1,
-			 5, 6,
+			 4, 5,
 			 GTK_EXPAND | GTK_FILL, GTK_FILL,
 			 6, 0);
 	g_signal_connect(priv->celsius_radio_button, "toggled",
@@ -193,12 +185,12 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 	gtk_widget_set_sensitive(priv->fahrenheit_radio_button, FALSE);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->fahrenheit_radio_button,
 			 1, 2,
-			 5, 6,
+			 4, 5,
 			 GTK_EXPAND | GTK_FILL, GTK_FILL,
 			 6, 0);
 	g_signal_connect(priv->fahrenheit_radio_button, "toggled",
 			 G_CALLBACK(temperature_scale_toggled), self);
-	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 6, 6);
+	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 4, 6);
 
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),
 			  priv->table);
@@ -319,7 +311,7 @@ is_preferences_dialog_set_property(GObject *object,
 				  GTK_WIDGET(manager));
 		gtk_table_attach(GTK_TABLE(priv->table), scrolled_window,
 				 0, 2,
-				 6, 7,
+				 5, 6,
 				 GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL,
 				 0, 0);
 		break;
