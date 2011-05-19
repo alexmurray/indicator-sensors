@@ -205,8 +205,6 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		const sensors_subfeature *input_feature = NULL;
 		const sensors_subfeature *min_feature = NULL;
 		const sensors_subfeature *max_feature = NULL;
-		const sensors_subfeature *alarm_min_feature = NULL;
-		const sensors_subfeature *alarm_max_feature = NULL;
 		gchar *path;
 		IsSensor *sensor;
 
@@ -219,15 +217,6 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			min_feature = sensors_get_subfeature(chip_name,
 							     main_feature,
 							     SENSORS_SUBFEATURE_IN_MIN);
-			max_feature = sensors_get_subfeature(chip_name,
-							     main_feature,
-							     SENSORS_SUBFEATURE_IN_MAX);
-			alarm_min_feature = sensors_get_subfeature(chip_name,
-								   main_feature,
-								   SENSORS_SUBFEATURE_IN_MIN_ALARM);
-			alarm_max_feature = sensors_get_subfeature(chip_name,
-								   main_feature,
-								   SENSORS_SUBFEATURE_IN_MAX_ALARM);
 			break;
 		case SENSORS_FEATURE_FAN:
 			input_feature = sensors_get_subfeature(chip_name,
@@ -236,34 +225,14 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			min_feature = sensors_get_subfeature(chip_name,
 							     main_feature,
 							     SENSORS_SUBFEATURE_FAN_ALARM);
-			alarm_min_feature = min_feature;
 			break;
 		case SENSORS_FEATURE_TEMP:
 			input_feature = sensors_get_subfeature(chip_name,
 							       main_feature,
 							       SENSORS_SUBFEATURE_TEMP_INPUT);
-			min_feature = sensors_get_subfeature(chip_name,
-							     main_feature,
-							     SENSORS_SUBFEATURE_TEMP_MIN);
 			max_feature = sensors_get_subfeature(chip_name,
 							      main_feature,
 							      SENSORS_SUBFEATURE_TEMP_MAX);
-			if (!max_feature) {
-				max_feature = sensors_get_subfeature(chip_name,
-								      main_feature,
-								      SENSORS_SUBFEATURE_TEMP_CRIT);
-			}
-			alarm_min_feature = sensors_get_subfeature(chip_name,
-								   main_feature,
-								   SENSORS_SUBFEATURE_TEMP_MIN_ALARM);
-			alarm_max_feature = sensors_get_subfeature(chip_name,
-								   main_feature,
-								   SENSORS_SUBFEATURE_TEMP_MAX_ALARM);
-			if (!alarm_max_feature) {
-				alarm_max_feature = sensors_get_subfeature(chip_name,
-									   main_feature,
-									   SENSORS_SUBFEATURE_TEMP_CRIT_ALARM);
-			}
 			break;
 
 		case SENSORS_FEATURE_POWER:
@@ -325,24 +294,14 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		if (min_feature) {
 			gdouble min;
 			sensors_get_value(chip_name, min_feature->number, &min);
-			is_sensor_set_min(sensor, min);
+			is_sensor_set_alarm_mode(sensor, IS_SENSOR_ALARM_MODE_LOW);
+			is_sensor_set_alarm_value(sensor, min);
 		}
 		if (max_feature) {
 			gdouble max;
 			sensors_get_value(chip_name, max_feature->number, &max);
-			is_sensor_set_max(sensor, max);
-		}
-		if (alarm_min_feature) {
-			gdouble alarm_min;
-			sensors_get_value(chip_name, alarm_min_feature->number,
-					  &alarm_min);
-			is_sensor_set_alarm_min(sensor, alarm_min);
-		}
-		if (alarm_max_feature) {
-			gdouble alarm_max;
-			sensors_get_value(chip_name, alarm_max_feature->number,
-					  &alarm_max);
-			is_sensor_set_alarm_max(sensor, alarm_max);
+			is_sensor_set_alarm_mode(sensor, IS_SENSOR_ALARM_MODE_HIGH);
+			is_sensor_set_alarm_value(sensor, max);
 		}
 
 		/* take ownership of path pointer */

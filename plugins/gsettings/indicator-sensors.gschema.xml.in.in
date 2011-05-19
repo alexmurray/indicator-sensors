@@ -31,20 +31,15 @@
       <_summary>Label for a sensor</_summary>
       <_description>The default label for a sensor</_description>
     </key>
-    <key name="min" type="d">
-      <default>-1e37</default>
-      <_summary>Default minimum sensor value</_summary>
-      <_description>The default minimum value for a sensor.</_description>
+    <key name="alarm-value" type="d">
+      <default>0.0</default>
+      <_summary>Default alarm limit value</_summary>
+      <_description>The default value to trigger an alarm for a sensor.</_description>
     </key>
-    <key name="max" type="d">
-      <default>1e37</default>
-      <_summary>Default maximum sensor value</_summary>
-      <_description>The default maximum value for a sensor.</_description>
-    </key>
-    <key name="alarm-min" type="d">
-      <default>-1e37</default>
-      <_summary>Default alarm minimum sensor value</_summary>
-      <_description>The default alarm minimum value for a sensor.</_description>
+    <key name="alarm-mode" type="i">
+      <default>0</default>
+      <_summary>Default alarm mode</_summary>
+      <_description>The alarm mode for a sensor.</_description>
     </key>
     <key name="alarm-max" type="d">
       <default>1e37</default>

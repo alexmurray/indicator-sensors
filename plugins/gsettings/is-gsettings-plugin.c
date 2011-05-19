@@ -130,13 +130,10 @@ sensor_added(IsManager *manager,
 	 * value */
 	g_settings_bind(settings, "label", sensor, "label",
 			G_SETTINGS_BIND_DEFAULT);
-	g_settings_bind(settings, "min", sensor, "min",
+	g_settings_bind(settings, "alarm-value", sensor, "alarm-value",
 			G_SETTINGS_BIND_DEFAULT);
-	g_settings_bind(settings, "max", sensor, "max",
-			G_SETTINGS_BIND_DEFAULT);
-	g_settings_bind(settings, "alarm-min", sensor, "alarm-min",
-			G_SETTINGS_BIND_DEFAULT);
-	g_settings_bind(settings, "alarm-max", sensor, "alarm-max",
+	g_settings_bind(settings, "alarm-mode",
+			sensor, "alarm-mode",
 			G_SETTINGS_BIND_DEFAULT);
 	g_object_set_data_full(G_OBJECT(sensor),
 			       "gsettings", settings, g_object_unref);

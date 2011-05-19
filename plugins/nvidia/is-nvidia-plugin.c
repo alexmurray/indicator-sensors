@@ -233,10 +233,7 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 				if (map[i].target == NV_CTRL_TARGET_TYPE_COOLER) {
 					/* fan sensors are given as a percentage
 					   from 0 to 100 */
-					sensor = is_sensor_new_full(path, label,
-								    0, 100,
-								    0, 100,
-								    "%", 5);
+					sensor = is_sensor_new(path, label, "%");
 				} else {
 					sensor = is_temperature_sensor_new(path, label);
 				}

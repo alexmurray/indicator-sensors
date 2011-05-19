@@ -144,38 +144,11 @@ IsSensor *
 is_temperature_sensor_new(const gchar *path,
 			  const gchar *label)
 {
-	return is_temperature_sensor_new_full(path, label,
-					      -G_MAXDOUBLE, G_MAXDOUBLE,
-					      -G_MAXDOUBLE, G_MAXDOUBLE,
-					      IS_TEMPERATURE_SENSOR_SCALE_CELSIUS);
-}
-
-
-IsSensor *
-is_temperature_sensor_new_full(const gchar *path,
-			       const gchar *label,
-			       gdouble min,
-			       gdouble max,
-			       gdouble alarm_min,
-			       gdouble alarm_max,
-			       IsTemperatureSensorScale scale)
-{
-	IsTemperatureSensor *self;
-
-	g_return_val_if_fail(scale == IS_TEMPERATURE_SENSOR_SCALE_CELSIUS ||
-			     scale == IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT,
-			     NULL);
-
-	self = g_object_new(IS_TYPE_TEMPERATURE_SENSOR,
+	return g_object_new(IS_TYPE_TEMPERATURE_SENSOR,
 			    "path", path,
 			    "label", label,
-			    "min", min,
-			    "max", max,
-			    "alarm-min", alarm_min,
-			    "alarm-max", alarm_max,
-			    "scale", scale,
+			    "scale", IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
 			    NULL);
-	return IS_SENSOR(self);
 }
 
 IsTemperatureSensorScale
@@ -212,26 +185,17 @@ void is_temperature_sensor_set_scale(IsTemperatureSensor *self,
 
 	if (scale != priv->scale) {
 		gdouble value = is_sensor_get_value(IS_SENSOR(self));
-		gdouble min = is_sensor_get_min(IS_SENSOR(self));
-		gdouble max = is_sensor_get_max(IS_SENSOR(self));
-		gdouble alarm_min = is_sensor_get_alarm_min(IS_SENSOR(self));
-		gdouble alarm_max = is_sensor_get_alarm_max(IS_SENSOR(self));
+		gdouble alarm_value = is_sensor_get_alarm_value(IS_SENSOR(self));
 
 		/* convert from current scale to new */
 		switch (priv->scale) {
 		case IS_TEMPERATURE_SENSOR_SCALE_CELSIUS:
 			value = celcius_to_fahrenheit(value);
-			min = celcius_to_fahrenheit(min);
-			max = celcius_to_fahrenheit(max);
-			alarm_min = celcius_to_fahrenheit(alarm_min);
-			alarm_max = celcius_to_fahrenheit(alarm_max);
+			alarm_value = celcius_to_fahrenheit(alarm_value);
 			break;
 		case IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT:
 			value = fahrenheit_to_celcius(value);
-			min = fahrenheit_to_celcius(min);
-			max = fahrenheit_to_celcius(max);
-			alarm_min = fahrenheit_to_celcius(alarm_min);
-			alarm_max = fahrenheit_to_celcius(alarm_max);
+			alarm_value = fahrenheit_to_celcius(alarm_value);
 			break;
 		case IS_TEMPERATURE_SENSOR_SCALE_INVALID:
 		case NUM_IS_TEMPERATURE_SENSOR_SCALE:
@@ -245,10 +209,7 @@ void is_temperature_sensor_set_scale(IsTemperatureSensor *self,
 		/* set all in one go */
 		g_object_set(self,
 			     "value", value,
-			     "min", min,
-			     "max", max,
-			     "alarm-min", alarm_min,
-			     "alarm-max", alarm_max,
+			     "alarm-value", alarm_value,
 			     NULL);
 	}
 
