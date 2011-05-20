@@ -146,7 +146,7 @@ update_sensor_value(IsSensor *sensor,
 	const sensors_chip_name *found_chip;
 	gchar *offset, *end;
 	int n, ret;
-	gdouble value = 0.0f;
+	gdouble value = is_sensor_get_value(sensor);
 
 	path = is_sensor_get_path(sensor);
 
@@ -162,13 +162,15 @@ update_sensor_value(IsSensor *sensor,
 	/* conversion should also never fail */
 	g_assert(end != NULL);
 
-	if ((ret = sensors_get_value(found_chip, n, &value)) < 0) {
+	/* ignore IO error */
+	if ((ret = sensors_get_value(found_chip, n, &value)) < 0 &&
+	    ret != -SENSORS_ERR_IO) {
 		GError *error = g_error_new(g_quark_from_string("libsensors-plugin-error-quark"),
 					    0,
 					    /* first placeholder is sensor name,
 					     * second is error message */
-					    _("Error getting sensor value for sensor %s: %s"),
-					    path, sensors_strerror(ret));
+					    _("Error getting sensor value for sensor %s: %s [%d]"),
+					    path, sensors_strerror(ret), ret);
 		is_sensor_emit_error(sensor, error);
 		g_error_free(error);
 		goto out;
@@ -207,6 +209,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		const sensors_subfeature *max_feature = NULL;
 		gchar *path;
 		IsSensor *sensor;
+		int ret;
 
 		switch (main_feature->type)
 		{
@@ -272,9 +275,12 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		g_assert(chip_name_string && label);
 
 		gdouble value;
-		if (sensors_get_value(chip_name, input_feature->number, &value) < 0) {
-			g_warning("libsensors plugin: could not get value for input feature of sensor '%s'",
-				  chip_name_string);
+		/* ignore IO Errors since some chips report these sometimes
+		   intermittently */
+		if ((ret = sensors_get_value(chip_name, input_feature->number, &value)) < 0 &&
+		    ret != -SENSORS_ERR_IO) {
+			g_warning("libsensors plugin: could not get value for input feature of sensor '%s': %s [%d]",
+				  chip_name_string, sensors_strerror(ret), ret);
 			free(label);
 			continue;
 		}
