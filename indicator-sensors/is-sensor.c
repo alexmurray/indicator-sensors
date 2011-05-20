@@ -16,7 +16,7 @@
  */
 
 #include "is-sensor.h"
-
+#include <math.h>
 
 G_DEFINE_TYPE (IsSensor, is_sensor, G_TYPE_OBJECT);
 
@@ -330,7 +330,7 @@ is_sensor_set_value(IsSensor *self,
 
 	priv = self->priv;
 
-	if (priv->value != value) {
+	if (fabs(priv->value - value) > DBL_EPSILON) {
 		priv->value = value;
 		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_VALUE]);
 		update_alarmed(self);
@@ -354,7 +354,7 @@ is_sensor_set_alarm_value(IsSensor *self,
 
 	priv = self->priv;
 
-	if (priv->alarm_value != alarm_value) {
+	if (fabs(priv->alarm_value - alarm_value) > DBL_EPSILON) {
 		priv->alarm_value = alarm_value;
 		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ALARM_VALUE]);
 		update_alarmed(self);
