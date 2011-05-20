@@ -45,6 +45,7 @@ struct _IsPreferencesDialogPrivate
 	GtkWidget *celsius_radio_button;
 	GtkWidget *fahrenheit_radio_button;
 	GtkWidget *display_mode_combo_box;
+	GtkWidget *sensor_properties_button;
 };
 
 static void
@@ -100,16 +101,18 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 	gtk_window_set_title(GTK_WINDOW(self), _(PACKAGE_NAME " Preferences"));
 	gtk_window_set_default_size(GTK_WINDOW(self), 350, 500);
 
-	gtk_dialog_add_button(GTK_DIALOG(self),
-			      GTK_STOCK_PROPERTIES,
-			      IS_PREFERENCES_DIALOG_RESPONSE_SENSOR_PROPERTIES);
+	priv->sensor_properties_button =
+		gtk_dialog_add_button(GTK_DIALOG(self),
+				      GTK_STOCK_PROPERTIES,
+				      IS_PREFERENCES_DIALOG_RESPONSE_SENSOR_PROPERTIES);
+	gtk_widget_set_sensitive(priv->sensor_properties_button, FALSE);
 	gtk_dialog_add_button(GTK_DIALOG(self),
 			      GTK_STOCK_CLOSE, GTK_RESPONSE_ACCEPT);
 
 	/* pack content into box */
-	priv->table = gtk_table_new(6, 3, FALSE);
+	priv->table = gtk_table_new(5, 3, FALSE);
 	gtk_table_set_col_spacings(GTK_TABLE(priv->table), 6);
-	gtk_table_set_row_spacings(GTK_TABLE(priv->table), 1);
+	gtk_table_set_row_spacings(GTK_TABLE(priv->table), 6);
 	gtk_container_set_border_width(GTK_CONTAINER(priv->table), 12);
 
 	label = gtk_label_new(NULL);
@@ -128,7 +131,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 		(_("Start automatically on login"));
 	gtk_widget_set_sensitive(priv->autostart_check_button, FALSE);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->autostart_check_button,
-			 0, 2,
+			 0, 3,
 			 1, 2,
 			 GTK_FILL, GTK_FILL,
 			 6, 0);
@@ -150,32 +153,27 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 				       _("Label and value"));
 	gtk_widget_set_sensitive(priv->display_mode_combo_box, FALSE);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->display_mode_combo_box,
-			 1, 2,
+			 1, 3,
 			 2, 3,
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
-	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 2, 6);
 
-	label = gtk_label_new(NULL);
-	markup = g_strdup_printf("<span weight='bold'>%s</span>",
-				 _("Temperature Scale"));
-	gtk_label_set_markup(GTK_LABEL(label), markup);
-	g_free(markup);
+	label = gtk_label_new(_("Temperature Scale"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
 	gtk_table_attach(GTK_TABLE(priv->table), label,
 			 0, 1,
 			 3, 4,
 			 GTK_FILL, GTK_FILL,
-			 0, 0);
+			 6, 0);
 
 	priv->celsius_radio_button = gtk_radio_button_new_with_label
 		(NULL, _("Celsius (\302\260C)"));
 	gtk_widget_set_sensitive(priv->celsius_radio_button, FALSE);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->celsius_radio_button,
-			 0, 1,
-			 4, 5,
+			 1, 2,
+			 3, 4,
 			 GTK_EXPAND | GTK_FILL, GTK_FILL,
-			 6, 0);
+			 0, 0);
 	g_signal_connect(priv->celsius_radio_button, "toggled",
 			 G_CALLBACK(temperature_scale_toggled), self);
 	priv->fahrenheit_radio_button =
@@ -184,13 +182,12 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 		 _("Fahrenheit (\302\260F)"));
 	gtk_widget_set_sensitive(priv->fahrenheit_radio_button, FALSE);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->fahrenheit_radio_button,
-			 1, 2,
-			 4, 5,
+			 2, 3,
+			 3, 4,
 			 GTK_EXPAND | GTK_FILL, GTK_FILL,
 			 6, 0);
 	g_signal_connect(priv->fahrenheit_radio_button, "toggled",
 			 G_CALLBACK(temperature_scale_toggled), self);
-	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 4, 6);
 
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),
 			  priv->table);
@@ -252,6 +249,22 @@ manager_notify_autostart(IsManager *manager,
 }
 
 static void
+manager_selection_changed(GtkTreeSelection *selection,
+			  IsPreferencesDialog *self)
+{
+	IsSensor *sensor;
+	gboolean sensitive = FALSE;
+
+	sensor = is_manager_get_selected_sensor(is_indicator_get_manager(self->priv->indicator));
+	if (sensor) {
+		sensitive = TRUE;
+		g_object_unref(sensor);
+	}
+	gtk_widget_set_sensitive(self->priv->sensor_properties_button,
+				 sensitive);
+}
+
+static void
 is_preferences_dialog_set_property(GObject *object,
 				   guint property_id, const GValue *value, GParamSpec *pspec)
 {
@@ -275,6 +288,10 @@ is_preferences_dialog_set_property(GObject *object,
 				 G_CALLBACK(indicator_notify_display_mode),
 				 priv->display_mode_combo_box);
 		manager = is_indicator_get_manager(priv->indicator);
+		/* control properties button sensitivity */
+		g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(manager)),
+				 "changed", G_CALLBACK(manager_selection_changed),
+				 self);
 		/* set state of autostart checkbutton */
 		gtk_widget_set_sensitive(priv->autostart_check_button, TRUE);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->autostart_check_button),
@@ -310,8 +327,8 @@ is_preferences_dialog_set_property(GObject *object,
 		gtk_container_add(GTK_CONTAINER(scrolled_window),
 				  GTK_WIDGET(manager));
 		gtk_table_attach(GTK_TABLE(priv->table), scrolled_window,
-				 0, 2,
-				 5, 6,
+				 0, 3,
+				 4, 5,
 				 GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL,
 				 0, 0);
 		break;

@@ -42,6 +42,7 @@ struct _IsSensorDialogPrivate
 	IsSensor *sensor;
 	GtkWidget *table;
 	GtkWidget *path_label;
+	GtkWidget *label_entry;
 	GtkWidget *alarm_mode_combo_box;
 	GtkWidget *alarm_value_spin_button;
 	GtkWidget *units_label;
@@ -72,7 +73,6 @@ is_sensor_dialog_init(IsSensorDialog *self)
 {
 	IsSensorDialogPrivate *priv;
 	GtkWidget *label;
-	gchar *markup;
 
 	self->priv = priv =
 		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_SENSOR_DIALOG,
@@ -85,7 +85,7 @@ is_sensor_dialog_init(IsSensorDialog *self)
 			      GTK_STOCK_CLOSE, GTK_RESPONSE_ACCEPT);
 
 	/* pack content into box */
-	priv->table = gtk_table_new(3, 3, FALSE);
+	priv->table = gtk_table_new(3, 4, FALSE);
 	gtk_table_set_col_spacings(GTK_TABLE(priv->table), 6);
 	gtk_table_set_row_spacings(GTK_TABLE(priv->table), 1);
 	gtk_container_set_border_width(GTK_CONTAINER(priv->table), 12);
@@ -93,23 +93,33 @@ is_sensor_dialog_init(IsSensorDialog *self)
 	priv->path_label = gtk_label_new(NULL);
 	gtk_misc_set_alignment(GTK_MISC(priv->path_label), 0.0, 0.5);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->path_label,
-			 0, 3,
+			 0, 4,
 			 0, 1,
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
 	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 0, 6);
 
-	label = gtk_label_new(NULL);
-	markup = g_strdup_printf("<span weight='bold'>%s</span>",
-				 _("Alarm"));
-	gtk_label_set_markup(GTK_LABEL(label), markup);
-	g_free(markup);
+	label = gtk_label_new(_("Label"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
 	gtk_table_attach(GTK_TABLE(priv->table), label,
 			 0, 1,
 			 1, 2,
 			 GTK_FILL, GTK_FILL,
+			 6, 0);
+	priv->label_entry = gtk_entry_new();
+	gtk_table_attach(GTK_TABLE(priv->table), priv->label_entry,
+			 1, 4,
+			 1, 2,
+			 GTK_FILL, GTK_FILL,
 			 0, 0);
+	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 1, 6);
+	label = gtk_label_new(_("Alarm"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_table_attach(GTK_TABLE(priv->table), label,
+			 0, 1,
+			 2, 3,
+			 GTK_FILL, GTK_FILL,
+			 6, 0);
 	priv->alarm_mode_combo_box = gtk_combo_box_text_new();
 	gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(priv->alarm_mode_combo_box),
 				       IS_SENSOR_ALARM_MODE_DISABLED,
@@ -122,26 +132,26 @@ is_sensor_dialog_init(IsSensorDialog *self)
 				       _("Above"));
 	gtk_widget_set_sensitive(priv->alarm_mode_combo_box, FALSE);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->alarm_mode_combo_box,
-			 0, 1,
+			 1, 2,
 			 2, 3,
-			 GTK_EXPAND | GTK_FILL, GTK_FILL,
-			 6, 0);
+			 GTK_FILL, GTK_FILL,
+			 0, 0);
 
 	priv->alarm_value_spin_button = gtk_spin_button_new_with_range(-G_MAXDOUBLE,
 								       G_MAXDOUBLE,
 								       1.0f);
 	gtk_widget_set_sensitive(priv->alarm_value_spin_button, FALSE);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->alarm_value_spin_button,
-			 1, 2,
+			 2, 3,
 			 2, 3,
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
 	priv->units_label = gtk_label_new(NULL);
 	gtk_misc_set_alignment(GTK_MISC(priv->units_label), 0.0, 0.5);
 	gtk_table_attach(GTK_TABLE(priv->table), priv->units_label,
+			 3, 4,
 			 2, 3,
-			 2, 3,
-			 GTK_FILL, GTK_FILL,
+			 GTK_EXPAND | GTK_FILL, GTK_FILL,
 			 0, 0);
 
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),
@@ -163,6 +173,23 @@ is_sensor_dialog_get_property(GObject *object,
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 		break;
 	}
+}
+
+static void
+label_changed(GtkEntry *entry,
+	      IsSensorDialog *self)
+{
+	is_sensor_set_label(self->priv->sensor,
+			    gtk_entry_get_text(entry));
+}
+
+static void
+sensor_notify_label(IsSensor *sensor,
+		    GParamSpec *pspec,
+		    IsSensorDialog *self)
+{
+	gtk_entry_set_text(GTK_ENTRY(self->priv->label_entry),
+			   is_sensor_get_label(sensor));
 }
 
 static void
@@ -217,16 +244,26 @@ is_sensor_dialog_set_property(GObject *object,
 {
 	IsSensorDialog *self = IS_SENSOR_DIALOG(object);
 	IsSensorDialogPrivate *priv = self->priv;
-	gchar *text;
+	gchar *markup;
 
 	switch (property_id) {
 	case PROP_SENSOR:
 		priv->sensor = g_object_ref(g_value_get_object(value));
-		text = g_strdup_printf(_("Sensor: %s"),
-				       is_sensor_get_path(priv->sensor));
-		gtk_label_set_text(GTK_LABEL(priv->path_label),
-				   text);
-		g_free(text);
+		markup = g_strdup_printf("<span weight='bold'>%s: %s</span>",
+					 _("Sensor"),
+					 is_sensor_get_path(priv->sensor));
+		gtk_label_set_markup(GTK_LABEL(priv->path_label),
+				     markup);
+		g_free(markup);
+		gtk_widget_set_sensitive(priv->label_entry, TRUE);
+		gtk_entry_set_text(GTK_ENTRY(priv->label_entry),
+				   is_sensor_get_label(priv->sensor));
+		g_signal_connect(priv->label_entry, "changed",
+				 G_CALLBACK(label_changed),
+				 self);
+		g_signal_connect(priv->sensor, "notify::label",
+				 G_CALLBACK(sensor_notify_label),
+				 self);
 		gtk_widget_set_sensitive(priv->alarm_mode_combo_box, TRUE);
 		gtk_combo_box_set_active(GTK_COMBO_BOX(priv->alarm_mode_combo_box),
 					 is_sensor_get_alarm_mode(priv->sensor));
@@ -241,7 +278,7 @@ is_sensor_dialog_set_property(GObject *object,
 		gtk_widget_set_sensitive(priv->alarm_value_spin_button, TRUE);
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->alarm_value_spin_button),
 					  is_sensor_get_alarm_value(priv->sensor));
-		g_signal_connect(priv->alarm_value_spin_button, "changed",
+		g_signal_connect(priv->alarm_value_spin_button, "value-changed",
 				 G_CALLBACK(alarm_value_changed),
 				 self);
 		g_signal_connect(priv->sensor, "notify::alarm-value",
