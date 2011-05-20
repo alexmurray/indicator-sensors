@@ -379,6 +379,7 @@ is_manager_init(IsManager *self)
 	col = gtk_tree_view_column_new_with_attributes(_("Enabled"),
 						       renderer,
 						       "active", IS_STORE_COL_ENABLED,
+						       "visible", IS_STORE_COL_IS_SENSOR,
 						       NULL);
 	gtk_tree_view_column_set_expand(col, FALSE);
 	g_signal_connect(renderer, "toggled", G_CALLBACK(sensor_toggled),

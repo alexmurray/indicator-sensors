@@ -186,6 +186,7 @@ static gint _is_store_get_n_columns(GtkTreeModel *tree_model)
 static const GType column_types[IS_STORE_N_COLUMNS] = {
 	G_TYPE_STRING, /* IS_STORE_COL_NAME */
 	G_TYPE_STRING, /* IS_STORE_COL_LABEL */
+	G_TYPE_BOOLEAN, /* IS_STORE_COL_IS_SENSOR */
 	G_TYPE_OBJECT, /* IS_STORE_COL_SENSOR */
 	G_TYPE_BOOLEAN, /* IS_STORE_COL_ENABLED */
 };
@@ -327,6 +328,10 @@ static void _is_store_get_value(GtkTreeModel *tree_model,
 		g_value_set_string(value, (entry->sensor ?
 					   is_sensor_get_label(entry->sensor) :
 					   NULL));
+		break;
+
+	case IS_STORE_COL_IS_SENSOR:
+		g_value_set_boolean(value, (entry->sensor != NULL));
 		break;
 
 	case IS_STORE_COL_SENSOR:

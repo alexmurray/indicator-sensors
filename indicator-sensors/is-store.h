@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2011 Alex Murray <murray.alex@gmail.com>
-
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,6 +64,7 @@ enum
 {
 	IS_STORE_COL_NAME = 0,
 	IS_STORE_COL_LABEL,
+	IS_STORE_COL_IS_SENSOR,
 	IS_STORE_COL_SENSOR,
 	IS_STORE_COL_ENABLED,
 	IS_STORE_N_COLUMNS,
