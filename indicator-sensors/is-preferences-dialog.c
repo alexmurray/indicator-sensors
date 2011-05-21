@@ -158,8 +158,9 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
 
-	label = gtk_label_new(_("Temperature Scale"));
+	label = gtk_label_new(_("Temperature scale"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_misc_set_padding(GTK_MISC(label), 2, 0);
 	gtk_table_attach(GTK_TABLE(priv->table), label,
 			 0, 1,
 			 3, 4,
