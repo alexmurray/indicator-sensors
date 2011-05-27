@@ -143,7 +143,7 @@ sensor_notify_alarmed(IsSensor *sensor,
 
 	if (alarmed) {
 		NotifyNotification *notification;
-		gchar *body = g_strdup_printf("%s: %f%s",
+		gchar *body = g_strdup_printf("%s: %2.1f%s",
 					      is_sensor_get_label(sensor),
 					      is_sensor_get_value(sensor),
 					      is_sensor_get_units(sensor));
