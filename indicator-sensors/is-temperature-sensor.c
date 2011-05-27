@@ -68,10 +68,10 @@ is_temperature_sensor_scale_to_string(IsTemperatureSensorScale scale)
 
 	switch (scale) {
 	case IS_TEMPERATURE_SENSOR_SCALE_CELSIUS:
-		string = "\302\260C";
+		string = "\342\204\203";
 		break;
 	case IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT:
-		string = "\302\260F";
+		string = "\342\204\211";
 		break;
 	case IS_TEMPERATURE_SENSOR_SCALE_INVALID:
 	case NUM_IS_TEMPERATURE_SENSOR_SCALE:
