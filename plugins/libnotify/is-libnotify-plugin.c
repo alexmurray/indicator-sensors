@@ -20,6 +20,7 @@
 #endif
 
 #include "is-libnotify-plugin.h"
+#include "is-log.h"
 #include <indicator-sensors/is-manager.h>
 #include <libnotify/notify.h>
 #include <libnotify/notification.h>
@@ -147,7 +148,7 @@ sensor_notify_alarmed(IsSensor *sensor,
 					      is_sensor_get_label(sensor),
 					      is_sensor_get_value(sensor),
 					      is_sensor_get_units(sensor));
-		g_debug("Alarm for %s", is_sensor_get_path(sensor));
+		is_debug("libnotify", "Alarm for %s", is_sensor_get_path(sensor));
 		notification = notify_notification_new(_("Sensor Alarm"),
 						       body, NULL);
 		g_free(body);
@@ -199,7 +200,7 @@ is_libnotify_plugin_activate(PeasActivatable *activatable)
 
 	/* watch for sensors enabled / disabled to monitor their values */
 	if (!priv->inited) {
-		g_warning("libnotify is not inited, unable to display notifications");
+		is_warning("libnotify", "not inited, unable to display notifications");
 		goto out;
 	}
 	g_signal_connect(priv->manager, "sensor-enabled",

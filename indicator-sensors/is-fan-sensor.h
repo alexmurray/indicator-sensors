@@ -58,8 +58,8 @@ struct _IsFanSensor
 };
 
 GType is_fan_sensor_get_type(void) G_GNUC_CONST;
-IsSensor *is_fan_sensor_new(const gchar *path,
-			    const gchar *label);
+IsSensor *is_fan_sensor_new(const gchar *path);
+
 G_END_DECLS
 
 #endif /* __IS_FAN_SENSOR_H__ */

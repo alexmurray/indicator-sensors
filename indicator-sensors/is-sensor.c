@@ -237,16 +237,14 @@ is_sensor_finalize (GObject *object)
 }
 
 IsSensor *
-is_sensor_new(const gchar *path,
-	      const gchar *label,
-	      const gchar *units)
+is_sensor_new(const gchar *path)
 {
 	return g_object_new(IS_TYPE_SENSOR,
 			    "path", path,
-			    "label", label,
+			    "label", NULL,
 			    "alarm-value", 0.0,
 			    "alarm-mode", IS_SENSOR_ALARM_MODE_DISABLED,
-			    "units", units,
+			    "units", "?",
 			    "update-interval", 5,
 			    NULL);
 }

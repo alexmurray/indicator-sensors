@@ -33,12 +33,10 @@ is_fan_sensor_init(IsFanSensor *self)
 }
 
 IsSensor *
-is_fan_sensor_new(const gchar *path,
-		  const gchar *label)
+is_fan_sensor_new(const gchar *path)
 {
 	return g_object_new(IS_TYPE_FAN_SENSOR,
 			    "path", path,
-			    "label", label,
 			    "units", _("RPM"),
 			    NULL);
 }

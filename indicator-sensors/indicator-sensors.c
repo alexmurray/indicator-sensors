@@ -1,7 +1,28 @@
+/*
+ * Copyright (C) 2011 Alex Murray <murray.alex@gmail.com>
+ *
+ * indicator-sensors is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * indicator-sensors is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "is-log.h"
+#include "is-indicator.h"
 #include <gtk/gtk.h>
 #include <libpeas/peas.h>
-#include "is-indicator.h"
-#include "config.h"
 
 static void
 on_extension_added(PeasExtensionSet *set,
@@ -9,7 +30,7 @@ on_extension_added(PeasExtensionSet *set,
 		   PeasExtension *exten,
 		   IsIndicator *indicator)
 {
-	g_debug("Activating plugin: %s", peas_plugin_info_get_name(info));
+	is_debug("main", "Activating plugin: %s", peas_plugin_info_get_name(info));
 	peas_extension_call(exten, "activate", indicator);
 }
 
@@ -19,7 +40,7 @@ on_extension_removed(PeasExtensionSet *set,
 		     PeasExtension *exten,
 		     IsIndicator *indicator)
 {
-	g_debug("Deactivating plugin: %s", peas_plugin_info_get_name(info));
+	is_debug("main", "Deactivating plugin: %s", peas_plugin_info_get_name(info));
 	peas_extension_call(exten, "deactivate", indicator);
 }
 
@@ -50,7 +71,7 @@ int main(int argc, char **argv)
 	if (!g_irepository_require(g_irepository_get_default(), "Peas", "1.0",
 				   0, &error))
 	{
-		g_warning("Could not load Peas repository: %s", error->message);
+		is_warning("main", "Could not load Peas repository: %s", error->message);
 		g_error_free (error);
 		error = NULL;
 	}

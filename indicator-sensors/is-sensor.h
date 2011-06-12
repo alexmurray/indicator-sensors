@@ -70,22 +70,20 @@ typedef enum
 } IsSensorAlarmMode;
 
 GType is_sensor_get_type(void) G_GNUC_CONST;
-IsSensor *is_sensor_new(const gchar *path,
-			const gchar *label,
-			const gchar *units);
+IsSensor *is_sensor_new(const gchar *path);
 void is_sensor_update_value(IsSensor *self);
 void is_sensor_emit_error(IsSensor *self, GError *error);
 const gchar *is_sensor_get_path(IsSensor *self);
 const gchar *is_sensor_get_label(IsSensor *self);
 void is_sensor_set_label(IsSensor *self, const gchar *label);
+const gchar *is_sensor_get_units(IsSensor *self);
+void is_sensor_set_units(IsSensor *self, const gchar *units);
 gdouble is_sensor_get_value(IsSensor *self);
 void is_sensor_set_value(IsSensor *self, gdouble value);
 gdouble is_sensor_get_alarm_value(IsSensor *self);
 void is_sensor_set_alarm_value(IsSensor *self, gdouble limit);
 IsSensorAlarmMode is_sensor_get_alarm_mode(IsSensor *self);
 void is_sensor_set_alarm_mode(IsSensor *self, IsSensorAlarmMode mode);
-const gchar *is_sensor_get_units(IsSensor *self);
-void is_sensor_set_units(IsSensor *self, const gchar *units);
 guint is_sensor_get_update_interval(IsSensor *self);
 void is_sensor_set_update_interval(IsSensor *self, guint update_interval);
 gboolean is_sensor_get_alarmed(IsSensor *self);

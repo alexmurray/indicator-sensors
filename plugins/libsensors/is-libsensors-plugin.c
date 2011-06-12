@@ -20,6 +20,7 @@
 #endif
 
 #include "is-libsensors-plugin.h"
+#include "is-log.h"
 #include <stdlib.h>
 #include <indicator-sensors/is-temperature-sensor.h>
 #include <indicator-sensors/is-fan-sensor.h>
@@ -197,7 +198,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 
 	chip_name_string = get_chip_name_string(chip_name);
 	if (chip_name_string == NULL) {
-		g_warning("libsensors plugin: error getting name string for sensor '%s'",
+		is_warning("libsensors", "error getting name string for sensor '%s'",
 			  chip_name->path);
 		goto out;
 	}
@@ -244,19 +245,19 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		case SENSORS_FEATURE_VID:
 		case SENSORS_FEATURE_BEEP_ENABLE:
 		case SENSORS_FEATURE_UNKNOWN:
-			g_debug("Ignoring unimplemented sensor type %d",
+			is_debug("libsensors", "Ignoring unimplemented sensor type %d",
 				main_feature->type);
 			break;
 
 		default:
-			g_warning("libsensors plugin: error determining type for sensor '%s'",
+			is_warning("libsensors", "error determining type for sensor '%s'",
 				  chip_name_string);
 			continue;
 		}
 
 		if (!input_feature)
 		{
-			g_warning("libsensors plugin: could not get input subfeature for sensor '%s'",
+			is_warning("libsensors", "could not get input subfeature for sensor '%s'",
 				  chip_name_string);
 			continue;
 		}
@@ -264,7 +265,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		label = sensors_get_label(chip_name, main_feature);
 		if (!label)
 		{
-			g_warning("libsensors plugin: could not get label for sensor '%s'",
+			is_warning("libsensors", "could not get label for sensor '%s'",
 				  chip_name_string);
 			continue;
 		}
@@ -279,7 +280,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		   intermittently */
 		if ((ret = sensors_get_value(chip_name, input_feature->number, &value)) < 0 &&
 		    ret != -SENSORS_ERR_IO) {
-			g_warning("libsensors plugin: could not get value for input feature of sensor '%s': %s [%d]",
+			is_warning("libsensors", "could not get value for input feature of sensor '%s': %s [%d]",
 				  chip_name_string, sensors_strerror(ret), ret);
 			free(label);
 			continue;
@@ -290,13 +291,13 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 				       input_feature->number);
 		if (main_feature->type == SENSORS_FEATURE_TEMP)
 		{
-			sensor = is_temperature_sensor_new(path,
-							   label);
+			sensor = is_temperature_sensor_new(path);
 		} else if (main_feature->type == SENSORS_FEATURE_FAN) {
-			sensor = is_fan_sensor_new(path, label);
+			sensor = is_fan_sensor_new(path);
 		} else {
-			sensor = is_sensor_new(path, label, "?");
+			sensor = is_sensor_new(path);
 		}
+		is_sensor_set_label(sensor, label);
 		if (min_feature) {
 			gdouble min;
 			sensors_get_value(chip_name, min_feature->number, &min);
@@ -334,10 +335,10 @@ is_libsensors_plugin_activate(PeasActivatable *activatable)
 
 	/* search for sensors and add them to manager */
 	if (!priv->inited) {
-		g_warning("libsensors is not inited, unable to find sensors");
+		is_warning("libsensors", "not inited, unable to find sensors");
 		goto out;
 	}
-	g_debug("searching for sensors");
+	is_debug("libsensors", "searching for sensors");
 	while ((chip_name = sensors_get_detected_chips(NULL, &nr)))
         {
 		process_sensors_chip_name(self, chip_name);

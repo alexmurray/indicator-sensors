@@ -16,6 +16,7 @@
  */
 
 #include "is-temperature-sensor.h"
+#include "is-log.h"
 
 G_DEFINE_TYPE(IsTemperatureSensor, is_temperature_sensor, IS_TYPE_SENSOR);
 
@@ -76,7 +77,8 @@ is_temperature_sensor_scale_to_string(IsTemperatureSensorScale scale)
 	case IS_TEMPERATURE_SENSOR_SCALE_INVALID:
 	case NUM_IS_TEMPERATURE_SENSOR_SCALE:
 	default:
-		g_warning("Unable to convert IsTemperatureSensorScale %d to string",
+		is_warning("temperature sensor",
+			   "Unable to convert IsTemperatureSensorScale %d to string",
 			  scale);
 	}
 	return string;
@@ -141,12 +143,10 @@ is_temperature_sensor_finalize(GObject *object)
 }
 
 IsSensor *
-is_temperature_sensor_new(const gchar *path,
-			  const gchar *label)
+is_temperature_sensor_new(const gchar *path)
 {
 	return g_object_new(IS_TYPE_TEMPERATURE_SENSOR,
 			    "path", path,
-			    "label", label,
 			    "scale", IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
 			    NULL);
 }

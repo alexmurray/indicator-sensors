@@ -20,6 +20,7 @@
 #endif
 
 #include "is-udisks-plugin.h"
+#include "is-log.h"
 #include <indicator-sensors/is-manager.h>
 #include <indicator-sensors/is-temperature-sensor.h>
 #include <atasmart.h>
@@ -173,7 +174,7 @@ update_sensor_value(IsTemperatureSensor *sensor,
 	var = g_dbus_proxy_get_cached_property(proxy,
 					       "DriveAtaSmartBlob");
 	if (!var) {
-		g_debug("udisks plugin: unable to get atasmartblob for sensor %s",
+		is_debug("udisks", "unable to get atasmartblob for sensor %s",
 			is_sensor_get_path(IS_SENSOR(sensor)));
 		g_object_unref(proxy);
 		goto out;
@@ -192,7 +193,7 @@ update_sensor_value(IsTemperatureSensor *sensor,
 	sk_disk_set_blob(sk_disk, blob, len);
 	if (sk_disk_smart_get_temperature(sk_disk, &temperature) < 0)
 	{
-		g_debug("udisks plugin: Error getting temperature from AtaSmartBlob for sensor %s",
+		is_debug("udisks", "Error getting temperature from AtaSmartBlob for sensor %s",
 			is_sensor_get_path(IS_SENSOR(sensor)));
 		sk_disk_free(sk_disk);
 		g_variant_unref(var);
@@ -226,7 +227,7 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 	priv->connection = g_bus_get_sync(G_BUS_TYPE_SYSTEM, NULL, &error);
 	if (!priv->connection)
 	{
-		g_warning("udisks plugin: Failed to open connection to system dbus: %s",
+		is_warning("udisks", "Failed to open connection to system dbus: %s",
 			  error->message);
 		g_error_free(error);
 		goto out;
@@ -246,7 +247,7 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 				      NULL, &error);
 
 	if (!proxy) {
-		g_warning("udisks plugin: Error getting proxy to udisks on system bus: %s",
+		is_warning("udisks", "Error getting proxy to udisks on system bus: %s",
 			  error->message);
 		g_error_free(error);
 		goto out;
@@ -259,7 +260,7 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 				       G_DBUS_CALL_FLAGS_NONE, -1, NULL,
 				       &error);
 	if (!container) {
-		g_warning("udisks plugin: Failed to enumerate disk devices: %s",
+		is_warning("udisks", "Failed to enumerate disk devices: %s",
 			  error->message);
 		g_error_free(error);
 		g_object_unref(proxy);
@@ -289,7 +290,7 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 						     &error);
 
 		if (!sensor_proxy) {
-			g_debug("udisks plugin: error getting sensor proxy for disk %s: %s",
+			is_debug("udisks", "error getting sensor proxy for disk %s: %s",
 				path, error->message);
 			g_clear_error(&error);
 			g_object_unref(sensor_proxy);
@@ -299,13 +300,13 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 		smart_available = g_dbus_proxy_get_cached_property(sensor_proxy,
 								   "DriveAtaSmartIsAvailable");
 		if (!smart_available) {
-			g_debug("udisks plugin: error getting smart status for disk %s",
+			is_debug("udisks", "error getting smart status for disk %s",
 				path);
 			g_object_unref(sensor_proxy);
 			continue;
 		}
 		if (!g_variant_get_boolean(smart_available)) {
-			g_debug("udisks plugin: drive %s does not support SMART monitoring, ignoring...",
+			is_debug("udisks", "drive %s does not support SMART monitoring, ignoring...",
 				path);
 			g_variant_unref(smart_available);
 			g_object_unref(sensor_proxy);
@@ -316,7 +317,7 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 		model = g_dbus_proxy_get_cached_property(sensor_proxy,
 							 "DriveModel");
 		if (!model) {
-			g_debug("udisks plugin: error getting drive model for disk %s",
+			is_debug("udisks", "error getting drive model for disk %s",
 				path);
 			g_clear_error(&error);
 			g_object_unref(sensor_proxy);
@@ -326,8 +327,8 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 							  "DeviceFilePresentation");
 		name = g_path_get_basename(path);
 		sensor_path = g_strdup_printf("udisks/%s", name);
-		sensor = is_temperature_sensor_new(sensor_path,
-						   g_variant_get_string(model, NULL));
+		sensor = is_temperature_sensor_new(sensor_path);
+		is_sensor_set_label(sensor, g_variant_get_string(model, NULL));
 		/* only update every minute to avoid waking disk too much */
 		is_sensor_set_update_interval(sensor, 60);
 		g_signal_connect(sensor, "update-value",

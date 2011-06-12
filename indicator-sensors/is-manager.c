@@ -23,6 +23,7 @@
 #include "is-store.h"
 #include "marshallers.h"
 #include "marshallers.c"
+#include "is-log.h"
 #include <glib/gi18n.h>
 #include <gio/gio.h>
 
@@ -714,7 +715,7 @@ is_manager_get_autostart(IsManager *self)
 				DESKTOP_FILENAME, NULL);
 	ret = g_key_file_load_from_file(key_file, path, G_KEY_FILE_NONE, &error);
 	if (!ret) {
-		g_debug("Failed to load autostart desktop file '%s': %s",
+		is_debug("manager", "Failed to load autostart desktop file '%s': %s",
 			path, error->message);
 		g_error_free(error);
 		goto out;
@@ -722,7 +723,7 @@ is_manager_get_autostart(IsManager *self)
 	ret = g_key_file_get_boolean(key_file, G_KEY_FILE_DESKTOP_GROUP,
 				     AUTOSTART_KEY, &error);
 	if (error) {
-		g_debug("Failed to get key '%s' from autostart desktop file '%s': %s",
+		is_debug("manager", "Failed to get key '%s' from autostart desktop file '%s': %s",
 			AUTOSTART_KEY, path, error->message);
 		g_error_free(error);
 	}
@@ -754,7 +755,7 @@ is_manager_set_autostart(IsManager *self,
 	if (!ret) {
 		gchar *application_file;
 
-		g_debug("Failed to load autostart desktop file '%s': %s",
+		is_debug("manager", "Failed to load autostart desktop file '%s': %s",
 			autostart_file, error->message);
 		g_clear_error(&error);
 		application_file = g_build_filename("applications",
@@ -766,7 +767,7 @@ is_manager_set_autostart(IsManager *self,
 						     G_KEY_FILE_KEEP_TRANSLATIONS,
 						     &error);
 		if (!ret) {
-			g_warning("Failed to load application desktop file: %s",
+			is_warning("manager", "Failed to load application desktop file: %s",
 				  error->message);
 			g_clear_error(&error);
 			/* create file by hand */
@@ -804,7 +805,7 @@ is_manager_set_autostart(IsManager *self,
 				  -1,
 				  &error);
 	if (!ret) {
-		g_warning("Failed to write autostart desktop file '%s': %s",
+		is_warning("manager", "Failed to write autostart desktop file '%s': %s",
 			  autostart_file, error->message);
 		g_clear_error(&error);
 	}

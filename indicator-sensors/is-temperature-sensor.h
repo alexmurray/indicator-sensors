@@ -67,8 +67,7 @@ typedef enum {
 } IsTemperatureSensorScale;
 
 GType is_temperature_sensor_get_type(void) G_GNUC_CONST;
-IsSensor *is_temperature_sensor_new(const gchar *path,
-				    const gchar *label);
+IsSensor *is_temperature_sensor_new(const gchar *path);
 void is_temperature_sensor_set_scale(IsTemperatureSensor *sensor,
 				     IsTemperatureSensorScale scale);
 IsTemperatureSensorScale is_temperature_sensor_get_scale(IsTemperatureSensor *sensor);

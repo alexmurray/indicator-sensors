@@ -23,6 +23,7 @@
 #include "is-manager.h"
 #include "is-preferences-dialog.h"
 #include "is-sensor-dialog.h"
+#include "is-log.h"
 #include <glib/gi18n.h>
 
 G_DEFINE_TYPE (IsIndicator, is_indicator, APP_INDICATOR_TYPE);
@@ -323,7 +324,7 @@ sensor_notify(IsSensor *sensor,
 static void
 sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
 {
-	g_warning("sensor %s error: %s",
+	is_warning("indicator", "sensor %s error: %s",
 		  is_sensor_get_path(sensor),
 		  error->message);
 }
@@ -337,7 +338,7 @@ sensor_disabled(IsManager *manager,
 	GtkWidget *menu_item;
 
 	/* debug - enable sensor */
-	g_debug("disabling sensor %s",
+	is_debug("main", "disabling sensor %s",
 		is_sensor_get_path(sensor));
 
 	/* destroy menu item */
@@ -529,7 +530,7 @@ void is_indicator_set_primary_sensor(IsIndicator *self,
 		g_free(priv->primary_sensor);
 		priv->primary_sensor = g_strdup(primary_sensor);
 
-		g_debug("displaying primary sensor %s", priv->primary_sensor);
+		is_debug("indicator", "displaying primary sensor %s", priv->primary_sensor);
 
 		/* try and activate this sensor if it exists */
 		sensor = is_manager_get_sensor(priv->manager,

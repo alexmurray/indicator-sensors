@@ -16,6 +16,7 @@
  */
 
 #include "is-store.h"
+#include "is-log.h"
 #include <gtk/gtk.h>
 
 static void is_store_dispose(GObject *object);
@@ -198,8 +199,6 @@ static GType _is_store_get_column_type(GtkTreeModel *tree_model,
 	g_return_val_if_fail((col >= 0) &&
 			     (col < IS_STORE_N_COLUMNS), G_TYPE_INVALID);
 
-	g_debug("returning type %s for col %d",
-		g_type_name(column_types[col]), col);
 	return column_types[col];
 }
 
@@ -598,7 +597,7 @@ is_store_add_sensor(IsStore *self,
 	priv = self->priv;
 	entry = find_entry(self, is_sensor_get_path(sensor));
 	if (entry) {
-		g_warning("sensor %s already exists in store, not adding duplicate",
+		is_warning("store", "sensor %s already exists in store, not adding duplicate",
 			  is_sensor_get_path(sensor));
 		goto out;
 	}
@@ -647,7 +646,7 @@ is_store_add_sensor(IsStore *self,
 	g_assert(entry);
 	g_assert(find_entry(self, is_sensor_get_path(sensor)) == entry);
 
-	g_debug("IsStore: inserted sensor %s with label %s",
+	is_debug("store", "inserted sensor %s with label %s",
 		is_sensor_get_path(sensor), is_sensor_get_label(sensor));
 	entry->sensor = g_object_ref(sensor);
 	_iter.stamp = priv->stamp;

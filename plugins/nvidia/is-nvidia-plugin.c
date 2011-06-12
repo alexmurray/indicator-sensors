@@ -20,6 +20,7 @@
 #endif
 
 #include "is-nvidia-plugin.h"
+#include "is-log.h"
 #include <stdlib.h>
 #include <indicator-sensors/is-temperature-sensor.h>
 #include <indicator-sensors/is-fan-sensor.h>
@@ -194,11 +195,11 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 
 	/* search for sensors and add them to manager */
 	if (!priv->inited) {
-		g_warning("nvidia is not inited, unable to find sensors");
+		is_warning("nvidia", "not inited, unable to find sensors");
 		goto out;
 	}
 
-	g_debug("searching for sensors");
+	is_debug("nvidia", "searching for sensors");
 
 	/* check if the NV-CONTROL extension is available on this X
          * server */
@@ -233,10 +234,12 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 				if (map[i].target == NV_CTRL_TARGET_TYPE_COOLER) {
 					/* fan sensors are given as a percentage
 					   from 0 to 100 */
-					sensor = is_sensor_new(path, label, "%");
+					sensor = is_sensor_new(path);
+					is_sensor_set_units(sensor, "%");
 				} else {
-					sensor = is_temperature_sensor_new(path, label);
+					sensor = is_temperature_sensor_new(path);
 				}
+				is_sensor_set_label(sensor, label);
 				/* connect to update-value signal */
 				g_signal_connect(sensor, "update-value",
 						 G_CALLBACK(update_sensor_value),
