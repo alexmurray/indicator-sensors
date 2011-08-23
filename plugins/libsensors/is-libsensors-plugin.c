@@ -20,11 +20,11 @@
 #endif
 
 #include "is-libsensors-plugin.h"
-#include "is-log.h"
 #include <stdlib.h>
 #include <indicator-sensors/is-temperature-sensor.h>
 #include <indicator-sensors/is-fan-sensor.h>
 #include <indicator-sensors/is-manager.h>
+#include <indicator-sensors/is-log.h>
 #include <sensors/sensors.h>
 #include <sensors/error.h>
 #include <glib/gi18n.h>

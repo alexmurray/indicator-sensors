@@ -20,7 +20,7 @@
 #endif
 
 #include "is-udisks-plugin.h"
-#include "is-log.h"
+#include <indicator-sensors/is-log.h>
 #include <indicator-sensors/is-manager.h>
 #include <indicator-sensors/is-temperature-sensor.h>
 #include <atasmart.h>

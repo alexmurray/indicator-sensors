@@ -20,11 +20,11 @@
 #endif
 
 #include "is-nvidia-plugin.h"
-#include "is-log.h"
 #include <stdlib.h>
 #include <indicator-sensors/is-temperature-sensor.h>
 #include <indicator-sensors/is-fan-sensor.h>
 #include <indicator-sensors/is-manager.h>
+#include <indicator-sensors/is-log.h>
 #include <X11/Xlib.h>
 #include <NVCtrl/NVCtrl.h>
 #include <NVCtrl/NVCtrlLib.h>
