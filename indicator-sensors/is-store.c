@@ -699,14 +699,11 @@ gboolean
 is_store_remove_path(IsStore *self,
 		     const gchar *path)
 {
-	IsStorePrivate *priv;
 	IsStoreEntry *entry = NULL;
 	gboolean ret = FALSE;
 
 	g_return_val_if_fail(IS_IS_STORE(self), FALSE);
 	g_return_val_if_fail(path != NULL, FALSE);
-
-	priv = self->priv;
 
 	entry = find_entry(self, path);
 	if (entry) {

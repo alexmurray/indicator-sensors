@@ -381,12 +381,10 @@ static void
 sensor_menu_item_activated(GtkMenuItem *menu_item,
 			   IsIndicator *self)
 {
-	IsIndicatorPrivate *priv;
 	IsSensor *sensor;
 
 	g_return_if_fail(IS_IS_INDICATOR(self));
 
-	priv = self->priv;
 	sensor = IS_SENSOR(g_object_get_data(G_OBJECT(menu_item),
 					     "sensor"));
 	is_indicator_set_primary_sensor(self, is_sensor_get_path(sensor));

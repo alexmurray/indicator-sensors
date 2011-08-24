@@ -867,15 +867,12 @@ void is_manager_set_temperature_scale(IsManager *self,
 IsSensor *
 is_manager_get_selected_sensor(IsManager *self)
 {
-	IsManagerPrivate *priv;
 	GtkTreeSelection *selection;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	IsSensor *sensor = NULL;
 
 	g_return_val_if_fail(IS_IS_MANAGER(self), NULL);
-
-	priv = self->priv;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(self));
 	if (gtk_tree_selection_get_selected(selection, &model, &iter)) {

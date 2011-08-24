@@ -276,7 +276,7 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 		 * up the list of sensors
 		 */
 		GDBusProxy *sensor_proxy;
-		GVariant *model, *device, *smart_available;
+		GVariant *model, *smart_available;
 		IsSensor *sensor;
 		gchar *name, *sensor_path;
 
@@ -323,8 +323,6 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 			g_object_unref(sensor_proxy);
 			continue;
 		}
-		device = g_dbus_proxy_get_cached_property(sensor_proxy,
-							  "DeviceFilePresentation");
 		name = g_path_get_basename(path);
 		sensor_path = g_strdup_printf("udisks/%s", name);
 		sensor = is_temperature_sensor_new(sensor_path);

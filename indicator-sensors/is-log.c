@@ -77,35 +77,7 @@ void is_logv(const gchar *source,
 	     const gchar *format,
 	     va_list args)
 {
-	GLogLevelFlags flags;
 	gchar *fmt, *output;
-
-	switch (level) {
-	case IS_LOG_LEVEL_ERROR:
-		flags = G_LOG_LEVEL_ERROR;
-		break;
-
-	case IS_LOG_LEVEL_CRITICAL:
-		flags = G_LOG_LEVEL_CRITICAL;
-		break;
-
-	case IS_LOG_LEVEL_WARNING:
-		flags = G_LOG_LEVEL_WARNING;
-		break;
-
-	case IS_LOG_LEVEL_MESSAGE:
-		flags = G_LOG_LEVEL_MESSAGE;
-		break;
-
-	case IS_LOG_LEVEL_DEBUG:
-		flags = G_LOG_LEVEL_DEBUG;
-		break;
-
-	case NUM_IS_LOG_LEVELS:
-	default:
-		g_assert_not_reached();
-		return;
-	}
 
 	/* TODO: perhaps add a more elaborate logger */
 	fmt = g_strdup_printf("[%s] %s: %s", source,
