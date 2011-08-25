@@ -754,10 +754,20 @@ is_manager_set_autostart(IsManager *self,
 					&error);
 	if (!ret) {
 		gchar *application_file;
+		gchar *autostart_dir;
 
 		is_debug("manager", "Failed to load autostart desktop file '%s': %s",
 			autostart_file, error->message);
 		g_clear_error(&error);
+		/* make sure autostart dir exists */
+		autostart_dir = g_build_filename(g_get_user_config_dir(), "autostart",
+						 NULL);
+		ret = g_mkdir_with_parents(autostart_dir, 0755);
+		if (ret != 0) {
+			is_warning("manager", "Failed to create autostart directory '%s'", autostart_dir);
+		}
+		g_free(autostart_dir);
+
 		application_file = g_build_filename("applications",
 						    DESKTOP_FILENAME, NULL);
 		ret = g_key_file_load_from_data_dirs(key_file,
