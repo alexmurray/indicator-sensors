@@ -204,8 +204,8 @@ static void quit_action(GtkAction *action,
 			IsIndicator *self);
 
 static GtkActionEntry entries[] = {
-	{ "Preferences", "application-preferences", N_("Preferences..."), NULL,
-	  N_("Preferences..."), G_CALLBACK(prefs_action) },
+	{ "Preferences", "application-preferences", N_("Preferences…"), NULL,
+	  N_("Preferences…"), G_CALLBACK(prefs_action) },
 	{ "Quit", GTK_STOCK_QUIT, N_("Quit"), NULL,
 	  N_("Quit"), G_CALLBACK(quit_action) },
 };

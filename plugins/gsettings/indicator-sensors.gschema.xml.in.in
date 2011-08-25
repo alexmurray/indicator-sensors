@@ -3,7 +3,7 @@
     <key type="s" name="primary-sensor">
       <default>""</default>
       <_summary>Primary sensor to display</_summary>
-      <_description>The primary sensor to display in the indicator, identified by it's path.</_description>
+      <_description>The primary sensor to display in the indicator, identified by it’s path.</_description>
     </key>
     <!-- consider making this an enum -->
     <key type="i" name="display-mode">
@@ -16,7 +16,7 @@
     <key type="as" name="enabled-sensors">
       <default>[]</default>
       <_summary>Enabled sensors</_summary>
-      <_description>The list of enabled sensors to monitor, each identified by it's path.</_description>
+      <_description>The list of enabled sensors to monitor, each identified by it’s path.</_description>
     </key>
     <!-- consider making this an enum -->
     <key type="i" name="temperature-scale">
