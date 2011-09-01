@@ -190,8 +190,8 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 	g_signal_connect(priv->fahrenheit_radio_button, "toggled",
 			 G_CALLBACK(temperature_scale_toggled), self);
 
-	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),
-			  priv->table);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(self))),
+			   priv->table, TRUE, TRUE, 0);
 }
 
 static void
