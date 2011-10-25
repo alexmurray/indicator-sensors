@@ -416,6 +416,7 @@ static gboolean _is_store_iter_has_child(GtkTreeModel *tree_model,
 	IsStore *self;
 	IsStorePrivate *priv;
 	IsStoreEntry *entry;
+	gboolean ret = FALSE;
 
 	g_return_val_if_fail(IS_IS_STORE(tree_model), FALSE);
 	g_return_val_if_fail(iter != NULL, FALSE);
@@ -426,9 +427,15 @@ static gboolean _is_store_iter_has_child(GtkTreeModel *tree_model,
 	g_return_val_if_fail(iter->stamp == priv->stamp, FALSE);
 	g_assert(iter->user_data);
 
-	entry = (IsStoreEntry *)
-		g_sequence_get((GSequenceIter *)iter->user_data);
-	return (g_sequence_get_length(entry->entries) > 0);
+	/* end iter is invalid and has no entry associated with it */
+	if (!g_sequence_iter_is_end((GSequenceIter *)iter->user_data)) {
+		entry = (IsStoreEntry *)
+			g_sequence_get((GSequenceIter *)iter->user_data);
+
+		ret = (g_sequence_get_length(entry->entries) > 0);
+	}
+
+	return ret;
 }
 
 static gint _is_store_iter_n_children(GtkTreeModel *tree_model,
