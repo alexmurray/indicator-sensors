@@ -301,7 +301,11 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		} else if (main_feature->type == SENSORS_FEATURE_FAN) {
 			sensor = is_fan_sensor_new(path);
 		} else {
+			/* is a voltage sensor */
 			sensor = is_sensor_new(path);
+			/* translators: V is the unit for Voltage, replace with
+			   appropriate unit */
+			is_sensor_set_units(sensor, _("V"));
 		}
 		is_sensor_set_label(sensor, label);
 		if (min_feature) {
