@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
-"Report-Msgid-Bugs-To: murray.alex@gmail.com\n"
-"POT-Creation-Date: 2011-08-23 22:16+0930\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-11-06 15:51+1030\n"
 "PO-Revision-Date: 2011-05-10 15:07+0000\n"
 "Last-Translator: obZen <ed10vi86@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -34,7 +34,7 @@ msgstr "RPM"
 #: ../indicator-sensors/is-indicator.c:207
 #: ../indicator-sensors/is-indicator.c:208
 #, fuzzy
-msgid "Preferences..."
+msgid "Preferences…"
 msgstr "Preferencias"
 
 #: ../indicator-sensors/is-indicator.c:209
@@ -42,12 +42,12 @@ msgstr "Preferencias"
 msgid "Quit"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:365
 #: ../indicator-sensors/is-indicator.c:366
+#: ../indicator-sensors/is-indicator.c:367
 msgid "No active sensors"
 msgstr "No hay sensores activos"
 
-#: ../indicator-sensors/is-indicator.c:482
+#: ../indicator-sensors/is-indicator.c:481
 msgid "No Sensors"
 msgstr "No hay sensores"
 
@@ -125,6 +125,26 @@ msgstr ""
 msgid "Above"
 msgstr ""
 
+#. first placeholder is sensor name
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:159
+#, fuzzy, c-format
+msgid "Error reading temperature value for GPU %d"
+msgstr "Error obteniendo el valor del sensor %s"
+
+#. first placeholder is sensor name
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:198
+#, fuzzy, c-format
+msgid "Error reading fanspeed value for GPU %d"
+msgstr "Error obteniendo el valor del sensor %s"
+
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:305
+msgid "Temperature"
+msgstr ""
+
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:322
+msgid "Fan"
+msgstr ""
+
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:1
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:1
 #, fuzzy
@@ -187,7 +207,8 @@ msgstr "La etiqueta por defecto para un sensor"
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:13
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:13
-msgid "The list of enabled sensors to monitor, each identified by it's path."
+#, fuzzy
+msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr ""
 "La lista de sensores habilitados para monitorear, cada uno identificado por "
 "su directorio"
@@ -201,7 +222,7 @@ msgstr ""
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:15
 #, fuzzy
 msgid ""
-"The primary sensor to display in the indicator, identified by it's path."
+"The primary sensor to display in the indicator, identified by it’s path."
 msgstr ""
 "La lista de sensores habilitados para monitorear, cada uno identificado por "
 "su directorio"
@@ -222,6 +243,12 @@ msgstr "Alarma de sensor"
 msgid "Error getting sensor value for sensor %s: %s [%d]"
 msgstr "Error obteniendo el valor del sensor %s: %s"
 
+#. translators: V is the unit for Voltage, replace with
+#. appropriate unit
+#: ../plugins/libsensors/is-libsensors-plugin.c:314
+msgid "V"
+msgstr ""
+
 #. first placeholder is
 #. * sensor name
 #: ../plugins/nvidia/is-nvidia-plugin.c:171
@@ -238,6 +265,10 @@ msgstr "Error leyendo los nuevos datos SMART del sensor %s"
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "Error actualizando los datos SMART del sensor %s"
+
+#, fuzzy
+#~ msgid "Preferences..."
+#~ msgstr "Preferencias"
 
 #~ msgid "_Preferences"
 #~ msgstr "_Preferencias"
