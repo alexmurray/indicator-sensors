@@ -80,6 +80,8 @@ const gchar *is_sensor_get_units(IsSensor *self);
 void is_sensor_set_units(IsSensor *self, const gchar *units);
 gdouble is_sensor_get_value(IsSensor *self);
 void is_sensor_set_value(IsSensor *self, gdouble value);
+guint is_sensor_get_digits(IsSensor *self);
+void is_sensor_set_digits(IsSensor *self, guint digits);
 gdouble is_sensor_get_alarm_value(IsSensor *self);
 void is_sensor_set_alarm_value(IsSensor *self, gdouble limit);
 IsSensorAlarmMode is_sensor_get_alarm_mode(IsSensor *self);

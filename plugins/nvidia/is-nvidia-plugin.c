@@ -239,6 +239,8 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 				} else {
 					sensor = is_temperature_sensor_new(path);
 				}
+				/* no decimal places to display */
+				is_sensor_set_digits(sensor, 0);
 				is_sensor_set_label(sensor, label);
 				/* connect to update-value signal */
 				g_signal_connect(sensor, "update-value",

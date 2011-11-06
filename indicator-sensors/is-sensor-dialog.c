@@ -276,6 +276,8 @@ is_sensor_dialog_set_property(GObject *object,
 
 		/* set sensitive so we can update */
 		gtk_widget_set_sensitive(priv->alarm_value_spin_button, TRUE);
+		gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->alarm_value_spin_button),
+					   is_sensor_get_digits(priv->sensor));
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->alarm_value_spin_button),
 					  is_sensor_get_alarm_value(priv->sensor));
 		g_signal_connect(priv->alarm_value_spin_button, "value-changed",

@@ -276,8 +276,9 @@ update_sensor_menu_item_label(IsIndicator *self,
 {
 	IsIndicatorPrivate *priv = self->priv;
 
-	gchar *text = g_strdup_printf("%s %2.1f%s",
+	gchar *text = g_strdup_printf("%s %2.*f%s",
 				      is_sensor_get_label(sensor),
+				      is_sensor_get_digits(sensor),
 				      is_sensor_get_value(sensor),
 				      is_sensor_get_units(sensor));
 	gtk_menu_item_set_label(menu_item, text);
@@ -603,7 +604,3 @@ is_indicator_get_display_mode(IsIndicator *self)
 
 	return self->priv->display_mode;
 }
-
-
-
-

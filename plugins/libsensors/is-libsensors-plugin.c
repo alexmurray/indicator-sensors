@@ -300,9 +300,15 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			sensor = is_temperature_sensor_new(path);
 		} else if (main_feature->type == SENSORS_FEATURE_FAN) {
 			sensor = is_fan_sensor_new(path);
+			/* display fan readings to 0 decimal places like
+			   sensors command */
+			is_sensor_set_digits(sensor, 0);
 		} else {
 			/* is a voltage sensor */
 			sensor = is_sensor_new(path);
+			/* display voltage readings to 2 decimal places like
+			   sensors command */
+			is_sensor_set_digits(sensor, 2);
 			/* translators: V is the unit for Voltage, replace with
 			   appropriate unit */
 			is_sensor_set_units(sensor, _("V"));

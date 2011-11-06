@@ -41,6 +41,7 @@ enum {
 	PROP_PATH,
 	PROP_LABEL,
 	PROP_VALUE,
+	PROP_DIGITS,
 	PROP_ALARM_VALUE,
 	PROP_ALARM_MODE,
 	PROP_UNITS,
@@ -56,6 +57,7 @@ struct _IsSensorPrivate
 	gchar *path;
 	gchar *label;
 	gdouble value;
+	guint digits;
 	gdouble alarm_value;
 	IsSensorAlarmMode alarm_mode;
 	gchar *units;
@@ -80,16 +82,21 @@ is_sensor_class_init(IsSensorClass *klass)
 						    NULL,
 						    G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_PATH, properties[PROP_PATH]);
-	properties[PROP_VALUE] = g_param_spec_double("value", "sensor value",
-						     "value of this sensor.",
-						     -G_MAXDOUBLE, G_MAXDOUBLE, 0.0,
-						     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-	g_object_class_install_property(gobject_class, PROP_VALUE, properties[PROP_VALUE]);
 	properties[PROP_LABEL] = g_param_spec_string("label", "sensor label",
 						     "label of this sensor.",
 						     NULL,
 						     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_LABEL, properties[PROP_LABEL]);
+	properties[PROP_VALUE] = g_param_spec_double("value", "sensor value",
+						     "value of this sensor.",
+						     -G_MAXDOUBLE, G_MAXDOUBLE, 0.0,
+						     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_VALUE, properties[PROP_VALUE]);
+	properties[PROP_DIGITS] = g_param_spec_uint("digits", "number of digits for this sensor",
+						     "the number of decimal places to display for this sensor.",
+						     0, G_MAXUINT, 1,
+						     G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_DIGITS, properties[PROP_DIGITS]);
 	properties[PROP_ALARM_VALUE] = g_param_spec_double("alarm-value", "sensor alarm limit",
 							   "alarm limit of this sensor.",
 							   -G_MAXDOUBLE, G_MAXDOUBLE,
@@ -163,6 +170,9 @@ is_sensor_get_property(GObject *object,
 	case PROP_VALUE:
 		g_value_set_double(value, is_sensor_get_value(self));
 		break;
+	case PROP_DIGITS:
+		g_value_set_uint(value, is_sensor_get_digits(self));
+		break;
 	case PROP_ALARM_VALUE:
 		g_value_set_double(value, is_sensor_get_alarm_value(self));
 		break;
@@ -200,6 +210,9 @@ is_sensor_set_property(GObject *object,
 		break;
 	case PROP_VALUE:
 		is_sensor_set_value(self, g_value_get_double(value));
+		break;
+	case PROP_DIGITS:
+		is_sensor_set_digits(self, g_value_get_uint(value));
 		break;
 	case PROP_ALARM_VALUE:
 		is_sensor_set_alarm_value(self, g_value_get_double(value));
@@ -242,6 +255,7 @@ is_sensor_new(const gchar *path)
 	return g_object_new(IS_TYPE_SENSOR,
 			    "path", path,
 			    "label", NULL,
+			    "digits", 1,
 			    "alarm-value", 0.0,
 			    "alarm-mode", IS_SENSOR_ALARM_MODE_DISABLED,
 			    "units", "?",
@@ -332,6 +346,29 @@ is_sensor_set_value(IsSensor *self,
 		priv->value = value;
 		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_VALUE]);
 		update_alarmed(self);
+	}
+}
+
+guint
+is_sensor_get_digits(IsSensor *self)
+{
+	g_return_val_if_fail(IS_IS_SENSOR(self), 0);
+	return self->priv->digits;
+}
+
+void
+is_sensor_set_digits(IsSensor *self,
+		     guint digits)
+{
+	IsSensorPrivate *priv;
+
+	g_return_if_fail(IS_IS_SENSOR(self));
+
+	priv = self->priv;
+
+	if (digits != priv->digits) {
+		priv->digits = digits;
+		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_DIGITS]);
 	}
 }
 

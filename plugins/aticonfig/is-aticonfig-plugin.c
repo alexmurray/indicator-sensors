@@ -324,6 +324,7 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
 			is_sensor_set_label(sensor, name);
 			/* fan sensors are given as a percentage from 0 to 100 */
 			is_sensor_set_units(sensor, "%");
+			is_sensor_set_digits(sensor, 0);
 			g_signal_connect(sensor, "update-value",
 					 G_CALLBACK(update_sensor_value),
 					 self);
