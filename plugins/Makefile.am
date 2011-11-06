@@ -1,4 +1,4 @@
-SUBDIRS = gsettings
+SUBDIRS = aticonfig gsettings
 
 if LIBNOTIFY
 SUBDIRS += libnotify

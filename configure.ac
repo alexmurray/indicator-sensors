@@ -224,6 +224,7 @@ AC_CONFIG_FILES([
 	indicator-sensors/Makefile
 	pixmaps/Makefile
 	plugins/Makefile
+	plugins/aticonfig/Makefile
 	plugins/gsettings/Makefile
 	plugins/gsettings/indicator-sensors.gschema.xml.in
 	plugins/libnotify/Makefile
