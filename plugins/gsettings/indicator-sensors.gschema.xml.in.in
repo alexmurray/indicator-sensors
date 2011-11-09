@@ -25,26 +25,4 @@
       <_description>The temperature scale to display temperature sensor values.</_description>
     </key>
   </schema>
-  <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.sensor">
-    <key name="label" type="s">
-      <default>""</default>
-      <_summary>Label for a sensor</_summary>
-      <_description>The default label for a sensor</_description>
-    </key>
-    <key name="alarm-value" type="d">
-      <default>0.0</default>
-      <_summary>Default alarm limit value</_summary>
-      <_description>The default value to trigger an alarm for a sensor.</_description>
-    </key>
-    <key name="alarm-mode" type="i">
-      <default>0</default>
-      <_summary>Default alarm mode</_summary>
-      <_description>The alarm mode for a sensor.</_description>
-    </key>
-    <key name="alarm-max" type="d">
-      <default>1e37</default>
-      <_summary>Default alarm maximum sensor value</_summary>
-      <_description>The default alarm maximum value for a sensor.</_description>
-    </key>
-  </schema>
 </schemalist>

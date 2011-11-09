@@ -74,6 +74,8 @@ struct _IsManagerPrivate
 	GSList *enabled_list;
 	GFileMonitor *monitor;
 	IsTemperatureSensorScale temperature_scale;
+	GKeyFile *sensor_config;
+	guint idle_write_id;
 };
 
 static void
@@ -162,7 +164,6 @@ is_manager_class_init(IsManagerClass *klass)
 						       g_cclosure_marshal_VOID__OBJECT,
 						       G_TYPE_NONE, 1,
 						       IS_TYPE_SENSOR);
-
 }
 
 static gboolean
@@ -334,6 +335,8 @@ is_manager_init(IsManager *self)
 	GtkTreeViewColumn *col;
 	gchar *path;
 	GFile *file;
+	GError *error = NULL;
+	gboolean ret;
 
 	priv = G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_MANAGER,
 					   IsManagerPrivate);
@@ -365,6 +368,14 @@ is_manager_init(IsManager *self)
 	gtk_tree_view_column_set_expand(col, FALSE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
 
+	renderer = gtk_cell_renderer_pixbuf_new();
+	col = gtk_tree_view_column_new_with_attributes(_("Icon"),
+						       renderer,
+						       "icon-name", IS_STORE_COL_ICON,
+						       NULL);
+	gtk_tree_view_column_set_expand(col, FALSE);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
+
 	renderer = gtk_cell_renderer_text_new();
 	g_object_set(renderer, "editable", TRUE, NULL);
 	col = gtk_tree_view_column_new_with_attributes(_("Label"),
@@ -386,6 +397,20 @@ is_manager_init(IsManager *self)
 	g_signal_connect(renderer, "toggled", G_CALLBACK(sensor_toggled),
 			 self);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
+
+	priv->sensor_config = g_key_file_new();
+	path = g_build_filename(g_get_user_config_dir(), PACKAGE,
+				"sensors", NULL);
+	ret = g_key_file_load_from_file(priv->sensor_config,
+					path,
+					G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS,
+					&error);
+	if (!ret) {
+		is_warning("manager", "Failed to load sensor configs from file %s: %s",
+			   path, error->message);
+		g_error_free(error);
+	}
+	g_free(path);
 }
 
 static void
@@ -502,6 +527,201 @@ is_manager_set_poll_timeout(IsManager *self,
 	}
 }
 
+static gboolean
+write_out_sensor_config(IsManager *self)
+{
+	IsManagerPrivate *priv;
+	gchar *data, *path;
+	gsize len;
+	GError *error = NULL;
+	gboolean ret;
+
+	priv = self->priv;
+	if (!priv->idle_write_id) {
+		is_warning("manager", "Not writing out sensor config as has already occurred");
+		goto out;
+	}
+
+	/* ensure directory exists */
+	path = g_build_filename(g_get_user_config_dir(), PACKAGE, NULL);
+	g_mkdir_with_parents(path, 0755);
+	g_free(path);
+
+	data = g_key_file_to_data(self->priv->sensor_config, &len, NULL);
+	path = g_build_filename(g_get_user_config_dir(), PACKAGE,
+				"sensors", NULL);
+	ret = g_file_set_contents(path, data, len, &error);
+	if (!ret) {
+		is_warning("manager", "Failed to write sensor config to file %s: %s",
+			   path, error->message);
+		g_error_free(error);
+	}
+	g_free(path);
+	g_free(data);
+
+	/* make sure we are not called again as an idle callback */
+out:
+	priv->idle_write_id = 0;
+	return FALSE;
+}
+
+static void
+sensor_label_notify(IsSensor *sensor,
+			  GParamSpec *pspec,
+			  IsManager *self)
+{
+	IsManagerPrivate *priv = self->priv;
+
+	g_key_file_set_string(priv->sensor_config,
+			      is_sensor_get_path(sensor),
+			      "label",
+			      is_sensor_get_label(sensor));
+	if (!priv->idle_write_id) {
+		priv->idle_write_id = g_idle_add((GSourceFunc)write_out_sensor_config,
+						 self);
+	}
+}
+
+static void
+sensor_alarm_value_notify(IsSensor *sensor,
+			  GParamSpec *pspec,
+			  IsManager *self)
+{
+	IsManagerPrivate *priv = self->priv;
+
+	g_key_file_set_double(priv->sensor_config,
+			      is_sensor_get_path(sensor),
+			      "alarm-value",
+			      is_sensor_get_alarm_value(sensor));
+	if (!priv->idle_write_id) {
+		priv->idle_write_id = g_idle_add((GSourceFunc)write_out_sensor_config,
+						 self);
+	}
+}
+
+static void
+sensor_alarm_mode_notify(IsSensor *sensor,
+			 GParamSpec *pspec,
+			 IsManager *self)
+{
+	IsManagerPrivate *priv = self->priv;
+
+	g_key_file_set_int64(priv->sensor_config,
+			     is_sensor_get_path(sensor),
+			     "alarm-mode",
+			     is_sensor_get_alarm_mode(sensor));
+	if (!priv->idle_write_id) {
+		priv->idle_write_id = g_idle_add((GSourceFunc)write_out_sensor_config,
+						 self);
+	}
+}
+
+static void
+sensor_low_value_notify(IsSensor *sensor,
+			  GParamSpec *pspec,
+			  IsManager *self)
+{
+	IsManagerPrivate *priv = self->priv;
+
+	g_key_file_set_double(priv->sensor_config,
+			      is_sensor_get_path(sensor),
+			      "low-value",
+			      is_sensor_get_low_value(sensor));
+	if (!priv->idle_write_id) {
+		priv->idle_write_id = g_idle_add((GSourceFunc)write_out_sensor_config,
+						 self);
+	}
+}
+
+static void
+sensor_high_value_notify(IsSensor *sensor,
+			  GParamSpec *pspec,
+			  IsManager *self)
+{
+	IsManagerPrivate *priv = self->priv;
+
+	g_key_file_set_double(priv->sensor_config,
+			      is_sensor_get_path(sensor),
+			      "high-value",
+			      is_sensor_get_high_value(sensor));
+	if (!priv->idle_write_id) {
+		priv->idle_write_id = g_idle_add((GSourceFunc)write_out_sensor_config,
+						 self);
+	}
+}
+
+static void
+restore_sensor_config(IsManager *self,
+		      IsSensor *sensor)
+{
+	IsManagerPrivate *priv = self->priv;
+	gchar *label;
+	gdouble alarm_value, low_value, high_value;
+	IsSensorAlarmMode alarm_mode;
+	GError *error = NULL;
+
+	label = g_key_file_get_string(priv->sensor_config,
+				      is_sensor_get_path(sensor),
+				      "label",
+				      &error);
+	if (error) {
+		is_message("manager", "Unable to restore saved label for sensor %s: %s",
+			   is_sensor_get_path(sensor), error->message);
+		g_clear_error(&error);
+	} else {
+		is_sensor_set_label(sensor, label);
+	}
+	g_free(label);
+
+	alarm_value = g_key_file_get_double(priv->sensor_config,
+					    is_sensor_get_path(sensor),
+					    "alarm-value",
+					    &error);
+	if (error) {
+		is_message("manager", "Unable to restore saved alarm-value for sensor %s: %s",
+			   is_sensor_get_path(sensor), error->message);
+		g_clear_error(&error);
+	} else {
+		is_sensor_set_alarm_value(sensor, alarm_value);
+	}
+
+	alarm_mode = g_key_file_get_int64(priv->sensor_config,
+					  is_sensor_get_path(sensor),
+					  "alarm-mode",
+					  &error);
+	if (error) {
+		is_message("manager", "Unable to restore saved alarm-mode for sensor %s: %s",
+			   is_sensor_get_path(sensor), error->message);
+		g_clear_error(&error);
+	} else {
+		is_sensor_set_alarm_mode(sensor, alarm_mode);
+	}
+
+	low_value = g_key_file_get_double(priv->sensor_config,
+					    is_sensor_get_path(sensor),
+					    "low-value",
+					    &error);
+	if (error) {
+		is_message("manager", "Unable to restore saved low-value for sensor %s: %s",
+			   is_sensor_get_path(sensor), error->message);
+		g_clear_error(&error);
+	} else {
+		is_sensor_set_low_value(sensor, low_value);
+	}
+
+	high_value = g_key_file_get_double(priv->sensor_config,
+					    is_sensor_get_path(sensor),
+					    "high-value",
+					    &error);
+	if (error) {
+		is_message("manager", "Unable to restore saved high-value for sensor %s: %s",
+			   is_sensor_get_path(sensor), error->message);
+		g_clear_error(&error);
+	} else {
+		is_sensor_set_high_value(sensor, high_value);
+	}
+
+}
 gboolean
 is_manager_add_sensor(IsManager *self,
 		      IsSensor *sensor)
@@ -519,6 +739,18 @@ is_manager_add_sensor(IsManager *self,
 	if (!ret) {
 		goto out;
 	}
+	restore_sensor_config(self, sensor);
+	g_signal_connect(sensor, "notify::label", G_CALLBACK(sensor_label_notify),
+			 self);
+	g_signal_connect(sensor, "notify::alarm-value",
+			 G_CALLBACK(sensor_alarm_value_notify), self);
+	g_signal_connect(sensor, "notify::alarm-mode",
+			 G_CALLBACK(sensor_alarm_mode_notify), self);
+	g_signal_connect(sensor, "notify::low-value",
+			 G_CALLBACK(sensor_low_value_notify), self);
+	g_signal_connect(sensor, "notify::high-value",
+			 G_CALLBACK(sensor_high_value_notify), self);
+
 	/* set scale as appropriate */
 	if (IS_IS_TEMPERATURE_SENSOR(sensor)) {
 		is_temperature_sensor_set_scale(IS_TEMPERATURE_SENSOR(sensor),
@@ -892,5 +1124,3 @@ is_manager_get_selected_sensor(IsManager *self)
 	}
 	return sensor;
 }
-
-

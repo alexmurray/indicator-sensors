@@ -41,7 +41,6 @@ enum {
 struct _IsGSettingsPluginPrivate
 {
 	IsManager *manager;
-	GSList *sensors;
 };
 
 static void is_gsettings_plugin_finalize(GObject *object);
@@ -107,74 +106,12 @@ is_gsettings_plugin_finalize(GObject *object)
 }
 
 static void
-sensor_added(IsManager *manager,
-	     IsSensor *sensor,
-	     IsGSettingsPlugin *self)
-{
-	IsGSettingsPluginPrivate *priv;
-	gchar *path;
-	GSettings *settings;
-
-	priv = self->priv;
-
-	g_assert(!g_slist_find(priv->sensors, sensor));
-	priv->sensors = g_slist_append(priv->sensors, sensor);
-
-	path = g_strdup_printf("/apps/indicator-sensors/sensors/%s/",
-			       is_sensor_get_path(sensor));
-	settings = g_settings_new_with_path("indicator-sensors.sensor",
-					    path);
-	g_free(path);
-
-	/* bind to properties so we automatically save and restore most recent
-	 * value */
-	g_settings_bind(settings, "label", sensor, "label",
-			G_SETTINGS_BIND_DEFAULT);
-	g_settings_bind(settings, "alarm-value", sensor, "alarm-value",
-			G_SETTINGS_BIND_DEFAULT);
-	g_settings_bind(settings, "alarm-mode",
-			sensor, "alarm-mode",
-			G_SETTINGS_BIND_DEFAULT);
-	g_object_set_data_full(G_OBJECT(sensor),
-			       "gsettings", settings, g_object_unref);
-}
-
-static void
-sensor_removed(IsManager *manager,
-	       IsSensor *sensor,
-	       IsGSettingsPlugin *self)
-{
-	IsGSettingsPluginPrivate *priv;
-
-	priv = self->priv;
-
-	g_object_set_data(G_OBJECT(sensor), "gsettings", NULL);
-	priv->sensors = g_slist_remove(priv->sensors, sensor);
-}
-
-static void
 is_gsettings_plugin_activate(PeasActivatable *activatable)
 {
 	IsGSettingsPlugin *self = IS_GSETTINGS_PLUGIN(activatable);
 	IsGSettingsPluginPrivate *priv = self->priv;
-	GSList *sensors;
 	GSettings *settings;
 	IsIndicator *indicator;
-
-	sensors = is_manager_get_all_sensors_list(priv->manager);
-	while (sensors != NULL) {
-		IsSensor *sensor = IS_SENSOR(sensors->data);
-		sensor_added(priv->manager, sensor, self);
-		g_object_unref(sensor);
-		sensors = g_slist_delete_link(sensors, sensors);
-	}
-
-	/* watch for sensors added / removed to save / restore their
-	 * settings  */
-	g_signal_connect(priv->manager, "sensor-added",
-			 G_CALLBACK(sensor_added), self);
-	g_signal_connect(priv->manager, "sensor-removed",
-			 G_CALLBACK(sensor_removed), self);
 
 	/* bind the enabled-sensors property of the manager as well so we save /
 	 * restore the list of enabled sensors too */
@@ -208,12 +145,6 @@ is_gsettings_plugin_deactivate(PeasActivatable *activatable)
 	IsGSettingsPluginPrivate *priv = self->priv;
 
 	g_object_set_data(G_OBJECT(priv->manager), "gsettings", NULL);
-	g_signal_handlers_disconnect_by_func(priv->manager, sensor_added, self);
-	g_signal_handlers_disconnect_by_func(priv->manager, sensor_removed, self);
-	while (priv->sensors) {
-		IsSensor *sensor = IS_SENSOR(priv->sensors->data);
-		sensor_removed(priv->manager, sensor, self);
-	}
 }
 
 static void

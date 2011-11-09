@@ -235,9 +235,11 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 					/* fan sensors are given as a percentage
 					   from 0 to 100 */
 					sensor = is_sensor_new(path);
+					is_sensor_set_icon_type(sensor, IS_ICON_TYPE_FAN);
 					is_sensor_set_units(sensor, "%");
 				} else {
 					sensor = is_temperature_sensor_new(path);
+					is_sensor_set_icon_type(sensor, IS_ICON_TYPE_GPU);
 				}
 				/* no decimal places to display */
 				is_sensor_set_digits(sensor, 0);

@@ -1,3 +1,22 @@
+pixmapsdir = $(datadir)/icons/hicolor/22x22/status
+pixmaps_DATA = \
+	very-low-value-icon.png \
+	low-value-icon.png \
+	normal-value-icon.png \
+	high-value-icon.png \
+	very-high-value-icon.png
+
+deviceiconsdir = $(datadir)/icons/hicolor/22x22/devices
+deviceicons_DATA = \
+	indicator-sensors-battery.png \
+	indicator-sensors-case.png \
+	indicator-sensors-chip.png \
+	indicator-sensors-cpu.png \
+	indicator-sensors-gpu.png \
+	indicator-sensors-fan.png \
+	indicator-sensors-drive-harddisk.png \
+	indicator-sensors-memory.png
+
 appicondir = $(datadir)/icons/hicolor/48x48/apps
 appicon_DATA = indicator-sensors.png
 
@@ -14,4 +33,7 @@ update_icon_cache:
 		echo "***   $(gtk_update_icon_cache)"; \
 	fi
 
-EXTRA_DIST = $(appicon_DATA)
+EXTRA_DIST = \
+	$(pixmaps_DATA) \
+	$(deviceicons_DATA) \
+	$(appicon_DATA)

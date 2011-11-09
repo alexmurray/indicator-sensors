@@ -19,6 +19,7 @@
 #define __IS_SENSOR_H__
 
 #include <glib-object.h>
+#include <gtk/gtk.h>
 
 
 G_BEGIN_DECLS
@@ -69,6 +70,19 @@ typedef enum
 	IS_SENSOR_ALARM_MODE_HIGH,
 } IsSensorAlarmMode;
 
+/* device icons */
+typedef enum {
+        IS_ICON_TYPE_CPU = 0,
+        IS_ICON_TYPE_HDD,
+        IS_ICON_TYPE_BATTERY,
+        IS_ICON_TYPE_MEMORY,
+        IS_ICON_TYPE_GPU,
+        IS_ICON_TYPE_GENERIC,
+        IS_ICON_TYPE_FAN,
+        IS_ICON_TYPE_CASE,
+        NUM_IS_ICON_TYPE,
+} IsSensorIconType;
+
 GType is_sensor_get_type(void) G_GNUC_CONST;
 IsSensor *is_sensor_new(const gchar *path);
 void is_sensor_update_value(IsSensor *self);
@@ -89,6 +103,16 @@ void is_sensor_set_alarm_mode(IsSensor *self, IsSensorAlarmMode mode);
 guint is_sensor_get_update_interval(IsSensor *self);
 void is_sensor_set_update_interval(IsSensor *self, guint update_interval);
 gboolean is_sensor_get_alarmed(IsSensor *self);
+IsSensorIconType is_sensor_get_icon_type(IsSensor *self);
+void is_sensor_set_icon_type(IsSensor *self, IsSensorIconType icon);
+gchar* is_sensor_get_icon_path(IsSensor *self);
+gchar* is_sensor_get_base_icon_name(IsSensor *self);
+gdouble is_sensor_get_low_value(IsSensor *self);
+void is_sensor_set_low_value(IsSensor *self, gdouble value);
+gdouble is_sensor_get_high_value(IsSensor *self);
+void is_sensor_set_high_value(IsSensor *self, gdouble value);
+
+void sensor_prepare_cache_icons();
 
 G_END_DECLS
 

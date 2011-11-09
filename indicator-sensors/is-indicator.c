@@ -100,7 +100,7 @@ is_indicator_class_init(IsIndicatorClass *klass)
 							 "display mode property",
 							 "display mode property blurp.",
 							 IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY,
-							 IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE,
+							 NUM_IS_INDICATOR_DISPLAY_MODES,
 							 IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE,
 							 G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_DISPLAY_MODE,
@@ -284,6 +284,11 @@ update_sensor_menu_item_label(IsIndicator *self,
 	gtk_menu_item_set_label(menu_item, text);
 
 	if (g_strcmp0(priv->primary_sensor, is_sensor_get_path(sensor)) == 0) {
+		gchar *icon_path = is_sensor_get_icon_path(sensor);
+		app_indicator_set_icon_full(APP_INDICATOR(self), icon_path,
+						is_sensor_get_label(sensor));
+		g_free(icon_path);
+
 		/* set display based on current display_mode */
 		switch (priv->display_mode) {
 		case IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY:
@@ -296,6 +301,7 @@ update_sensor_menu_item_label(IsIndicator *self,
 						text, text);
 			break;
 		case IS_INDICATOR_DISPLAY_MODE_INVALID:
+		case NUM_IS_INDICATOR_DISPLAY_MODES:
 		default:
 			g_assert_not_reached();
 		}
@@ -410,6 +416,12 @@ sensor_enabled(IsManager *manager,
 	g_signal_connect(sensor, "notify::alarmed",
 			 G_CALLBACK(sensor_notify),
 			 self);
+	g_signal_connect(sensor, "notify::low-value",
+			 G_CALLBACK(sensor_notify),
+			 self);
+	g_signal_connect(sensor, "notify::high-value",
+			 G_CALLBACK(sensor_notify),
+			 self);
 	g_signal_connect(sensor, "error",
 			 G_CALLBACK(sensor_error), self);
 	/* add a menu entry for this sensor */
@@ -522,7 +534,7 @@ void is_indicator_set_primary_sensor(IsIndicator *self,
 					gtk_check_menu_item_set_active(item, FALSE);
 				}
 				g_object_unref(sensor);
-		}
+			}
 		}
 
 
@@ -570,8 +582,8 @@ void is_indicator_set_display_mode(IsIndicator *self,
 	IsIndicatorPrivate *priv;
 
 	g_return_if_fail(IS_IS_INDICATOR(self));
-	g_return_if_fail(display_mode == IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY ||
-			 display_mode == IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE);
+	g_return_if_fail(display_mode > IS_INDICATOR_DISPLAY_MODE_INVALID &&
+			 display_mode < NUM_IS_INDICATOR_DISPLAY_MODES);
 
 	priv = self->priv;
 
@@ -588,10 +600,12 @@ void is_indicator_set_display_mode(IsIndicator *self,
 			/* redisplay primary sensor */
 			sensor = is_manager_get_sensor(priv->manager,
 						       priv->primary_sensor);
-			item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(sensor),
-							       "menu-item"));
-			update_sensor_menu_item_label(self, sensor, item);
-			g_object_unref(sensor);
+			if(sensor) {
+				item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(sensor),
+								       "menu-item"));
+				update_sensor_menu_item_label(self, sensor, item);
+				g_object_unref(sensor);
+			}
 		}
 	}
 }

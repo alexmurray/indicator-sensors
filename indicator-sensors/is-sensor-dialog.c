@@ -27,9 +27,9 @@ G_DEFINE_TYPE(IsSensorDialog, is_sensor_dialog, GTK_TYPE_DIALOG);
 static void is_sensor_dialog_dispose(GObject *object);
 static void is_sensor_dialog_finalize(GObject *object);
 static void is_sensor_dialog_get_property(GObject *object,
-					       guint property_id, GValue *value, GParamSpec *pspec);
+					  guint property_id, GValue *value, GParamSpec *pspec);
 static void is_sensor_dialog_set_property(GObject *object,
-					       guint property_id, const GValue *value, GParamSpec *pspec);
+					  guint property_id, const GValue *value, GParamSpec *pspec);
 
 /* properties */
 enum {
@@ -46,6 +46,10 @@ struct _IsSensorDialogPrivate
 	GtkWidget *alarm_mode_combo_box;
 	GtkWidget *alarm_value_spin_button;
 	GtkWidget *units_label;
+	GtkWidget *low_value;
+	GtkWidget *low_units_label;
+	GtkWidget *high_value;
+	GtkWidget *high_units_label;
 };
 
 static void
@@ -72,7 +76,7 @@ static void
 is_sensor_dialog_init(IsSensorDialog *self)
 {
 	IsSensorDialogPrivate *priv;
-	GtkWidget *label;
+	GtkWidget *label, *low_label, *high_label;
 
 	self->priv = priv =
 		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_SENSOR_DIALOG,
@@ -85,9 +89,9 @@ is_sensor_dialog_init(IsSensorDialog *self)
 			      GTK_STOCK_CLOSE, GTK_RESPONSE_ACCEPT);
 
 	/* pack content into box */
-	priv->table = gtk_table_new(3, 4, FALSE);
+	priv->table = gtk_table_new(5, 4, FALSE);
 	gtk_table_set_col_spacings(GTK_TABLE(priv->table), 6);
-	gtk_table_set_row_spacings(GTK_TABLE(priv->table), 1);
+	gtk_table_set_row_spacings(GTK_TABLE(priv->table), 6);
 	gtk_container_set_border_width(GTK_CONTAINER(priv->table), 12);
 
 	priv->path_label = gtk_label_new(NULL);
@@ -97,7 +101,6 @@ is_sensor_dialog_init(IsSensorDialog *self)
 			 0, 1,
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
-	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 0, 6);
 
 	label = gtk_label_new(_("Label"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
@@ -112,7 +115,6 @@ is_sensor_dialog_init(IsSensorDialog *self)
 			 1, 2,
 			 GTK_FILL, GTK_FILL,
 			 0, 0);
-	gtk_table_set_row_spacing(GTK_TABLE(priv->table), 1, 6);
 	label = gtk_label_new(_("Alarm"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
 	gtk_table_attach(GTK_TABLE(priv->table), label,
@@ -154,13 +156,59 @@ is_sensor_dialog_init(IsSensorDialog *self)
 			 GTK_EXPAND | GTK_FILL, GTK_FILL,
 			 0, 0);
 
+	low_label = gtk_label_new(_("Low value"));
+	gtk_misc_set_alignment(GTK_MISC(low_label), 0.0, 0.5);
+	gtk_table_attach(GTK_TABLE(priv->table), low_label,
+			 0, 1,
+			 3, 4,
+			 GTK_FILL, GTK_FILL,
+			 6, 0);
+	priv->low_value = gtk_spin_button_new_with_range(-G_MAXDOUBLE,
+							 G_MAXDOUBLE,
+							 1.0f);
+	gtk_table_attach(GTK_TABLE(priv->table), priv->low_value,
+			 1, 2,
+			 3, 4,
+			 GTK_FILL, GTK_FILL,
+			 0, 0);
+	priv->low_units_label = gtk_label_new(NULL);
+	gtk_misc_set_alignment(GTK_MISC(priv->low_units_label), 0.0, 0.5);
+	gtk_table_attach(GTK_TABLE(priv->table), priv->low_units_label,
+			 2, 3,
+			 3, 4,
+			 GTK_EXPAND | GTK_FILL, GTK_FILL,
+			 0, 0);
+
+	high_label = gtk_label_new(_("High value"));
+	gtk_misc_set_alignment(GTK_MISC(high_label), 0.0, 0.5);
+	gtk_table_attach(GTK_TABLE(priv->table), high_label,
+			 0, 1,
+			 4, 5,
+			 GTK_FILL, GTK_FILL,
+			 6, 0);
+	priv->high_value = gtk_spin_button_new_with_range(-G_MAXDOUBLE,
+							  G_MAXDOUBLE,
+							  1.0f);
+	gtk_table_attach(GTK_TABLE(priv->table), priv->high_value,
+			 1, 2,
+			 4, 5,
+			 GTK_FILL, GTK_FILL,
+			 0, 0);
+	priv->high_units_label = gtk_label_new(NULL);
+	gtk_misc_set_alignment(GTK_MISC(priv->high_units_label), 0.0, 0.5);
+	gtk_table_attach(GTK_TABLE(priv->table), priv->high_units_label,
+			 2, 3,
+			 4, 5,
+			 GTK_EXPAND | GTK_FILL, GTK_FILL,
+			 0, 0);
+
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),
 			  priv->table);
 }
 
 static void
 is_sensor_dialog_get_property(GObject *object,
-				   guint property_id, GValue *value, GParamSpec *pspec)
+			      guint property_id, GValue *value, GParamSpec *pspec)
 {
 	IsSensorDialog *self = IS_SENSOR_DIALOG(object);
 	IsSensorDialogPrivate *priv = self->priv;
@@ -239,8 +287,42 @@ sensor_notify_units(IsSensor *sensor,
 }
 
 static void
+low_value_changed(GtkSpinButton *spin_button,
+		  IsSensorDialog *self)
+{
+	is_sensor_set_low_value(self->priv->sensor,
+				gtk_spin_button_get_value(spin_button));
+}
+
+static void
+sensor_notify_low_value(IsSensor *sensor,
+			GParamSpec *pspec,
+			IsSensorDialog *self)
+{
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(self->priv->low_value),
+				  is_sensor_get_low_value(sensor));
+}
+
+static void
+high_value_changed(GtkSpinButton *spin_button,
+		   IsSensorDialog *self)
+{
+	is_sensor_set_high_value(self->priv->sensor,
+				 gtk_spin_button_get_value(spin_button));
+}
+
+static void
+sensor_notify_high_value(IsSensor *sensor,
+			 GParamSpec *pspec,
+			 IsSensorDialog *self)
+{
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(self->priv->high_value),
+				  is_sensor_get_high_value(sensor));
+}
+
+static void
 is_sensor_dialog_set_property(GObject *object,
-				   guint property_id, const GValue *value, GParamSpec *pspec)
+			      guint property_id, const GValue *value, GParamSpec *pspec)
 {
 	IsSensorDialog *self = IS_SENSOR_DIALOG(object);
 	IsSensorDialogPrivate *priv = self->priv;
@@ -291,10 +373,34 @@ is_sensor_dialog_set_property(GObject *object,
 					  IS_SENSOR_ALARM_MODE_DISABLED));
 		gtk_widget_set_sensitive(priv->units_label, TRUE);
 		gtk_label_set_text(GTK_LABEL(priv->units_label),
-					 is_sensor_get_units(priv->sensor));
+				   is_sensor_get_units(priv->sensor));
 		g_signal_connect(priv->sensor, "notify::units",
 				 G_CALLBACK(sensor_notify_units),
 				 self);
+
+		gtk_widget_set_sensitive(priv->low_value, TRUE);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->low_value),
+					  is_sensor_get_low_value(priv->sensor));
+		g_signal_connect(priv->low_value, "value-changed",
+				 G_CALLBACK(low_value_changed),
+				 self);
+		g_signal_connect(priv->sensor, "notify::low-value",
+				 G_CALLBACK(sensor_notify_low_value),
+				 self);
+		gtk_label_set_text(GTK_LABEL(priv->low_units_label),
+				   is_sensor_get_units(priv->sensor));
+
+		gtk_widget_set_sensitive(priv->high_value, TRUE);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->high_value),
+					  is_sensor_get_high_value(priv->sensor));
+		g_signal_connect(priv->high_value, "value-changed",
+				 G_CALLBACK(high_value_changed),
+				 self);
+		g_signal_connect(priv->sensor, "notify::high-value",
+				 G_CALLBACK(sensor_notify_high_value),
+				 self);
+		gtk_label_set_text(GTK_LABEL(priv->high_units_label),
+				   is_sensor_get_units(priv->sensor));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);

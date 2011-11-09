@@ -15,6 +15,7 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <math.h>
 #include "is-temperature-sensor.h"
 #include "is-log.h"
 
@@ -22,9 +23,9 @@ G_DEFINE_TYPE(IsTemperatureSensor, is_temperature_sensor, IS_TYPE_SENSOR);
 
 static void is_temperature_sensor_finalize(GObject *object);
 static void is_temperature_sensor_get_property(GObject *object,
-					  guint property_id, GValue *value, GParamSpec *pspec);
+					       guint property_id, GValue *value, GParamSpec *pspec);
 static void is_temperature_sensor_set_property(GObject *object,
-					  guint property_id, const GValue *value, GParamSpec *pspec);
+					       guint property_id, const GValue *value, GParamSpec *pspec);
 
 /* properties */
 enum {
@@ -79,7 +80,7 @@ is_temperature_sensor_scale_to_string(IsTemperatureSensorScale scale)
 	default:
 		is_warning("temperature sensor",
 			   "Unable to convert IsTemperatureSensorScale %d to string",
-			  scale);
+			   scale);
 	}
 	return string;
 }
@@ -101,7 +102,7 @@ is_temperature_sensor_init(IsTemperatureSensor *self)
 
 static void
 is_temperature_sensor_get_property(GObject *object,
-		       guint property_id, GValue *value, GParamSpec *pspec)
+				   guint property_id, GValue *value, GParamSpec *pspec)
 {
 	IsTemperatureSensor *self = IS_TEMPERATURE_SENSOR(object);
 
@@ -148,6 +149,7 @@ is_temperature_sensor_new(const gchar *path)
 	return g_object_new(IS_TYPE_TEMPERATURE_SENSOR,
 			    "path", path,
 			    "scale", IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
+			    "high-value", 100.0,
 			    NULL);
 }
 
@@ -186,16 +188,22 @@ void is_temperature_sensor_set_scale(IsTemperatureSensor *self,
 	if (scale != priv->scale) {
 		gdouble value = is_sensor_get_value(IS_SENSOR(self));
 		gdouble alarm_value = is_sensor_get_alarm_value(IS_SENSOR(self));
+		gdouble low_value = is_sensor_get_low_value(IS_SENSOR(self));
+		gdouble high_value = is_sensor_get_high_value(IS_SENSOR(self));
 
 		/* convert from current scale to new */
 		switch (priv->scale) {
 		case IS_TEMPERATURE_SENSOR_SCALE_CELSIUS:
 			value = celcius_to_fahrenheit(value);
 			alarm_value = celcius_to_fahrenheit(alarm_value);
+			low_value = celcius_to_fahrenheit(low_value);
+			high_value = celcius_to_fahrenheit(high_value);
 			break;
 		case IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT:
 			value = fahrenheit_to_celcius(value);
 			alarm_value = fahrenheit_to_celcius(alarm_value);
+			low_value = fahrenheit_to_celcius(low_value);
+			high_value = fahrenheit_to_celcius(high_value);
 			break;
 		case IS_TEMPERATURE_SENSOR_SCALE_INVALID:
 		case NUM_IS_TEMPERATURE_SENSOR_SCALE:
@@ -210,6 +218,8 @@ void is_temperature_sensor_set_scale(IsTemperatureSensor *self,
 		g_object_set(self,
 			     "value", value,
 			     "alarm-value", alarm_value,
+			     "low-value", low_value,
+			     "high-value", high_value,
 			     NULL);
 	}
 

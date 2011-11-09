@@ -328,6 +328,7 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 		sensor = is_temperature_sensor_new(sensor_path);
 		is_sensor_set_label(sensor, g_variant_get_string(model, NULL));
 		is_sensor_set_digits(sensor, 0);
+		is_sensor_set_icon_type(sensor, IS_ICON_TYPE_HDD);
 		/* only update every minute to avoid waking disk too much */
 		is_sensor_set_update_interval(sensor, 60);
 		g_signal_connect(sensor, "update-value",

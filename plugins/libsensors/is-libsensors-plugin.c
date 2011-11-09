@@ -202,18 +202,17 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			  chip_name->path);
 		goto out;
 	}
-	while ((main_feature = sensors_get_features(chip_name, &nr1)))
-	{
+	while ((main_feature = sensors_get_features(chip_name, &nr1))) {
 		gchar *label = NULL;
 		const sensors_subfeature *input_feature = NULL;
 		const sensors_subfeature *min_feature = NULL;
 		const sensors_subfeature *max_feature = NULL;
 		gchar *path;
 		IsSensor *sensor;
+		gdouble value, min, max;
 		int ret;
 
-		switch (main_feature->type)
-		{
+		switch (main_feature->type) {
 		case SENSORS_FEATURE_IN:
 			input_feature = sensors_get_subfeature(chip_name,
 							       main_feature,
@@ -237,6 +236,9 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			max_feature = sensors_get_subfeature(chip_name,
 							      main_feature,
 							      SENSORS_SUBFEATURE_TEMP_MAX);
+			min_feature = sensors_get_subfeature(chip_name,
+							      main_feature,
+							      SENSORS_SUBFEATURE_TEMP_MIN);
 			break;
 
 #if SENSORS_API_VERSION > 0x430
@@ -261,16 +263,14 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			continue;
 		}
 
-		if (!input_feature)
-		{
+		if (!input_feature) {
 			is_warning("libsensors", "could not get input subfeature for sensor '%s'",
 				  chip_name_string);
 			continue;
 		}
 		// if still here we got input feature so get label
 		label = sensors_get_label(chip_name, main_feature);
-		if (!label)
-		{
+		if (!label) {
 			is_warning("libsensors", "could not get label for sensor '%s'",
 				  chip_name_string);
 			continue;
@@ -281,7 +281,6 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 
 		g_assert(chip_name_string && label);
 
-		gdouble value;
 		/* ignore IO Errors since some chips report these sometimes
 		   intermittently */
 		if ((ret = sensors_get_value(chip_name, input_feature->number, &value)) < 0 &&
@@ -298,11 +297,13 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		if (main_feature->type == SENSORS_FEATURE_TEMP)
 		{
 			sensor = is_temperature_sensor_new(path);
+			is_sensor_set_icon_type(sensor, IS_ICON_TYPE_CPU);
 		} else if (main_feature->type == SENSORS_FEATURE_FAN) {
 			sensor = is_fan_sensor_new(path);
 			/* display fan readings to 0 decimal places like
 			   sensors command */
 			is_sensor_set_digits(sensor, 0);
+			is_sensor_set_icon_type(sensor, IS_ICON_TYPE_FAN);
 		} else {
 			/* is a voltage sensor */
 			sensor = is_sensor_new(path);
@@ -314,17 +315,23 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			is_sensor_set_units(sensor, _("V"));
 		}
 		is_sensor_set_label(sensor, label);
-		if (min_feature) {
-			gdouble min;
-			sensors_get_value(chip_name, min_feature->number, &min);
+		if (min_feature &&
+		    sensors_get_value(chip_name, min_feature->number, &min) == 0) {
 			is_sensor_set_alarm_mode(sensor, IS_SENSOR_ALARM_MODE_LOW);
 			is_sensor_set_alarm_value(sensor, min);
+			if (main_feature->type == SENSORS_FEATURE_TEMP)
+			{
+				is_sensor_set_low_value(sensor, min);
+			}
 		}
-		if (max_feature) {
-			gdouble max;
-			sensors_get_value(chip_name, max_feature->number, &max);
+		if (max_feature &&
+		    sensors_get_value(chip_name, max_feature->number, &max) == 0) {
 			is_sensor_set_alarm_mode(sensor, IS_SENSOR_ALARM_MODE_HIGH);
 			is_sensor_set_alarm_value(sensor, max);
+			if (main_feature->type == SENSORS_FEATURE_TEMP)
+			{
+				is_sensor_set_high_value(sensor, max);
+			}
 		}
 
 		/* take ownership of path pointer */
