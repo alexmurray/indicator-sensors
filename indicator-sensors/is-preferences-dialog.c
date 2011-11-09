@@ -266,6 +266,19 @@ manager_selection_changed(GtkTreeSelection *selection,
 }
 
 static void
+manager_row_activated(GtkTreeView *tree_view,
+		      GtkTreePath *path,
+		      GtkTreeViewColumn *column,
+		      IsPreferencesDialog *self)
+{
+	/* when row is activated. simply select it and emit the properties
+	   signal */
+	gtk_tree_selection_select_path(gtk_tree_view_get_selection(tree_view), path);
+	gtk_dialog_response(GTK_DIALOG(self),
+			    IS_PREFERENCES_DIALOG_RESPONSE_SENSOR_PROPERTIES);
+}
+
+static void
 is_preferences_dialog_set_property(GObject *object,
 				   guint property_id, const GValue *value, GParamSpec *pspec)
 {
@@ -289,6 +302,8 @@ is_preferences_dialog_set_property(GObject *object,
 				 G_CALLBACK(indicator_notify_display_mode),
 				 priv->display_mode_combo_box);
 		manager = is_indicator_get_manager(priv->indicator);
+		g_signal_connect(manager, "row-activated",
+				 G_CALLBACK(manager_row_activated), self);
 		/* control properties button sensitivity */
 		g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(manager)),
 				 "changed", G_CALLBACK(manager_selection_changed),
