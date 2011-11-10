@@ -123,19 +123,19 @@ is_nvidia_plugin_finalize(GObject *object)
 
 struct map_entry
 {
+	gint gpu_attribute;
 	gint target;
 	gint attribute;
 	const gchar *description;
 };
 
 static const struct map_entry map[] = {
-	{ NV_CTRL_TARGET_TYPE_GPU, NV_CTRL_GPU_CORE_TEMPERATURE, "CoreTemp" },
-	{ NV_CTRL_TARGET_TYPE_GPU, NV_CTRL_AMBIENT_TEMPERATURE, "AmbientTemp" },
-	{ NV_CTRL_TARGET_TYPE_THERMAL_SENSOR, NV_CTRL_THERMAL_SENSOR_READING, "ThermalSensor" },
-	{ NV_CTRL_TARGET_TYPE_COOLER, NV_CTRL_THERMAL_COOLER_LEVEL, "Fan" },
+	{ NV_CTRL_BINARY_DATA_THERMAL_SENSORS_USED_BY_GPU,
+	  NV_CTRL_TARGET_TYPE_THERMAL_SENSOR, NV_CTRL_THERMAL_SENSOR_READING,
+	  "ThermalSensor" },
+	{ NV_CTRL_BINARY_DATA_COOLERS_USED_BY_GPU,
+	  NV_CTRL_TARGET_TYPE_COOLER, NV_CTRL_THERMAL_COOLER_LEVEL, "Fan" },
 };
-
-#define NVIDIA_PATH_PREFIX "nvidia/GPU"
 
 static void
 update_sensor_value(IsSensor *sensor,
@@ -144,22 +144,24 @@ update_sensor_value(IsSensor *sensor,
 	IsNvidiaPluginPrivate *priv;
 	const gchar *path;
 	guint i;
-	gint n;
 
 	priv = self->priv;
 
 	path = is_sensor_get_path(sensor);
-	n = g_ascii_strtoll(path + strlen(NVIDIA_PATH_PREFIX), NULL, 10);
 
 	for (i = 0; i < G_N_ELEMENTS(map); i++) {
 		Bool ret;
 		int value;
+		int idx;
 		if (g_strrstr(path, map[i].description) == NULL) {
 			continue;
 		}
+		idx = g_ascii_strtoll(g_strrstr(path, map[i].description) +
+				      strlen(map[i].description), NULL, 10);
+
 		ret = XNVCTRLQueryTargetAttribute(priv->display,
 						  map[i].target,
-						  n,
+						  idx,
 						  0,
 						  map[i].attribute,
 						  &value);
@@ -190,8 +192,8 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 	IsNvidiaPluginPrivate *priv = self->priv;
 	Bool ret;
 	int event_base, error_base;
-	guint i;
 	gint n;
+	int i;
 
 	/* search for sensors and add them to manager */
 	if (!priv->inited) {
@@ -208,35 +210,66 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 		goto out;
 	}
 
-	for (i = 0; i < G_N_ELEMENTS(map); i++) {
-		ret = XNVCTRLQueryTargetCount(priv->display,
-					      map[i].target,
-					      &n);
-		if (ret) {
-			int j;
-			for (j = 0; j < n; j++) {
+	/* get number of GPUs, then for each GPU get any thermal_sensors and
+	   coolers used by it */
+	ret = XNVCTRLQueryTargetCount(priv->display,
+				      NV_CTRL_TARGET_TYPE_GPU,
+				      &n);
+	if (!ret) {
+		goto out;
+	}
+
+	for (i = 0; i < n; i++) {
+		guint j;
+		char *label = NULL;
+		ret = XNVCTRLQueryTargetStringAttribute(priv->display,
+							NV_CTRL_TARGET_TYPE_GPU,
+							i,
+							0,
+							NV_CTRL_STRING_PRODUCT_NAME,
+							&label);
+		for (j = 0; j < G_N_ELEMENTS(map); j++) {
+			int32_t *data;
+			int len;
+			int k;
+
+			ret = XNVCTRLQueryTargetBinaryData(priv->display,
+							   NV_CTRL_TARGET_TYPE_GPU,
+							   i,
+							   0,
+							   map[j].gpu_attribute,
+							   (unsigned char **)&data,
+							   &len);
+			if (!ret) {
+				continue;
+			}
+			/* data[0] contains number of sensors, and each sensor
+			   indice follows */
+			for (k = 1; k <= data[0]; k++) {
+				int idx = data[k];
 				gint value;
 				IsSensor *sensor;
-				gchar *path, *label;
+				gchar *path;
 
 				ret = XNVCTRLQueryTargetAttribute(priv->display,
-								  map[i].target,
-								  j,
+								  map[j].target,
+								  idx,
 								  0,
-								  map[i].attribute,
+								  map[j].attribute,
 								  &value);
 				if (!ret) {
 					continue;
 				}
 
-				path = g_strdup_printf(NVIDIA_PATH_PREFIX "%d%s", j, map[i].description);
-				label = g_strdup_printf("GPU%d %s", j, map[i].description);
-				if (map[i].target == NV_CTRL_TARGET_TYPE_COOLER) {
+				path = g_strdup_printf("nvidia/%s%d", map[j].description, idx);
+				if (map[j].target == NV_CTRL_TARGET_TYPE_COOLER) {
 					/* fan sensors are given as a percentage
 					   from 0 to 100 */
 					sensor = is_sensor_new(path);
 					is_sensor_set_icon(sensor, IS_STOCK_FAN);
 					is_sensor_set_units(sensor, "%");
+					is_sensor_set_low_value(sensor, 0.0);
+					is_sensor_set_high_value(sensor, 100.0);
 				} else {
 					sensor = is_temperature_sensor_new(path);
 					is_sensor_set_icon(sensor, IS_STOCK_GPU);
@@ -249,11 +282,12 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 						 G_CALLBACK(update_sensor_value),
 						 self);
 				is_manager_add_sensor(priv->manager, sensor);
-				g_free(label);
 				g_free(path);
 			}
+			free(data);
 		}
-        }
+		free(label);
+	}
 
 out:
 	return;
