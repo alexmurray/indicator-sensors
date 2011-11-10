@@ -303,7 +303,6 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			/* display fan readings to 0 decimal places like
 			   sensors command */
 			is_sensor_set_digits(sensor, 0);
-			is_sensor_set_icon(sensor, IS_STOCK_FAN);
 		} else {
 			/* is a voltage sensor */
 			sensor = is_sensor_new(path);

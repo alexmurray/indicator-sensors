@@ -38,5 +38,6 @@ is_fan_sensor_new(const gchar *path)
 	return g_object_new(IS_TYPE_FAN_SENSOR,
 			    "path", path,
 			    "units", _("RPM"),
+			    "icon", IS_STOCK_FAN,
 			    NULL);
 }
