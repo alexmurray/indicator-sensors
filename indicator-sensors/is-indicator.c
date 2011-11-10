@@ -201,12 +201,16 @@ is_indicator_finalize(GObject *object)
 
 static void prefs_action(GtkAction *action,
 			 IsIndicator *self);
+static void about_action(GtkAction *action,
+			 IsIndicator *self);
 static void quit_action(GtkAction *action,
 			IsIndicator *self);
 
 static GtkActionEntry entries[] = {
 	{ "Preferences", "application-preferences", N_("Preferences…"), NULL,
 	  N_("Preferences…"), G_CALLBACK(prefs_action) },
+	{ "About", "about", N_("About…"), NULL,
+	  N_("About…"), G_CALLBACK(about_action) },
 	{ "Quit", GTK_STOCK_QUIT, N_("Quit"), NULL,
 	  N_("Quit"), G_CALLBACK(quit_action) },
 };
@@ -216,6 +220,7 @@ static const gchar *ui_info =
 "<ui>"
 "  <popup name='Indicator'>"
 "    <menuitem action='Preferences' />"
+"    <menuitem action='About' />"
 "    <menuitem action='Quit' />"
 "  </popup>"
 "</ui>";
@@ -262,6 +267,26 @@ static void prefs_action(GtkAction *action,
 		gtk_widget_show_all(priv->prefs_dialog);
 	}
 	gtk_window_present(GTK_WINDOW(priv->prefs_dialog));
+}
+
+static void about_action(GtkAction *action,
+			 IsIndicator *self)
+{
+	const gchar * const authors[] =
+	{
+		"Alex Murray <murray.alex@gmail.com>",
+		NULL
+	};
+
+	gtk_show_about_dialog(NULL,
+			      "program-name", _("Hardware Sensors Indicator"),
+			      "authors", authors,
+			      "comments", _("Application Indicator for Unity showing hardware sensors."),
+			      "copyright", "Copyright © 2011 Alex Murray",
+			      "logo-icon-name", "indicator-sensors",
+			      "version", VERSION,
+			      "website", "https://launchpad.net/indicator-sensors",
+			      NULL);
 }
 
 static void quit_action(GtkAction *action,
@@ -618,12 +643,7 @@ is_indicator_new(IsManager *manager)
 
 	AppIndicator *self = g_object_new(IS_TYPE_INDICATOR,
 					  "id", PACKAGE,
-					  /* seems we have to specify an icon
-					     for the indicator to display label,
-					     but since we don't actually want an
-					     icon displayed for now, set to a
-					     non-existent icon name */
-					  "icon-name", "no-icon",
+					  "icon-name", "indicator-sensors",
 					  "category", "Hardware",
 					  "manager", manager,
 					  NULL);
