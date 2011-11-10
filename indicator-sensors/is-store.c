@@ -344,7 +344,7 @@ static void _is_store_get_value(GtkTreeModel *tree_model,
 
 	case IS_STORE_COL_ICON:
 		g_value_set_string(value, (entry->sensor ?
-					   is_sensor_get_base_icon_name(entry->sensor) :
+					   is_sensor_get_icon(entry->sensor) :
 					   NULL));
 		break;
 

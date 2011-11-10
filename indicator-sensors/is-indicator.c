@@ -24,6 +24,7 @@
 #include "is-preferences-dialog.h"
 #include "is-sensor-dialog.h"
 #include "is-log.h"
+#include <math.h>
 #include <glib/gi18n.h>
 
 G_DEFINE_TYPE (IsIndicator, is_indicator, APP_INDICATOR_TYPE);
@@ -269,6 +270,163 @@ static void quit_action(GtkAction *action,
 	gtk_main_quit();
 }
 
+
+typedef enum {
+        VERY_LOW_SENSOR_VALUE = 0,
+        LOW_SENSOR_VALUE,
+        NORMAL_SENSOR_VALUE,
+        HIGH_SENSOR_VALUE,
+        VERY_HIGH_SENSOR_VALUE
+} SensorValueRange;
+
+/* Cast a given value to a valid SensorValueRange */
+#define SENSOR_VALUE_RANGE(x) ((SensorValueRange)(CLAMP(x, VERY_LOW_SENSOR_VALUE, VERY_HIGH_SENSOR_VALUE)))
+
+static gdouble sensor_value_range_normalised(gdouble value,
+					     gdouble low_value,
+					     gdouble high_value) {
+        return ((value - low_value)/(high_value - low_value));
+}
+
+static SensorValueRange sensor_value_range(gdouble sensor_value,
+					   gdouble low_value,
+					   gdouble high_value) {
+        gdouble range;
+        range = sensor_value_range_normalised(sensor_value, low_value, high_value)*(gdouble)(VERY_HIGH_SENSOR_VALUE);
+
+        /* check if need to round up, otherwise let int conversion
+         * round down for us and make sure it is a valid range
+         * value */
+        return SENSOR_VALUE_RANGE(((gint)range + ((range - ((gint)range)) >= 0.5)));
+}
+
+#define DEFAULT_ICON_SIZE 22
+
+#define NUM_OVERLAY_ICONS 5
+
+static const gchar * const value_overlay_icons[NUM_OVERLAY_ICONS] = {
+	"very-low-value-icon",
+	"low-value-icon",
+	"normal-value-icon",
+	"high-value-icon",
+	"very-high-value-icon"
+};
+
+static gchar *
+icon_cache_dir()
+{
+	return g_build_path(G_DIR_SEPARATOR_S, g_get_user_cache_dir(),
+			    "indicator-sensors", "icons", NULL);
+}
+
+static gboolean
+prepare_cache_icon(const gchar * const base_icon_name,
+		   const gchar * const overlay_name,
+		   const gchar * const icon_path,
+		   GError **error)
+{
+	GdkPixbuf *base_icon, *overlay_icon, *new_icon;
+	gchar *icon_dir;
+	GtkIconTheme *icon_theme;
+	gboolean ret;
+
+	ret = g_file_test(icon_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR);
+
+	if (ret) {
+		goto out;
+	}
+
+	icon_theme = gtk_icon_theme_get_default();
+	base_icon = gtk_icon_theme_load_icon(icon_theme,
+					     base_icon_name,
+					     DEFAULT_ICON_SIZE,
+					     DEFAULT_ICON_SIZE,
+					     error);
+	if (!base_icon)
+	{
+		goto out;
+	}
+	overlay_icon = gtk_icon_theme_load_icon(icon_theme,
+						overlay_name,
+						DEFAULT_ICON_SIZE,
+						DEFAULT_ICON_SIZE,
+						error);
+
+	if (!overlay_icon) {
+		g_object_unref(base_icon);
+		goto out;
+	}
+
+	new_icon = gdk_pixbuf_copy(base_icon);
+	gdk_pixbuf_composite(overlay_icon, new_icon,
+			     0, 0,
+			     DEFAULT_ICON_SIZE, DEFAULT_ICON_SIZE,
+			     0, 0,
+			     1.0, 1.0,
+			     GDK_INTERP_BILINEAR,
+			     255);
+	g_object_unref(overlay_icon);
+
+	/* ensure path to icon exists */
+	icon_dir = g_path_get_dirname(icon_path);
+	g_mkdir_with_parents(icon_dir, 0755);
+	g_free(icon_dir);
+
+	/* write out icon */
+	ret = gdk_pixbuf_save(new_icon, icon_path, "png", error, NULL);
+	g_object_unref(new_icon);
+	g_object_unref(base_icon);
+
+out:
+	return ret;
+}
+
+static gchar *
+sensor_icon_path(IsSensor *sensor)
+{
+	gdouble value, low, high;
+	SensorValueRange value_range;
+	const gchar *base_name, *overlay_name;
+	gchar *icon_name, *icon_path = NULL, *cache_dir;
+	gboolean ret;
+	GError *error = NULL;
+
+	base_name = is_sensor_get_icon(sensor);
+	value = is_sensor_get_value(sensor);
+	low = is_sensor_get_low_value(sensor);
+	high = is_sensor_get_high_value(sensor);
+
+	/* no range - return base icon */
+	if (fabs(low - high) <= DBL_EPSILON) {
+		/* use base_name */
+		icon_path = g_strdup(base_name);
+		goto out;
+	}
+
+	value_range = sensor_value_range(value, low, high);
+	overlay_name = value_overlay_icons[value_range];
+	cache_dir = icon_cache_dir();
+	icon_name = g_strdup_printf("%s-%s", base_name, overlay_name);
+	icon_path = g_build_filename(cache_dir, icon_name, NULL);
+	g_free(icon_name);
+	g_free(cache_dir);
+
+	/* prepare cache icon */
+	ret = prepare_cache_icon(base_name, overlay_name, icon_path, &error);
+	if (!ret) {
+		is_warning("indicator", "Couldn't create cache icon %s from base %s and overlay %s: %s",
+			   icon_path, base_name, overlay_name, error->message);
+		g_error_free(error);
+		/* return base_name instead */
+		g_free(icon_path);
+		icon_path = g_strdup(base_name);
+		goto out;
+	}
+
+out:
+	return icon_path;
+}
+
 static void
 update_sensor_menu_item_label(IsIndicator *self,
 			      IsSensor *sensor,
@@ -284,7 +442,7 @@ update_sensor_menu_item_label(IsIndicator *self,
 	gtk_menu_item_set_label(menu_item, text);
 
 	if (g_strcmp0(priv->primary_sensor, is_sensor_get_path(sensor)) == 0) {
-		gchar *icon_path = is_sensor_get_icon_path(sensor);
+		gchar *icon_path = sensor_icon_path(sensor);
 		app_indicator_set_icon_full(APP_INDICATOR(self), icon_path,
 						is_sensor_get_label(sensor));
 		g_free(icon_path);

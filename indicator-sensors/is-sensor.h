@@ -71,17 +71,14 @@ typedef enum
 } IsSensorAlarmMode;
 
 /* device icons */
-typedef enum {
-        IS_ICON_TYPE_CPU = 0,
-        IS_ICON_TYPE_HDD,
-        IS_ICON_TYPE_BATTERY,
-        IS_ICON_TYPE_MEMORY,
-        IS_ICON_TYPE_GPU,
-        IS_ICON_TYPE_GENERIC,
-        IS_ICON_TYPE_FAN,
-        IS_ICON_TYPE_CASE,
-        NUM_IS_ICON_TYPE,
-} IsSensorIconType;
+#define IS_STOCK_CPU "indicator-sensors-cpu"
+#define IS_STOCK_DISK "indicator-sensors-disk"
+#define IS_STOCK_BATTERY "indicator-sensors-battery"
+#define IS_STOCK_MEMORY "indicator-sensors-memory"
+#define IS_STOCK_GPU "indicator-sensors-gpu"
+#define IS_STOCK_CHIP "indicator-sensors-chip"
+#define IS_STOCK_FAN "indicator-sensors-fan"
+#define IS_STOCK_CASE "indicator-sensors-case"
 
 GType is_sensor_get_type(void) G_GNUC_CONST;
 IsSensor *is_sensor_new(const gchar *path);
@@ -103,10 +100,9 @@ void is_sensor_set_alarm_mode(IsSensor *self, IsSensorAlarmMode mode);
 guint is_sensor_get_update_interval(IsSensor *self);
 void is_sensor_set_update_interval(IsSensor *self, guint update_interval);
 gboolean is_sensor_get_alarmed(IsSensor *self);
-IsSensorIconType is_sensor_get_icon_type(IsSensor *self);
-void is_sensor_set_icon_type(IsSensor *self, IsSensorIconType icon);
+const gchar *is_sensor_get_icon(IsSensor *self);
+void is_sensor_set_icon(IsSensor *self, const gchar *icon);
 gchar* is_sensor_get_icon_path(IsSensor *self);
-gchar* is_sensor_get_base_icon_name(IsSensor *self);
 gdouble is_sensor_get_low_value(IsSensor *self);
 void is_sensor_set_low_value(IsSensor *self, gdouble value);
 gdouble is_sensor_get_high_value(IsSensor *self);

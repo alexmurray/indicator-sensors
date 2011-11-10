@@ -305,7 +305,7 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
 			path = g_strdup_printf("%s%d%s", ATICONFIG_PATH_PREFIX, i, _("Temperature"));
 			sensor = is_temperature_sensor_new(path);
 			is_sensor_set_label(sensor, name);
-			is_sensor_set_icon_type(sensor, IS_ICON_TYPE_GPU);
+			is_sensor_set_icon(sensor, IS_STOCK_GPU);
 			g_signal_connect(sensor, "update-value",
 					 G_CALLBACK(update_sensor_value),
 					 self);
@@ -326,7 +326,7 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
 			/* fan sensors are given as a percentage from 0 to 100 */
 			is_sensor_set_units(sensor, "%");
 			is_sensor_set_digits(sensor, 0);
-			is_sensor_set_icon_type(sensor, IS_ICON_TYPE_FAN);
+			is_sensor_set_icon(sensor, IS_STOCK_FAN);
 			g_signal_connect(sensor, "update-value",
 					 G_CALLBACK(update_sensor_value),
 					 self);

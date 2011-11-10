@@ -14,7 +14,7 @@ deviceicons_DATA = \
 	indicator-sensors-cpu.png \
 	indicator-sensors-gpu.png \
 	indicator-sensors-fan.png \
-	indicator-sensors-drive-harddisk.png \
+	indicator-sensors-disk.png \
 	indicator-sensors-memory.png
 
 appicondir = $(datadir)/icons/hicolor/48x48/apps

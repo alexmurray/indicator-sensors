@@ -297,13 +297,13 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 		if (main_feature->type == SENSORS_FEATURE_TEMP)
 		{
 			sensor = is_temperature_sensor_new(path);
-			is_sensor_set_icon_type(sensor, IS_ICON_TYPE_CPU);
+			is_sensor_set_icon(sensor, IS_STOCK_CPU);
 		} else if (main_feature->type == SENSORS_FEATURE_FAN) {
 			sensor = is_fan_sensor_new(path);
 			/* display fan readings to 0 decimal places like
 			   sensors command */
 			is_sensor_set_digits(sensor, 0);
-			is_sensor_set_icon_type(sensor, IS_ICON_TYPE_FAN);
+			is_sensor_set_icon(sensor, IS_STOCK_FAN);
 		} else {
 			/* is a voltage sensor */
 			sensor = is_sensor_new(path);
@@ -313,6 +313,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 			/* translators: V is the unit for Voltage, replace with
 			   appropriate unit */
 			is_sensor_set_units(sensor, _("V"));
+			is_sensor_set_icon(sensor, IS_STOCK_CHIP);
 		}
 		is_sensor_set_label(sensor, label);
 		if (min_feature &&
