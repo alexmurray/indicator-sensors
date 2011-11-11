@@ -2,7 +2,7 @@ SUBDIRS = data pixmaps plugins po indicator-sensors
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = config.rpath m4/ChangeLog
+EXTRA_DIST = config.rpath ChangeLog
 
 dist-hook:
 	@if test -d "$(srcdir)/.git"; \
