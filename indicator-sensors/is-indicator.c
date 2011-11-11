@@ -35,6 +35,9 @@ static void is_indicator_get_property(GObject *object,
 				      guint property_id, GValue *value, GParamSpec *pspec);
 static void is_indicator_set_property(GObject *object,
 				      guint property_id, const GValue *value, GParamSpec *pspec);
+static void is_indicator_connection_changed(AppIndicator *indicator,
+					    gboolean connected,
+					    gpointer data);
 static void sensor_enabled(IsManager *manager,
 			   IsSensor *sensor,
 			   gint position,
@@ -42,13 +45,14 @@ static void sensor_enabled(IsManager *manager,
 static void sensor_disabled(IsManager *manager,
 			   IsSensor *sensor,
 			   IsIndicator *self);
-/* signal enum */
-enum {
-	SIGNAL_DUMMY,
-	LAST_SIGNAL
-};
+static void sensor_added(IsManager *manager,
+			 IsSensor *sensor,
+			 IsIndicator *self);
 
-static guint signals[LAST_SIGNAL] = {0};
+static void
+update_sensor_menu_item_label(IsIndicator *self,
+			      IsSensor *sensor,
+			      GtkMenuItem *menu_item);
 
 /* properties */
 enum {
@@ -75,6 +79,7 @@ static void
 is_indicator_class_init(IsIndicatorClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+	AppIndicatorClass *indicator_class = APP_INDICATOR_CLASS(klass);
 
 	g_type_class_add_private(klass, sizeof(IsIndicatorPrivate));
 
@@ -82,6 +87,7 @@ is_indicator_class_init(IsIndicatorClass *klass)
 	gobject_class->set_property = is_indicator_set_property;
 	gobject_class->dispose = is_indicator_dispose;
 	gobject_class->finalize = is_indicator_finalize;
+	indicator_class->connection_changed = is_indicator_connection_changed;
 
 	properties[PROP_MANAGER] = g_param_spec_object("manager", "manager property",
 						       "manager property blurp.",
@@ -106,14 +112,6 @@ is_indicator_class_init(IsIndicatorClass *klass)
 							 G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_DISPLAY_MODE,
 					properties[PROP_DISPLAY_MODE]);
-
-	signals[SIGNAL_DUMMY] = g_signal_new("dummy",
-					     G_OBJECT_CLASS_TYPE(klass),
-					     G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
-					     0,
-					     NULL, NULL,
-					     g_cclosure_marshal_VOID__VOID,
-					     G_TYPE_NONE, 0);
 
 }
 
@@ -161,6 +159,8 @@ is_indicator_set_property(GObject *object,
 				 G_CALLBACK(sensor_enabled), self);
 		g_signal_connect(priv->manager, "sensor-disabled",
 				 G_CALLBACK(sensor_disabled), self);
+		g_signal_connect(priv->manager, "sensor-added",
+				 G_CALLBACK(sensor_added), self);
 		break;
 	case PROP_PRIMARY_SENSOR:
 		is_indicator_set_primary_sensor(self, g_value_get_string(value));
@@ -174,6 +174,37 @@ is_indicator_set_property(GObject *object,
 	}
 }
 
+static void is_indicator_connection_changed(AppIndicator *indicator,
+					    gboolean connected,
+					    gpointer data)
+{
+	IsIndicator *self = IS_INDICATOR(indicator);
+	IsIndicatorPrivate *priv = self->priv;
+	IsSensor *sensor;
+	GtkMenuItem *item;
+
+	if (!priv->primary_sensor) {
+		goto out;
+	}
+	/* force an update of the primary sensor to reset icon etc */
+	sensor = is_manager_get_sensor(priv->manager,
+				       priv->primary_sensor);
+	if (!sensor) {
+		goto out;
+	}
+
+	item = (GtkMenuItem *)(g_object_get_data(G_OBJECT(sensor),
+						 "menu-item"));
+	if (!item) {
+		g_object_unref(sensor);
+		goto out;
+	}
+	update_sensor_menu_item_label(self, sensor, item);
+	g_object_unref(sensor);
+
+out:
+	return;
+}
 
 static void
 is_indicator_dispose(GObject *object)
@@ -458,8 +489,9 @@ update_sensor_menu_item_label(IsIndicator *self,
 			      GtkMenuItem *menu_item)
 {
 	IsIndicatorPrivate *priv = self->priv;
+	gchar *text;
 
-	gchar *text = g_strdup_printf("%s %2.*f%s",
+	text = g_strdup_printf("%s %2.*f%s",
 				      is_sensor_get_label(sensor),
 				      is_sensor_get_digits(sensor),
 				      is_sensor_get_value(sensor),
@@ -467,9 +499,20 @@ update_sensor_menu_item_label(IsIndicator *self,
 	gtk_menu_item_set_label(menu_item, text);
 
 	if (g_strcmp0(priv->primary_sensor, is_sensor_get_path(sensor)) == 0) {
-		gchar *icon_path = sensor_icon_path(sensor);
+		gboolean connected;
+		gchar *icon_path;
+
+		g_object_get(self, "connected", &connected, NULL);
+
+		if (!connected) {
+			app_indicator_set_icon_full(APP_INDICATOR(self), PACKAGE,
+						    is_sensor_get_label(sensor));
+			goto out;
+		}
+
+		icon_path = sensor_icon_path(sensor);
 		app_indicator_set_icon_full(APP_INDICATOR(self), icon_path,
-						is_sensor_get_label(sensor));
+					    is_sensor_get_label(sensor));
 		g_free(icon_path);
 
 		/* set display based on current display_mode */
@@ -493,6 +536,7 @@ update_sensor_menu_item_label(IsIndicator *self,
 					 APP_INDICATOR_STATUS_ATTENTION :
 					 APP_INDICATOR_STATUS_ACTIVE);
 	}
+out:
 	g_free(text);
 }
 
@@ -550,7 +594,7 @@ sensor_disabled(IsManager *manager,
 	if (g_strcmp0(priv->primary_sensor, is_sensor_get_path(sensor)) != 0) {
 		goto out;
 	}
-	if (priv->menu_items == NULL) {
+	if (!priv->menu_items) {
 		app_indicator_set_label(APP_INDICATOR(self),
 					_("No active sensors"),
 					_("No active sensors"));
@@ -633,6 +677,21 @@ sensor_enabled(IsManager *manager,
 	update_sensor_menu_item_label(self, sensor, GTK_MENU_ITEM(menu_item));
 }
 
+static void
+sensor_added(IsManager *manager,
+	     IsSensor *sensor,
+	     IsIndicator *self)
+{
+	/* if a sensor has been added and we haven't yet got any enabled sensors
+	   to display (and hence no primary sensor), change our text to show
+	   this */
+	if (!self->priv->menu_items) {
+		app_indicator_set_label(APP_INDICATOR(self),
+					_("No active sensors"),
+					_("No active sensors"));
+	}
+}
+
 static IsIndicator *
 is_indicator_new(IsManager *manager)
 {
@@ -643,7 +702,7 @@ is_indicator_new(IsManager *manager)
 
 	AppIndicator *self = g_object_new(IS_TYPE_INDICATOR,
 					  "id", PACKAGE,
-					  "icon-name", "indicator-sensors",
+					  "icon-name", PACKAGE,
 					  "category", "Hardware",
 					  "manager", manager,
 					  NULL);
