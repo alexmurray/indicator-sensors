@@ -268,7 +268,7 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
 		goto out;
 	}
 
-	regex = g_regex_new("^.*([0-9]+)\\. ([0-9][0-9]:[0-9][0-9]\\.[0-9]) (.*)$",
+	regex = g_regex_new("^.*([0-9]+)\\. ([0-9][0-9]:[0-9][0-9]\\.[0-9])\\s*(.*?)\\s*$",
 			    G_REGEX_MULTILINE, 0, &error);
 	if (!regex) {
 		is_warning("aticonfig", "Error compiling regex to detect listed sensors: %s",
