@@ -58,7 +58,7 @@ update_sensor_menu_item_label(IsIndicator *self,
 enum {
 	PROP_MANAGER = 1,
 	PROP_PRIMARY_SENSOR,
-	PROP_DISPLAY_MODE,
+	PROP_DISPLAY_FLAGS,
 	LAST_PROPERTY
 };
 
@@ -68,7 +68,7 @@ struct _IsIndicatorPrivate
 {
 	IsManager *manager;
 	gchar *primary_sensor;
-	IsIndicatorDisplayMode display_mode;
+	IsIndicatorDisplayFlags display_flags;
 	GSList *menu_items;
 	GtkWidget *prefs_dialog;
 };
@@ -103,15 +103,15 @@ is_indicator_class_init(IsIndicatorClass *klass)
 	g_object_class_install_property(gobject_class, PROP_PRIMARY_SENSOR,
 					properties[PROP_PRIMARY_SENSOR]);
 
-	properties[PROP_DISPLAY_MODE] = g_param_spec_int("display-mode",
-							 "display mode property",
-							 "display mode property blurp.",
-							 IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY,
-							 NUM_IS_INDICATOR_DISPLAY_MODES,
-							 IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE,
-							 G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-	g_object_class_install_property(gobject_class, PROP_DISPLAY_MODE,
-					properties[PROP_DISPLAY_MODE]);
+	properties[PROP_DISPLAY_FLAGS] = g_param_spec_int("display-flags",
+							  "display flags property",
+							  "display flags property blurp.",
+							  IS_INDICATOR_DISPLAY_VALUE,
+							  IS_INDICATOR_DISPLAY_ALL,
+							  IS_INDICATOR_DISPLAY_ALL,
+							  G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_DISPLAY_FLAGS,
+					properties[PROP_DISPLAY_FLAGS]);
 
 }
 
@@ -135,8 +135,8 @@ is_indicator_get_property(GObject *object,
 	case PROP_PRIMARY_SENSOR:
 		g_value_set_string(value, is_indicator_get_primary_sensor(self));
 		break;
-	case PROP_DISPLAY_MODE:
-		g_value_set_int(value, is_indicator_get_display_mode(self));
+	case PROP_DISPLAY_FLAGS:
+		g_value_set_int(value, is_indicator_get_display_flags(self));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -165,8 +165,8 @@ is_indicator_set_property(GObject *object,
 	case PROP_PRIMARY_SENSOR:
 		is_indicator_set_primary_sensor(self, g_value_get_string(value));
 		break;
-	case PROP_DISPLAY_MODE:
-		is_indicator_set_display_mode(self, g_value_get_int(value));
+	case PROP_DISPLAY_FLAGS:
+		is_indicator_set_display_flags(self, g_value_get_int(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -492,52 +492,57 @@ update_sensor_menu_item_label(IsIndicator *self,
 	gchar *text;
 
 	text = g_strdup_printf("%s %2.*f%s",
-				      is_sensor_get_label(sensor),
-				      is_sensor_get_digits(sensor),
-				      is_sensor_get_value(sensor),
-				      is_sensor_get_units(sensor));
+			       is_sensor_get_label(sensor),
+			       is_sensor_get_digits(sensor),
+			       is_sensor_get_value(sensor),
+			       is_sensor_get_units(sensor));
 	gtk_menu_item_set_label(menu_item, text);
+	g_free(text);
+	text = NULL;
 
 	if (g_strcmp0(priv->primary_sensor, is_sensor_get_path(sensor)) == 0) {
 		gboolean connected;
-		gchar *icon_path;
 
 		g_object_get(self, "connected", &connected, NULL);
-
+		/* using fallback so just set icon */
 		if (!connected) {
 			app_indicator_set_icon_full(APP_INDICATOR(self), PACKAGE,
 						    is_sensor_get_label(sensor));
-			goto out;
+			return;
 		}
 
-		icon_path = sensor_icon_path(sensor);
-		app_indicator_set_icon_full(APP_INDICATOR(self), icon_path,
-					    is_sensor_get_label(sensor));
-		g_free(icon_path);
-
-		/* set display based on current display_mode */
-		switch (priv->display_mode) {
-		case IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY:
-			app_indicator_set_label(APP_INDICATOR(self),
-						text + strlen(is_sensor_get_label(sensor)) + 1,
-						text + strlen(is_sensor_get_label(sensor)) + 1);
-			break;
-		case IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE:
-			app_indicator_set_label(APP_INDICATOR(self),
-						text, text);
-			break;
-		case IS_INDICATOR_DISPLAY_MODE_INVALID:
-		case NUM_IS_INDICATOR_DISPLAY_MODES:
-		default:
-			g_assert_not_reached();
+		if (priv->display_flags & IS_INDICATOR_DISPLAY_VALUE) {
+			text = g_strdup_printf("%2.*f%s",
+					       is_sensor_get_digits(sensor),
+					       is_sensor_get_value(sensor),
+					       is_sensor_get_units(sensor));
 		}
+		if (priv->display_flags & IS_INDICATOR_DISPLAY_LABEL) {
+			/* join label to existing text - if text is NULL this
+			   will just show label */
+			text = g_strjoin(" ",
+					 is_sensor_get_label(sensor),
+					 text, NULL);
+		}
+		if (priv->display_flags & IS_INDICATOR_DISPLAY_ICON) {
+			gchar *icon_path = sensor_icon_path(sensor);
+			app_indicator_set_icon_full(APP_INDICATOR(self), icon_path,
+						    is_sensor_get_label(sensor));
+			g_free(icon_path);
+		} else {
+			/* set the empty string to show no icon */
+			app_indicator_set_icon_full(APP_INDICATOR(self), "",
+						    is_sensor_get_label(sensor));
+
+		}
+		app_indicator_set_label(APP_INDICATOR(self), text, text);
+		g_free(text);
 		app_indicator_set_status(APP_INDICATOR(self),
 					 is_sensor_get_alarmed(sensor) ?
 					 APP_INDICATOR_STATUS_ATTENTION :
 					 APP_INDICATOR_STATUS_ACTIVE);
 	}
-out:
-	g_free(text);
+
 }
 
 static void
@@ -813,25 +818,22 @@ IsManager *is_indicator_get_manager(IsIndicator *self)
 	return self->priv->manager;
 }
 
-void is_indicator_set_display_mode(IsIndicator *self,
-				   IsIndicatorDisplayMode display_mode)
+void is_indicator_set_display_flags(IsIndicator *self,
+				    IsIndicatorDisplayFlags display_flags)
 {
 	IsIndicatorPrivate *priv;
 
 	g_return_if_fail(IS_IS_INDICATOR(self));
-	g_return_if_fail(display_mode > IS_INDICATOR_DISPLAY_MODE_INVALID &&
-			 display_mode < NUM_IS_INDICATOR_DISPLAY_MODES);
 
 	priv = self->priv;
 
-	if (display_mode != priv->display_mode) {
+	if (display_flags != priv->display_flags) {
 		IsSensor *sensor;
 		GtkMenuItem *item;
 
-		priv->display_mode = display_mode;
-
+		priv->display_flags = display_flags;
 		g_object_notify_by_pspec(G_OBJECT(self),
-					 properties[PROP_DISPLAY_MODE]);
+					 properties[PROP_DISPLAY_FLAGS]);
 
 		if (priv->primary_sensor) {
 			/* redisplay primary sensor */
@@ -847,11 +849,10 @@ void is_indicator_set_display_mode(IsIndicator *self,
 	}
 }
 
-IsIndicatorDisplayMode
-is_indicator_get_display_mode(IsIndicator *self)
+IsIndicatorDisplayFlags
+is_indicator_get_display_flags(IsIndicator *self)
 {
-	g_return_val_if_fail(IS_IS_INDICATOR(self),
-			     IS_INDICATOR_DISPLAY_MODE_INVALID);
+	g_return_val_if_fail(IS_IS_INDICATOR(self), 0);
 
-	return self->priv->display_mode;
+	return self->priv->display_flags;
 }

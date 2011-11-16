@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2011 Alex Murray <murray.alex@gmail.com>
-
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,11 +61,13 @@ struct _IsIndicator
 };
 
 typedef enum {
-	IS_INDICATOR_DISPLAY_MODE_INVALID = 0,
-	IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY,
-	IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE,
-	NUM_IS_INDICATOR_DISPLAY_MODES
-} IsIndicatorDisplayMode;
+	IS_INDICATOR_DISPLAY_VALUE = (1 << 0),
+	IS_INDICATOR_DISPLAY_LABEL = (1 << 1),
+	IS_INDICATOR_DISPLAY_ICON = (1 << 2),
+	IS_INDICATOR_DISPLAY_ALL = (IS_INDICATOR_DISPLAY_VALUE |
+				    IS_INDICATOR_DISPLAY_LABEL |
+				    IS_INDICATOR_DISPLAY_ICON)
+} IsIndicatorDisplayFlags;
 
 GType is_indicator_get_type(void) G_GNUC_CONST;
 IsIndicator *is_indicator_get_default(void);
@@ -74,9 +75,9 @@ IsManager *is_indicator_get_manager(IsIndicator *self);
 void is_indicator_set_primary_sensor(IsIndicator *self,
 				     const gchar *primary_sensor);
 const gchar *is_indicator_get_primary_sensor(IsIndicator *self);
-void is_indicator_set_display_mode(IsIndicator *self,
-				   IsIndicatorDisplayMode mode);
-IsIndicatorDisplayMode is_indicator_get_display_mode(IsIndicator *self);
+void is_indicator_set_display_flags(IsIndicator *self,
+				    IsIndicatorDisplayFlags flags);
+IsIndicatorDisplayFlags is_indicator_get_display_flags(IsIndicator *self);
 G_END_DECLS
 
 #endif /* __IS_INDICATOR_H__ */

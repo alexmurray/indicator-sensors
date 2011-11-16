@@ -130,8 +130,8 @@ is_gsettings_plugin_activate(PeasActivatable *activatable)
 	g_settings_bind(settings, "primary-sensor",
 			indicator, "primary-sensor",
 			G_SETTINGS_BIND_DEFAULT);
-	g_settings_bind(settings, "display-mode",
-			indicator, "display-mode",
+	g_settings_bind(settings, "display-flags",
+			indicator, "display-flags",
 			G_SETTINGS_BIND_DEFAULT);
 	g_object_set_data_full(G_OBJECT(indicator), "gsettings", settings,
 			       (GDestroyNotify)g_object_unref);

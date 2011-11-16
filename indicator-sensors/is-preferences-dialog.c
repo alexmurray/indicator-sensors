@@ -44,7 +44,9 @@ struct _IsPreferencesDialogPrivate
 	GtkWidget *autostart_check_button;
 	GtkWidget *celsius_radio_button;
 	GtkWidget *fahrenheit_radio_button;
-	GtkWidget *display_mode_combo_box;
+	GtkWidget *display_icon_check_button;
+	GtkWidget *display_label_check_button;
+	GtkWidget *display_value_check_button;
 	GtkWidget *sensor_properties_button;
 };
 
@@ -92,6 +94,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 {
 	IsPreferencesDialogPrivate *priv;
 	GtkWidget *label;
+	GtkWidget *box;
 	gchar *markup;
 
 	self->priv = priv =
@@ -144,15 +147,23 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 			 2, 3,
 			 GTK_FILL, GTK_FILL,
 			 6, 0);
-	priv->display_mode_combo_box = gtk_combo_box_text_new();
-	gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(priv->display_mode_combo_box),
-				       IS_INDICATOR_DISPLAY_MODE_VALUE_ONLY,
-				       _("Value only"));
-	gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(priv->display_mode_combo_box),
-				       IS_INDICATOR_DISPLAY_MODE_LABEL_AND_VALUE,
-				       _("Label and value"));
-	gtk_widget_set_sensitive(priv->display_mode_combo_box, FALSE);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->display_mode_combo_box,
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+	priv->display_icon_check_button = gtk_check_button_new_with_label (_("Icon"));
+	gtk_widget_set_sensitive(priv->display_icon_check_button, FALSE);
+	gtk_box_pack_start(GTK_BOX(box), priv->display_icon_check_button,
+			   TRUE, TRUE, 0);
+
+	priv->display_label_check_button = gtk_check_button_new_with_label (_("Label"));
+	gtk_widget_set_sensitive(priv->display_label_check_button, FALSE);
+	gtk_box_pack_start(GTK_BOX(box), priv->display_label_check_button,
+			   TRUE, TRUE, 0);
+
+	priv->display_value_check_button = gtk_check_button_new_with_label (_("Value"));
+	gtk_widget_set_sensitive(priv->display_value_check_button, FALSE);
+	gtk_box_pack_start(GTK_BOX(box), priv->display_value_check_button,
+			   TRUE, TRUE, 0);
+
+	gtk_table_attach(GTK_TABLE(priv->table), box,
 			 1, 3,
 			 2, 3,
 			 GTK_FILL, GTK_FILL,
@@ -212,24 +223,64 @@ is_preferences_dialog_get_property(GObject *object,
 }
 
 static void
-display_mode_changed(GtkComboBox *combo_box,
+display_icon_toggled(GtkToggleButton *toggle_button,
 		     IsIndicator *indicator)
 {
-	/* IS_INDICATOR_DISPLAY_MODE_INVALID is 0 so need to offset by
-	 * 1 */
-	is_indicator_set_display_mode(indicator,
-				      gtk_combo_box_get_active(combo_box) + 1);
+	gboolean display_icon = gtk_toggle_button_get_active(toggle_button);
+	IsIndicatorDisplayFlags flags = is_indicator_get_display_flags(indicator);
+
+	if (display_icon) {
+		flags |= IS_INDICATOR_DISPLAY_ICON;
+	} else {
+		flags &= ~IS_INDICATOR_DISPLAY_ICON;
+	}
+	is_indicator_set_display_flags(indicator, flags);
 }
 
 static void
-indicator_notify_display_mode(IsIndicator *indicator,
-			      GParamSpec *pspec,
-			      GtkComboBox *combo_box)
+display_label_toggled(GtkToggleButton *toggle_button,
+		     IsIndicator *indicator)
 {
-	/* IS_INDICATOR_DISPLAY_MODE_INVALID is 0 so need to offset by
-	 * 1 */
-	gtk_combo_box_set_active(combo_box,
-				 is_indicator_get_display_mode(indicator) - 1);
+	gboolean display_label = gtk_toggle_button_get_active(toggle_button);
+	IsIndicatorDisplayFlags flags = is_indicator_get_display_flags(indicator);
+
+	if (display_label) {
+		flags |= IS_INDICATOR_DISPLAY_LABEL;
+	} else {
+		flags &= ~IS_INDICATOR_DISPLAY_LABEL;
+	}
+	is_indicator_set_display_flags(indicator, flags);
+}
+
+static void
+display_value_toggled(GtkToggleButton *toggle_button,
+		     IsIndicator *indicator)
+{
+	gboolean display_value = gtk_toggle_button_get_active(toggle_button);
+	IsIndicatorDisplayFlags flags = is_indicator_get_display_flags(indicator);
+
+	if (display_value) {
+		flags |= IS_INDICATOR_DISPLAY_VALUE;
+	} else {
+		flags &= ~IS_INDICATOR_DISPLAY_VALUE;
+	}
+	is_indicator_set_display_flags(indicator, flags);
+}
+
+static void
+indicator_notify_display_flags(IsIndicator *indicator,
+			       GParamSpec *pspec,
+			       IsPreferencesDialog *self)
+{
+	IsPreferencesDialogPrivate *priv = self->priv;
+	IsIndicatorDisplayFlags flags = is_indicator_get_display_flags(priv->indicator);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->display_icon_check_button),
+				     flags & IS_INDICATOR_DISPLAY_ICON);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->display_label_check_button),
+				     flags & IS_INDICATOR_DISPLAY_LABEL);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->display_value_check_button),
+				     flags & IS_INDICATOR_DISPLAY_VALUE);
 }
 
 static void
@@ -286,21 +337,34 @@ is_preferences_dialog_set_property(GObject *object,
 	IsPreferencesDialogPrivate *priv = self->priv;
 	GtkWidget *scrolled_window;
 	IsManager *manager;
+	IsIndicatorDisplayFlags flags;
 
 	switch (property_id) {
 	case PROP_INDICATOR:
 		priv->indicator = g_object_ref(g_value_get_object(value));
-		gtk_widget_set_sensitive(priv->display_mode_combo_box, TRUE);
-		/* IS_INDICATOR_DISPLAY_MODE_INVALID is 0 so need to offset by
-		 * 1 */
-		gtk_combo_box_set_active(GTK_COMBO_BOX(priv->display_mode_combo_box),
-					 is_indicator_get_display_mode(priv->indicator) - 1);
-		g_signal_connect(priv->display_mode_combo_box, "changed",
-				 G_CALLBACK(display_mode_changed),
+		gtk_widget_set_sensitive(priv->display_icon_check_button, TRUE);
+		gtk_widget_set_sensitive(priv->display_label_check_button, TRUE);
+		gtk_widget_set_sensitive(priv->display_value_check_button, TRUE);
+
+		flags = is_indicator_get_display_flags(priv->indicator);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->display_icon_check_button),
+					     flags & IS_INDICATOR_DISPLAY_ICON);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->display_label_check_button),
+					     flags & IS_INDICATOR_DISPLAY_LABEL);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->display_value_check_button),
+					     flags & IS_INDICATOR_DISPLAY_VALUE);
+		g_signal_connect(priv->display_icon_check_button, "toggled",
+				 G_CALLBACK(display_icon_toggled),
 				 priv->indicator);
-		g_signal_connect(priv->indicator, "notify::display-mode",
-				 G_CALLBACK(indicator_notify_display_mode),
-				 priv->display_mode_combo_box);
+		g_signal_connect(priv->display_label_check_button, "toggled",
+				 G_CALLBACK(display_label_toggled),
+				 priv->indicator);
+		g_signal_connect(priv->display_value_check_button, "toggled",
+				 G_CALLBACK(display_value_toggled),
+				 priv->indicator);
+		g_signal_connect(priv->indicator, "notify::display-flags",
+				 G_CALLBACK(indicator_notify_display_flags),
+				 self);
 		manager = is_indicator_get_manager(priv->indicator);
 		g_signal_connect(manager, "row-activated",
 				 G_CALLBACK(manager_row_activated), self);
