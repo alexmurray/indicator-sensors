@@ -72,9 +72,9 @@ typedef enum {
 GType is_indicator_get_type(void) G_GNUC_CONST;
 IsIndicator *is_indicator_get_default(void);
 IsManager *is_indicator_get_manager(IsIndicator *self);
-void is_indicator_set_primary_sensor(IsIndicator *self,
-				     const gchar *primary_sensor);
-const gchar *is_indicator_get_primary_sensor(IsIndicator *self);
+void is_indicator_set_primary_sensor_path(IsIndicator *self,
+					  const gchar *path);
+const gchar *is_indicator_get_primary_sensor_path(IsIndicator *self);
 void is_indicator_set_display_flags(IsIndicator *self,
 				    IsIndicatorDisplayFlags flags);
 IsIndicatorDisplayFlags is_indicator_get_display_flags(IsIndicator *self);

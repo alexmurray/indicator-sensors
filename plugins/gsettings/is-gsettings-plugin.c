@@ -128,7 +128,7 @@ is_gsettings_plugin_activate(PeasActivatable *activatable)
 	indicator = is_indicator_get_default();
 	settings = g_settings_new("indicator-sensors.indicator");
 	g_settings_bind(settings, "primary-sensor",
-			indicator, "primary-sensor",
+			indicator, "primary-sensor-path",
 			G_SETTINGS_BIND_DEFAULT);
 	g_settings_bind(settings, "display-flags",
 			indicator, "display-flags",

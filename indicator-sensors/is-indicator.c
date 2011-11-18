@@ -57,7 +57,7 @@ update_sensor_menu_item_label(IsIndicator *self,
 /* properties */
 enum {
 	PROP_MANAGER = 1,
-	PROP_PRIMARY_SENSOR,
+	PROP_PRIMARY_SENSOR_PATH,
 	PROP_DISPLAY_FLAGS,
 	LAST_PROPERTY
 };
@@ -67,7 +67,9 @@ static GParamSpec *properties[LAST_PROPERTY] = {NULL};
 struct _IsIndicatorPrivate
 {
 	IsManager *manager;
-	gchar *primary_sensor;
+	/* the path to the preferred primary sensor */
+	gchar *primary_sensor_path;
+	IsSensor *primary;
 	IsIndicatorDisplayFlags display_flags;
 	GSList *menu_items;
 	GtkWidget *prefs_dialog;
@@ -96,12 +98,13 @@ is_indicator_class_init(IsIndicatorClass *klass)
 	g_object_class_install_property(gobject_class, PROP_MANAGER,
 					properties[PROP_MANAGER]);
 
-	properties[PROP_PRIMARY_SENSOR] = g_param_spec_string("primary-sensor", "primary sensor property",
-							      "primary sensor property blurp.",
-							      NULL,
-							      G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-	g_object_class_install_property(gobject_class, PROP_PRIMARY_SENSOR,
-					properties[PROP_PRIMARY_SENSOR]);
+	properties[PROP_PRIMARY_SENSOR_PATH] = g_param_spec_string("primary-sensor-path",
+								   "path of preferred primary sensor",
+								   "path of preferred primary sensor",
+								   NULL,
+								   G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_PRIMARY_SENSOR_PATH,
+					properties[PROP_PRIMARY_SENSOR_PATH]);
 
 	properties[PROP_DISPLAY_FLAGS] = g_param_spec_int("display-flags",
 							  "display flags property",
@@ -132,8 +135,8 @@ is_indicator_get_property(GObject *object,
 	case PROP_MANAGER:
 		g_value_set_object(value, is_indicator_get_manager(self));
 		break;
-	case PROP_PRIMARY_SENSOR:
-		g_value_set_string(value, is_indicator_get_primary_sensor(self));
+	case PROP_PRIMARY_SENSOR_PATH:
+		g_value_set_string(value, is_indicator_get_primary_sensor_path(self));
 		break;
 	case PROP_DISPLAY_FLAGS:
 		g_value_set_int(value, is_indicator_get_display_flags(self));
@@ -162,8 +165,8 @@ is_indicator_set_property(GObject *object,
 		g_signal_connect(priv->manager, "sensor-added",
 				 G_CALLBACK(sensor_added), self);
 		break;
-	case PROP_PRIMARY_SENSOR:
-		is_indicator_set_primary_sensor(self, g_value_get_string(value));
+	case PROP_PRIMARY_SENSOR_PATH:
+		is_indicator_set_primary_sensor_path(self, g_value_get_string(value));
 		break;
 	case PROP_DISPLAY_FLAGS:
 		is_indicator_set_display_flags(self, g_value_get_int(value));
@@ -180,27 +183,22 @@ static void is_indicator_connection_changed(AppIndicator *indicator,
 {
 	IsIndicator *self = IS_INDICATOR(indicator);
 	IsIndicatorPrivate *priv = self->priv;
-	IsSensor *sensor;
 	GtkMenuItem *item;
 
-	if (!priv->primary_sensor) {
+	if (!priv->primary) {
 		goto out;
 	}
 	/* force an update of the primary sensor to reset icon etc */
-	sensor = is_manager_get_sensor(priv->manager,
-				       priv->primary_sensor);
-	if (!sensor) {
+	if (!priv->primary) {
 		goto out;
 	}
 
-	item = (GtkMenuItem *)(g_object_get_data(G_OBJECT(sensor),
+	item = (GtkMenuItem *)(g_object_get_data(G_OBJECT(priv->primary),
 						 "menu-item"));
 	if (!item) {
-		g_object_unref(sensor);
 		goto out;
 	}
-	update_sensor_menu_item_label(self, sensor, item);
-	g_object_unref(sensor);
+	update_sensor_menu_item_label(self, priv->primary, item);
 
 out:
 	return;
@@ -500,7 +498,7 @@ update_sensor_menu_item_label(IsIndicator *self,
 	g_free(text);
 	text = NULL;
 
-	if (g_strcmp0(priv->primary_sensor, is_sensor_get_path(sensor)) == 0) {
+	if (sensor == priv->primary) {
 		gboolean connected;
 
 		g_object_get(self, "connected", &connected, NULL);
@@ -596,15 +594,15 @@ sensor_disabled(IsManager *manager,
 					     sensor_error,
 					     self);
 	/* ignore if was not primary sensor, otherwise, get a new one */
-	if (g_strcmp0(priv->primary_sensor, is_sensor_get_path(sensor)) != 0) {
+	if (sensor != priv->primary) {
 		goto out;
 	}
 	if (!priv->menu_items) {
 		app_indicator_set_label(APP_INDICATOR(self),
 					_("No active sensors"),
 					_("No active sensors"));
-		g_free(priv->primary_sensor);
-		priv->primary_sensor = NULL;
+		g_object_unref(priv->primary);
+		priv->primary = NULL;
 		goto out;
 	}
 	/* choose top-most menu item */
@@ -626,7 +624,7 @@ sensor_menu_item_activated(GtkMenuItem *menu_item,
 
 	sensor = IS_SENSOR(g_object_get_data(G_OBJECT(menu_item),
 					     "sensor"));
-	is_indicator_set_primary_sensor(self, is_sensor_get_path(sensor));
+	is_indicator_set_primary_sensor_path(self, is_sensor_get_path(sensor));
 }
 
 static void
@@ -669,12 +667,13 @@ sensor_enabled(IsManager *manager,
 
 	priv->menu_items = g_slist_insert(priv->menu_items, menu_item,
 					  position);
-	/* if we don't have a primary sensor, display this one by default,
-	 * otherwise wait till we see our preferred primary sensor */
-	if (!priv->primary_sensor) {
-		is_indicator_set_primary_sensor(self, is_sensor_get_path(sensor));
-		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
-					       TRUE);
+	/* if we haven't seen our primary sensor yet or if this is the primary
+	 * sensor, display this as primary anyway */
+	if (!priv->primary || g_strcmp0(is_sensor_get_path(sensor), priv->primary_sensor_path) == 0) {
+		if (priv->primary) {
+			g_object_unref(priv->primary);
+		}
+		priv->primary = g_object_ref(sensor);
 	}
 	gtk_widget_show_all(menu_item);
 
@@ -751,8 +750,8 @@ is_indicator_get_default(void)
 	return g_object_ref(default_indicator);
 }
 
-void is_indicator_set_primary_sensor(IsIndicator *self,
-				     const gchar *primary_sensor)
+void is_indicator_set_primary_sensor_path(IsIndicator *self,
+					  const gchar *path)
 {
 	IsIndicatorPrivate *priv;
 
@@ -760,55 +759,50 @@ void is_indicator_set_primary_sensor(IsIndicator *self,
 
 	priv = self->priv;
 
-	if (g_strcmp0(priv->primary_sensor, primary_sensor) != 0 &&
-	    g_strcmp0(primary_sensor, "") != 0) {
+	if (g_strcmp0(priv->primary_sensor_path, path) != 0 &&
+	    g_strcmp0(path, "") != 0) {
 		IsSensor *sensor;
 		/* uncheck current primary sensor label - may be NULL as is
 		* already disabled */
-		if (priv->primary_sensor) {
-			sensor = is_manager_get_sensor(priv->manager,
-								 priv->primary_sensor);
-			if (sensor) {
-				GtkCheckMenuItem *item;
-				item = (GtkCheckMenuItem *)(g_object_get_data(G_OBJECT(sensor),
+		if (priv->primary) {
+			GtkCheckMenuItem *item;
+			item = (GtkCheckMenuItem *)(g_object_get_data(G_OBJECT(priv->primary),
 									      "menu-item"));
-				if (item) {
-					gtk_check_menu_item_set_active(item, FALSE);
-				}
-				g_object_unref(sensor);
+			if (item) {
+				gtk_check_menu_item_set_active(item, FALSE);
 			}
+			g_object_unref(priv->primary);
 		}
 
+		g_free(priv->primary_sensor_path);
+		priv->primary_sensor_path = g_strdup(path);
 
-		g_free(priv->primary_sensor);
-		priv->primary_sensor = g_strdup(primary_sensor);
-
-		is_debug("indicator", "displaying primary sensor %s", priv->primary_sensor);
+		is_debug("indicator", "displaying primary sensor %s", priv->primary_sensor_path);
 
 		/* try and activate this sensor if it exists */
 		sensor = is_manager_get_sensor(priv->manager,
-					       priv->primary_sensor);
+					       priv->primary_sensor_path);
 		if (sensor) {
 			GtkCheckMenuItem *item = (GtkCheckMenuItem *)(g_object_get_data(G_OBJECT(sensor),
 											"menu-item"));
+			priv->primary = sensor;
 			if (item) {
 				gtk_check_menu_item_set_active(item, TRUE);
 				update_sensor_menu_item_label(self, sensor,
 							      GTK_MENU_ITEM(item));
 			}
-			g_object_unref(sensor);
 		}
 
 		g_object_notify_by_pspec(G_OBJECT(self),
-					 properties[PROP_PRIMARY_SENSOR]);
+					 properties[PROP_PRIMARY_SENSOR_PATH]);
 	}
 }
 
-const gchar *is_indicator_get_primary_sensor(IsIndicator *self)
+const gchar *is_indicator_get_primary_sensor_path(IsIndicator *self)
 {
 	g_return_val_if_fail(IS_IS_INDICATOR(self), NULL);
 
-	return self->priv->primary_sensor;
+	return self->priv->primary_sensor_path;
 }
 
 IsManager *is_indicator_get_manager(IsIndicator *self)
@@ -828,23 +822,16 @@ void is_indicator_set_display_flags(IsIndicator *self,
 	priv = self->priv;
 
 	if (display_flags != priv->display_flags) {
-		IsSensor *sensor;
 		GtkMenuItem *item;
 
 		priv->display_flags = display_flags;
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_DISPLAY_FLAGS]);
 
-		if (priv->primary_sensor) {
-			/* redisplay primary sensor */
-			sensor = is_manager_get_sensor(priv->manager,
-						       priv->primary_sensor);
-			if(sensor) {
-				item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(sensor),
-								       "menu-item"));
-				update_sensor_menu_item_label(self, sensor, item);
-				g_object_unref(sensor);
-			}
+		if (priv->primary) {
+			item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(priv->primary),
+							       "menu-item"));
+			update_sensor_menu_item_label(self, priv->primary, item);
 		}
 	}
 }
