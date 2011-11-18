@@ -150,7 +150,8 @@ sensor_notify_alarmed(IsSensor *sensor,
 					      is_sensor_get_units(sensor));
 		is_debug("libnotify", "Alarm for %s", is_sensor_get_path(sensor));
 		notification = notify_notification_new(_("Sensor Alarm"),
-						       body, NULL);
+						       body,
+						       GTK_STOCK_DIALOG_WARNING);
 		g_free(body);
 		if (priv->append) {
 			GVariant *cap = g_variant_new("s", "");
