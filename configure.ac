@@ -196,11 +196,6 @@ if test "$USE_MAINTAINER_MODE" = "yes"; then
 fi
 
 AC_SUBST(CFLAGS)
-# for help docs stuff
-AC_PATH_PROG(XSLTPROC, xsltproc, no)
-if test x"$XSLTPROC" = xno; then
-  AC_MSG_ERROR([xsltproc executable not found in your path - should be installed with libxslt])
-fi
 
 # =========== we need glib-genmarshal ================ #
 AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
@@ -209,9 +204,6 @@ GNOME_COMPILE_WARNINGS(maximum)
 
 # Use --enable-maintainer-mode to disabled deprecated symbols
 GNOME_MAINTAINER_MODE_DEFINES
-
-# ================ gnome-doc-utils stuff ============= #
-GNOME_DOC_INIT
 
 # ==================== plugin stuff ================== #
 PLUGIN_LIBTOOL_FLAGS="-module -avoid-version"
