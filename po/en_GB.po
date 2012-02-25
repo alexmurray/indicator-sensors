@@ -1,34 +1,35 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# English (United Kingdom) translation for indicator-sensors
+# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
+# This file is distributed under the same license as the indicator-sensors package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-21 21:04+1030\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2011-07-06 12:31+0000\n"
+"Last-Translator: Timo Reimerdes <Unknown>\n"
+"Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2011-11-21 10:28+0000\n"
+"X-Generator: Launchpad (build 14299)\n"
 
 #: ../data/indicator-sensors.desktop.in.h:1
 msgid "An indicator for Unity which displays hardware sensor readings"
-msgstr ""
+msgstr "An indicator for Unity which displays hardware sensor readings"
 
 #: ../data/indicator-sensors.desktop.in.h:2
 #: ../indicator-sensors/is-indicator.c:311
 msgid "Hardware Sensors Indicator"
-msgstr ""
+msgstr "Hardware Sensors Indicator"
 
 #: ../indicator-sensors/is-fan-sensor.c:40
 msgid "RPM"
-msgstr ""
+msgstr "RPM"
 
 #: ../indicator-sensors/is-indicator.c:239
 #: ../indicator-sensors/is-indicator.c:240
@@ -46,24 +47,25 @@ msgid "Quit"
 msgstr ""
 
 #: ../indicator-sensors/is-indicator.c:313
+#, fuzzy
 msgid "Application Indicator for Unity showing hardware sensors."
-msgstr ""
+msgstr "An indicator for Unity which displays hardware sensor readings"
 
 #: ../indicator-sensors/is-indicator.c:602
 #: ../indicator-sensors/is-indicator.c:603
 #: ../indicator-sensors/is-indicator.c:694
 #: ../indicator-sensors/is-indicator.c:695
 msgid "No active sensors"
-msgstr ""
+msgstr "No active sensors"
 
 #: ../indicator-sensors/is-indicator.c:734
 msgid "No Sensors"
-msgstr ""
+msgstr "No Sensors"
 
 #: ../indicator-sensors/is-manager.c:364
 #: ../indicator-sensors/is-sensor-dialog.c:335
 msgid "Sensor"
-msgstr ""
+msgstr "Sensor"
 
 #: ../indicator-sensors/is-manager.c:372
 #: ../indicator-sensors/is-preferences-dialog.c:154
@@ -74,23 +76,23 @@ msgstr ""
 #: ../indicator-sensors/is-preferences-dialog.c:159
 #: ../indicator-sensors/is-sensor-dialog.c:105
 msgid "Label"
-msgstr ""
+msgstr "Label"
 
 #: ../indicator-sensors/is-manager.c:391
 msgid "Enabled"
-msgstr ""
+msgstr "Enabled"
 
 #: ../indicator-sensors/is-preferences-dialog.c:107
 msgid " Preferences"
-msgstr ""
+msgstr " Preferences"
 
 #: ../indicator-sensors/is-preferences-dialog.c:126
 msgid "General"
-msgstr ""
+msgstr "General"
 
 #: ../indicator-sensors/is-preferences-dialog.c:137
 msgid "Start automatically on login"
-msgstr ""
+msgstr "Start automatically on login"
 
 #: ../indicator-sensors/is-preferences-dialog.c:145
 msgid "Primary sensor display"
@@ -104,19 +106,20 @@ msgstr ""
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:4
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:4
 msgid "Temperature scale"
-msgstr ""
+msgstr "Temperature scale"
 
 #: ../indicator-sensors/is-preferences-dialog.c:185
 msgid "Celsius (°C)"
-msgstr ""
+msgstr "Celsius (°C)"
 
 #: ../indicator-sensors/is-preferences-dialog.c:197
 msgid "Fahrenheit (°F)"
-msgstr ""
+msgstr "Fahrenheit (°F)"
 
 #: ../indicator-sensors/is-preferences-dialog.c:209
+#, fuzzy
 msgid "Preferences"
-msgstr ""
+msgstr " Preferences"
 
 #: ../indicator-sensors/is-preferences-dialog.c:211
 msgid "Plugins"
@@ -178,7 +181,7 @@ msgstr ""
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:2
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:2
 msgid "Enabled sensors"
-msgstr ""
+msgstr "Enabled sensors"
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:3
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:3
@@ -187,8 +190,9 @@ msgstr ""
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:5
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:5
+#, fuzzy
 msgid "The elements used to display the primary sensor within the indicator."
-msgstr ""
+msgstr "The temperature scale to display temperature sensor values."
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:6
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:6
@@ -204,11 +208,11 @@ msgstr ""
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:8
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:8
 msgid "The temperature scale to display temperature sensor values."
-msgstr ""
+msgstr "The temperature scale to display temperature sensor values."
 
 #: ../plugins/libnotify/is-libnotify-plugin.c:152
 msgid "Sensor Alarm"
-msgstr ""
+msgstr "Sensor Alarm"
 
 #. first placeholder is sensor name,
 #. * second is error message
@@ -239,3 +243,9 @@ msgstr ""
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr ""
+
+#~ msgid "Label for a sensor"
+#~ msgstr "Label for a sensor"
+
+#~ msgid "The default label for a sensor"
+#~ msgstr "The default label for a sensor"

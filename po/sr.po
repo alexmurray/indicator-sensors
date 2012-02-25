@@ -1,21 +1,22 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Serbian translation for indicator-sensors
+# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
+# This file is distributed under the same license as the indicator-sensors package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-21 21:04+1030\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2011-07-23 23:15+0000\n"
+"Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
+"Language-Team: Serbian <sr@li.org>\n"
+"Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2011-11-21 10:28+0000\n"
+"X-Generator: Launchpad (build 14299)\n"
 
 #: ../data/indicator-sensors.desktop.in.h:1
 msgid "An indicator for Unity which displays hardware sensor readings"
@@ -54,16 +55,16 @@ msgstr ""
 #: ../indicator-sensors/is-indicator.c:694
 #: ../indicator-sensors/is-indicator.c:695
 msgid "No active sensors"
-msgstr ""
+msgstr "Нема активних сензора"
 
 #: ../indicator-sensors/is-indicator.c:734
 msgid "No Sensors"
-msgstr ""
+msgstr "Нема сензора"
 
 #: ../indicator-sensors/is-manager.c:364
 #: ../indicator-sensors/is-sensor-dialog.c:335
 msgid "Sensor"
-msgstr ""
+msgstr "Сензор"
 
 #: ../indicator-sensors/is-manager.c:372
 #: ../indicator-sensors/is-preferences-dialog.c:154
@@ -74,23 +75,23 @@ msgstr ""
 #: ../indicator-sensors/is-preferences-dialog.c:159
 #: ../indicator-sensors/is-sensor-dialog.c:105
 msgid "Label"
-msgstr ""
+msgstr "Етикета"
 
 #: ../indicator-sensors/is-manager.c:391
 msgid "Enabled"
-msgstr ""
+msgstr "Укључено"
 
 #: ../indicator-sensors/is-preferences-dialog.c:107
 msgid " Preferences"
-msgstr ""
+msgstr " Поставке"
 
 #: ../indicator-sensors/is-preferences-dialog.c:126
 msgid "General"
-msgstr ""
+msgstr "Опште"
 
 #: ../indicator-sensors/is-preferences-dialog.c:137
 msgid "Start automatically on login"
-msgstr ""
+msgstr "Покрени приликом пријављивања"
 
 #: ../indicator-sensors/is-preferences-dialog.c:145
 msgid "Primary sensor display"
@@ -108,15 +109,16 @@ msgstr ""
 
 #: ../indicator-sensors/is-preferences-dialog.c:185
 msgid "Celsius (°C)"
-msgstr ""
+msgstr "Целзијус (°C)"
 
 #: ../indicator-sensors/is-preferences-dialog.c:197
 msgid "Fahrenheit (°F)"
-msgstr ""
+msgstr "Фаренхајт (°F)"
 
 #: ../indicator-sensors/is-preferences-dialog.c:209
+#, fuzzy
 msgid "Preferences"
-msgstr ""
+msgstr " Поставке"
 
 #: ../indicator-sensors/is-preferences-dialog.c:211
 msgid "Plugins"
@@ -178,7 +180,7 @@ msgstr ""
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:2
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:2
 msgid "Enabled sensors"
-msgstr ""
+msgstr "Омогућени сензори"
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:3
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:3

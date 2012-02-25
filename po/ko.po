@@ -1,34 +1,35 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Korean translation for indicator-sensors
+# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
+# This file is distributed under the same license as the indicator-sensors package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-21 21:04+1030\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2011-06-05 17:21+0000\n"
+"Last-Translator: Kim Boram <boramism@gmail.com>\n"
+"Language-Team: Korean <ko@li.org>\n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2011-11-21 10:28+0000\n"
+"X-Generator: Launchpad (build 14299)\n"
 
 #: ../data/indicator-sensors.desktop.in.h:1
 msgid "An indicator for Unity which displays hardware sensor readings"
-msgstr ""
+msgstr "하드웨어 센서를 읽은 값을 표시하는 유니티용 알리미"
 
 #: ../data/indicator-sensors.desktop.in.h:2
 #: ../indicator-sensors/is-indicator.c:311
 msgid "Hardware Sensors Indicator"
-msgstr ""
+msgstr "하드웨어 센서 알리미"
 
 #: ../indicator-sensors/is-fan-sensor.c:40
 msgid "RPM"
-msgstr ""
+msgstr "RPM"
 
 #: ../indicator-sensors/is-indicator.c:239
 #: ../indicator-sensors/is-indicator.c:240
@@ -46,24 +47,25 @@ msgid "Quit"
 msgstr ""
 
 #: ../indicator-sensors/is-indicator.c:313
+#, fuzzy
 msgid "Application Indicator for Unity showing hardware sensors."
-msgstr ""
+msgstr "하드웨어 센서를 읽은 값을 표시하는 유니티용 알리미"
 
 #: ../indicator-sensors/is-indicator.c:602
 #: ../indicator-sensors/is-indicator.c:603
 #: ../indicator-sensors/is-indicator.c:694
 #: ../indicator-sensors/is-indicator.c:695
 msgid "No active sensors"
-msgstr ""
+msgstr "감시 할 센서 없음"
 
 #: ../indicator-sensors/is-indicator.c:734
 msgid "No Sensors"
-msgstr ""
+msgstr "센서 없음"
 
 #: ../indicator-sensors/is-manager.c:364
 #: ../indicator-sensors/is-sensor-dialog.c:335
 msgid "Sensor"
-msgstr ""
+msgstr "센서"
 
 #: ../indicator-sensors/is-manager.c:372
 #: ../indicator-sensors/is-preferences-dialog.c:154
@@ -74,23 +76,23 @@ msgstr ""
 #: ../indicator-sensors/is-preferences-dialog.c:159
 #: ../indicator-sensors/is-sensor-dialog.c:105
 msgid "Label"
-msgstr ""
+msgstr "이름"
 
 #: ../indicator-sensors/is-manager.c:391
 msgid "Enabled"
-msgstr ""
+msgstr "사용"
 
 #: ../indicator-sensors/is-preferences-dialog.c:107
 msgid " Preferences"
-msgstr ""
+msgstr " 기본 설정"
 
 #: ../indicator-sensors/is-preferences-dialog.c:126
 msgid "General"
-msgstr ""
+msgstr "일반"
 
 #: ../indicator-sensors/is-preferences-dialog.c:137
 msgid "Start automatically on login"
-msgstr ""
+msgstr "로그인할 때 자동으로 시작"
 
 #: ../indicator-sensors/is-preferences-dialog.c:145
 msgid "Primary sensor display"
@@ -104,19 +106,20 @@ msgstr ""
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:4
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:4
 msgid "Temperature scale"
-msgstr ""
+msgstr "온도 단위"
 
 #: ../indicator-sensors/is-preferences-dialog.c:185
 msgid "Celsius (°C)"
-msgstr ""
+msgstr "섭씨 (°C)"
 
 #: ../indicator-sensors/is-preferences-dialog.c:197
 msgid "Fahrenheit (°F)"
-msgstr ""
+msgstr "화씨 (°F)"
 
 #: ../indicator-sensors/is-preferences-dialog.c:209
+#, fuzzy
 msgid "Preferences"
-msgstr ""
+msgstr " 기본 설정"
 
 #: ../indicator-sensors/is-preferences-dialog.c:211
 msgid "Plugins"
@@ -178,7 +181,7 @@ msgstr ""
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:2
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:2
 msgid "Enabled sensors"
-msgstr ""
+msgstr "센서 사용"
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:3
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:3
@@ -187,8 +190,9 @@ msgstr ""
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:5
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:5
+#, fuzzy
 msgid "The elements used to display the primary sensor within the indicator."
-msgstr ""
+msgstr "센서의 온도 값을 표시할 단위를 설정합니다."
 
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:6
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:6
@@ -204,11 +208,11 @@ msgstr ""
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:8
 #: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:8
 msgid "The temperature scale to display temperature sensor values."
-msgstr ""
+msgstr "센서의 온도 값을 표시할 단위를 설정합니다."
 
 #: ../plugins/libnotify/is-libnotify-plugin.c:152
 msgid "Sensor Alarm"
-msgstr ""
+msgstr "센서 경고"
 
 #. first placeholder is sensor name,
 #. * second is error message
@@ -228,14 +232,20 @@ msgstr ""
 #: ../plugins/nvidia/is-nvidia-plugin.c:173
 #, c-format
 msgid "Error getting sensor value for sensor %s"
-msgstr ""
+msgstr "센서 %s의 값을 가져오는 중 오류가 발생했습니다."
 
 #: ../plugins/udisks/is-udisks-plugin.c:149
 #, c-format
 msgid "Error reading new SMART data for sensor %s"
-msgstr ""
+msgstr "센서 %s의 새 SMART 데이터를 읽는 중 오류 발생"
 
 #: ../plugins/udisks/is-udisks-plugin.c:165
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
-msgstr ""
+msgstr "센서 %s의 새 SMART 데이터를 다시 읽는 중 오류 발생"
+
+#~ msgid "Label for a sensor"
+#~ msgstr "센서 이름"
+
+#~ msgid "The default label for a sensor"
+#~ msgstr "센서 기본 이름"
