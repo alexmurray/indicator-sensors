@@ -40,7 +40,7 @@ enum {
 struct _IsPreferencesDialogPrivate
 {
 	IsIndicator *indicator;
-	GtkWidget *table;
+	GtkWidget *grid;
 	GtkWidget *autostart_check_button;
 	GtkWidget *celsius_radio_button;
 	GtkWidget *fahrenheit_radio_button;
@@ -113,10 +113,10 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 			      GTK_STOCK_CLOSE, GTK_RESPONSE_ACCEPT);
 
 	/* pack content into box */
-	priv->table = gtk_table_new(5, 3, FALSE);
-	gtk_table_set_col_spacings(GTK_TABLE(priv->table), 6);
-	gtk_table_set_row_spacings(GTK_TABLE(priv->table), 6);
-	gtk_container_set_border_width(GTK_CONTAINER(priv->table), 12);
+	priv->grid = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(priv->grid), 6);
+	gtk_grid_set_row_spacing(GTK_GRID(priv->grid), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(priv->grid), 6);
 
 	label = gtk_label_new(NULL);
 	markup = g_strdup_printf("<span weight='bold'>%s</span>",
@@ -124,29 +124,23 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 	gtk_label_set_markup(GTK_LABEL(label), markup);
 	g_free(markup);
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-
-	gtk_table_attach(GTK_TABLE(priv->table), label,
-			 0, 1,
-			 0, 1,
-			 GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_grid_attach(GTK_GRID(priv->grid), label,
+			0, 0,
+			1, 1) ;
 	priv->autostart_check_button = gtk_check_button_new_with_label
 		(_("Start automatically on login"));
 	gtk_widget_set_sensitive(priv->autostart_check_button, FALSE);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->autostart_check_button,
-			 0, 3,
-			 1, 2,
-			 GTK_FILL, GTK_FILL,
-			 6, 0);
+	gtk_grid_attach(GTK_GRID(priv->grid), priv->autostart_check_button,
+			0, 1,
+			3, 1);
 
 	label = gtk_label_new(_("Primary sensor display"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
 	gtk_misc_set_padding(GTK_MISC(label), 2, 0);
-	gtk_table_attach(GTK_TABLE(priv->table), label,
-			 0, 1,
-			 2, 3,
-			 GTK_FILL, GTK_FILL,
-			 6, 0);
+	gtk_grid_attach(GTK_GRID(priv->grid), label,
+			0, 2,
+			1, 1);
+
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	priv->display_icon_check_button = gtk_check_button_new_with_label (_("Icon"));
 	gtk_widget_set_sensitive(priv->display_icon_check_button, FALSE);
@@ -163,29 +157,24 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 	gtk_box_pack_start(GTK_BOX(box), priv->display_value_check_button,
 			   TRUE, TRUE, 0);
 
-	gtk_table_attach(GTK_TABLE(priv->table), box,
-			 1, 3,
-			 2, 3,
-			 GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_grid_attach(GTK_GRID(priv->grid), box,
+			1, 2,
+			2, 1);
 
 	label = gtk_label_new(_("Temperature scale"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
 	gtk_misc_set_padding(GTK_MISC(label), 2, 0);
-	gtk_table_attach(GTK_TABLE(priv->table), label,
-			 0, 1,
-			 3, 4,
-			 GTK_FILL, GTK_FILL,
-			 6, 0);
+	gtk_grid_attach(GTK_GRID(priv->grid), label,
+			0, 3,
+			1, 1);
 
 	priv->celsius_radio_button = gtk_radio_button_new_with_label
 		(NULL, _("Celsius (\302\260C)"));
 	gtk_widget_set_sensitive(priv->celsius_radio_button, FALSE);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->celsius_radio_button,
-			 1, 2,
-			 3, 4,
-			 GTK_EXPAND | GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_widget_set_hexpand(priv->celsius_radio_button, TRUE);
+	gtk_grid_attach(GTK_GRID(priv->grid), priv->celsius_radio_button,
+			1, 3,
+			1, 1);
 	g_signal_connect(priv->celsius_radio_button, "toggled",
 			 G_CALLBACK(temperature_scale_toggled), self);
 	priv->fahrenheit_radio_button =
@@ -193,16 +182,15 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 		(GTK_RADIO_BUTTON(priv->celsius_radio_button),
 		 _("Fahrenheit (\302\260F)"));
 	gtk_widget_set_sensitive(priv->fahrenheit_radio_button, FALSE);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->fahrenheit_radio_button,
-			 2, 3,
-			 3, 4,
-			 GTK_EXPAND | GTK_FILL, GTK_FILL,
-			 6, 0);
+	gtk_widget_set_hexpand(priv->fahrenheit_radio_button, TRUE);
+	gtk_grid_attach(GTK_GRID(priv->grid), priv->fahrenheit_radio_button,
+			2, 3,
+			1, 1);
 	g_signal_connect(priv->fahrenheit_radio_button, "toggled",
 			 G_CALLBACK(temperature_scale_toggled), self);
 
 	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(self))),
-			   priv->table, TRUE, TRUE, 0);
+			   priv->grid, TRUE, TRUE, 0);
 }
 
 static void
@@ -406,11 +394,12 @@ is_preferences_dialog_set_property(GObject *object,
 					       GTK_POLICY_AUTOMATIC);
 		gtk_container_add(GTK_CONTAINER(scrolled_window),
 				  GTK_WIDGET(manager));
-		gtk_table_attach(GTK_TABLE(priv->table), scrolled_window,
-				 0, 3,
-				 4, 5,
-				 GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL,
-				 0, 0);
+		gtk_widget_set_hexpand(scrolled_window, TRUE);
+		gtk_widget_set_vexpand(scrolled_window, TRUE);
+		gtk_grid_attach(GTK_GRID(priv->grid),
+				scrolled_window,
+				0, 4,
+				3, 1);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);

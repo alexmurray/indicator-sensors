@@ -40,7 +40,6 @@ enum {
 struct _IsSensorDialogPrivate
 {
 	IsSensor *sensor;
-	GtkWidget *table;
 	GtkWidget *path_label;
 	GtkWidget *label_entry;
 	GtkWidget *alarm_mode_combo_box;
@@ -76,7 +75,7 @@ static void
 is_sensor_dialog_init(IsSensorDialog *self)
 {
 	IsSensorDialogPrivate *priv;
-	GtkWidget *label, *low_label, *high_label;
+	GtkWidget *label, *low_label, *high_label, *grid;
 
 	self->priv = priv =
 		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_SENSOR_DIALOG,
@@ -89,39 +88,31 @@ is_sensor_dialog_init(IsSensorDialog *self)
 			      GTK_STOCK_CLOSE, GTK_RESPONSE_ACCEPT);
 
 	/* pack content into box */
-	priv->table = gtk_table_new(5, 4, FALSE);
-	gtk_table_set_col_spacings(GTK_TABLE(priv->table), 6);
-	gtk_table_set_row_spacings(GTK_TABLE(priv->table), 6);
-	gtk_container_set_border_width(GTK_CONTAINER(priv->table), 12);
+	grid = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
+	gtk_grid_set_row_spacing(GTK_GRID(grid), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(grid), 6);
 
 	priv->path_label = gtk_label_new(NULL);
 	gtk_misc_set_alignment(GTK_MISC(priv->path_label), 0.0, 0.5);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->path_label,
-			 0, 4,
-			 0, 1,
-			 GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_grid_attach(GTK_GRID(grid), priv->path_label,
+			0, 0,
+			4, 1);
 
 	label = gtk_label_new(_("Label"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-	gtk_table_attach(GTK_TABLE(priv->table), label,
-			 0, 1,
-			 1, 2,
-			 GTK_FILL, GTK_FILL,
-			 6, 0);
+	gtk_grid_attach(GTK_GRID(grid), label,
+			0, 1,
+			1, 1);
 	priv->label_entry = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(priv->table), priv->label_entry,
-			 1, 4,
-			 1, 2,
-			 GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_grid_attach(GTK_GRID(grid), priv->label_entry,
+			1, 1,
+			3, 1);
 	label = gtk_label_new(_("Alarm"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-	gtk_table_attach(GTK_TABLE(priv->table), label,
-			 0, 1,
-			 2, 3,
-			 GTK_FILL, GTK_FILL,
-			 6, 0);
+	gtk_grid_attach(GTK_GRID(grid), label,
+			0, 2,
+			1, 1);
 	priv->alarm_mode_combo_box = gtk_combo_box_text_new();
 	gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(priv->alarm_mode_combo_box),
 				       IS_SENSOR_ALARM_MODE_DISABLED,
@@ -133,77 +124,62 @@ is_sensor_dialog_init(IsSensorDialog *self)
 				       IS_SENSOR_ALARM_MODE_HIGH,
 				       _("Above"));
 	gtk_widget_set_sensitive(priv->alarm_mode_combo_box, FALSE);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->alarm_mode_combo_box,
-			 1, 2,
-			 2, 3,
-			 GTK_FILL, GTK_FILL,
-			 0, 0);
-
+	gtk_grid_attach(GTK_GRID(grid), priv->alarm_mode_combo_box,
+			1, 2,
+			1, 1);
 	priv->alarm_value_spin_button = gtk_spin_button_new_with_range(-G_MAXDOUBLE,
 								       G_MAXDOUBLE,
 								       1.0f);
 	gtk_widget_set_sensitive(priv->alarm_value_spin_button, FALSE);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->alarm_value_spin_button,
-			 2, 3,
-			 2, 3,
-			 GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_grid_attach(GTK_GRID(grid), priv->alarm_value_spin_button,
+			2, 2,
+			1, 1);
 	priv->units_label = gtk_label_new(NULL);
 	gtk_misc_set_alignment(GTK_MISC(priv->units_label), 0.0, 0.5);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->units_label,
-			 3, 4,
-			 2, 3,
-			 GTK_EXPAND | GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_grid_attach(GTK_GRID(grid), priv->units_label,
+			3, 2,
+			1, 1);
 
 	low_label = gtk_label_new(_("Low value"));
 	gtk_misc_set_alignment(GTK_MISC(low_label), 0.0, 0.5);
-	gtk_table_attach(GTK_TABLE(priv->table), low_label,
-			 0, 1,
-			 3, 4,
-			 GTK_FILL, GTK_FILL,
-			 6, 0);
+	gtk_grid_attach(GTK_GRID(grid), low_label,
+			0, 3,
+			1, 1);
+
 	priv->low_value = gtk_spin_button_new_with_range(-G_MAXDOUBLE,
 							 G_MAXDOUBLE,
 							 1.0f);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->low_value,
-			 1, 2,
-			 3, 4,
-			 GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_grid_attach(GTK_GRID(grid), priv->low_value,
+			1, 3,
+			1, 1);
+
 	priv->low_units_label = gtk_label_new(NULL);
 	gtk_misc_set_alignment(GTK_MISC(priv->low_units_label), 0.0, 0.5);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->low_units_label,
-			 2, 3,
-			 3, 4,
-			 GTK_EXPAND | GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_grid_attach(GTK_GRID(grid), priv->low_units_label,
+			2, 3,
+			1, 1);
 
 	high_label = gtk_label_new(_("High value"));
 	gtk_misc_set_alignment(GTK_MISC(high_label), 0.0, 0.5);
-	gtk_table_attach(GTK_TABLE(priv->table), high_label,
-			 0, 1,
-			 4, 5,
-			 GTK_FILL, GTK_FILL,
-			 6, 0);
+	gtk_grid_attach(GTK_GRID(grid), high_label,
+			0, 4,
+			1, 1);
+
 	priv->high_value = gtk_spin_button_new_with_range(-G_MAXDOUBLE,
 							  G_MAXDOUBLE,
 							  1.0f);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->high_value,
-			 1, 2,
-			 4, 5,
-			 GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_grid_attach(GTK_GRID(grid), priv->high_value,
+			1, 4,
+			1, 1);
+
 	priv->high_units_label = gtk_label_new(NULL);
 	gtk_misc_set_alignment(GTK_MISC(priv->high_units_label), 0.0, 0.5);
-	gtk_table_attach(GTK_TABLE(priv->table), priv->high_units_label,
-			 2, 3,
-			 4, 5,
-			 GTK_EXPAND | GTK_FILL, GTK_FILL,
-			 0, 0);
+	gtk_grid_attach(GTK_GRID(grid), priv->high_units_label,
+			2, 4,
+			1, 1);
 
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),
-			  priv->table);
+			  grid);
 }
 
 static void
