@@ -102,7 +102,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 					    IsPreferencesDialogPrivate);
 
 	gtk_window_set_title(GTK_WINDOW(self), _(PACKAGE_NAME " Preferences"));
-	gtk_window_set_default_size(GTK_WINDOW(self), 350, 500);
+	gtk_window_set_default_size(GTK_WINDOW(self), 500, 600);
 
 	priv->sensor_properties_button =
 		gtk_dialog_add_button(GTK_DIALOG(self),
