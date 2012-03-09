@@ -43,8 +43,8 @@ static void sensor_enabled(IsManager *manager,
 			   gint position,
 			   IsIndicator *self);
 static void sensor_disabled(IsManager *manager,
-			   IsSensor *sensor,
-			   IsIndicator *self);
+                            IsSensor *sensor,
+                            IsIndicator *self);
 static void sensor_added(IsManager *manager,
 			 IsSensor *sensor,
 			 IsIndicator *self);
@@ -246,13 +246,13 @@ static GtkActionEntry entries[] = {
 static guint n_entries = G_N_ELEMENTS(entries);
 
 static const gchar *ui_info =
-"<ui>"
-"  <popup name='Indicator'>"
-"    <menuitem action='Preferences' />"
-"    <menuitem action='About' />"
-"    <menuitem action='Quit' />"
-"  </popup>"
-"</ui>";
+        "<ui>"
+        "  <popup name='Indicator'>"
+        "    <menuitem action='Preferences' />"
+        "    <menuitem action='About' />"
+        "    <menuitem action='Quit' />"
+        "  </popup>"
+        "</ui>";
 
 static void
 prefs_dialog_response(IsPreferencesDialog *dialog,
@@ -302,10 +302,10 @@ static void about_action(GtkAction *action,
 			 IsIndicator *self)
 {
 	const gchar * const authors[] =
-	{
-		"Alex Murray <murray.alex@gmail.com>",
-		NULL
-	};
+                {
+                        "Alex Murray <murray.alex@gmail.com>",
+                        NULL
+                };
 
 	gtk_show_about_dialog(NULL,
 			      "program-name", _("Hardware Sensors Indicator"),
@@ -562,8 +562,8 @@ static void
 sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
 {
 	is_warning("indicator", "sensor %s error: %s",
-		  is_sensor_get_path(sensor),
-		  error->message);
+                   is_sensor_get_path(sensor),
+                   error->message);
 }
 
 static void
@@ -576,7 +576,7 @@ sensor_disabled(IsManager *manager,
 
 	/* debug - enable sensor */
 	is_debug("main", "disabling sensor %s",
-		is_sensor_get_path(sensor));
+                 is_sensor_get_path(sensor));
 
 	/* destroy menu item */
 	menu_item = GTK_WIDGET(g_object_get_data(G_OBJECT(sensor),
@@ -706,6 +706,7 @@ is_indicator_new(IsManager *manager)
 
 	AppIndicator *self = g_object_new(IS_TYPE_INDICATOR,
 					  "id", PACKAGE,
+                                          "title", PACKAGE_NAME,
 					  "icon-name", PACKAGE,
 					  "category", "Hardware",
 					  "manager", manager,
@@ -763,11 +764,11 @@ void is_indicator_set_primary_sensor_path(IsIndicator *self,
 	    g_strcmp0(path, "") != 0) {
 		IsSensor *sensor;
 		/* uncheck current primary sensor label - may be NULL as is
-		* already disabled */
+                 * already disabled */
 		if (priv->primary) {
 			GtkCheckMenuItem *item;
 			item = (GtkCheckMenuItem *)(g_object_get_data(G_OBJECT(priv->primary),
-									      "menu-item"));
+                                                                      "menu-item"));
 			if (item) {
 				gtk_check_menu_item_set_active(item, FALSE);
 			}
