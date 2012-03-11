@@ -17,8 +17,10 @@
 
 #include <glib.h>
 #include <glib/gstdio.h>
+#include <glib/gi18n.h>
 #include <math.h>
 #include "is-sensor.h"
+#include "is-notify.h"
 #include "is-log.h"
 
 G_DEFINE_TYPE (IsSensor, is_sensor, G_TYPE_OBJECT);
@@ -374,6 +376,13 @@ update_alarmed(IsSensor *self)
 
 	if (priv->alarmed != alarmed) {
 		priv->alarmed = alarmed;
+                /* show a notification */
+                is_notify(IS_NOTIFY_LEVEL_WARNING,
+                          _("Sensor Alarm"),
+                          "%s: %2.1f%s",
+                          is_sensor_get_label(self),
+                          is_sensor_get_value(self),
+                          is_sensor_get_units(self));
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_ALARMED]);
 	}

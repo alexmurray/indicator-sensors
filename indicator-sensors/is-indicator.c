@@ -555,7 +555,9 @@ sensor_notify(IsSensor *sensor,
 
 	menu_item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(sensor),
 						    "menu-item"));
-	update_sensor_menu_item_label(self, sensor, menu_item);
+        if (menu_item) {
+                update_sensor_menu_item_label(self, sensor, menu_item);
+        }
 }
 
 static void
@@ -778,7 +780,7 @@ void is_indicator_set_primary_sensor_path(IsIndicator *self,
 		g_free(priv->primary_sensor_path);
 		priv->primary_sensor_path = g_strdup(path);
 
-		is_debug("indicator", "displaying primary sensor %s", priv->primary_sensor_path);
+                is_debug("indicator", "Setting primary sensor path to: %s", path);
 
 		/* try and activate this sensor if it exists */
 		sensor = is_manager_get_sensor(priv->manager,
@@ -823,16 +825,16 @@ void is_indicator_set_display_flags(IsIndicator *self,
 	priv = self->priv;
 
 	if (display_flags != priv->display_flags) {
-		GtkMenuItem *item;
-
 		priv->display_flags = display_flags;
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_DISPLAY_FLAGS]);
 
 		if (priv->primary) {
-			item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(priv->primary),
+                        GtkMenuItem *item = GTK_MENU_ITEM(g_object_get_data(G_OBJECT(priv->primary),
 							       "menu-item"));
-			update_sensor_menu_item_label(self, priv->primary, item);
+                        if (item) {
+                                update_sensor_menu_item_label(self, priv->primary, item);
+                        }
 		}
 	}
 }

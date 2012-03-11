@@ -7,10 +7,10 @@ INCLUDES = -DGNOMELOCALEDIR=\""$(datadir)/locale/"\" \
         -DSYSCONFDIR=\""$(sysconfdir)"\" \
         -DPREFIX=\""$(prefix)"\" \
 	-I$(top_srcdir) \
-	$(GLIB_CFLAGS) $(GIO_CFLAGS) $(GTK_CFLAGS) $(APPINDICATOR_CFLAGS) $(LIBPEAS_CFLAGS)
+	$(GLIB_CFLAGS) $(GIO_CFLAGS) $(GTK_CFLAGS) $(APPINDICATOR_CFLAGS) $(LIBPEAS_CFLAGS) $(LIBNOTIFY_CFLAGS)
 
 
-LIBS = $(GLIB_LIBS) $(GIO_LIBS) $(GTK_LIBS) $(APPINDICATOR_LIBS) $(LIBPEAS_LIBS)
+LIBS = $(GLIB_LIBS) $(GIO_LIBS) $(GTK_LIBS) $(APPINDICATOR_LIBS) $(LIBPEAS_LIBS) $(LIBNOTIFY_LIBS)
 
 marshallers.h: marshallers.list
 	glib-genmarshal --header $< > $@
@@ -25,6 +25,8 @@ indicator_sensors_SOURCES = \
 	indicator-sensors.c \
 	is-log.h \
 	is-log.c \
+	is-notify.h \
+	is-notify.c \
 	is-indicator.h \
 	is-indicator.c \
 	is-sensor.h \

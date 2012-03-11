@@ -20,9 +20,11 @@
 #endif
 
 #include "is-log.h"
+#include "is-notify.h"
 #include "is-indicator.h"
 #include <gtk/gtk.h>
 #include <libpeas/peas.h>
+#include <glib/gi18n.h>
 
 static void
 on_extension_added(PeasExtensionSet *set,
@@ -91,6 +93,8 @@ int main(int argc, char **argv)
 	peas_engine_add_search_path(engine, plugin_dir, NULL);
 	g_free(plugin_dir);
 
+        /* init notifications */
+        is_notify_init();
 	indicator = is_indicator_get_default();
 	manager = is_indicator_get_manager(indicator);
 
@@ -107,8 +111,24 @@ int main(int argc, char **argv)
 	g_signal_connect(set, "extension-removed",
 			  G_CALLBACK(on_extension_removed), indicator);
 
-	/* start */
+        /* since all plugins are now inited show a notification if we detected
+         * sensors but none are enabled - TODO: perhaps just open the pref's
+         * dialog?? */
+        GSList *sensors = is_manager_get_all_sensors_list(manager);
+        if (sensors) {
+                gchar **enabled_sensors = is_manager_get_enabled_sensors(manager);
+                if (!g_strv_length(enabled_sensors)) {
+                        is_notify(IS_NOTIFY_LEVEL_INFO,
+                                  _("No Sensors Enabled For Monitoring"),
+                                  _("Sensors detected but none are enabled for monitoring. To enable monitoring of sensors open the Preferences window and select the sensors to monitor"));
+                }
+                g_strfreev(enabled_sensors);
+                g_slist_foreach(sensors, (GFunc)g_object_unref, NULL);
+                g_slist_free(sensors);
+        }
+
 	gtk_main();
 
+        is_notify_uninit();
 	return 0;
 }

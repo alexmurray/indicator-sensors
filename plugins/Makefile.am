@@ -1,9 +1,5 @@
 SUBDIRS = aticonfig gsettings
 
-if LIBNOTIFY
-SUBDIRS += libnotify
-endif
-
 if LIBSENSORS
 SUBDIRS += libsensors
 endif

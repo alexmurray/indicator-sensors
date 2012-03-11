@@ -70,6 +70,10 @@ PKG_CHECK_MODULES(LIBPEAS, libpeas-1.0 >= $LIBPEAS_REQUIRED)
 AC_SUBST(LIBPEAS_CFLAGS)
 AC_SUBST(LIBPEAS_LIBS)
 
+PKG_CHECK_MODULES(LIBNOTIFY, libnotify >= $LIBNOTIFY_REQUIRED)
+AC_SUBST(LIBNOTIFY_CFLAGS)
+AC_SUBST(LIBNOTIFY_LIBS)
+
 GLIB_GSETTINGS
 
 AC_CHECK_HEADERS(regex.h)
@@ -87,31 +91,6 @@ AM_CONDITIONAL(LIBSENSORS, test -n "$LIBSENSORS_LIBS")
 
 AC_SUBST(LIBSENSORS_CFLAGS)
 AC_SUBST(LIBSENSORS_LIBS)
-
-# libnotify
-# enable support even if not specifically asked for
-AC_ARG_ENABLE(libnotify, [  --enable-libnotify   enable libnotify support], [
-			 enable_libnotify=$enableval], [
-			 enable_libnotify="yes"
-])
-
-if test "x$enable_libnotify" = "xno"
-then
-   echo "Disabling libnotify support"
-else
-	PKG_CHECK_MODULES(LIBNOTIFY, libnotify >= $LIBNOTIFY_REQUIRED,
-	HAVE_LIBNOTIFY="yes", HAVE_LIBNOTIFY="no")
-
-	if test "x$HAVE_LIBNOTIFY" = "xyes"
-	then
-	   AC_DEFINE(HAVE_LIBNOTIFY, 1, [libnotify available])
-	fi
-fi
-
-AM_CONDITIONAL(LIBNOTIFY, test -n "$LIBNOTIFY_LIBS")
-
-AC_SUBST(LIBNOTIFY_CFLAGS)
-AC_SUBST(LIBNOTIFY_LIBS)
 
 # do nvidia by default if available
 AC_ARG_WITH(nvidia,
