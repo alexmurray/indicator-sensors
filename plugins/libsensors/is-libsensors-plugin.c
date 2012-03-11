@@ -25,6 +25,7 @@
 #include <indicator-sensors/is-fan-sensor.h>
 #include <indicator-sensors/is-manager.h>
 #include <indicator-sensors/is-log.h>
+#include <indicator-sensors/is-notify.h>
 #include <sensors/sensors.h>
 #include <sensors/error.h>
 #include <glib/gi18n.h>
@@ -366,6 +367,13 @@ is_libsensors_plugin_activate(PeasActivatable *activatable)
         {
 		process_sensors_chip_name(self, chip_name);
 	}
+        /* if we couldn't find any sensors then show a notification to tell the
+         * user to try and run sensors-detect from the command line */
+        if (!g_hash_table_size(priv->sensor_chip_names)) {
+                is_notify(IS_NOTIFY_LEVEL_INFO,
+                          _("No Sensors Detected"),
+                          _("Try running the command 'sensors-detect' from the command-line and restarting %s"), PACKAGE_NAME);
+        }
 out:
 	return;
 }
