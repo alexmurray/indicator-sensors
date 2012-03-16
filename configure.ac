@@ -1,4 +1,4 @@
- ================= initialization =================== #
+# ================= initialization =================== #
 AC_PREREQ([2.68])
 AC_INIT([Hardware Sensors Indicator],[0.1],[https://bugs.launchpad.net/indicator-sensors],[indicator-sensors])
 
@@ -151,7 +151,7 @@ AM_CONDITIONAL(UDISKS, test -n "$LIBATASMART_CFLAGS")
 # ============ enable extra warnings etc ============= #
 if test "$USE_MAINTAINER_MODE" = "yes"; then
    CFLAGS+=" -ggdb"
-   CFLAGS+=" -Werror -Wall -Wextra"
+   CFLAGS+=" -Wall -Wextra"
    CFLAGS+=" -Wno-missing-field-initializers"
    CFLAGS+=" -Wno-unused-parameter"
    CFLAGS+=" -Wmissing-declarations"
@@ -196,6 +196,7 @@ AC_CONFIG_FILES([
 	pixmaps/Makefile
 	plugins/Makefile
 	plugins/aticonfig/Makefile
+	plugins/dbus/Makefile
 	plugins/gsettings/Makefile
 	plugins/gsettings/indicator-sensors.gschema.xml.in
 	plugins/libnotify/Makefile

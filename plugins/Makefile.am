@@ -1,4 +1,4 @@
-SUBDIRS = aticonfig gsettings
+SUBDIRS = aticonfig dbus gsettings
 
 if LIBSENSORS
 SUBDIRS += libsensors
