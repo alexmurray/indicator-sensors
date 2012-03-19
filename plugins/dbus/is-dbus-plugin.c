@@ -131,6 +131,89 @@ sensor_property_changed(IsSensor *sensor,
         }
 }
 
+
+static gchar *
+dbus_sensor_object_path(IsSensor *sensor)
+{
+        gchar *path;
+        /* Create a new D-Bus object at the path
+         * /com/github/alexmurray/IndicatorSensors/ActiveSensors/path where path
+         * is path of each sensor */
+        path = g_strdup_printf("/com/github/alexmurray/IndicatorSensors/ActiveSensors/%s",
+                               is_sensor_get_path(sensor));
+
+        /* ensure valid path */
+        path = g_strcanon(path,
+                          "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                          "abcdefghijklmnopqrstuvwxyz"
+                          "1234567890_/",
+                          '_');
+        return path;
+}
+
+static void
+sensor_enabled(IsManager *manager,
+               IsSensor *sensor,
+               gint i,
+               IsDBusPlugin *self)
+{
+        IsDBusPluginPrivate *priv;
+        gchar *path;
+        IsActiveSensor *active_sensor;
+        IsObjectSkeleton *object;
+
+        priv = self->priv;
+
+        path = dbus_sensor_object_path(sensor);
+        object = is_object_skeleton_new(path);
+        is_debug("dbus-plugin", "Creating an ActiveSensor at path %s\n", path);
+        g_free(path);
+
+        /* Make the newly created object export the interface
+         * com.github.alexmurray.indicator-sensors.ObjectManager.ActiveSensor
+         * (note that @object takes its own reference to
+         * @active_sensor).
+         */
+        active_sensor = is_active_sensor_skeleton_new();
+        is_active_sensor_set_label(active_sensor, is_sensor_get_label(sensor));
+        is_active_sensor_set_units(active_sensor, is_sensor_get_units(sensor));
+        is_active_sensor_set_value(active_sensor, is_sensor_get_value(sensor));
+        is_active_sensor_set_digits(active_sensor, is_sensor_get_digits(sensor));
+        is_active_sensor_set_index(active_sensor, i);
+
+        g_signal_connect(sensor, "notify",
+                         G_CALLBACK(sensor_property_changed), active_sensor);
+        is_object_skeleton_set_active_sensor(object, active_sensor);
+        g_object_unref(active_sensor);
+
+        /* Export the object (@manager takes its own reference to
+         * @object) */
+        g_dbus_object_manager_server_export(priv->object_manager,
+                                            G_DBUS_OBJECT_SKELETON(object));
+        g_object_unref(object);
+}
+
+static void
+sensor_disabled(IsManager *manager,
+                IsSensor *sensor,
+                IsDBusPlugin *self)
+{
+        IsDBusPluginPrivate *priv;
+        IsObjectSkeleton *object;
+        IsActiveSensor *active_sensor;
+        gchar *path;
+
+        priv = self->priv;
+        path = dbus_sensor_object_path(sensor);
+        object = IS_OBJECT_SKELETON(g_dbus_object_manager_get_object(G_DBUS_OBJECT_MANAGER(priv->object_manager),
+                                                                              path));
+        g_object_get(object, "active-sensor", &active_sensor, NULL);
+        g_signal_handlers_disconnect_by_func(sensor, sensor_property_changed, active_sensor);
+        g_dbus_object_manager_server_unexport(priv->object_manager,
+                                              path);
+        g_free(path);
+}
+
 static void
 on_bus_acquired(GDBusConnection *connection,
                 const gchar     *name,
@@ -139,7 +222,7 @@ on_bus_acquired(GDBusConnection *connection,
         IsDBusPlugin *self;
         IsDBusPluginPrivate *priv;
         GSList *sensors, *_list;
-        IsObjectSkeleton *object;
+        gint i = 0;
 
         self = IS_DBUS_PLUGIN(user_data);
         priv = self->priv;
@@ -154,50 +237,16 @@ on_bus_acquired(GDBusConnection *connection,
         sensors = is_manager_get_enabled_sensors_list(priv->manager);
         for (_list = sensors; _list != NULL; _list = _list->next)
         {
-                gchar *path;
-                IsActiveSensor *active_sensor;
                 IsSensor *sensor;
 
                 sensor = IS_SENSOR(_list->data);
 
-                /* Create a new D-Bus object at the path
-                 * /com/github/alexmurray/IndicatorSensors/ActiveSensors/path where path is path of
-                 * each sensor */
-                path = g_strdup_printf("/com/github/alexmurray/IndicatorSensors/ActiveSensors/%s",
-                                       is_sensor_get_path(sensor));
-                /* ensure valid path */
-                path = g_strcanon(path,
-                                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                  "abcdefghijklmnopqrstuvwxyz"
-                                  "1234567890_/",
-                                  '_');
-                object = is_object_skeleton_new(path);
-                is_debug("dbus-plugin", "Creating an ActiveSensor at path %s\n", path);
-                g_free(path);
-
-                /* Make the newly created object export the interface
-                 * com.github.alexmurray.indicator-sensors.ObjectManager.ActiveSensor
-                 * (note that @object takes its own reference to
-                 * @active_sensor).
-                 */
-                active_sensor = is_active_sensor_skeleton_new();
-                is_active_sensor_set_label(active_sensor, is_sensor_get_label(sensor));
-                is_active_sensor_set_units(active_sensor, is_sensor_get_units(sensor));
-                is_active_sensor_set_value(active_sensor, is_sensor_get_value(sensor));
-                is_active_sensor_set_digits(active_sensor, is_sensor_get_digits(sensor));
-                /* TODO: disconnect when sensor is disabled */
-                g_signal_connect(sensor, "notify",
-                                 G_CALLBACK(sensor_property_changed), active_sensor);
-                is_object_skeleton_set_active_sensor(object, active_sensor);
-                g_object_unref(active_sensor);
-
-                /* Export the object (@manager takes its own reference to
-                 * @object) */
-                g_dbus_object_manager_server_export(priv->object_manager,
-                                                    G_DBUS_OBJECT_SKELETON(object));
-                g_object_unref(object);
+                sensor_enabled(priv->manager, sensor, i++, self);
         }
-
+        g_signal_connect(priv->manager, "sensor-enabled",
+                         G_CALLBACK(sensor_enabled), self);
+        g_signal_connect(priv->manager, "sensor-disabled",
+                         G_CALLBACK(sensor_disabled), self);
         /* Export all objects */
         g_dbus_object_manager_server_set_connection(priv->object_manager, connection);
 }

@@ -25,5 +25,10 @@
          @since: 2.30
     -->
     <property name="Value" type="d" access="read"/>
-  </interface>
+
+    <!-- Index: The index of the sensor.
+         @since: 2.30
+    -->
+    <property name="Index" type="u" access="read"/>
+</interface>
 </node>
