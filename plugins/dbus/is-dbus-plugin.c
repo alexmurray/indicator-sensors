@@ -20,7 +20,7 @@
 #endif
 
 #include "is-dbus-plugin.h"
-#include "is-active-sensor-objectmanager-generated.h"
+#include "is-active-sensor-generated.h"
 #include <indicator-sensors/is-manager.h>
 #include <indicator-sensors/is-log.h>
 #include <gio/gio.h>
@@ -170,7 +170,7 @@ sensor_enabled(IsManager *manager,
         g_free(path);
 
         /* Make the newly created object export the interface
-         * com.github.alexmurray.indicator-sensors.ObjectManager.ActiveSensor
+         * com.github.alexmurray.indicator-sensors.ActiveSensor
          * (note that @object takes its own reference to
          * @active_sensor).
          */
@@ -275,7 +275,7 @@ is_dbus_plugin_activate(PeasActivatable *activatable)
 
         /* get our dbus name */
         priv->id = g_bus_own_name(G_BUS_TYPE_SESSION,
-                                  "com.github.alexmurray.IndicatorSensors.ObjectManager",
+                                  "com.github.alexmurray.IndicatorSensors",
                                   G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
                                   G_BUS_NAME_OWNER_FLAGS_REPLACE,
                                   on_bus_acquired,

@@ -11,8 +11,8 @@ INCLUDES = \
 plugin_LTLIBRARIES = libdbus.la
 
 libdbus_la_SOURCES = \
-	is-active-sensor-objectmanager-generated.h \
-	is-active-sensor-objectmanager-generated.c \
+	is-active-sensor-generated.h \
+	is-active-sensor-generated.c \
 	is-dbus-plugin.h		\
 	is-dbus-plugin.c
 
@@ -27,22 +27,22 @@ libdbus_la_LIBADD  = 	\
 plugin_DATA = dbus.plugin
 
 GDBUS_GENERATED = \
-	is-active-sensor-objectmanager-generated.h \
-	is-active-sensor-objectmanager-generated.c \
-	is-active-sensor-objectmanager-generated-com.github.alexmurray.IndicatorSensors.ObjectManager.ActiveSensor.xml
+	is-active-sensor-generated.h \
+	is-active-sensor-generated.c \
+	is-active-sensor-generated-com.github.alexmurray.IndicatorSensors.ActiveSensor.xml
 
-$(GDBUS_GENERATED): is-active-sensor-objectmanager.xml Makefile
+$(GDBUS_GENERATED): is-active-sensor.xml Makefile
 	$(AM_V_GEN) gdbus-codegen \
-		--interface-prefix com.github.alexmurray.IndicatorSensors.ObjectManager. \
+		--interface-prefix com.github.alexmurray.IndicatorSensors. \
 		--c-namespace Is \
 		--c-generate-object-manager \
-		--generate-c-code is-active-sensor-objectmanager-generated \
-		--generate-docbook is-active-sensor-objectmanager-generated \
+		--generate-c-code is-active-sensor-generated \
+		--generate-docbook is-active-sensor-generated \
 		$<
 
 BUILT_SOURCES = $(GDBUS_GENERATED)
 
 EXTRA_DIST =  $(plugin_DATA) \
-	is-active-sensor-objectmanager.xml
+	is-active-sensor.xml
 
 CLEANFILES = $(GDBUS_GENERATED)
