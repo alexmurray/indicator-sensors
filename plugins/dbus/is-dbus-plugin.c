@@ -22,6 +22,7 @@
 #include "is-dbus-plugin.h"
 #include "is-active-sensor-generated.h"
 #include <indicator-sensors/is-manager.h>
+#include <indicator-sensors/is-indicator.h>
 #include <indicator-sensors/is-log.h>
 #include <gio/gio.h>
 #include <glib/gi18n.h>
@@ -42,6 +43,7 @@ enum {
 struct _IsDBusPluginPrivate
 {
 	IsManager *manager;
+        IsIndicator *indicator;
         guint id;
         GDBusObjectManagerServer *object_manager;
 };
@@ -214,6 +216,49 @@ sensor_disabled(IsManager *manager,
         g_free(path);
 }
 
+static GDBusNodeInfo *introspection_data = NULL;
+
+/* Introspection data for IndicatorSensors */
+static const gchar introspection_xml[] =
+  "<node>"
+  "  <interface name='com.github.alexmurray.IndicatorSensors'>"
+  "    <method name='ShowPreferences'>"
+  "    </method>"
+  "    <method name='HideIndicator'>"
+  "    </method>"
+  "  </interface>"
+  "</node>";
+
+static void
+handle_method_call(GDBusConnection *connection,
+                   const gchar *sender,
+                   const gchar *object_path,
+                   const gchar *interface_name,
+                   const gchar *method_name,
+                   GVariant *parameters,
+                   GDBusMethodInvocation *invocation,
+                   gpointer user_data)
+{
+        IsDBusPlugin *self = IS_DBUS_PLUGIN(user_data);
+        IsDBusPluginPrivate *priv = self->priv;
+
+        if (g_strcmp0(method_name, "ShowPreferences") == 0) {
+                is_indicator_show_preferences(priv->indicator);
+        } else if (g_strcmp0(method_name, "HideIndicator") == 0) {
+                is_debug("dbus-plugin", "TODO: implement hiding of indicator");
+        }
+        g_dbus_method_invocation_return_value(invocation, NULL);
+}
+
+
+/* for now */
+static const GDBusInterfaceVTable interface_vtable =
+{
+  handle_method_call,
+  NULL,
+  NULL,
+};
+
 static void
 on_bus_acquired(GDBusConnection *connection,
                 const gchar     *name,
@@ -221,6 +266,8 @@ on_bus_acquired(GDBusConnection *connection,
 {
         IsDBusPlugin *self;
         IsDBusPluginPrivate *priv;
+        guint id;
+        GError *error = NULL;
         GSList *sensors, *_list;
         gint i = 0;
 
@@ -229,6 +276,18 @@ on_bus_acquired(GDBusConnection *connection,
 
         is_debug("dbus-plugin", "Acquired a message bus connection\n");
 
+        id = g_dbus_connection_register_object(connection,
+                                               "/com/github/alexmurray/IndicatorSensors",
+                                               introspection_data->interfaces[0],
+                                               &interface_vtable,
+                                               self,
+                                               NULL,
+                                               &error);
+        if (!id) {
+                is_warning("dbus-plugin", "Unabled to register IndicatorSensors object on dbus: %s",
+                           error->message);
+                g_error_free(error);
+        }
         /* Create a new org.freedesktop.DBus.ObjectManager rooted at
          * /indicator-sensors/ActiveSensors */
         priv->object_manager = g_dbus_object_manager_server_new("/com/github/alexmurray/IndicatorSensors/ActiveSensors");
@@ -273,6 +332,7 @@ is_dbus_plugin_activate(PeasActivatable *activatable)
 	IsDBusPlugin *self = IS_DBUS_PLUGIN(activatable);
 	IsDBusPluginPrivate *priv = self->priv;
 
+        priv->indicator = is_indicator_get_default();
         /* get our dbus name */
         priv->id = g_bus_own_name(G_BUS_TYPE_SESSION,
                                   "com.github.alexmurray.IndicatorSensors",
@@ -297,7 +357,7 @@ is_dbus_plugin_deactivate(PeasActivatable *activatable)
 	IsDBusPluginPrivate *priv = self->priv;
 
         /* teardown dbus object manager */
-
+        g_object_unref(priv->indicator);
         /* disconnect from signals */
         g_bus_unown_name(priv->id);
 }
@@ -314,6 +374,10 @@ is_dbus_plugin_class_init(IsDBusPluginClass *klass)
 	gobject_class->finalize = is_dbus_plugin_finalize;
 
 	g_object_class_override_property(gobject_class, PROP_OBJECT, "object");
+
+        /* do interface introspection data */
+        introspection_data = g_dbus_node_info_new_for_xml(introspection_xml, NULL);
+        g_assert(introspection_data != NULL);
 }
 
 static void
