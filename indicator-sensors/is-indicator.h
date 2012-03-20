@@ -78,6 +78,7 @@ const gchar *is_indicator_get_primary_sensor_path(IsIndicator *self);
 void is_indicator_set_display_flags(IsIndicator *self,
 				    IsIndicatorDisplayFlags flags);
 IsIndicatorDisplayFlags is_indicator_get_display_flags(IsIndicator *self);
+void is_indicator_show_preferences(IsIndicator *self);
 G_END_DECLS
 
 #endif /* __IS_INDICATOR_H__ */

@@ -282,20 +282,7 @@ prefs_dialog_response(IsPreferencesDialog *dialog,
 static void prefs_action(GtkAction *action,
 			 IsIndicator *self)
 {
-	IsIndicatorPrivate *priv;
-
-	priv = self->priv;
-
-	if (!priv->prefs_dialog) {
-		priv->prefs_dialog = is_preferences_dialog_new(self);
-		g_signal_connect(priv->prefs_dialog, "response",
-				 G_CALLBACK(prefs_dialog_response), self);
-		g_signal_connect(priv->prefs_dialog, "delete-event",
-				 G_CALLBACK(gtk_widget_hide_on_delete),
-				 NULL);
-		gtk_widget_show_all(priv->prefs_dialog);
-	}
-	gtk_window_present(GTK_WINDOW(priv->prefs_dialog));
+        is_indicator_show_preferences(self);
 }
 
 static void about_action(GtkAction *action,
@@ -845,4 +832,22 @@ is_indicator_get_display_flags(IsIndicator *self)
 	g_return_val_if_fail(IS_IS_INDICATOR(self), 0);
 
 	return self->priv->display_flags;
+}
+
+void is_indicator_show_preferences(IsIndicator *self)
+{
+	IsIndicatorPrivate *priv;
+
+	priv = self->priv;
+
+	if (!priv->prefs_dialog) {
+		priv->prefs_dialog = is_preferences_dialog_new(self);
+		g_signal_connect(priv->prefs_dialog, "response",
+				 G_CALLBACK(prefs_dialog_response), self);
+		g_signal_connect(priv->prefs_dialog, "delete-event",
+				 G_CALLBACK(gtk_widget_hide_on_delete),
+				 NULL);
+		gtk_widget_show_all(priv->prefs_dialog);
+	}
+	gtk_window_present(GTK_WINDOW(priv->prefs_dialog));
 }
