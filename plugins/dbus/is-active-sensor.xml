@@ -6,6 +6,11 @@
        This D-Bus interface is used to describe a simple sensor.
     -->
   <interface name="com.github.alexmurray.IndicatorSensors.ActiveSensor">
+    <!-- Path: The path of the sensor.
+         @since: 2.30
+    -->
+    <property name="Path" type="s" access="read"/>
+
     <!-- Digits: The digits of the sensor.
          @since: 2.30
     -->

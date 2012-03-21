@@ -177,6 +177,7 @@ sensor_enabled(IsManager *manager,
          * @active_sensor).
          */
         active_sensor = is_active_sensor_skeleton_new();
+        is_active_sensor_set_path(active_sensor, is_sensor_get_path(sensor));
         is_active_sensor_set_label(active_sensor, is_sensor_get_label(sensor));
         is_active_sensor_set_units(active_sensor, is_sensor_get_units(sensor));
         is_active_sensor_set_value(active_sensor, is_sensor_get_value(sensor));
