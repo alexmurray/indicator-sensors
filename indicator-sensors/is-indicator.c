@@ -74,14 +74,22 @@ struct _IsIndicatorPrivate
 	GSList *menu_items;
 };
 
-static void
-is_indicator_constructed(GObject *object)
+static gboolean
+fake_add_enable_sensors(IsIndicator *self)
 {
-        IsIndicator *self = IS_INDICATOR(object);
+        GtkMenu *menu;
         IsManager *manager;
         GSList *sensors, *_list;
         gint i = 0;
 
+        menu = app_indicator_get_menu(APP_INDICATOR(self));
+        /* if there is no menu then arrange to be called from an idle callback
+           later when it should exist */
+        if (!GTK_IS_MENU_SHELL(menu)) {
+                is_warning("indicator", "Menu does not exist yet, arranging to be called again from an idle callback");
+                g_idle_add((GSourceFunc)fake_add_enable_sensors, self);
+                goto out;
+        }
         manager = is_application_get_manager(self->priv->application);
 
         /* fake addition of any sensors */
@@ -102,6 +110,15 @@ is_indicator_constructed(GObject *object)
                 g_object_unref(sensor);
         }
         g_slist_free(sensors);
+
+out:
+        return FALSE;
+}
+
+static void
+is_indicator_constructed(GObject *object)
+{
+        fake_add_enable_sensors(IS_INDICATOR(object));
 }
 
 static void
@@ -625,14 +642,16 @@ sensor_enabled(IsManager *manager,
 	       IsIndicator *self)
 {
 	IsIndicatorPrivate *priv = self->priv;
-	GtkMenu *menu;
-	GtkWidget *menu_item;
 
         /* make sure we haven't seen this sensor before - if sensor has a
          * menu-item then ignore it */
         if (!g_object_get_data(G_OBJECT(sensor), "menu-item")) {
+                GtkMenu *menu;
+                GtkWidget *menu_item;
+
                 is_debug("indicator", "Creating menu item for newly enabled sensor %s",
                          is_sensor_get_path(sensor));
+
                 g_signal_connect(sensor, "notify::value",
                                  G_CALLBACK(sensor_notify),
                                  self);
