@@ -26,7 +26,7 @@
 #include <regex.h>
 #include <indicator-sensors/is-temperature-sensor.h>
 #include <indicator-sensors/is-fan-sensor.h>
-#include <indicator-sensors/is-manager.h>
+#include <indicator-sensors/is-application.h>
 #include <indicator-sensors/is-log.h>
 #include <glib/gi18n.h>
 
@@ -45,7 +45,7 @@ enum {
 
 struct _IsATIConfigPluginPrivate
 {
-	IsManager *manager;
+	IsApplication *application;
 	GRegex *temperature_regex;
 	GRegex *fanspeed_regex;
 };
@@ -62,7 +62,7 @@ is_aticonfig_plugin_set_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_OBJECT:
-		plugin->priv->manager = IS_MANAGER(g_value_dup_object(value));
+		plugin->priv->application = IS_APPLICATION(g_value_dup_object(value));
 		break;
 
 	default:
@@ -81,7 +81,7 @@ is_aticonfig_plugin_get_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_OBJECT:
-		g_value_set_object(value, plugin->priv->manager);
+		g_value_set_object(value, plugin->priv->application);
 		break;
 
 	default:
@@ -247,11 +247,14 @@ static void
 is_aticonfig_plugin_activate(PeasActivatable *activatable)
 {
 	IsATIConfigPlugin *self = IS_ATICONFIG_PLUGIN(activatable);
-	gchar *output = NULL;
+        IsManager *manager;
+        gchar *output = NULL;
 	GError *error = NULL;
 	GRegex *regex = NULL;
 	GMatchInfo *match = NULL;
 	gboolean ret;
+
+        manager = is_application_get_manager(self->priv->application);
 
 	/* search for sensors and add them to manager */
 	is_debug("aticonfig", "searching for sensors");
@@ -309,7 +312,7 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
 			g_signal_connect(sensor, "update-value",
 					 G_CALLBACK(update_sensor_value),
 					 self);
-			is_manager_add_sensor(self->priv->manager, sensor);
+			is_manager_add_sensor(manager, sensor);
 			g_object_unref(sensor);
 			g_free(path);
 		}
@@ -332,7 +335,7 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
 			g_signal_connect(sensor, "update-value",
 					 G_CALLBACK(update_sensor_value),
 					 self);
-			is_manager_add_sensor(self->priv->manager, sensor);
+			is_manager_add_sensor(manager, sensor);
 			g_object_unref(sensor);
 			g_free(path);
 		}

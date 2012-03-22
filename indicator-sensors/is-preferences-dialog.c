@@ -20,6 +20,7 @@
 #endif
 
 #include "is-preferences-dialog.h"
+#include "is-indicator.h"
 #include <glib/gi18n.h>
 
 G_DEFINE_TYPE(IsPreferencesDialog, is_preferences_dialog, GTK_TYPE_DIALOG);
@@ -33,13 +34,15 @@ static void is_preferences_dialog_set_property(GObject *object,
 
 /* properties */
 enum {
-	PROP_INDICATOR = 1,
+	PROP_APPLICATION = 1,
 	LAST_PROPERTY
 };
 
 struct _IsPreferencesDialogPrivate
 {
-	IsIndicator *indicator;
+	IsApplication *application;
+        GSettings *application_settings;
+        GSettings *indicator_settings;
 	GtkWidget *grid;
 	GtkWidget *autostart_check_button;
 	GtkWidget *celsius_radio_button;
@@ -62,10 +65,10 @@ is_preferences_dialog_class_init(IsPreferencesDialogClass *klass)
 	gobject_class->dispose = is_preferences_dialog_dispose;
 	gobject_class->finalize = is_preferences_dialog_finalize;
 
-	g_object_class_install_property(gobject_class, PROP_INDICATOR,
-					g_param_spec_object("indicator", "indicator property",
-							    "indicator property blurp.",
-							    IS_TYPE_INDICATOR,
+	g_object_class_install_property(gobject_class, PROP_APPLICATION,
+					g_param_spec_object("application", "application property",
+							    "application property blurp.",
+							    IS_TYPE_APPLICATION,
 							    G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 }
@@ -75,17 +78,15 @@ temperature_scale_toggled(GtkToggleButton *toggle_button,
 			  IsPreferencesDialog *self)
 {
 	IsPreferencesDialogPrivate *priv;
-	IsManager *manager;
 
 	priv = self->priv;
 
-	manager = is_indicator_get_manager(priv->indicator);
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->celsius_radio_button))) {
-		is_manager_set_temperature_scale(manager,
-						 IS_TEMPERATURE_SENSOR_SCALE_CELSIUS);
+                g_settings_set_int(priv->application_settings, "temperature-scale",
+                                   IS_TEMPERATURE_SENSOR_SCALE_CELSIUS);
 	} else {
-		is_manager_set_temperature_scale(manager,
-						 IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT);
+                g_settings_set_int(priv->application_settings, "temperature-scale",
+                                   IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT);
 	}
 }
 
@@ -100,6 +101,9 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 	self->priv = priv =
 		G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_PREFERENCES_DIALOG,
 					    IsPreferencesDialogPrivate);
+
+        priv->application_settings = g_settings_new("indicator-sensors.application");
+        priv->indicator_settings = g_settings_new("indicator-sensors.indicator");
 
 	gtk_window_set_title(GTK_WINDOW(self), _(PACKAGE_NAME " Preferences"));
 	gtk_window_set_default_size(GTK_WINDOW(self), 500, 600);
@@ -201,8 +205,8 @@ is_preferences_dialog_get_property(GObject *object,
 	IsPreferencesDialogPrivate *priv = self->priv;
 
 	switch (property_id) {
-	case PROP_INDICATOR:
-		g_value_set_object(value, priv->indicator);
+	case PROP_APPLICATION:
+		g_value_set_object(value, priv->application);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -212,56 +216,63 @@ is_preferences_dialog_get_property(GObject *object,
 
 static void
 display_icon_toggled(GtkToggleButton *toggle_button,
-		     IsIndicator *indicator)
+		     IsPreferencesDialog *self)
 {
 	gboolean display_icon = gtk_toggle_button_get_active(toggle_button);
-	IsIndicatorDisplayFlags flags = is_indicator_get_display_flags(indicator);
+	IsIndicatorDisplayFlags flags = g_settings_get_int(self->priv->indicator_settings,
+                                                           "display-flags");
 
 	if (display_icon) {
 		flags |= IS_INDICATOR_DISPLAY_ICON;
 	} else {
 		flags &= ~IS_INDICATOR_DISPLAY_ICON;
 	}
-	is_indicator_set_display_flags(indicator, flags);
+        g_settings_set_int(self->priv->indicator_settings,
+                           "display-flags", flags);
 }
 
 static void
 display_label_toggled(GtkToggleButton *toggle_button,
-		     IsIndicator *indicator)
+		     IsPreferencesDialog *self)
 {
 	gboolean display_label = gtk_toggle_button_get_active(toggle_button);
-	IsIndicatorDisplayFlags flags = is_indicator_get_display_flags(indicator);
+	IsIndicatorDisplayFlags flags = g_settings_get_int(self->priv->indicator_settings,
+                                                           "display-flags");
 
 	if (display_label) {
 		flags |= IS_INDICATOR_DISPLAY_LABEL;
 	} else {
 		flags &= ~IS_INDICATOR_DISPLAY_LABEL;
 	}
-	is_indicator_set_display_flags(indicator, flags);
+        g_settings_set_int(self->priv->indicator_settings,
+                           "display-flags", flags);
 }
 
 static void
 display_value_toggled(GtkToggleButton *toggle_button,
-		     IsIndicator *indicator)
+                      IsPreferencesDialog *self)
 {
 	gboolean display_value = gtk_toggle_button_get_active(toggle_button);
-	IsIndicatorDisplayFlags flags = is_indicator_get_display_flags(indicator);
+	IsIndicatorDisplayFlags flags = g_settings_get_int(self->priv->indicator_settings,
+                                                           "display-flags");
 
 	if (display_value) {
 		flags |= IS_INDICATOR_DISPLAY_VALUE;
 	} else {
 		flags &= ~IS_INDICATOR_DISPLAY_VALUE;
 	}
-	is_indicator_set_display_flags(indicator, flags);
+        g_settings_set_int(self->priv->indicator_settings,
+                           "display-flags", flags);
 }
 
 static void
-indicator_notify_display_flags(IsIndicator *indicator,
-			       GParamSpec *pspec,
+settings_display_flags_changed(GSettings *settings,
+                               gchar *key,
 			       IsPreferencesDialog *self)
 {
 	IsPreferencesDialogPrivate *priv = self->priv;
-	IsIndicatorDisplayFlags flags = is_indicator_get_display_flags(priv->indicator);
+	IsIndicatorDisplayFlags flags = g_settings_get_int(priv->indicator_settings,
+                                                           "display-flags");
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->display_icon_check_button),
 				     flags & IS_INDICATOR_DISPLAY_ICON);
@@ -273,19 +284,19 @@ indicator_notify_display_flags(IsIndicator *indicator,
 
 static void
 autostart_toggled(GtkToggleButton *toggle_button,
-		  IsManager *manager)
+		  IsApplication *application)
 {
-	is_manager_set_autostart(manager,
-				 gtk_toggle_button_get_active(toggle_button));
+	is_application_set_autostart(application,
+                                     gtk_toggle_button_get_active(toggle_button));
 }
 
 static void
-manager_notify_autostart(IsManager *manager,
+application_notify_autostart(IsApplication *application,
 			 GParamSpec *pspec,
 			 GtkToggleButton *check_button)
 {
 	gtk_toggle_button_set_active(check_button,
-				     is_manager_get_autostart(manager));
+				     is_application_get_autostart(application));
 }
 
 static void
@@ -295,7 +306,7 @@ manager_selection_changed(GtkTreeSelection *selection,
 	IsSensor *sensor;
 	gboolean sensitive = FALSE;
 
-	sensor = is_manager_get_selected_sensor(is_indicator_get_manager(self->priv->indicator));
+	sensor = is_manager_get_selected_sensor(is_application_get_manager(self->priv->application));
 	if (sensor) {
 		sensitive = TRUE;
 		g_object_unref(sensor);
@@ -324,17 +335,18 @@ is_preferences_dialog_set_property(GObject *object,
 	IsPreferencesDialog *self = IS_PREFERENCES_DIALOG(object);
 	IsPreferencesDialogPrivate *priv = self->priv;
 	GtkWidget *scrolled_window;
-	IsManager *manager;
+        IsManager *manager;
 	IsIndicatorDisplayFlags flags;
 
 	switch (property_id) {
-	case PROP_INDICATOR:
-		priv->indicator = g_object_ref(g_value_get_object(value));
+	case PROP_APPLICATION:
+		priv->application = g_object_ref(g_value_get_object(value));
 		gtk_widget_set_sensitive(priv->display_icon_check_button, TRUE);
 		gtk_widget_set_sensitive(priv->display_label_check_button, TRUE);
 		gtk_widget_set_sensitive(priv->display_value_check_button, TRUE);
 
-		flags = is_indicator_get_display_flags(priv->indicator);
+		flags = g_settings_get_int(self->priv->indicator_settings,
+                                           "display-flags");
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->display_icon_check_button),
 					     flags & IS_INDICATOR_DISPLAY_ICON);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->display_label_check_button),
@@ -343,17 +355,17 @@ is_preferences_dialog_set_property(GObject *object,
 					     flags & IS_INDICATOR_DISPLAY_VALUE);
 		g_signal_connect(priv->display_icon_check_button, "toggled",
 				 G_CALLBACK(display_icon_toggled),
-				 priv->indicator);
+				 self);
 		g_signal_connect(priv->display_label_check_button, "toggled",
 				 G_CALLBACK(display_label_toggled),
-				 priv->indicator);
+				 self);
 		g_signal_connect(priv->display_value_check_button, "toggled",
 				 G_CALLBACK(display_value_toggled),
-				 priv->indicator);
-		g_signal_connect(priv->indicator, "notify::display-flags",
-				 G_CALLBACK(indicator_notify_display_flags),
 				 self);
-		manager = is_indicator_get_manager(priv->indicator);
+		g_signal_connect(priv->indicator_settings, "changed::display-flags",
+				 G_CALLBACK(settings_display_flags_changed),
+				 self);
+		manager = is_application_get_manager(priv->application);
 		g_signal_connect(manager, "row-activated",
 				 G_CALLBACK(manager_row_activated), self);
 		/* control properties button sensitivity */
@@ -363,11 +375,11 @@ is_preferences_dialog_set_property(GObject *object,
 		/* set state of autostart checkbutton */
 		gtk_widget_set_sensitive(priv->autostart_check_button, TRUE);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->autostart_check_button),
-					     is_manager_get_autostart(manager));
+					     is_application_get_autostart(priv->application));
 		gtk_widget_set_sensitive(priv->celsius_radio_button, TRUE);
 		gtk_widget_set_sensitive(priv->fahrenheit_radio_button, TRUE);
 
-		switch (is_manager_get_temperature_scale(manager)) {
+		switch (is_application_get_temperature_scale(priv->application)) {
 		case IS_TEMPERATURE_SENSOR_SCALE_CELSIUS:
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->celsius_radio_button),
 						     TRUE);
@@ -384,9 +396,9 @@ is_preferences_dialog_set_property(GObject *object,
 			g_assert_not_reached();
 		}
 		g_signal_connect(priv->autostart_check_button, "toggled",
-				 G_CALLBACK(autostart_toggled), manager);
-		g_signal_connect(manager, "notify::autostart",
-				 G_CALLBACK(manager_notify_autostart),
+				 G_CALLBACK(autostart_toggled), priv->application);
+		g_signal_connect(priv->application, "notify::autostart",
+				 G_CALLBACK(application_notify_autostart),
 				 priv->autostart_check_button);
 		scrolled_window = gtk_scrolled_window_new(NULL, NULL);
 		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -414,9 +426,9 @@ is_preferences_dialog_dispose(GObject *object)
 	IsPreferencesDialog *self = (IsPreferencesDialog *)object;
 	IsPreferencesDialogPrivate *priv = self->priv;
 
-	if (priv->indicator) {
-		g_object_unref(priv->indicator);
-		priv->indicator = NULL;
+	if (priv->application) {
+		g_object_unref(priv->application);
+		priv->application = NULL;
 	}
 	G_OBJECT_CLASS(is_preferences_dialog_parent_class)->dispose(object);
 }
@@ -432,9 +444,9 @@ is_preferences_dialog_finalize(GObject *object)
 	G_OBJECT_CLASS(is_preferences_dialog_parent_class)->finalize(object);
 }
 
-GtkWidget *is_preferences_dialog_new(IsIndicator *indicator)
+GtkWidget *is_preferences_dialog_new(IsApplication *application)
 {
 	return GTK_WIDGET(g_object_new(IS_TYPE_PREFERENCES_DIALOG,
-				       "indicator", indicator,
+				       "application", application,
 				       NULL));
 }

@@ -21,8 +21,7 @@
 
 #include "is-dbus-plugin.h"
 #include "is-active-sensor-generated.h"
-#include <indicator-sensors/is-manager.h>
-#include <indicator-sensors/is-indicator.h>
+#include <indicator-sensors/is-application.h>
 #include <indicator-sensors/is-log.h>
 #include <gio/gio.h>
 #include <glib/gi18n.h>
@@ -42,8 +41,7 @@ enum {
 
 struct _IsDBusPluginPrivate
 {
-	IsManager *manager;
-        IsIndicator *indicator;
+	IsApplication *application;
         guint id;
         GDBusObjectManagerServer *object_manager;
 };
@@ -60,7 +58,7 @@ is_dbus_plugin_set_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_OBJECT:
-		plugin->priv->manager = IS_MANAGER(g_value_dup_object(value));
+		plugin->priv->application = IS_APPLICATION(g_value_dup_object(value));
 		break;
 
 	default:
@@ -79,7 +77,7 @@ is_dbus_plugin_get_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_OBJECT:
-		g_value_set_object(value, plugin->priv->manager);
+		g_value_set_object(value, plugin->priv->application);
 		break;
 
 	default:
@@ -103,9 +101,9 @@ is_dbus_plugin_finalize(GObject *object)
 	IsDBusPlugin *self = (IsDBusPlugin *)object;
 	IsDBusPluginPrivate *priv = self->priv;
 
-	if (priv->manager) {
-		g_object_unref(priv->manager);
-		priv->manager = NULL;
+	if (priv->application) {
+		g_object_unref(priv->application);
+		priv->application = NULL;
 	}
 	G_OBJECT_CLASS(is_dbus_plugin_parent_class)->finalize(object);
 }
@@ -225,6 +223,8 @@ static const gchar introspection_xml[] =
   "  <interface name='com.github.alexmurray.IndicatorSensors'>"
   "    <method name='ShowPreferences'>"
   "    </method>"
+  "    <method name='ShowIndicator'>"
+  "    </method>"
   "    <method name='HideIndicator'>"
   "    </method>"
   "  </interface>"
@@ -244,9 +244,11 @@ handle_method_call(GDBusConnection *connection,
         IsDBusPluginPrivate *priv = self->priv;
 
         if (g_strcmp0(method_name, "ShowPreferences") == 0) {
-                is_indicator_show_preferences(priv->indicator);
+                is_application_show_preferences(priv->application);
+        } else if (g_strcmp0(method_name, "ShowIndicator") == 0) {
+                is_application_set_show_indicator(priv->application, TRUE);
         } else if (g_strcmp0(method_name, "HideIndicator") == 0) {
-                is_debug("dbus-plugin", "TODO: implement hiding of indicator");
+                is_application_set_show_indicator(priv->application, FALSE);
         }
         g_dbus_method_invocation_return_value(invocation, NULL);
 }
@@ -267,6 +269,7 @@ on_bus_acquired(GDBusConnection *connection,
 {
         IsDBusPlugin *self;
         IsDBusPluginPrivate *priv;
+        IsManager *manager;
         guint id;
         GError *error = NULL;
         GSList *sensors, *_list;
@@ -293,19 +296,20 @@ on_bus_acquired(GDBusConnection *connection,
          * /indicator-sensors/ActiveSensors */
         priv->object_manager = g_dbus_object_manager_server_new("/com/github/alexmurray/IndicatorSensors/ActiveSensors");
 
+        manager = is_application_get_manager(priv->application);
         /* set up a skeleton object and sensor for each active sensor */
-        sensors = is_manager_get_enabled_sensors_list(priv->manager);
+        sensors = is_manager_get_enabled_sensors_list(manager);
         for (_list = sensors; _list != NULL; _list = _list->next)
         {
                 IsSensor *sensor;
 
                 sensor = IS_SENSOR(_list->data);
 
-                sensor_enabled(priv->manager, sensor, i++, self);
+                sensor_enabled(manager, sensor, i++, self);
         }
-        g_signal_connect(priv->manager, "sensor-enabled",
+        g_signal_connect(manager, "sensor-enabled",
                          G_CALLBACK(sensor_enabled), self);
-        g_signal_connect(priv->manager, "sensor-disabled",
+        g_signal_connect(manager, "sensor-disabled",
                          G_CALLBACK(sensor_disabled), self);
         /* Export all objects */
         g_dbus_object_manager_server_set_connection(priv->object_manager, connection);
@@ -333,7 +337,6 @@ is_dbus_plugin_activate(PeasActivatable *activatable)
 	IsDBusPlugin *self = IS_DBUS_PLUGIN(activatable);
 	IsDBusPluginPrivate *priv = self->priv;
 
-        priv->indicator = is_indicator_get_default();
         /* get our dbus name */
         priv->id = g_bus_own_name(G_BUS_TYPE_SESSION,
                                   "com.github.alexmurray.IndicatorSensors",
@@ -358,7 +361,7 @@ is_dbus_plugin_deactivate(PeasActivatable *activatable)
 	IsDBusPluginPrivate *priv = self->priv;
 
         /* teardown dbus object manager */
-        g_object_unref(priv->indicator);
+
         /* disconnect from signals */
         g_bus_unown_name(priv->id);
 }

@@ -1,9 +1,0 @@
-[Plugin]
-Module=libgsettings
-IAge=2
-Name=GSettings
-Description=Saves and restores sensor configurations
-Authors=Alex Murray <murray.alex@gmail.com>
-Copyright=Copyright © 2011 Alex Murray
-Website=http://github.com/alexmurray/indicator-sensors
-Help=http://github.com/alexmurray/indicator-sensors

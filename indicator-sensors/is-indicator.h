@@ -19,7 +19,7 @@
 #define __IS_INDICATOR_H__
 
 #include <libappindicator/app-indicator.h>
-#include "is-manager.h"
+#include "is-application.h"
 #include "is-sensor.h"
 
 G_BEGIN_DECLS
@@ -56,7 +56,7 @@ struct _IsIndicatorClass
 
 struct _IsIndicator
 {
-	AppIndicator parent;
+        AppIndicator parent;
 	IsIndicatorPrivate *priv;
 };
 
@@ -70,15 +70,15 @@ typedef enum {
 } IsIndicatorDisplayFlags;
 
 GType is_indicator_get_type(void) G_GNUC_CONST;
-IsIndicator *is_indicator_get_default(void);
-IsManager *is_indicator_get_manager(IsIndicator *self);
+IsIndicator *is_indicator_new(IsApplication *application);
+IsApplication *is_indicator_get_application(IsIndicator *self);
 void is_indicator_set_primary_sensor_path(IsIndicator *self,
 					  const gchar *path);
 const gchar *is_indicator_get_primary_sensor_path(IsIndicator *self);
 void is_indicator_set_display_flags(IsIndicator *self,
 				    IsIndicatorDisplayFlags flags);
 IsIndicatorDisplayFlags is_indicator_get_display_flags(IsIndicator *self);
-void is_indicator_show_preferences(IsIndicator *self);
+
 G_END_DECLS
 
 #endif /* __IS_INDICATOR_H__ */

@@ -62,22 +62,16 @@ struct _IsManager
 
 GType is_manager_get_type(void) G_GNUC_CONST;
 IsManager *is_manager_new(void);
-guint is_manager_get_poll_timeout(IsManager *self);
-void is_manager_set_poll_timeout(IsManager *self, guint poll_timeout);
 gboolean is_manager_add_sensor(IsManager *self,
 			       IsSensor *sensor);
 IsSensor *is_manager_get_sensor(IsManager *self,
 				const gchar *path);
 GSList *is_manager_get_all_sensors_list(IsManager *self);
 GSList *is_manager_get_enabled_sensors_list(IsManager *self);
+guint is_manager_get_num_enabled_sensors(IsManager *self);
 gchar **is_manager_get_enabled_sensors(IsManager *self);
 gboolean is_manager_set_enabled_sensors(IsManager *self,
 					const gchar **enabled_sensors);
-gboolean is_manager_get_autostart(IsManager *self);
-void is_manager_set_autostart(IsManager *self, gboolean autostart);
-IsTemperatureSensorScale is_manager_get_temperature_scale(IsManager *self);
-void is_manager_set_temperature_scale(IsManager *self,
-				      IsTemperatureSensorScale scale);
 IsSensor *is_manager_get_selected_sensor(IsManager *self);
 
 G_END_DECLS

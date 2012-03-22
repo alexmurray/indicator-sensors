@@ -27,8 +27,6 @@
 #include <glib/gi18n.h>
 #include <gio/gio.h>
 
-#define DESKTOP_FILENAME PACKAGE ".desktop"
-
 G_DEFINE_TYPE(IsManager, is_manager, GTK_TYPE_TREE_VIEW);
 
 static void is_manager_dispose(GObject *object);
@@ -51,15 +49,9 @@ enum {
 
 static guint signals[LAST_SIGNAL] = {0};
 
-
-#define DEFAULT_POLL_TIMEOUT 5
-
 /* properties */
 enum {
-	PROP_POLL_TIMEOUT = 1,
-	PROP_ENABLED_SENSORS,
-	PROP_AUTOSTART,
-	PROP_TEMPERATURE_SCALE,
+	PROP_ENABLED_SENSORS = 1,
 	LAST_PROPERTY
 };
 
@@ -68,14 +60,8 @@ static GParamSpec *properties[LAST_PROPERTY] = {NULL};
 struct _IsManagerPrivate
 {
 	IsStore *store;
-	guint poll_timeout;
-	glong poll_timeout_id;
 	GTree *enabled_paths;
 	GSList *enabled_list;
-	GFileMonitor *monitor;
-	IsTemperatureSensorScale temperature_scale;
-	GKeyFile *sensor_config;
-	guint idle_write_id;
 };
 
 static void
@@ -90,16 +76,6 @@ is_manager_class_init(IsManagerClass *klass)
 	gobject_class->dispose = is_manager_dispose;
 	gobject_class->finalize = is_manager_finalize;
 
-	properties[PROP_POLL_TIMEOUT] = g_param_spec_uint("poll-timeout",
-							  "poll-timeout property",
-							  "poll-timeout property blurp.",
-							  0, G_MAXUINT,
-							  DEFAULT_POLL_TIMEOUT,
-							  G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-
-	g_object_class_install_property(gobject_class, PROP_POLL_TIMEOUT,
-					properties[PROP_POLL_TIMEOUT]);
-
 	properties[PROP_ENABLED_SENSORS] = g_param_spec_boxed("enabled-sensors",
 							      "enabled-sensors property",
 							      "enabled-sensors property blurp.",
@@ -108,25 +84,6 @@ is_manager_class_init(IsManagerClass *klass)
 
 	g_object_class_install_property(gobject_class, PROP_ENABLED_SENSORS,
 					properties[PROP_ENABLED_SENSORS]);
-
-	properties[PROP_AUTOSTART] = g_param_spec_boolean("autostart",
-							  "autostart property",
-							  "start " PACKAGE " automatically on login.",
-							  FALSE,
-							  G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-
-	g_object_class_install_property(gobject_class, PROP_AUTOSTART,
-					properties[PROP_AUTOSTART]);
-
-	/* TODO: convert to an enum type */
-	properties[PROP_TEMPERATURE_SCALE] = g_param_spec_int("temperature-scale", "temperature scale",
-							      "Sensor temperature scale.",
-							      IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
-							      IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT,
-							      IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
-							      G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-	g_object_class_install_property(gobject_class, PROP_TEMPERATURE_SCALE,
-					properties[PROP_TEMPERATURE_SCALE]);
 
 	signals[SIGNAL_SENSOR_ADDED] = g_signal_new("sensor-added",
 						    G_OBJECT_CLASS_TYPE(klass),
@@ -164,25 +121,6 @@ is_manager_class_init(IsManagerClass *klass)
 						       g_cclosure_marshal_VOID__OBJECT,
 						       G_TYPE_NONE, 1,
 						       IS_TYPE_SENSOR);
-}
-
-static gboolean
-update_sensors(IsManager *self)
-{
-	IsManagerPrivate *priv;
-
-	g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
-
-	priv = self->priv;
-	g_slist_foreach(priv->enabled_list,
-			(GFunc)is_sensor_update_value,
-			NULL);
-	/* only keep going if have sensors to poll */
-	if (!priv->enabled_list) {
-		g_source_remove(priv->poll_timeout_id);
-		priv->poll_timeout_id = 0;
-	}
-	return priv->enabled_list != NULL;
 }
 
 static void sensor_label_edited(GtkCellRendererText *renderer,
@@ -251,13 +189,6 @@ enable_sensor(IsManager *self,
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_ENABLED_SENSORS]);
 	}
-	/* get sensor to update and start polling if not already running */
-	is_sensor_update_value(sensor);
-	if (!priv->poll_timeout_id) {
-		priv->poll_timeout_id = g_timeout_add_seconds(priv->poll_timeout,
-							      (GSourceFunc)update_sensors,
-							      self);
-	}
 }
 
 static void
@@ -279,10 +210,6 @@ disable_sensor(IsManager *self,
 	g_assert(ret);
 	g_object_notify_by_pspec(G_OBJECT(self),
 				 properties[PROP_ENABLED_SENSORS]);
-	if (!priv->enabled_list) {
-		g_source_remove(priv->poll_timeout_id);
-		priv->poll_timeout_id = 0;
-	}
 }
 
 static void sensor_toggled(GtkCellRendererToggle *renderer,
@@ -318,25 +245,11 @@ static void sensor_toggled(GtkCellRendererToggle *renderer,
 }
 
 static void
-file_monitor_changed(GFileMonitor *monitor,
-		     GFile *file,
-		     GFile *other_file,
-		     GFileMonitorEvent event_type,
-		     IsManager *self)
-{
-	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_AUTOSTART]);
-}
-
-static void
 is_manager_init(IsManager *self)
 {
 	IsManagerPrivate *priv;
 	GtkCellRenderer *renderer;
 	GtkTreeViewColumn *col;
-	gchar *path;
-	GFile *file;
-	GError *error = NULL;
-	gboolean ret;
 
 	priv = G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_MANAGER,
 					   IsManagerPrivate);
@@ -347,18 +260,6 @@ is_manager_init(IsManager *self)
 	priv->store = is_store_new();
 	gtk_tree_view_set_model(GTK_TREE_VIEW(self),
 				GTK_TREE_MODEL(priv->store));
-	priv->poll_timeout = DEFAULT_POLL_TIMEOUT;
-	path = g_build_filename(g_get_user_config_dir(), "autostart",
-				DESKTOP_FILENAME, NULL);
-	file = g_file_new_for_path(path);
-	priv->monitor = g_file_monitor_file(file, G_FILE_MONITOR_NONE,
-					    NULL, NULL);
-	g_signal_connect(priv->monitor, "changed",
-			 G_CALLBACK(file_monitor_changed), self);
-	g_object_unref(file);
-	g_free(path);
-	priv->temperature_scale = IS_TEMPERATURE_SENSOR_SCALE_CELSIUS;
-
 	/* id column */
 	renderer = gtk_cell_renderer_text_new();
 	col = gtk_tree_view_column_new_with_attributes(_("Sensor"),
@@ -398,19 +299,6 @@ is_manager_init(IsManager *self)
 			 self);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
 
-	priv->sensor_config = g_key_file_new();
-	path = g_build_filename(g_get_user_config_dir(), PACKAGE,
-				"sensors", NULL);
-	ret = g_key_file_load_from_file(priv->sensor_config,
-					path,
-					G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS,
-					&error);
-	if (!ret) {
-		is_warning("manager", "Failed to load sensor configs from file %s: %s",
-			   path, error->message);
-		g_error_free(error);
-	}
-	g_free(path);
 }
 
 static void
@@ -420,17 +308,8 @@ is_manager_get_property(GObject *object,
 	IsManager *self = IS_MANAGER(object);
 
 	switch (property_id) {
-	case PROP_POLL_TIMEOUT:
-		g_value_set_uint(value, is_manager_get_poll_timeout(self));
-		break;
 	case PROP_ENABLED_SENSORS:
 		g_value_take_boxed(value, is_manager_get_enabled_sensors(self));
-		break;
-	case PROP_AUTOSTART:
-		g_value_set_boolean(value, is_manager_get_autostart(self));
-		break;
-	case PROP_TEMPERATURE_SCALE:
-		g_value_set_int(value, is_manager_get_temperature_scale(self));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -445,19 +324,9 @@ is_manager_set_property(GObject *object,
 	IsManager *self = IS_MANAGER(object);
 
 	switch (property_id) {
-	case PROP_POLL_TIMEOUT:
-		is_manager_set_poll_timeout(self, g_value_get_uint(value));
-		break;
 	case PROP_ENABLED_SENSORS:
 		is_manager_set_enabled_sensors(self,
 					       (const gchar **)g_value_get_boxed(value));
-		break;
-	case PROP_AUTOSTART:
-		is_manager_set_autostart(self, g_value_get_boolean(value));
-		break;
-	case PROP_TEMPERATURE_SCALE:
-		is_manager_set_temperature_scale(self,
-						 g_value_get_int(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -471,11 +340,7 @@ is_manager_dispose(GObject *object)
 	IsManager *self = (IsManager *)object;
 	IsManagerPrivate *priv = self->priv;
 
-	if (priv->poll_timeout_id) {
-		g_source_remove(priv->poll_timeout_id);
-		priv->poll_timeout_id = 0;
-	}
-	g_object_unref(priv->monitor);
+        (void)priv;
 
 	G_OBJECT_CLASS(is_manager_parent_class)->dispose(object);
 }
@@ -498,230 +363,6 @@ is_manager_new(void)
 	return g_object_new(IS_TYPE_MANAGER, NULL);
 }
 
-guint
-is_manager_get_poll_timeout(IsManager *self)
-{
-	g_return_val_if_fail(IS_IS_MANAGER(self), 0);
-
-	return self->priv->poll_timeout;
-}
-
-void
-is_manager_set_poll_timeout(IsManager *self,
-			    guint poll_timeout)
-{
-	IsManagerPrivate *priv;
-
-	g_return_if_fail(IS_IS_MANAGER(self));
-
-	priv = self->priv;
-	if (priv->poll_timeout != poll_timeout) {
-		priv->poll_timeout = poll_timeout;
-		if (priv->poll_timeout_id) {
-			g_source_remove(priv->poll_timeout_id);
-			priv->poll_timeout_id = g_timeout_add_seconds(priv->poll_timeout,
-								      (GSourceFunc)update_sensors,
-								      self);
-		}
-		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_POLL_TIMEOUT]);
-	}
-}
-
-static gboolean
-write_out_sensor_config(IsManager *self)
-{
-	IsManagerPrivate *priv;
-	gchar *data, *path;
-	gsize len;
-	GError *error = NULL;
-	gboolean ret;
-
-	priv = self->priv;
-	if (!priv->idle_write_id) {
-		is_warning("manager", "Not writing out sensor config as has already occurred");
-		goto out;
-	}
-
-	/* ensure directory exists */
-	path = g_build_filename(g_get_user_config_dir(), PACKAGE, NULL);
-	g_mkdir_with_parents(path, 0755);
-	g_free(path);
-
-	data = g_key_file_to_data(self->priv->sensor_config, &len, NULL);
-	path = g_build_filename(g_get_user_config_dir(), PACKAGE,
-				"sensors", NULL);
-	ret = g_file_set_contents(path, data, len, &error);
-	if (!ret) {
-		is_warning("manager", "Failed to write sensor config to file %s: %s",
-			   path, error->message);
-		g_error_free(error);
-	}
-	g_free(path);
-	g_free(data);
-
-	/* make sure we are not called again as an idle callback */
-out:
-	priv->idle_write_id = 0;
-	return FALSE;
-}
-
-static void
-sensor_label_notify(IsSensor *sensor,
-			  GParamSpec *pspec,
-			  IsManager *self)
-{
-	IsManagerPrivate *priv = self->priv;
-
-	g_key_file_set_string(priv->sensor_config,
-			      is_sensor_get_path(sensor),
-			      "label",
-			      is_sensor_get_label(sensor));
-	if (!priv->idle_write_id) {
-		priv->idle_write_id = g_idle_add((GSourceFunc)write_out_sensor_config,
-						 self);
-	}
-}
-
-static void
-sensor_alarm_value_notify(IsSensor *sensor,
-			  GParamSpec *pspec,
-			  IsManager *self)
-{
-	IsManagerPrivate *priv = self->priv;
-
-	g_key_file_set_double(priv->sensor_config,
-			      is_sensor_get_path(sensor),
-			      "alarm-value",
-			      is_sensor_get_alarm_value(sensor));
-	if (!priv->idle_write_id) {
-		priv->idle_write_id = g_idle_add((GSourceFunc)write_out_sensor_config,
-						 self);
-	}
-}
-
-static void
-sensor_alarm_mode_notify(IsSensor *sensor,
-			 GParamSpec *pspec,
-			 IsManager *self)
-{
-	IsManagerPrivate *priv = self->priv;
-
-	g_key_file_set_int64(priv->sensor_config,
-			     is_sensor_get_path(sensor),
-			     "alarm-mode",
-			     is_sensor_get_alarm_mode(sensor));
-	if (!priv->idle_write_id) {
-		priv->idle_write_id = g_idle_add((GSourceFunc)write_out_sensor_config,
-						 self);
-	}
-}
-
-static void
-sensor_low_value_notify(IsSensor *sensor,
-			  GParamSpec *pspec,
-			  IsManager *self)
-{
-	IsManagerPrivate *priv = self->priv;
-
-	g_key_file_set_double(priv->sensor_config,
-			      is_sensor_get_path(sensor),
-			      "low-value",
-			      is_sensor_get_low_value(sensor));
-	if (!priv->idle_write_id) {
-		priv->idle_write_id = g_idle_add((GSourceFunc)write_out_sensor_config,
-						 self);
-	}
-}
-
-static void
-sensor_high_value_notify(IsSensor *sensor,
-			  GParamSpec *pspec,
-			  IsManager *self)
-{
-	IsManagerPrivate *priv = self->priv;
-
-	g_key_file_set_double(priv->sensor_config,
-			      is_sensor_get_path(sensor),
-			      "high-value",
-			      is_sensor_get_high_value(sensor));
-	if (!priv->idle_write_id) {
-		priv->idle_write_id = g_idle_add((GSourceFunc)write_out_sensor_config,
-						 self);
-	}
-}
-
-static void
-restore_sensor_config(IsManager *self,
-		      IsSensor *sensor)
-{
-	IsManagerPrivate *priv = self->priv;
-	gchar *label;
-	gdouble alarm_value, low_value, high_value;
-	IsSensorAlarmMode alarm_mode;
-	GError *error = NULL;
-
-	label = g_key_file_get_string(priv->sensor_config,
-				      is_sensor_get_path(sensor),
-				      "label",
-				      &error);
-	if (error) {
-		is_message("manager", "Unable to restore saved label for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
-		is_sensor_set_label(sensor, label);
-	}
-	g_free(label);
-
-	alarm_value = g_key_file_get_double(priv->sensor_config,
-					    is_sensor_get_path(sensor),
-					    "alarm-value",
-					    &error);
-	if (error) {
-		is_message("manager", "Unable to restore saved alarm-value for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
-		is_sensor_set_alarm_value(sensor, alarm_value);
-	}
-
-	alarm_mode = g_key_file_get_int64(priv->sensor_config,
-					  is_sensor_get_path(sensor),
-					  "alarm-mode",
-					  &error);
-	if (error) {
-		is_message("manager", "Unable to restore saved alarm-mode for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
-		is_sensor_set_alarm_mode(sensor, alarm_mode);
-	}
-
-	low_value = g_key_file_get_double(priv->sensor_config,
-					    is_sensor_get_path(sensor),
-					    "low-value",
-					    &error);
-	if (error) {
-		is_message("manager", "Unable to restore saved low-value for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
-		is_sensor_set_low_value(sensor, low_value);
-	}
-
-	high_value = g_key_file_get_double(priv->sensor_config,
-					    is_sensor_get_path(sensor),
-					    "high-value",
-					    &error);
-	if (error) {
-		is_message("manager", "Unable to restore saved high-value for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
-		is_sensor_set_high_value(sensor, high_value);
-	}
-
-}
 gboolean
 is_manager_add_sensor(IsManager *self,
 		      IsSensor *sensor)
@@ -738,23 +379,6 @@ is_manager_add_sensor(IsManager *self,
 	ret = is_store_add_sensor(priv->store, sensor, &iter);
 	if (!ret) {
 		goto out;
-	}
-	restore_sensor_config(self, sensor);
-	g_signal_connect(sensor, "notify::label", G_CALLBACK(sensor_label_notify),
-			 self);
-	g_signal_connect(sensor, "notify::alarm-value",
-			 G_CALLBACK(sensor_alarm_value_notify), self);
-	g_signal_connect(sensor, "notify::alarm-mode",
-			 G_CALLBACK(sensor_alarm_mode_notify), self);
-	g_signal_connect(sensor, "notify::low-value",
-			 G_CALLBACK(sensor_low_value_notify), self);
-	g_signal_connect(sensor, "notify::high-value",
-			 G_CALLBACK(sensor_high_value_notify), self);
-
-	/* set scale as appropriate */
-	if (IS_IS_TEMPERATURE_SENSOR(sensor)) {
-		is_temperature_sensor_set_scale(IS_TEMPERATURE_SENSOR(sensor),
-						priv->temperature_scale);
 	}
 	g_signal_emit(self, signals[SIGNAL_SENSOR_ADDED], 0, sensor);
 	/* enable sensor if is in enabled-sensors list */
@@ -837,6 +461,17 @@ is_manager_set_enabled_sensors(IsManager *self,
 	g_object_notify_by_pspec(G_OBJECT(self),
 				 properties[PROP_ENABLED_SENSORS]);
 	return TRUE;
+}
+
+guint is_manager_get_num_enabled_sensors(IsManager *self)
+{
+	IsManagerPrivate *priv;
+
+	g_return_val_if_fail(IS_IS_MANAGER(self), 0);
+
+	priv = self->priv;
+
+        return g_slist_length(priv->enabled_list);
 }
 
 static gboolean
@@ -928,182 +563,6 @@ is_manager_get_sensor(IsManager *self,
 	}
 
 	return sensor;
-}
-
-#define AUTOSTART_KEY "X-GNOME-Autostart-enabled"
-
-gboolean
-is_manager_get_autostart(IsManager *self)
-{
-	GKeyFile *key_file;
-	gchar *path;
-	GError *error = NULL;
-	gboolean ret = FALSE;
-
-	g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
-
-	key_file = g_key_file_new();
-	path = g_build_filename(g_get_user_config_dir(), "autostart",
-				DESKTOP_FILENAME, NULL);
-	ret = g_key_file_load_from_file(key_file, path, G_KEY_FILE_NONE, &error);
-	if (!ret) {
-		is_debug("manager", "Failed to load autostart desktop file '%s': %s",
-			path, error->message);
-		g_error_free(error);
-		goto out;
-	}
-	ret = g_key_file_get_boolean(key_file, G_KEY_FILE_DESKTOP_GROUP,
-				     AUTOSTART_KEY, &error);
-	if (error) {
-		is_debug("manager", "Failed to get key '%s' from autostart desktop file '%s': %s",
-			AUTOSTART_KEY, path, error->message);
-		g_error_free(error);
-	}
-
-out:
-	g_free(path);
-	g_key_file_free(key_file);
-	return ret;
-}
-
-void
-is_manager_set_autostart(IsManager *self,
-			 gboolean autostart)
-{
-	GKeyFile *key_file;
-	gboolean ret;
-	gchar *autostart_file;
-	GError *error = NULL;
-
-	g_return_if_fail(IS_IS_MANAGER(self));
-
-	key_file = g_key_file_new();
-	autostart_file = g_build_filename(g_get_user_config_dir(), "autostart",
-					  DESKTOP_FILENAME, NULL);
-	ret = g_key_file_load_from_file(key_file, autostart_file,
-					G_KEY_FILE_KEEP_COMMENTS |
-					G_KEY_FILE_KEEP_TRANSLATIONS,
-					&error);
-	if (!ret) {
-		gchar *application_file;
-		gchar *autostart_dir;
-
-		is_debug("manager", "Failed to load autostart desktop file '%s': %s",
-			autostart_file, error->message);
-		g_clear_error(&error);
-		/* make sure autostart dir exists */
-		autostart_dir = g_build_filename(g_get_user_config_dir(), "autostart",
-						 NULL);
-		ret = g_mkdir_with_parents(autostart_dir, 0755);
-		if (ret != 0) {
-			is_warning("manager", "Failed to create autostart directory '%s'", autostart_dir);
-		}
-		g_free(autostart_dir);
-
-		application_file = g_build_filename("applications",
-						    DESKTOP_FILENAME, NULL);
-		ret = g_key_file_load_from_data_dirs(key_file,
-						     application_file,
-						     NULL,
-						     G_KEY_FILE_KEEP_COMMENTS |
-						     G_KEY_FILE_KEEP_TRANSLATIONS,
-						     &error);
-		if (!ret) {
-			is_warning("manager", "Failed to load application desktop file: %s",
-				  error->message);
-			g_clear_error(&error);
-			/* create file by hand */
-			g_key_file_set_string(key_file,
-					      G_KEY_FILE_DESKTOP_GROUP,
-					      G_KEY_FILE_DESKTOP_KEY_TYPE,
-					      "Application");
-			g_key_file_set_string(key_file,
-					      G_KEY_FILE_DESKTOP_GROUP,
-					      G_KEY_FILE_DESKTOP_KEY_NAME,
-					      _(PACKAGE_NAME));
-			g_key_file_set_string(key_file,
-					      G_KEY_FILE_DESKTOP_GROUP,
-					      G_KEY_FILE_DESKTOP_KEY_GENERIC_NAME,
-					      _(PACKAGE_NAME));
- 			g_key_file_set_string(key_file,
-					      G_KEY_FILE_DESKTOP_GROUP,
-					      G_KEY_FILE_DESKTOP_KEY_EXEC,
-					      PACKAGE);
- 			g_key_file_set_string(key_file,
-					      G_KEY_FILE_DESKTOP_GROUP,
-					      G_KEY_FILE_DESKTOP_KEY_ICON,
-					      PACKAGE);
- 			g_key_file_set_string(key_file,
-					      G_KEY_FILE_DESKTOP_GROUP,
-					      G_KEY_FILE_DESKTOP_KEY_CATEGORIES,
-					      "System;");
-                }
-		g_free(application_file);
-	}
-	g_key_file_set_boolean(key_file, G_KEY_FILE_DESKTOP_GROUP,
-			       AUTOSTART_KEY, autostart);
-	ret = g_file_set_contents(autostart_file,
-				  g_key_file_to_data(key_file, NULL, NULL),
-				  -1,
-				  &error);
-	if (!ret) {
-		is_warning("manager", "Failed to write autostart desktop file '%s': %s",
-			  autostart_file, error->message);
-		g_clear_error(&error);
-	}
-	g_free(autostart_file);
-	g_key_file_free(key_file);
-}
-
-IsTemperatureSensorScale is_manager_get_temperature_scale(IsManager *self)
-{
-	g_return_val_if_fail(IS_IS_MANAGER(self),
-			     IS_TEMPERATURE_SENSOR_SCALE_INVALID);
-
-	return self->priv->temperature_scale;
-}
-
-static gboolean
-set_temperature_sensor_scale(GtkTreeModel *model,
-			     GtkTreePath *path,
-			     GtkTreeIter *iter,
-			     IsTemperatureSensorScale *scale)
-{
-	IsSensor *sensor;
-
-	gtk_tree_model_get(model, iter,
-			   IS_STORE_COL_SENSOR, &sensor,
-			   -1);
-
-	if (sensor) {
-		if (IS_IS_TEMPERATURE_SENSOR(sensor)) {
-			is_temperature_sensor_set_scale(IS_TEMPERATURE_SENSOR(sensor),
-							*scale);
-		}
-		g_object_unref(sensor);
-	}
-	return FALSE;
-}
-
-void is_manager_set_temperature_scale(IsManager *self,
-				      IsTemperatureSensorScale scale)
-{
-	IsManagerPrivate *priv;
-
-	g_return_if_fail(IS_IS_MANAGER(self));
-	g_return_if_fail(scale == IS_TEMPERATURE_SENSOR_SCALE_CELSIUS ||
-			 scale == IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT);
-
-	priv = self->priv;
-
-	/* set scale on all temperature sensors */
-	if (priv->temperature_scale != scale) {
-		priv->temperature_scale = scale;
-		gtk_tree_model_foreach(GTK_TREE_MODEL(priv->store),
-				       (GtkTreeModelForeachFunc)set_temperature_sensor_scale,
-				       &priv->temperature_scale);
-		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_TEMPERATURE_SCALE]);
-	}
 }
 
 IsSensor *

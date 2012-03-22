@@ -21,6 +21,7 @@
 
 #include "is-log.h"
 #include "is-notify.h"
+#include "is-application.h"
 #include "is-indicator.h"
 #include <gtk/gtk.h>
 #include <libpeas/peas.h>
@@ -61,8 +62,9 @@ on_plugin_list_notify(PeasEngine *engine,
 
 int main(int argc, char **argv)
 {
-	IsIndicator *indicator;
-	IsManager *manager;
+	IsApplication *application;
+        GSettings *settings;
+        IsManager *manager;
 	gchar *plugin_dir;
 	PeasEngine *engine;
 	PeasExtensionSet *set;
@@ -95,25 +97,29 @@ int main(int argc, char **argv)
 
         /* init notifications */
         is_notify_init();
-	indicator = is_indicator_get_default();
-	manager = is_indicator_get_manager(indicator);
+	application = is_application_new();
+        settings = g_settings_new("indicator-sensors.application");
+        g_settings_bind(settings, "temperature-scale",
+                        application, "temperature-scale",
+                        G_SETTINGS_BIND_DEFAULT);
 
 	/* create extension set and set manager as object */
 	set = peas_extension_set_new(engine, PEAS_TYPE_ACTIVATABLE,
-				     "object", manager, NULL);
+				     "object", application, NULL);
 
 	/* activate all activatable extensions */
 	peas_extension_set_call(set, "activate");
 
 	/* and make sure to activate any ones which are found in the future */
 	g_signal_connect(set, "extension-added",
-			 G_CALLBACK(on_extension_added), indicator);
+			 G_CALLBACK(on_extension_added), application);
 	g_signal_connect(set, "extension-removed",
-			  G_CALLBACK(on_extension_removed), indicator);
+			  G_CALLBACK(on_extension_removed), application);
 
         /* since all plugins are now inited show a notification if we detected
          * sensors but none are enabled - TODO: perhaps just open the pref's
          * dialog?? */
+        manager = is_application_get_manager(application);
         GSList *sensors = is_manager_get_all_sensors_list(manager);
         if (sensors) {
                 gchar **enabled_sensors = is_manager_get_enabled_sensors(manager);
@@ -129,6 +135,8 @@ int main(int argc, char **argv)
 
 	gtk_main();
 
+        g_object_unref(application);
         is_notify_uninit();
+
 	return 0;
 }

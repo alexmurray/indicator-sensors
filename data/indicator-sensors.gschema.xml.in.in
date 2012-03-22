@@ -18,6 +18,8 @@
       <_summary>Enabled sensors</_summary>
       <_description>The list of enabled sensors to monitor, each identified by it’s path.</_description>
     </key>
+  </schema>
+  <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.application" path="/apps/indicator-sensors/application/">
     <!-- consider making this an enum -->
     <key type="i" name="temperature-scale">
       <default>1</default>

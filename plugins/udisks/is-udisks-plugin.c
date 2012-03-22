@@ -21,7 +21,7 @@
 
 #include "is-udisks-plugin.h"
 #include <indicator-sensors/is-log.h>
-#include <indicator-sensors/is-manager.h>
+#include <indicator-sensors/is-application.h>
 #include <indicator-sensors/is-temperature-sensor.h>
 #include <atasmart.h>
 #include <gio/gio.h>
@@ -47,7 +47,7 @@ enum {
 
 struct _IsUdisksPluginPrivate
 {
-	IsManager *manager;
+	IsApplication *application;
 	GHashTable *sensors;
 	GDBusConnection *connection;
 };
@@ -64,7 +64,7 @@ is_udisks_plugin_set_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_OBJECT:
-		plugin->priv->manager = IS_MANAGER(g_value_dup_object(value));
+		plugin->priv->application = IS_APPLICATION(g_value_dup_object(value));
 		break;
 
 	default:
@@ -83,7 +83,7 @@ is_udisks_plugin_get_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_OBJECT:
-		g_value_set_object(value, plugin->priv->manager);
+		g_value_set_object(value, plugin->priv->application);
 		break;
 
 	default:
@@ -107,9 +107,9 @@ is_udisks_plugin_finalize(GObject *object)
 	IsUdisksPlugin *self = (IsUdisksPlugin *)object;
 	IsUdisksPluginPrivate *priv = self->priv;
 
-	if (priv->manager) {
-		g_object_unref(priv->manager);
-		priv->manager = NULL;
+	if (priv->application) {
+		g_object_unref(priv->application);
+		priv->application = NULL;
 	}
 	G_OBJECT_CLASS(is_udisks_plugin_parent_class)->finalize(object);
 }
@@ -333,7 +333,8 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
 		is_sensor_set_update_interval(sensor, 60);
 		g_signal_connect(sensor, "update-value",
 				 G_CALLBACK(update_sensor_value), self);
-		is_manager_add_sensor(priv->manager, sensor);
+		is_manager_add_sensor(is_application_get_manager(priv->application),
+                                      sensor);
 
 		g_free(sensor_path);
 		g_free(name);

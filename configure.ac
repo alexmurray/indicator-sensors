@@ -192,13 +192,12 @@ AC_SUBST(PLUGIN_LIBTOOL_FLAGS)
 AC_CONFIG_FILES([
 	Makefile
 	data/Makefile
+	data/indicator-sensors.gschema.xml.in
 	indicator-sensors/Makefile
 	pixmaps/Makefile
 	plugins/Makefile
 	plugins/aticonfig/Makefile
 	plugins/dbus/Makefile
-	plugins/gsettings/Makefile
-	plugins/gsettings/indicator-sensors.gschema.xml.in
 	plugins/libnotify/Makefile
 	plugins/libsensors/Makefile
 	plugins/nvidia/Makefile

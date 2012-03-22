@@ -19,7 +19,7 @@
 #define __IS_PREFERENCES_DIALOG_H__
 
 #include <gtk/gtk.h>
-#include "is-indicator.h"
+#include "is-application.h"
 
 G_BEGIN_DECLS
 
@@ -63,7 +63,7 @@ struct _IsPreferencesDialog
 };
 
 GType is_preferences_dialog_get_type(void) G_GNUC_CONST;
-GtkWidget *is_preferences_dialog_new(IsIndicator *indicator);
+GtkWidget *is_preferences_dialog_new(IsApplication *application);
 
 G_END_DECLS
 
