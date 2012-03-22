@@ -695,10 +695,10 @@ is_indicator_new(IsManager *manager)
 
 	AppIndicator *self = g_object_new(IS_TYPE_INDICATOR,
 					  "id", PACKAGE,
-                                          "title", PACKAGE_NAME,
 					  "icon-name", PACKAGE,
 					  "category", "Hardware",
 					  "manager", manager,
+                                          "title", PACKAGE_NAME,
 					  NULL);
 
 	action_group = gtk_action_group_new("AppActions");
