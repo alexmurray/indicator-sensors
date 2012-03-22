@@ -861,6 +861,12 @@ is_application_show_indicator(IsApplication *self)
                 priv->indicator = is_indicator_new(self);
 
                 settings = g_settings_new("indicator-sensors.indicator");
+                is_indicator_set_primary_sensor_path(priv->indicator,
+                                                     g_settings_get_string(settings,
+                                                                           "primary-sensor"));
+                is_indicator_set_display_flags(priv->indicator,
+                                               g_settings_get_int(settings,
+                                                                  "display-flags"));
                 g_settings_bind(settings, "primary-sensor",
                                 priv->indicator, "primary-sensor-path",
                                 G_SETTINGS_BIND_DEFAULT);

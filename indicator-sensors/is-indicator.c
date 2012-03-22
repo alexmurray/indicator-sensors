@@ -30,6 +30,7 @@ G_DEFINE_TYPE (IsIndicator, is_indicator, APP_INDICATOR_TYPE);
 
 static void is_indicator_dispose(GObject *object);
 static void is_indicator_finalize(GObject *object);
+static void is_indicator_constructed(GObject *object);
 static void is_indicator_get_property(GObject *object,
 				      guint property_id, GValue *value, GParamSpec *pspec);
 static void is_indicator_set_property(GObject *object,
@@ -74,6 +75,36 @@ struct _IsIndicatorPrivate
 };
 
 static void
+is_indicator_constructed(GObject *object)
+{
+        IsIndicator *self = IS_INDICATOR(object);
+        IsManager *manager;
+        GSList *sensors, *_list;
+        gint i = 0;
+
+        manager = is_application_get_manager(self->priv->application);
+
+        /* fake addition of any sensors */
+        sensors = is_manager_get_all_sensors_list(manager);
+        for (_list = sensors; _list != NULL; _list = _list->next) {
+                IsSensor *sensor = IS_SENSOR(_list->data);
+                sensor_added(manager, IS_SENSOR(_list->data), self);
+                g_object_unref(sensor);
+        }
+        g_slist_free(sensors);
+
+        /* fake enabling of any sensors */
+        sensors = is_manager_get_enabled_sensors_list(manager);
+        for (_list = sensors; _list != NULL; _list = _list->next) {
+                IsSensor *sensor = IS_SENSOR(_list->data);
+                sensor_enabled(manager, IS_SENSOR(_list->data), i++,
+                               self);
+                g_object_unref(sensor);
+        }
+        g_slist_free(sensors);
+}
+
+static void
 is_indicator_class_init(IsIndicatorClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
@@ -83,6 +114,7 @@ is_indicator_class_init(IsIndicatorClass *klass)
 
 	gobject_class->get_property = is_indicator_get_property;
 	gobject_class->set_property = is_indicator_set_property;
+	gobject_class->constructed = is_indicator_constructed;
 	gobject_class->dispose = is_indicator_dispose;
 	gobject_class->finalize = is_indicator_finalize;
 	indicator_class->connection_changed = is_indicator_connection_changed;
@@ -143,35 +175,6 @@ is_indicator_get_property(GObject *object,
 	}
 }
 
-static gboolean
-fake_add_enable_sensors(IsIndicator *self)
-{
-        IsManager *manager;
-        GSList *sensors, *_list;
-        gint i = 0;
-
-        manager = is_application_get_manager(self->priv->application);
-
-        /* fake addition of any sensors */
-        sensors = is_manager_get_all_sensors_list(manager);
-        for (_list = sensors; _list != NULL; _list = _list->next) {
-                IsSensor *sensor = IS_SENSOR(_list->data);
-                sensor_added(manager, IS_SENSOR(_list->data), self);
-                g_object_unref(sensor);
-        }
-        g_slist_free(sensors);
-
-        /* fake enabling of any sensors */
-        sensors = is_manager_get_enabled_sensors_list(manager);
-        for (_list = sensors; _list != NULL; _list = _list->next) {
-                IsSensor *sensor = IS_SENSOR(_list->data);
-                sensor_enabled(manager, IS_SENSOR(_list->data), i++,
-                               self);
-                g_object_unref(sensor);
-        }
-        g_slist_free(sensors);
-        return FALSE;
-}
 static void
 is_indicator_set_property(GObject *object,
 			  guint property_id, const GValue *value, GParamSpec *pspec)
@@ -191,11 +194,6 @@ is_indicator_set_property(GObject *object,
 				 G_CALLBACK(sensor_disabled), self);
 		g_signal_connect(manager, "sensor-added",
 				 G_CALLBACK(sensor_added), self);
-                /* add sensors in idle callback since our menu etc won't yet be
-                initialised - TODO: could we do this from a constructed
-                handler?? */
-                g_idle_add((GSourceFunc)fake_add_enable_sensors,
-                           self);
 		break;
 	case PROP_PRIMARY_SENSOR_PATH:
 		is_indicator_set_primary_sensor_path(self, g_value_get_string(value));
@@ -665,10 +663,13 @@ sensor_enabled(IsManager *manager,
 
                 priv->menu_items = g_slist_insert(priv->menu_items, menu_item,
                                                   position);
-                /* if we haven't seen our primary sensor yet or if this is the primary
-                 * sensor, display this as primary anyway */
+                /* if we haven't seen our primary sensor yet or if this is the
+                 * primary sensor, display this as primary anyway */
                 if (!priv->primary ||
-                    g_strcmp0(is_sensor_get_path(sensor), priv->primary_sensor_path) == 0) {
+                    g_strcmp0(is_sensor_get_path(sensor),
+                              priv->primary_sensor_path) == 0) {
+                        is_debug("indicator", "Found primary sensor with path %s",
+                                 priv->primary_sensor_path);
                         if (priv->primary) {
                                 g_object_unref(priv->primary);
                         }
