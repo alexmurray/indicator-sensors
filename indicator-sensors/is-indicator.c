@@ -687,12 +687,21 @@ sensor_enabled(IsManager *manager,
                 if (!priv->primary ||
                     g_strcmp0(is_sensor_get_path(sensor),
                               priv->primary_sensor_path) == 0) {
+                        GtkCheckMenuItem *item;
                         is_debug("indicator", "Found primary sensor with path %s",
                                  priv->primary_sensor_path);
                         if (priv->primary) {
                                 g_object_unref(priv->primary);
                         }
                         priv->primary = g_object_ref(sensor);
+			item = (GtkCheckMenuItem *)(g_object_get_data(G_OBJECT(sensor),
+											"menu-item"));
+			priv->primary = sensor;
+			if (item) {
+				gtk_check_menu_item_set_active(item, TRUE);
+				update_sensor_menu_item_label(self, sensor,
+							      GTK_MENU_ITEM(item));
+			}
                 }
                 gtk_widget_show_all(menu_item);
 
