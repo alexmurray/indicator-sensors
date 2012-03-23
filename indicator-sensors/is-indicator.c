@@ -42,6 +42,8 @@ static void sensor_enabled(IsManager *manager,
 			   IsSensor *sensor,
 			   gint position,
 			   IsIndicator *self);
+static void _sensor_disabled(IsSensor *sensor,
+                             IsIndicator *self);
 static void sensor_disabled(IsManager *manager,
                             IsSensor *sensor,
                             IsIndicator *self);
@@ -264,8 +266,7 @@ is_indicator_dispose(GObject *object)
         sensors = is_manager_get_enabled_sensors_list(manager);
         for (_list = sensors; _list != NULL; _list = _list->next) {
                 IsSensor *sensor = IS_SENSOR(_list->data);
-                sensor_disabled(manager, IS_SENSOR(_list->data),
-                                self);
+                _sensor_disabled(IS_SENSOR(_list->data), self);
                 g_object_unref(sensor);
         }
         g_slist_free(sensors);
@@ -573,14 +574,12 @@ sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
 }
 
 static void
-sensor_disabled(IsManager *manager,
-		IsSensor *sensor,
-		IsIndicator *self)
+_sensor_disabled(IsSensor *sensor,
+                 IsIndicator *self)
 {
 	IsIndicatorPrivate *priv = self->priv;
 	GtkWidget *menu_item;
 
-	/* debug - enable sensor */
 	is_debug("indicator", "disabling sensor %s",
                  is_sensor_get_path(sensor));
 
@@ -609,20 +608,32 @@ sensor_disabled(IsManager *manager,
 					_("No active sensors"));
 		g_object_unref(priv->primary);
 		priv->primary = NULL;
-		goto out;
 	}
-	/* choose top-most menu item */
-	menu_item = GTK_WIDGET(priv->menu_items->data);
-	/* activate it to make this the new primary sensor */
-	gtk_menu_item_activate(GTK_MENU_ITEM(menu_item));
-
 out:
-	return;
+        return;
 }
 
 static void
-sensor_menu_item_activated(GtkMenuItem *menu_item,
-			   IsIndicator *self)
+sensor_disabled(IsManager *manager,
+		IsSensor *sensor,
+		IsIndicator *self)
+{
+        IsIndicatorPrivate *priv;
+        GtkWidget *menu_item;
+
+        priv = self->priv;
+
+        _sensor_disabled(sensor, self);
+
+	/* choose top-most menu item and set it as primary one */
+	menu_item = GTK_WIDGET(priv->menu_items->data);
+	/* activate it to make this the new primary sensor */
+	gtk_menu_item_activate(GTK_MENU_ITEM(menu_item));
+}
+
+static void
+sensor_menu_item_toggled(GtkMenuItem *menu_item,
+                         IsIndicator *self)
 {
 	IsSensor *sensor;
 
@@ -630,7 +641,7 @@ sensor_menu_item_activated(GtkMenuItem *menu_item,
 
 	sensor = IS_SENSOR(g_object_get_data(G_OBJECT(menu_item),
 					     "sensor"));
-        is_debug("indicator", "Sensor %s menu-item activated - setting as primary sensor",
+        is_debug("indicator", "Sensor %s menu-item toggled - setting as primary sensor",
                  is_sensor_get_path(sensor));
 	is_indicator_set_primary_sensor_path(self, is_sensor_get_path(sensor));
 }
@@ -674,8 +685,8 @@ sensor_enabled(IsManager *manager,
                 menu_item = gtk_check_menu_item_new();
                 gtk_check_menu_item_set_draw_as_radio(GTK_CHECK_MENU_ITEM(menu_item),
                                                       TRUE);
-                g_signal_connect(menu_item, "activate",
-                                 G_CALLBACK(sensor_menu_item_activated),
+                g_signal_connect(menu_item, "toggled",
+                                 G_CALLBACK(sensor_menu_item_toggled),
                                  self);
                 g_object_set_data(G_OBJECT(sensor), "menu-item", menu_item);
                 g_object_set_data(G_OBJECT(menu_item), "sensor", sensor);
@@ -783,6 +794,10 @@ void is_indicator_set_primary_sensor_path(IsIndicator *self,
 	if (g_strcmp0(priv->primary_sensor_path, path) != 0 &&
 	    g_strcmp0(path, "") != 0) {
 		IsSensor *sensor;
+
+                is_debug("indicator", "new primary sensor path %s (previously %s)",
+                         path, priv->primary_sensor_path);
+
 		/* uncheck current primary sensor label - may be NULL as is
                  * already disabled */
 		if (priv->primary) {
