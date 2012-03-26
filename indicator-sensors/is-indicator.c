@@ -262,6 +262,9 @@ is_indicator_dispose(GObject *object)
         GSList *sensors, *_list;
 
         manager = is_application_get_manager(priv->application);
+        g_signal_handlers_disconnect_by_func(manager, sensor_enabled, self);
+        g_signal_handlers_disconnect_by_func(manager, sensor_disabled, self);
+        g_signal_handlers_disconnect_by_func(manager, sensor_added, self);
         /* fake disabling of any sensors */
         sensors = is_manager_get_enabled_sensors_list(manager);
         for (_list = sensors; _list != NULL; _list = _list->next) {
