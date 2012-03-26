@@ -31,20 +31,20 @@ static void
 on_extension_added(PeasExtensionSet *set,
 		   PeasPluginInfo *info,
 		   PeasExtension *exten,
-		   IsIndicator *indicator)
+		   IsApplication *application)
 {
 	is_debug("main", "Activating plugin: %s", peas_plugin_info_get_name(info));
-	peas_extension_call(exten, "activate", indicator);
+	peas_extension_call(exten, "activate", application);
 }
 
 static void
 on_extension_removed(PeasExtensionSet *set,
 		     PeasPluginInfo *info,
 		     PeasExtension *exten,
-		     IsIndicator *indicator)
+		     IsApplication *application)
 {
 	is_debug("main", "Deactivating plugin: %s", peas_plugin_info_get_name(info));
-	peas_extension_call(exten, "deactivate", indicator);
+	peas_extension_call(exten, "deactivate", application);
 }
 
 static void
