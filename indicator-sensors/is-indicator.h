@@ -18,7 +18,11 @@
 #ifndef __IS_INDICATOR_H__
 #define __IS_INDICATOR_H__
 
+#if HAVE_APPINDICATOR
 #include <libappindicator/app-indicator.h>
+#else
+#include <gtk/gtk.h>
+#endif
 #include "is-application.h"
 #include "is-sensor.h"
 
@@ -49,14 +53,24 @@ typedef struct _IsIndicator      IsIndicator;
 typedef struct _IsIndicatorClass IsIndicatorClass;
 typedef struct _IsIndicatorPrivate IsIndicatorPrivate;
 
+#if HAVE_APPINDICATOR
+#define IsIndicatorParentClass AppIndicatorClass
+#define IsIndicatorParent AppIndicator
+#define IS_INDICATOR_PARENT_TYPE APP_INDICATOR_TYPE
+#else
+#define IsIndicatorParentClass GtkStatusIconClass
+#define IsIndicatorParent GtkStatusIcon
+#define IS_INDICATOR_PARENT_TYPE GTK_TYPE_STATUS_ICON
+#endif
+
 struct _IsIndicatorClass
 {
-	AppIndicatorClass parent_class;
+	IsIndicatorParentClass parent_class;
 };
 
 struct _IsIndicator
 {
-        AppIndicator parent;
+        IsIndicatorParent parent;
 	IsIndicatorPrivate *priv;
 };
 

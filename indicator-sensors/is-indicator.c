@@ -26,7 +26,7 @@
 #include <math.h>
 #include <glib/gi18n.h>
 
-G_DEFINE_TYPE (IsIndicator, is_indicator, APP_INDICATOR_TYPE);
+G_DEFINE_TYPE (IsIndicator, is_indicator, IS_INDICATOR_PARENT_TYPE);
 
 static void is_indicator_dispose(GObject *object);
 static void is_indicator_finalize(GObject *object);
@@ -35,9 +35,11 @@ static void is_indicator_get_property(GObject *object,
 				      guint property_id, GValue *value, GParamSpec *pspec);
 static void is_indicator_set_property(GObject *object,
 				      guint property_id, const GValue *value, GParamSpec *pspec);
+#if HAVE_APPINDICATOR
 static void is_indicator_connection_changed(AppIndicator *indicator,
 					    gboolean connected,
 					    gpointer data);
+#endif
 static void sensor_enabled(IsManager *manager,
 			   IsSensor *sensor,
 			   gint position,
@@ -76,6 +78,46 @@ struct _IsIndicatorPrivate
 	GSList *menu_items;
 };
 
+static GtkMenu *
+is_indicator_get_menu(IsIndicator *self)
+{
+        GtkMenu *menu;
+
+#if HAVE_APPINDICATOR
+        menu = app_indicator_get_menu(APP_INDICATOR(self));
+#else
+        menu = GTK_MENU(g_object_get_data(G_OBJECT(self), "indicator-menu"));
+#endif
+        return menu;
+}
+
+#if !HAVE_APPINDICATOR
+static void
+popup_menu(GtkStatusIcon *status_icon,
+           guint button,
+           guint activate_time,
+           gpointer user_data)
+{
+        IsIndicator *self = IS_INDICATOR(status_icon);
+        gtk_menu_popup(is_indicator_get_menu(self), NULL, NULL,
+                       gtk_status_icon_position_menu,
+                       self, button, activate_time);
+}
+#endif
+
+static void
+is_indicator_set_menu(IsIndicator *self,
+                      GtkMenu *menu)
+{
+#if HAVE_APPINDICATOR
+        app_indicator_set_menu(APP_INDICATOR(self), menu);
+#else
+        g_object_set_data_full(G_OBJECT(self), "indicator-menu", menu,
+                (GDestroyNotify)gtk_widget_destroy);
+        g_signal_connect(self, "popup-menu", G_CALLBACK(popup_menu), self);
+#endif
+}
+
 static gboolean
 fake_add_enable_sensors(IsIndicator *self)
 {
@@ -84,7 +126,7 @@ fake_add_enable_sensors(IsIndicator *self)
         GSList *sensors, *_list;
         gint i = 0;
 
-        menu = app_indicator_get_menu(APP_INDICATOR(self));
+        menu = is_indicator_get_menu(self);
         /* if there is no menu then arrange to be called from an idle callback
            later when it should exist */
         if (!GTK_IS_MENU_SHELL(menu)) {
@@ -127,7 +169,6 @@ static void
 is_indicator_class_init(IsIndicatorClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	AppIndicatorClass *indicator_class = APP_INDICATOR_CLASS(klass);
 
 	g_type_class_add_private(klass, sizeof(IsIndicatorPrivate));
 
@@ -136,7 +177,9 @@ is_indicator_class_init(IsIndicatorClass *klass)
 	gobject_class->constructed = is_indicator_constructed;
 	gobject_class->dispose = is_indicator_dispose;
 	gobject_class->finalize = is_indicator_finalize;
-	indicator_class->connection_changed = is_indicator_connection_changed;
+#if HAVE_APPINDICATOR
+	APP_INDICATOR_CLASS(klass)->connection_changed = is_indicator_connection_changed;
+#endif
 
 	properties[PROP_APPLICATION] = g_param_spec_object("application", "application property",
 						       "application property blurp.",
@@ -169,7 +212,7 @@ static void
 is_indicator_init(IsIndicator *self)
 {
 	self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_INDICATOR,
-						 IsIndicatorPrivate);
+                                                 IsIndicatorPrivate);
 }
 
 static void
@@ -226,6 +269,7 @@ is_indicator_set_property(GObject *object,
 	}
 }
 
+#if HAVE_APPINDICATOR
 static void is_indicator_connection_changed(AppIndicator *indicator,
 					    gboolean connected,
 					    gpointer data)
@@ -252,6 +296,7 @@ static void is_indicator_connection_changed(AppIndicator *indicator,
 out:
 	return;
 }
+#endif
 
 static void
 is_indicator_dispose(GObject *object)
@@ -274,6 +319,9 @@ is_indicator_dispose(GObject *object)
         }
         g_slist_free(sensors);
 
+#if !HAVE_APPINDICATOR
+        g_object_set_data(G_OBJECT(self), "indicator-menu", NULL);
+#endif
 	G_OBJECT_CLASS(is_indicator_parent_class)->dispose(object);
 }
 
@@ -332,7 +380,7 @@ static void quit_action(GtkAction *action,
         is_application_quit(self->priv->application);
 }
 
-
+#if HAVE_APPINDICATOR
 typedef enum {
         VERY_LOW_SENSOR_VALUE = 0,
         LOW_SENSOR_VALUE,
@@ -488,13 +536,13 @@ sensor_icon_path(IsSensor *sensor)
 out:
 	return icon_path;
 }
+#endif
 
 static void
 update_sensor_menu_item_label(IsIndicator *self,
 			      IsSensor *sensor,
 			      GtkMenuItem *menu_item)
 {
-	IsIndicatorPrivate *priv = self->priv;
 	gchar *text;
 
 	text = g_strdup_printf("%s %2.*f%s",
@@ -506,6 +554,7 @@ update_sensor_menu_item_label(IsIndicator *self,
 	g_free(text);
 	text = NULL;
 
+#if HAVE_APPINDICATOR
 	if (sensor == priv->primary) {
 		gboolean connected;
 
@@ -548,6 +597,9 @@ update_sensor_menu_item_label(IsIndicator *self,
 					 APP_INDICATOR_STATUS_ATTENTION :
 					 APP_INDICATOR_STATUS_ACTIVE);
 	}
+#else
+        gtk_status_icon_set_from_icon_name(GTK_STATUS_ICON(self), PACKAGE);
+#endif
 
 }
 
@@ -577,6 +629,17 @@ sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
 }
 
 static void
+is_indicator_set_label(IsIndicator *self,
+                       const gchar *label)
+{
+#if HAVE_APPINDICATOR
+        app_indicator_set_label(APP_INDICATOR(self), label, label);
+#else
+        gtk_status_icon_set_tooltip_text(GTK_STATUS_ICON(self), label);
+#endif
+}
+
+static void
 _sensor_disabled(IsSensor *sensor,
                  IsIndicator *self)
 {
@@ -590,7 +653,7 @@ _sensor_disabled(IsSensor *sensor,
 	menu_item = GTK_WIDGET(g_object_get_data(G_OBJECT(sensor),
 						 "menu-item"));
 	priv->menu_items = g_slist_remove(priv->menu_items, menu_item);
-	gtk_container_remove(GTK_CONTAINER(app_indicator_get_menu(APP_INDICATOR(self))),
+	gtk_container_remove(GTK_CONTAINER(is_indicator_get_menu(self)),
 			     menu_item);
 	g_object_set_data(G_OBJECT(sensor), "menu-item", NULL);
 	g_object_set_data(G_OBJECT(sensor), "value-item", NULL);
@@ -606,9 +669,11 @@ _sensor_disabled(IsSensor *sensor,
 		goto out;
 	}
 	if (!priv->menu_items) {
-		app_indicator_set_label(APP_INDICATOR(self),
-					_("No active sensors"),
-					_("No active sensors"));
+                is_indicator_set_label(self, _("No active sensors"));
+#if !HAVE_APPINDICATOR
+                gtk_status_icon_set_from_stock(GTK_STATUS_ICON(self),
+                                               GTK_STOCK_DIALOG_WARNING);
+#endif
 		g_object_unref(priv->primary);
 		priv->primary = NULL;
 	}
@@ -684,7 +749,7 @@ sensor_enabled(IsManager *manager,
                 g_signal_connect(sensor, "error",
                                  G_CALLBACK(sensor_error), self);
                 /* add a menu entry for this sensor */
-                menu = app_indicator_get_menu(APP_INDICATOR(self));
+                menu = is_indicator_get_menu(self);
                 menu_item = gtk_check_menu_item_new();
                 gtk_check_menu_item_set_draw_as_radio(GTK_CHECK_MENU_ITEM(menu_item),
                                                       TRUE);
@@ -736,9 +801,11 @@ sensor_added(IsManager *manager,
 	   to display (and hence no primary sensor), change our text to show
 	   this */
 	if (!self->priv->menu_items) {
-		app_indicator_set_label(APP_INDICATOR(self),
-					_("No active sensors"),
-					_("No active sensors"));
+                is_indicator_set_label(self, _("No active sensors"));
+#if !HAVE_APPINDICATOR
+                gtk_status_icon_set_from_stock(GTK_STATUS_ICON(self),
+                                               GTK_STOCK_DIALOG_WARNING);
+#endif
 	}
 }
 
@@ -750,12 +817,16 @@ is_indicator_new(IsApplication *application)
 	GError *error = NULL;
 	GtkWidget *menu;
 
-	AppIndicator *self = g_object_new(IS_TYPE_INDICATOR,
-					  "id", PACKAGE,
-					  "icon-name", PACKAGE,
-					  "category", "Hardware",
-					  "application", application,
-                                          "title", PACKAGE_NAME,
+	IsIndicator *self = g_object_new(IS_TYPE_INDICATOR,
+                                         "application", application,
+#if HAVE_APPINDICATOR
+                                         "id", PACKAGE,
+                                         "icon-name", PACKAGE,
+                                         "category", "Hardware",
+#else
+                                         "stock", PACKAGE,
+#endif
+                                         "title", PACKAGE_NAME,
 					  NULL);
 
 	action_group = gtk_action_group_new("AppActions");
@@ -778,9 +849,11 @@ is_indicator_new(IsApplication *application)
 			       gtk_separator_menu_item_new());
 	gtk_widget_show_all(menu);
 
-	app_indicator_set_label(self, _("No Sensors"), _("No Sensors"));
-	app_indicator_set_menu(self, GTK_MENU(menu));
+	is_indicator_set_label(self, _("No Sensors"));
+	is_indicator_set_menu(self, GTK_MENU(menu));
+#if HAVE_APPINDICATOR
 	app_indicator_set_status(self, APP_INDICATOR_STATUS_ACTIVE);
+#endif
 
 	return IS_INDICATOR(self);
 }

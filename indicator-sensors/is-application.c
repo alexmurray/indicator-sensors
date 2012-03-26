@@ -834,7 +834,7 @@ void is_application_show_about(IsApplication *self)
 	gtk_show_about_dialog(NULL,
 			      "program-name", _("Hardware Sensors Indicator"),
 			      "authors", authors,
-			      "comments", _("Indicator Application for Unity showing hardware sensors."),
+			      "comments", _("Indicator for GNOME / Unity showing hardware sensors."),
 			      "copyright", "Copyright © 2011 Alex Murray",
 			      "logo-icon-name", PACKAGE,
 			      "version", VERSION,
