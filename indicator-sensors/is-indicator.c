@@ -121,19 +121,10 @@ is_indicator_set_menu(IsIndicator *self,
 static gboolean
 fake_add_enable_sensors(IsIndicator *self)
 {
-        GtkMenu *menu;
         IsManager *manager;
         GSList *sensors, *_list;
         gint i = 0;
 
-        menu = is_indicator_get_menu(self);
-        /* if there is no menu then arrange to be called from an idle callback
-           later when it should exist */
-        if (!GTK_IS_MENU_SHELL(menu)) {
-                is_warning("indicator", "Menu does not exist yet, arranging to be called again from an idle callback");
-                g_idle_add((GSourceFunc)fake_add_enable_sensors, self);
-                goto out;
-        }
         manager = is_application_get_manager(self->priv->application);
 
         /* fake addition of any sensors */
@@ -155,13 +146,99 @@ fake_add_enable_sensors(IsIndicator *self)
         }
         g_slist_free(sensors);
 
-out:
         return FALSE;
+}
+
+static void prefs_action(GtkAction *action,
+			 IsIndicator *self);
+static void about_action(GtkAction *action,
+			 IsIndicator *self);
+static void quit_action(GtkAction *action,
+			IsIndicator *self);
+
+static GtkActionEntry entries[] = {
+	{ "Preferences", "application-preferences", N_("Preferences…"), NULL,
+	  N_("Preferences"), G_CALLBACK(prefs_action) },
+	{ "About", "about", N_("About…"), NULL,
+	  N_("About"), G_CALLBACK(about_action) },
+	{ "Quit", GTK_STOCK_QUIT, N_("Quit"), NULL,
+	  N_("Quit"), G_CALLBACK(quit_action) },
+};
+static guint n_entries = G_N_ELEMENTS(entries);
+
+static const gchar *ui_info =
+        "<ui>"
+        "  <popup name='Indicator'>"
+        "    <menuitem action='Preferences' />"
+        "    <menuitem action='About' />"
+        "    <menuitem action='Quit' />"
+        "  </popup>"
+        "</ui>";
+
+static void prefs_action(GtkAction *action,
+			 IsIndicator *self)
+{
+        is_application_show_preferences(self->priv->application);
+}
+
+static void about_action(GtkAction *action,
+			 IsIndicator *self)
+{
+        is_application_show_about(self->priv->application);
+}
+
+static void quit_action(GtkAction *action,
+			 IsIndicator *self)
+{
+        is_application_quit(self->priv->application);
+}
+
+static void
+is_indicator_set_label(IsIndicator *self,
+                       const gchar *label)
+{
+#if HAVE_APPINDICATOR
+        app_indicator_set_label(APP_INDICATOR(self), label, label);
+#else
+        gtk_status_icon_set_tooltip_text(GTK_STATUS_ICON(self), label);
+#endif
 }
 
 static void
 is_indicator_constructed(GObject *object)
 {
+        IsIndicator *self = IS_INDICATOR(object);
+	GtkActionGroup *action_group;
+	GtkUIManager *ui_manager;
+	GError *error = NULL;
+	GtkWidget *menu;
+
+	action_group = gtk_action_group_new("AppActions");
+	gtk_action_group_add_actions(action_group,
+				     entries, n_entries,
+				     self);
+
+	ui_manager = gtk_ui_manager_new();
+	gtk_ui_manager_insert_action_group(ui_manager, action_group, 0);
+	if (!gtk_ui_manager_add_ui_from_string(ui_manager, ui_info, -1, &error)) {
+		g_error("Failed to build menus: %s\n", error->message);
+	}
+
+	menu = gtk_ui_manager_get_widget(ui_manager, "/ui/Indicator");
+	/* manually add separator since specifying it in the ui description
+	   means it gets optimised out (since there is no menu item above it)
+	   but if we manually add it and show the whole menu then all is
+	   good... */
+	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu),
+			       gtk_separator_menu_item_new());
+	gtk_widget_show_all(menu);
+
+	is_indicator_set_label(self, _("No Sensors"));
+	is_indicator_set_menu(self, GTK_MENU(menu));
+#if HAVE_APPINDICATOR
+	app_indicator_set_status(APP_INDICATOR(self), APP_INDICATOR_STATUS_ACTIVE);
+#endif
+
         fake_add_enable_sensors(IS_INDICATOR(object));
 }
 
@@ -334,50 +411,6 @@ is_indicator_finalize(GObject *object)
 	g_object_unref(priv->application);
 
 	G_OBJECT_CLASS(is_indicator_parent_class)->finalize(object);
-}
-
-static void prefs_action(GtkAction *action,
-			 IsIndicator *self);
-static void about_action(GtkAction *action,
-			 IsIndicator *self);
-static void quit_action(GtkAction *action,
-			IsIndicator *self);
-
-static GtkActionEntry entries[] = {
-	{ "Preferences", "application-preferences", N_("Preferences…"), NULL,
-	  N_("Preferences"), G_CALLBACK(prefs_action) },
-	{ "About", "about", N_("About…"), NULL,
-	  N_("About"), G_CALLBACK(about_action) },
-	{ "Quit", GTK_STOCK_QUIT, N_("Quit"), NULL,
-	  N_("Quit"), G_CALLBACK(quit_action) },
-};
-static guint n_entries = G_N_ELEMENTS(entries);
-
-static const gchar *ui_info =
-        "<ui>"
-        "  <popup name='Indicator'>"
-        "    <menuitem action='Preferences' />"
-        "    <menuitem action='About' />"
-        "    <menuitem action='Quit' />"
-        "  </popup>"
-        "</ui>";
-
-static void prefs_action(GtkAction *action,
-			 IsIndicator *self)
-{
-        is_application_show_preferences(self->priv->application);
-}
-
-static void about_action(GtkAction *action,
-			 IsIndicator *self)
-{
-        is_application_show_about(self->priv->application);
-}
-
-static void quit_action(GtkAction *action,
-			 IsIndicator *self)
-{
-        is_application_quit(self->priv->application);
 }
 
 #if HAVE_APPINDICATOR
@@ -555,7 +588,8 @@ update_sensor_menu_item_label(IsIndicator *self,
 	text = NULL;
 
 #if HAVE_APPINDICATOR
-	if (sensor == priv->primary) {
+	if (sensor == self->priv->primary) {
+                IsIndicatorPrivate *priv = self->priv;
 		gboolean connected;
 
 		g_object_get(self, "connected", &connected, NULL);
@@ -626,17 +660,6 @@ sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
 	is_warning("indicator", "sensor %s error: %s",
                    is_sensor_get_path(sensor),
                    error->message);
-}
-
-static void
-is_indicator_set_label(IsIndicator *self,
-                       const gchar *label)
-{
-#if HAVE_APPINDICATOR
-        app_indicator_set_label(APP_INDICATOR(self), label, label);
-#else
-        gtk_status_icon_set_tooltip_text(GTK_STATUS_ICON(self), label);
-#endif
 }
 
 static void
@@ -812,49 +835,15 @@ sensor_added(IsManager *manager,
 IsIndicator *
 is_indicator_new(IsApplication *application)
 {
-	GtkActionGroup *action_group;
-	GtkUIManager *ui_manager;
-	GError *error = NULL;
-	GtkWidget *menu;
-
 	IsIndicator *self = g_object_new(IS_TYPE_INDICATOR,
-                                         "application", application,
 #if HAVE_APPINDICATOR
                                          "id", PACKAGE,
-                                         "icon-name", PACKAGE,
                                          "category", "Hardware",
-#else
-                                         "stock", PACKAGE,
 #endif
+                                         "application", application,
+                                         "icon-name", PACKAGE,
                                          "title", PACKAGE_NAME,
 					  NULL);
-
-	action_group = gtk_action_group_new("AppActions");
-	gtk_action_group_add_actions(action_group,
-				     entries, n_entries,
-				     self);
-
-	ui_manager = gtk_ui_manager_new();
-	gtk_ui_manager_insert_action_group(ui_manager, action_group, 0);
-	if (!gtk_ui_manager_add_ui_from_string(ui_manager, ui_info, -1, &error)) {
-		g_error("Failed to build menus: %s\n", error->message);
-	}
-
-	menu = gtk_ui_manager_get_widget(ui_manager, "/ui/Indicator");
-	/* manually add separator since specifying it in the ui description
-	   means it gets optimised out (since there is no menu item above it)
-	   but if we manually add it and show the whole menu then all is
-	   good... */
-	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu),
-			       gtk_separator_menu_item_new());
-	gtk_widget_show_all(menu);
-
-	is_indicator_set_label(self, _("No Sensors"));
-	is_indicator_set_menu(self, GTK_MENU(menu));
-#if HAVE_APPINDICATOR
-	app_indicator_set_status(self, APP_INDICATOR_STATUS_ACTIVE);
-#endif
-
 	return IS_INDICATOR(self);
 }
 
