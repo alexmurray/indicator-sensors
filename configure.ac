@@ -202,7 +202,6 @@ AC_CONFIG_FILES([
 	plugins/Makefile
 	plugins/aticonfig/Makefile
 	plugins/dbus/Makefile
-	plugins/libnotify/Makefile
 	plugins/libsensors/Makefile
 	plugins/nvidia/Makefile
 	plugins/udisks/Makefile
