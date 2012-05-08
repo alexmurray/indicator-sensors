@@ -1,4 +1,6 @@
 *~
+*.swp
+*#
 indicator-sensors*.tar.*
 *.lo
 *.la
@@ -27,9 +29,14 @@ libtool
 ltmain.sh
 missing
 mkinstalldirs
+data/indicator-sensors.gschema.valid
+data/indicator-sensors.gschema.xml
+data/indicator-sensors.gschema.xml.in
 m4/*
 plugins/gsettings/indicator-sensors.gschema.valid
 plugins/gsettings/indicator-sensors.gschema.xml*
+plugins/dbus/is-active-sensor-generated*
+po/.intltool-merge-cache
 po/*.gmo
 po/*.sed
 po/*.sin
