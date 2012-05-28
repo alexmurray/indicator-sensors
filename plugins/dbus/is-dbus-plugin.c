@@ -152,6 +152,27 @@ dbus_sensor_object_path(IsSensor *sensor)
 }
 
 static void
+sensor_position_changed(IsManager *manager,
+                        IsSensor *sensor,
+                        gint i,
+                        IsDBusPlugin *self)
+{
+        IsDBusPluginPrivate *priv;
+        IsObjectSkeleton *object;
+        IsActiveSensor *active_sensor;
+        gchar *path;
+
+        priv = self->priv;
+        path = dbus_sensor_object_path(sensor);
+        object = IS_OBJECT_SKELETON(g_dbus_object_manager_get_object(G_DBUS_OBJECT_MANAGER(priv->object_manager),
+                                                                              path));
+        g_object_get(object, "active-sensor", &active_sensor, NULL);
+        is_active_sensor_set_index(active_sensor, i);
+        g_object_unref(object);
+        g_free(path);
+}
+
+static void
 sensor_enabled(IsManager *manager,
                IsSensor *sensor,
                gint i,
@@ -209,6 +230,7 @@ sensor_disabled(IsManager *manager,
         object = IS_OBJECT_SKELETON(g_dbus_object_manager_get_object(G_DBUS_OBJECT_MANAGER(priv->object_manager),
                                                                               path));
         g_object_get(object, "active-sensor", &active_sensor, NULL);
+        g_object_unref(object);
         g_signal_handlers_disconnect_by_func(sensor, sensor_property_changed, active_sensor);
         g_dbus_object_manager_server_unexport(priv->object_manager,
                                               path);
@@ -311,6 +333,8 @@ on_bus_acquired(GDBusConnection *connection,
                          G_CALLBACK(sensor_enabled), self);
         g_signal_connect(manager, "sensor-disabled",
                          G_CALLBACK(sensor_disabled), self);
+        g_signal_connect(manager, "sensor-position-changed",
+                         G_CALLBACK(sensor_position_changed), self);
         /* Export all objects */
         g_dbus_object_manager_server_set_connection(priv->object_manager, connection);
 }

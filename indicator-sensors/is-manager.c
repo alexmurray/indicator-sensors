@@ -44,6 +44,7 @@ enum {
 	SIGNAL_SENSOR_REMOVED,
 	SIGNAL_SENSOR_ENABLED,
 	SIGNAL_SENSOR_DISABLED,
+        SIGNAL_SENSOR_POSITION_CHANGED,
 	LAST_SIGNAL
 };
 
@@ -121,6 +122,16 @@ is_manager_class_init(IsManagerClass *klass)
 						       g_cclosure_marshal_VOID__OBJECT,
 						       G_TYPE_NONE, 1,
 						       IS_TYPE_SENSOR);
+
+	signals[SIGNAL_SENSOR_POSITION_CHANGED] = g_signal_new("sensor-position-changed",
+                                                               G_OBJECT_CLASS_TYPE(klass),
+                                                               G_SIGNAL_RUN_LAST,
+                                                               0,
+                                                               NULL, NULL,
+                                                               g_cclosure_user_marshal_VOID__OBJECT_INT,
+                                                               G_TYPE_NONE, 2,
+                                                               IS_TYPE_SENSOR,
+                                                               G_TYPE_INT);
 }
 
 static void sensor_label_edited(GtkCellRendererText *renderer,
@@ -173,6 +184,7 @@ enable_sensor(IsManager *self,
 	      IsSensor *sensor)
 {
 	IsManagerPrivate *priv;
+        guint i;
 
 	priv = self->priv;
 
@@ -181,8 +193,14 @@ enable_sensor(IsManager *self,
 							     sensor,
 							     (GCompareDataFunc)sensor_cmp_by_path,
 							     self);
+        i = g_slist_index(priv->enabled_list, sensor);
 	g_signal_emit(self, signals[SIGNAL_SENSOR_ENABLED], 0, sensor,
-		      g_slist_index(priv->enabled_list, sensor));
+		      i);
+        /* signal position changed for all following sensors */
+        while (++i < g_slist_length(priv->enabled_list)) {
+          g_signal_emit(self, signals[SIGNAL_SENSOR_POSITION_CHANGED], 0,
+                        g_slist_nth_data(priv->enabled_list, i), i);
+        }
 	if (!g_tree_lookup(priv->enabled_paths, is_sensor_get_path(sensor))) {
 		gchar *path = g_strdup(is_sensor_get_path(sensor));
 		g_tree_insert(priv->enabled_paths, path, path);
@@ -198,13 +216,23 @@ disable_sensor(IsManager *self,
 {
 	gboolean ret;
 	IsManagerPrivate *priv;
+        guint i;
 
 	priv = self->priv;
 
+        i = g_slist_index(priv->enabled_list, sensor);
 	is_store_set_enabled(priv->store, iter, FALSE);
 	priv->enabled_list = g_slist_remove(priv->enabled_list,
 					    sensor);
 	g_signal_emit(self, signals[SIGNAL_SENSOR_DISABLED], 0, sensor);
+        /* signal position changed for all following sensors - the first sensor
+         * following this one we just removed is at its location so no need to
+         * preincrement the first time */
+        while (i < g_slist_length(priv->enabled_list)) {
+          g_signal_emit(self, signals[SIGNAL_SENSOR_POSITION_CHANGED], 0,
+                        g_slist_nth_data(priv->enabled_list, i), i);
+          i++;
+        }
 
 	ret = g_tree_remove(priv->enabled_paths, is_sensor_get_path(sensor));
 	g_assert(ret);
