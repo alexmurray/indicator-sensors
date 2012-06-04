@@ -776,9 +776,6 @@ sensor_enabled(IsManager *manager,
                 menu_item = gtk_check_menu_item_new();
                 gtk_check_menu_item_set_draw_as_radio(GTK_CHECK_MENU_ITEM(menu_item),
                                                       TRUE);
-                g_signal_connect(menu_item, "toggled",
-                                 G_CALLBACK(sensor_menu_item_toggled),
-                                 self);
                 g_object_set_data(G_OBJECT(sensor), "menu-item", menu_item);
                 g_object_set_data(G_OBJECT(menu_item), "sensor", sensor);
 
@@ -805,6 +802,13 @@ sensor_enabled(IsManager *manager,
 							      GTK_MENU_ITEM(item));
 			}
                 }
+                /* connect to toggled signal now - if we connect to it earlier
+                 * we may interpret the above menu_item_set_active as a user
+                 * initiated setting of the primary sensor rather than us just
+                 * picking the first available sensor */
+                g_signal_connect(menu_item, "toggled",
+                                 G_CALLBACK(sensor_menu_item_toggled),
+                                 self);
                 gtk_widget_show_all(menu_item);
 
                 gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menu_item, position);
