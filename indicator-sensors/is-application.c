@@ -269,7 +269,7 @@ restore_sensor_config(IsApplication *self,
 				      "label",
 				      &error);
 	if (error) {
-		is_message("application", "Unable to restore saved label for sensor %s: %s",
+		is_debug("application", "Unable to restore saved label for sensor %s: %s",
 			   is_sensor_get_path(sensor), error->message);
 		g_clear_error(&error);
 	} else {
@@ -282,7 +282,7 @@ restore_sensor_config(IsApplication *self,
 					    "alarm-value",
 					    &error);
 	if (error) {
-		is_message("application", "Unable to restore saved alarm-value for sensor %s: %s",
+		is_debug("application", "Unable to restore saved alarm-value for sensor %s: %s",
 			   is_sensor_get_path(sensor), error->message);
 		g_clear_error(&error);
 	} else {
@@ -294,7 +294,7 @@ restore_sensor_config(IsApplication *self,
 					  "alarm-mode",
 					  &error);
 	if (error) {
-		is_message("application", "Unable to restore saved alarm-mode for sensor %s: %s",
+		is_debug("application", "Unable to restore saved alarm-mode for sensor %s: %s",
 			   is_sensor_get_path(sensor), error->message);
 		g_clear_error(&error);
 	} else {
@@ -306,7 +306,7 @@ restore_sensor_config(IsApplication *self,
 					    "low-value",
 					    &error);
 	if (error) {
-		is_message("application", "Unable to restore saved low-value for sensor %s: %s",
+		is_debug("application", "Unable to restore saved low-value for sensor %s: %s",
 			   is_sensor_get_path(sensor), error->message);
 		g_clear_error(&error);
 	} else {
@@ -318,7 +318,7 @@ restore_sensor_config(IsApplication *self,
 					    "high-value",
 					    &error);
 	if (error) {
-		is_message("application", "Unable to restore saved high-value for sensor %s: %s",
+		is_debug("application", "Unable to restore saved high-value for sensor %s: %s",
 			   is_sensor_get_path(sensor), error->message);
 		g_clear_error(&error);
 	} else {
