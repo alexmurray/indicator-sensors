@@ -277,18 +277,8 @@ restore_sensor_config(IsApplication *self,
 	}
 	g_free(label);
 
-	alarm_value = g_key_file_get_double(priv->sensor_config,
-					    is_sensor_get_path(sensor),
-					    "alarm-value",
-					    &error);
-	if (error) {
-		is_debug("application", "Unable to restore saved alarm-value for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
-		is_sensor_set_alarm_value(sensor, alarm_value);
-	}
-
+        /* restore alarm mode before alarm value so we don't accidentally
+           trigger an alarm just before we might disable it */
 	alarm_mode = g_key_file_get_int64(priv->sensor_config,
 					  is_sensor_get_path(sensor),
 					  "alarm-mode",
@@ -299,6 +289,18 @@ restore_sensor_config(IsApplication *self,
 		g_clear_error(&error);
 	} else {
 		is_sensor_set_alarm_mode(sensor, alarm_mode);
+	}
+
+	alarm_value = g_key_file_get_double(priv->sensor_config,
+					    is_sensor_get_path(sensor),
+					    "alarm-value",
+					    &error);
+	if (error) {
+		is_debug("application", "Unable to restore saved alarm-value for sensor %s: %s",
+			   is_sensor_get_path(sensor), error->message);
+		g_clear_error(&error);
+	} else {
+		is_sensor_set_alarm_value(sensor, alarm_value);
 	}
 
 	low_value = g_key_file_get_double(priv->sensor_config,

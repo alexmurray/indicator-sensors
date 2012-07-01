@@ -376,13 +376,15 @@ update_alarmed(IsSensor *self)
 
 	if (priv->alarmed != alarmed) {
 		priv->alarmed = alarmed;
-                /* show a notification */
-                is_notify(IS_NOTIFY_LEVEL_WARNING,
-                          _("Sensor Alarm"),
-                          "%s: %2.1f%s",
-                          is_sensor_get_label(self),
-                          is_sensor_get_value(self),
-                          is_sensor_get_units(self));
+                /* show a notification if are now alarmed */
+                if (priv->alarmed) {
+                        is_notify(IS_NOTIFY_LEVEL_WARNING,
+                                  _("Sensor Alarm"),
+                                  "%s: %2.1f%s",
+                                  is_sensor_get_label(self),
+                                  is_sensor_get_value(self),
+                                  is_sensor_get_units(self));
+                }
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_ALARMED]);
 	}
