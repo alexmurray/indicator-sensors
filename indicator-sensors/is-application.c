@@ -458,6 +458,12 @@ sensor_added(IsManager *manager,
 {
         IsApplicationPrivate *priv = self->priv;
 
+	/* set scale first before restoring config so we don't re-convert
+         * fahrenheit values */
+	if (IS_IS_TEMPERATURE_SENSOR(sensor)) {
+		is_temperature_sensor_set_scale(IS_TEMPERATURE_SENSOR(sensor),
+						priv->temperature_scale);
+	}
 	restore_sensor_config(self, sensor);
 	g_signal_connect(sensor, "notify::label", G_CALLBACK(sensor_label_notify),
 			 self);
@@ -469,12 +475,6 @@ sensor_added(IsManager *manager,
 			 G_CALLBACK(sensor_low_value_notify), self);
 	g_signal_connect(sensor, "notify::high-value",
 			 G_CALLBACK(sensor_high_value_notify), self);
-
-	/* set scale as appropriate */
-	if (IS_IS_TEMPERATURE_SENSOR(sensor)) {
-		is_temperature_sensor_set_scale(IS_TEMPERATURE_SENSOR(sensor),
-						priv->temperature_scale);
-	}
 }
 
 static void
