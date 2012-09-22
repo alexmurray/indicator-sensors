@@ -20,6 +20,7 @@
 
 #include <glib.h>
 #include <stdarg.h>
+#include <libnotify/notification.h>
 
 G_BEGIN_DECLS
 
@@ -33,14 +34,14 @@ typedef enum
 
 gboolean is_notify_init(void);
 void is_notify_uninit(void);
-void is_notify(IsNotifyLevel level,
-               const gchar *title,
-               const gchar *format,
-               ...) G_GNUC_PRINTF(3, 4);
-void is_notifyv(IsNotifyLevel level,
-                const gchar *title,
-                const gchar *format,
-                va_list args);
+NotifyNotification *is_notify(IsNotifyLevel level,
+                              const gchar *title,
+                              const gchar *format,
+                              ...) G_GNUC_PRINTF(3, 4);
+NotifyNotification *is_notifyv(IsNotifyLevel level,
+                               const gchar *title,
+                               const gchar *format,
+                               va_list args);
 G_END_DECLS
 
 #endif /* __IS_LOG_H__ */

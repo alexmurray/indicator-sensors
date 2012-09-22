@@ -29,6 +29,7 @@
 
 static gboolean inited = FALSE;
 static gboolean append = FALSE;
+static gboolean persistence = FALSE;
 
 gboolean is_notify_init(void)
 {
@@ -41,6 +42,9 @@ gboolean is_notify_init(void)
                                 gchar *cap = (gchar *)caps->data;
                                 if (g_strcmp0(cap, "append") == 0) {
                                         append = TRUE;
+                                }
+                                if (g_strcmp0(cap, "persistence") == 0) {
+                                        persistence = TRUE;
                                 }
                                 g_free(cap);
                                 caps = g_list_delete_link(caps, caps);
@@ -57,18 +61,21 @@ void is_notify_uninit()
         }
 }
 
-void is_notify(IsNotifyLevel level,
-               const gchar *title,
-               const gchar *format,
-               ...)
+NotifyNotification *
+is_notify(IsNotifyLevel level,
+          const gchar *title,
+          const gchar *format,
+          ...)
 {
+        NotifyNotification *notification = NULL;
 	va_list args;
 
-        g_return_if_fail(inited);
+        g_return_val_if_fail(inited, NULL);
 
 	va_start(args, format);
-	is_notifyv(level, title, format, args);
+	notification = is_notifyv(level, title, format, args);
 	va_end(args);
+        return notification;
 }
 
 static const gchar *
@@ -100,15 +107,16 @@ is_notify_level_to_icon(IsNotifyLevel level)
 	return icon;
 }
 
-void is_notifyv(IsNotifyLevel level,
-                const gchar *title,
-                const gchar *format,
-                va_list args)
+NotifyNotification *
+is_notifyv(IsNotifyLevel level,
+           const gchar *title,
+           const gchar *format,
+           va_list args)
 {
         NotifyNotification *notification;
         gchar *body;
 
-        g_return_if_fail(inited);
+        g_return_val_if_fail(inited, NULL);
 
 	body = g_strdup_vprintf(format, args);
         is_debug("notify", "Notify: %s - %s", title, body);
@@ -122,9 +130,17 @@ void is_notifyv(IsNotifyLevel level,
         notify_notification_set_urgency(notification, NOTIFY_URGENCY_NORMAL);
         g_free(body);
         if (append) {
-                GVariant *cap = g_variant_new("s", "");
-                notify_notification_set_hint(notification, "x-canonical-append", cap);
+                is_debug("notify", "setting x-canonical-append TRUE");
+                notify_notification_set_hint(notification, "x-canonical-append",
+                                             g_variant_new_string(""));
+        }
+        if (persistence) {
+                is_debug("notify", "setting resident TRUE and transient FALSE");
+                notify_notification_set_hint(notification, "resident",
+                                             g_variant_new_boolean(TRUE));
+                notify_notification_set_hint(notification, "transient",
+                                             g_variant_new_boolean(FALSE));
         }
         notify_notification_show(notification, NULL);
-        g_object_unref(notification);
+        return notification;
 }

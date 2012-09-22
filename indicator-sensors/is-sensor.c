@@ -378,12 +378,24 @@ update_alarmed(IsSensor *self)
 		priv->alarmed = alarmed;
                 /* show a notification if are now alarmed */
                 if (priv->alarmed) {
+                        NotifyNotification *notification =
                         is_notify(IS_NOTIFY_LEVEL_WARNING,
                                   _("Sensor Alarm"),
                                   "%s: %2.1f%s",
                                   is_sensor_get_label(self),
                                   is_sensor_get_value(self),
                                   is_sensor_get_units(self));
+                        is_debug("sensor", "Displaying alarm notification");
+                        g_object_set_data_full(G_OBJECT(self), "notification",
+                                               notification, g_object_unref);
+                } else {
+                        /* hide any notification */
+                        NotifyNotification *notification =
+                                g_object_get_data(G_OBJECT(self), "notification");
+                        is_debug("sensor", "Closing alarm notification");
+                        notify_notification_close(notification, NULL);
+                        g_object_set_data(G_OBJECT(self), "notification",
+                                          NULL);
                 }
 		g_object_notify_by_pspec(G_OBJECT(self),
 					 properties[PROP_ALARMED]);
