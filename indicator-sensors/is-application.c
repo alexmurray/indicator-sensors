@@ -268,14 +268,11 @@ restore_sensor_config(IsApplication *self,
 				      is_sensor_get_path(sensor),
 				      "label",
 				      &error);
-	if (error) {
-		is_debug("application", "Unable to restore saved label for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
+	if (label) {
 		is_sensor_set_label(sensor, label);
+                g_free(label);
 	}
-	g_free(label);
+        g_clear_error(&error);
 
         /* restore alarm mode before alarm value so we don't accidentally
            trigger an alarm just before we might disable it */
@@ -283,49 +280,37 @@ restore_sensor_config(IsApplication *self,
 					  is_sensor_get_path(sensor),
 					  "alarm-mode",
 					  &error);
-	if (error) {
-		is_debug("application", "Unable to restore saved alarm-mode for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
+	if (!error) {
 		is_sensor_set_alarm_mode(sensor, alarm_mode);
 	}
+        g_clear_error(&error);
 
 	alarm_value = g_key_file_get_double(priv->sensor_config,
 					    is_sensor_get_path(sensor),
 					    "alarm-value",
 					    &error);
-	if (error) {
-		is_debug("application", "Unable to restore saved alarm-value for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
+	if (!error) {
 		is_sensor_set_alarm_value(sensor, alarm_value);
 	}
+        g_clear_error(&error);
 
 	low_value = g_key_file_get_double(priv->sensor_config,
 					    is_sensor_get_path(sensor),
 					    "low-value",
 					    &error);
-	if (error) {
-		is_debug("application", "Unable to restore saved low-value for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
+	if (!error) {
 		is_sensor_set_low_value(sensor, low_value);
 	}
+        g_clear_error(&error);
 
 	high_value = g_key_file_get_double(priv->sensor_config,
 					    is_sensor_get_path(sensor),
 					    "high-value",
 					    &error);
-	if (error) {
-		is_debug("application", "Unable to restore saved high-value for sensor %s: %s",
-			   is_sensor_get_path(sensor), error->message);
-		g_clear_error(&error);
-	} else {
+	if (!error) {
 		is_sensor_set_high_value(sensor, high_value);
 	}
+        g_clear_error(&error);
 }
 
 static gboolean
