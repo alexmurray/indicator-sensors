@@ -374,6 +374,11 @@ update_alarmed(IsSensor *self)
 		g_assert_not_reached();
 	}
 
+        /* override alarmed if value hasn't been set yet */
+        if (!priv->last_update) {
+                alarmed = FALSE;
+        }
+
 	if (priv->alarmed != alarmed) {
 		priv->alarmed = alarmed;
                 /* show a notification if are now alarmed */
