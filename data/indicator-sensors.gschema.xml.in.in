@@ -26,5 +26,10 @@
       <_summary>Temperature scale</_summary>
       <_description>The temperature scale to display temperature sensor values.</_description>
     </key>
+    <key type="b" name="show-indicator">
+      <default>true</default>
+      <_summary>Show indicator</_summary>
+      <_description>Whether to show the indicator in the notification area.</_description>
+    </key>
   </schema>
 </schemalist>

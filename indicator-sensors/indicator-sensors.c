@@ -63,6 +63,8 @@ on_plugin_list_notify(PeasEngine *engine,
 int main(int argc, char **argv)
 {
 	IsApplication *application;
+        IsTemperatureSensorScale scale;
+        gboolean show_indicator;
         GSettings *settings;
         IsManager *manager;
 	gchar *plugin_dir;
@@ -97,10 +99,20 @@ int main(int argc, char **argv)
 
         /* init notifications */
         is_notify_init();
-	application = is_application_new();
+        /* make sure we create the application with the default settings */
         settings = g_settings_new("indicator-sensors.application");
+        show_indicator = g_settings_get_boolean(settings, "show-indicator");
+        scale = g_settings_get_int(settings, "temperature-scale");
+	application = g_object_new(IS_TYPE_APPLICATION,
+                                   "manager", is_manager_new(),
+                                   "temperature-scale", scale,
+                                   "show-indicator", show_indicator,
+                                   NULL);
         g_settings_bind(settings, "temperature-scale",
                         application, "temperature-scale",
+                        G_SETTINGS_BIND_DEFAULT);
+        g_settings_bind(settings, "show-indicator",
+                        application, "show-indicator",
                         G_SETTINGS_BIND_DEFAULT);
 
 	/* create extension set and set manager as object */
