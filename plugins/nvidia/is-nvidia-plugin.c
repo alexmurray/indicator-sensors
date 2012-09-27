@@ -130,11 +130,30 @@ struct map_entry
 };
 
 static const struct map_entry map[] = {
+        /* use thermal sensors if available, otherwise use core and ambient
+         * temp */
+#ifdef NV_CTRL_BINARY_DATA_THERMAL_SENSORS_USED_BY_GPU
 	{ NV_CTRL_BINARY_DATA_THERMAL_SENSORS_USED_BY_GPU,
-	  NV_CTRL_TARGET_TYPE_THERMAL_SENSOR, NV_CTRL_THERMAL_SENSOR_READING,
+	  NV_CTRL_TARGET_TYPE_THERMAL_SENSOR,
+          NV_CTRL_THERMAL_SENSOR_READING,
 	  "ThermalSensor" },
+#else
+        { -1,
+          NV_CTRL_TARGET_TYPE_GPU,
+          NV_CTRL_GPU_CORE_TEMPERATURE,
+          "CoreTemp" },
+        { -1,
+          NV_CTRL_TARGET_TYPE_GPU,
+          NV_CTRL_AMBIENT_TEMPERATURE,
+          "AmbientTemp" },
+#endif
+        /* use thermal coolers if available */
+#ifdef NV_CTRL_BINARY_DATA_COOLERS_USED_BY_GPU
 	{ NV_CTRL_BINARY_DATA_COOLERS_USED_BY_GPU,
-	  NV_CTRL_TARGET_TYPE_COOLER, NV_CTRL_THERMAL_COOLER_LEVEL, "Fan" },
+	  NV_CTRL_TARGET_TYPE_COOLER,
+          NV_CTRL_THERMAL_COOLER_LEVEL,
+          "Fan" },
+#endif
 };
 
 static void
@@ -233,17 +252,37 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 			int len;
 			int k;
 
-			ret = XNVCTRLQueryTargetBinaryData(priv->display,
-							   NV_CTRL_TARGET_TYPE_GPU,
-							   i,
-							   0,
-							   map[j].gpu_attribute,
-							   (unsigned char **)&data,
-							   &len);
-			if (!ret) {
-				continue;
-			}
-			/* data[0] contains number of sensors, and each sensor
+                        /* old API has no binary targets (in which case
+                           gpu_attribute is -1) so ignore this and instead query
+                           for the number of targets */
+                        if (map[j].gpu_attribute == -1) {
+                                ret = XNVCTRLQueryTargetCount(priv->display,
+                                                              map[j].target,
+                                                              &k);
+                                if (!ret) {
+                                        continue;
+                                }
+                                /* create fake binary data with first element as
+                                number of target's and each element the index of
+                                that element */
+                                data = malloc(sizeof(int32_t) * (k + 1));
+                                data[0] = k;
+                                while (--k > 0) {
+                                        data[k] = k;
+                                }
+                        } else {
+                                ret = XNVCTRLQueryTargetBinaryData(priv->display,
+                                                                   NV_CTRL_TARGET_TYPE_GPU,
+                                                                   i,
+                                                                   0,
+                                                                   map[j].gpu_attribute,
+                                                                   (unsigned char **)&data,
+                                                                   &len);
+                                if (!ret) {
+                                        continue;
+                                }
+                        }
+                        /* data[0] contains number of sensors, and each sensor
 			   indice follows */
 			for (k = 1; k <= data[0]; k++) {
 				int idx = data[k];
@@ -251,6 +290,21 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 				IsSensor *sensor;
 				gchar *path;
 
+                                /* if we are using the old API, requery for GPU
+                                   name but using idx */
+                                if (map[j].gpu_attribute == -1) {
+                                        gchar *old_label;
+                                        ret = XNVCTRLQueryTargetStringAttribute(priv->display,
+                                                                                NV_CTRL_TARGET_TYPE_GPU,
+                                                                                idx,
+                                                                                0,
+                                                                                NV_CTRL_STRING_PRODUCT_NAME,
+                                                                                &old_label);
+                                        if (ret) {
+                                                free(label);
+                                                label = old_label;
+                                        }
+                                }
 				ret = XNVCTRLQueryTargetAttribute(priv->display,
 								  map[j].target,
 								  idx,
