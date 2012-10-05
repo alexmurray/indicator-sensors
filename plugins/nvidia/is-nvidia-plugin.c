@@ -316,6 +316,7 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 				}
 
 				path = g_strdup_printf("nvidia/%s%d", map[j].description, idx);
+#ifdef NV_CTRL_TARGET_TYPE_COOLER
 				if (map[j].target == NV_CTRL_TARGET_TYPE_COOLER) {
 					/* fan sensors are given as a percentage
 					   from 0 to 100 */
@@ -325,9 +326,12 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 					is_sensor_set_low_value(sensor, 0.0);
 					is_sensor_set_high_value(sensor, 100.0);
 				} else {
+#endif
 					sensor = is_temperature_sensor_new(path);
 					is_sensor_set_icon(sensor, IS_STOCK_GPU);
+#ifdef NV_CTRL_TARGET_TYPE_COOLER
 				}
+#endif
 				/* no decimal places to display */
 				is_sensor_set_digits(sensor, 0);
 				is_sensor_set_label(sensor, label);
