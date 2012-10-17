@@ -1,17 +1,17 @@
-# Turkish translation for indicator-sensors
-# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
+# Croatian translation for indicator-sensors
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
 # This file is distributed under the same license as the indicator-sensors package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-17 22:28+1030\n"
-"PO-Revision-Date: 2012-09-30 17:09+0000\n"
-"Last-Translator: Şâkir Aşçı <Unknown>\n"
-"Language-Team: Turkish <tr@li.org>\n"
-"Language: tr\n"
+"PO-Revision-Date: 2012-06-02 10:37+0000\n"
+"Last-Translator: gogo <trebelnik2@gmail.com>\n"
+"Language-Team: Croatian <hr@li.org>\n"
+"Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,14 +21,13 @@ msgstr ""
 #: ../data/indicator-sensors.gschema.xml.in.h:1
 #: ../data/indicator-sensors.gschema.xml.in.in.h:1
 msgid "Primary sensor to display"
-msgstr "Gösterilecek birincil algılayıcı"
+msgstr "Glavni senzor za prikazati"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:2
 #: ../data/indicator-sensors.gschema.xml.in.in.h:2
 msgid ""
 "The primary sensor to display in the indicator, identified by it’s path."
-msgstr ""
-"Göstergede görüntülenecek birincil algılayıcı; kendi yoluyla tanımlanır."
+msgstr "Glavni senzor prikazan u indikatoru, identificiran svojom putanjom."
 
 #: ../data/indicator-sensors.gschema.xml.in.h:3
 #: ../data/indicator-sensors.gschema.xml.in.in.h:3
@@ -38,30 +37,29 @@ msgstr ""
 #: ../data/indicator-sensors.gschema.xml.in.h:4
 #: ../data/indicator-sensors.gschema.xml.in.in.h:4
 msgid "The elements used to display the primary sensor within the indicator."
-msgstr "Göstergedeki birincil algılayıcıyı görüntülemekte kullanılan ögeler."
+msgstr "Elementi koji se koriste za prikaz glavnog senzora unutar indikatora."
 
 #: ../data/indicator-sensors.gschema.xml.in.h:5
 #: ../data/indicator-sensors.gschema.xml.in.in.h:5
 msgid "Enabled sensors"
-msgstr "Etkin algılayıcılar"
+msgstr "Omogući senzore"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:6
 #: ../data/indicator-sensors.gschema.xml.in.in.h:6
 msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr ""
-"Görüntülenecek etkin algılayıcıların listesi; her biri kendi yoluyla "
-"tanımlanır."
+"Popis omogućenih senzora za nadzor, svaki identificiran svojom putanjom."
 
 #: ../data/indicator-sensors.gschema.xml.in.h:7
 #: ../data/indicator-sensors.gschema.xml.in.in.h:7
 #: ../indicator-sensors/is-preferences-dialog.c:168
 msgid "Temperature scale"
-msgstr "Sıcaklık ölçeği"
+msgstr "Temperaturni raspon"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:8
 #: ../data/indicator-sensors.gschema.xml.in.in.h:8
 msgid "The temperature scale to display temperature sensor values."
-msgstr "Sıcaklık algılayıcı değerlerini görüntülemek için sıcaklık ölçeği."
+msgstr "Temperaturni raspon za prikaz senzora temp. vrijednosti."
 
 #: ../data/indicator-sensors.gschema.xml.in.h:9
 #: ../data/indicator-sensors.gschema.xml.in.in.h:9
@@ -76,11 +74,11 @@ msgstr ""
 #: ../data/indicator-sensors.desktop.in.h:1
 #: ../indicator-sensors/is-application.c:822
 msgid "Hardware Sensors Indicator"
-msgstr "Donanım Algılayıcı Göstergesi"
+msgstr "Indikator senzora hardvera"
 
 #: ../data/indicator-sensors.desktop.in.h:2
 msgid "An indicator for Unity which displays hardware sensor readings"
-msgstr "Unity için donanım algılayıcı okumalarını bildiren bir gösterge"
+msgstr "Indikator za Unity koji prikazuje očitanja senzora hardvera"
 
 #: ../indicator-sensors/indicator-sensors.c:140
 msgid "No Sensors Enabled For Monitoring"
@@ -95,7 +93,9 @@ msgstr ""
 #: ../indicator-sensors/is-application.c:824
 #, fuzzy
 msgid "Indicator for GNOME / Unity showing hardware sensors."
-msgstr "Unity için donanım algılayıcılarını bildiren bir uygulama göstergesi."
+msgstr ""
+"Programčić pokazivača indikatora za Unity koji prikazuje očitanja senzora "
+"hardvera"
 
 #: ../indicator-sensors/is-fan-sensor.c:40
 msgid " RPM"
@@ -103,78 +103,78 @@ msgstr ""
 
 #: ../indicator-sensors/is-indicator.c:160
 msgid "Preferences…"
-msgstr "Tercihler..."
+msgstr "Osobitosti..."
 
 #: ../indicator-sensors/is-indicator.c:161
 msgid "Preferences"
-msgstr "Tercihler"
+msgstr "Osobitosti"
 
 #: ../indicator-sensors/is-indicator.c:162
 msgid "About…"
-msgstr "Hakkında..."
+msgstr "O programu..."
 
 #: ../indicator-sensors/is-indicator.c:163
 #, fuzzy
 msgid "About"
-msgstr "Hakkında..."
+msgstr "O programu..."
 
 #: ../indicator-sensors/is-indicator.c:164
 #: ../indicator-sensors/is-indicator.c:165
 msgid "Quit"
-msgstr "Çık"
+msgstr "Zatvori"
 
 #: ../indicator-sensors/is-indicator.c:236
 msgid "No Sensors"
-msgstr "Algılayıcı yok"
+msgstr "Nema senzora"
 
 #: ../indicator-sensors/is-indicator.c:694
 #: ../indicator-sensors/is-indicator.c:841
 msgid "No active sensors"
-msgstr "Etkin algılayıcı yok"
+msgstr "Nema aktivnih senzora"
 
 #: ../indicator-sensors/is-manager.c:293
 #: ../indicator-sensors/is-sensor-dialog.c:311
 msgid "Sensor"
-msgstr "Algılayıcı"
+msgstr "Senzor"
 
 #: ../indicator-sensors/is-manager.c:301
 #: ../indicator-sensors/is-preferences-dialog.c:149
 msgid "Icon"
-msgstr "Simge"
+msgstr "Ikona"
 
 #: ../indicator-sensors/is-manager.c:310
 #: ../indicator-sensors/is-preferences-dialog.c:154
 #: ../indicator-sensors/is-sensor-dialog.c:102
 msgid "Label"
-msgstr "Etiket"
+msgstr ""
 
 #: ../indicator-sensors/is-manager.c:320
 msgid "Enabled"
-msgstr "Etkin"
+msgstr "Omogućeno"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
 msgid " Preferences"
-msgstr " Tercihler"
+msgstr " Osobitosti"
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
-msgstr "Genel"
+msgstr "Općenito"
 
 #: ../indicator-sensors/is-preferences-dialog.c:135
 msgid "Start automatically on login"
-msgstr "Başlangıçta otomatik olarak çalıştır"
+msgstr "Pokreni automatski prilikom prijave"
 
 #: ../indicator-sensors/is-preferences-dialog.c:141
 msgid "Primary sensor display"
-msgstr "Birincil algılayıcı görünümü"
+msgstr "Glavni prikaz senzora"
 
 #: ../indicator-sensors/is-preferences-dialog.c:159
 msgid "Value"
-msgstr "Değer"
+msgstr "Vrijednost"
 
 #: ../indicator-sensors/is-preferences-dialog.c:176
 msgid "Celsius (°C)"
-msgstr "Celsius (°C)"
+msgstr "Celzij (°C)"
 
 #: ../indicator-sensors/is-preferences-dialog.c:187
 msgid "Fahrenheit (°F)"
@@ -182,62 +182,62 @@ msgstr "Fahrenheit (°F)"
 
 #: ../indicator-sensors/is-sensor.c:388
 msgid "Sensor Alarm"
-msgstr "Algılayıcı Uyarıcısı"
+msgstr "Senzor alarma"
 
 #: ../indicator-sensors/is-sensor-dialog.c:84
 msgid " Sensor Properties"
-msgstr " Algılayıcı Özellikleri"
+msgstr " Svojstva senzora"
 
 #: ../indicator-sensors/is-sensor-dialog.c:111
 msgid "Alarm"
-msgstr "Uyarıcı"
+msgstr "Alarm"
 
 #: ../indicator-sensors/is-sensor-dialog.c:119
 msgid "Disabled"
-msgstr "Devre Dışı"
+msgstr "Onemogućeno"
 
 #: ../indicator-sensors/is-sensor-dialog.c:122
 msgid "Below"
-msgstr "Alt sınır"
+msgstr "Ispod"
 
 #: ../indicator-sensors/is-sensor-dialog.c:125
 msgid "Above"
-msgstr "Üst sınır"
+msgstr "Iznad"
 
 #: ../indicator-sensors/is-sensor-dialog.c:143
 msgid "Low value"
-msgstr "Düşük değer"
+msgstr "Niža vrijednost"
 
 #: ../indicator-sensors/is-sensor-dialog.c:162
 msgid "High value"
-msgstr "Yüksek değer"
+msgstr "Viša vrijednost"
 
 #. first placeholder is sensor name
 #: ../plugins/aticonfig/is-aticonfig-plugin.c:159
 #, c-format
 msgid "Error reading temperature value for GPU %d"
-msgstr "%d ekran kartının sıcaklık değerinin okunmasında hatâ"
+msgstr "Greška  čitanja vrijednosti temp. za GPU %d"
 
 #. first placeholder is sensor name
 #: ../plugins/aticonfig/is-aticonfig-plugin.c:198
 #, c-format
 msgid "Error reading fanspeed value for GPU %d"
-msgstr "%d ekran kartının fan hızı değerinin okunmasında hatâ"
+msgstr "Greška  čitanja brzine ventilatora. za GPU %d"
 
 #: ../plugins/aticonfig/is-aticonfig-plugin.c:308
 msgid "Temperature"
-msgstr "Sıcaklık"
+msgstr "Temperatura"
 
 #: ../plugins/aticonfig/is-aticonfig-plugin.c:326
 msgid "Fan"
-msgstr "Fan"
+msgstr "Ventilator"
 
 #. first placeholder is sensor name,
 #. * second is error message
 #: ../plugins/libsensors/is-libsensors-plugin.c:174
 #, c-format
 msgid "Error getting sensor value for sensor %s: %s [%d]"
-msgstr "%s algılayısı değerinin algılanmasında hatâ: %s [%d]"
+msgstr "Greška dobivanja vrijednosti senzora za senzor %s: %s [%d]"
 
 #. translators: V is the unit for Voltage, replace with
 #. appropriate unit
@@ -248,7 +248,7 @@ msgstr "V"
 #: ../plugins/libsensors/is-libsensors-plugin.c:375
 #, fuzzy
 msgid "No Sensors Detected"
-msgstr "Algılayıcı yok"
+msgstr "Nema senzora"
 
 #: ../plugins/libsensors/is-libsensors-plugin.c:376
 #, c-format
@@ -262,20 +262,20 @@ msgstr ""
 #: ../plugins/nvidia/is-nvidia-plugin.c:192
 #, c-format
 msgid "Error getting sensor value for sensor %s"
-msgstr "%s algılayısının değerinin algılasınmasında hatâ"
+msgstr "Greška dobivanja vrijednosti senzora za senzor %s"
 
 #: ../plugins/udisks/is-udisks-plugin.c:149
 #, c-format
 msgid "Error reading new SMART data for sensor %s"
-msgstr "%s algılayıcısının SMART verisinin okunmasında hatâ"
+msgstr "Greška čitanja novih SMART podataka za senzor %s"
 
 #: ../plugins/udisks/is-udisks-plugin.c:165
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
-msgstr "%s algılayıcısının SMART verisinin yenilenmesinde hatâ"
+msgstr "Greška osvježavanja SMART podataka za senzor %s"
 
 #~ msgid "RPM"
-#~ msgstr "RPM"
+#~ msgstr "Okr/min"
 
 #~ msgid "Plugins"
-#~ msgstr "Eklentiler"
+#~ msgstr "Priključci"

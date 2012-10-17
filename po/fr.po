@@ -7,152 +7,211 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-21 21:04+1030\n"
-"PO-Revision-Date: 2011-11-13 22:46+0000\n"
-"Last-Translator: Hanine <Unknown>\n"
+"POT-Creation-Date: 2012-10-17 22:28+1030\n"
+"PO-Revision-Date: 2012-04-14 05:06+0000\n"
+"Last-Translator: hanynowsky <Unknown>\n"
 "Language-Team: French <fr@li.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-21 10:28+0000\n"
-"X-Generator: Launchpad (build 14299)\n"
+"X-Launchpad-Export-Date: 2012-10-17 09:41+0000\n"
+"X-Generator: Launchpad (build 16152)\n"
 
-#: ../data/indicator-sensors.desktop.in.h:1
-msgid "An indicator for Unity which displays hardware sensor readings"
-msgstr "Indicateur Unity qui affiche les données des capteurs matériel."
+#: ../data/indicator-sensors.gschema.xml.in.h:1
+#: ../data/indicator-sensors.gschema.xml.in.in.h:1
+msgid "Primary sensor to display"
+msgstr "Capteur primaire à afficher"
 
-#: ../data/indicator-sensors.desktop.in.h:2
-#: ../indicator-sensors/is-indicator.c:311
-msgid "Hardware Sensors Indicator"
-msgstr "Indicateur de capteurs matériel"
-
-#: ../indicator-sensors/is-fan-sensor.c:40
-msgid "RPM"
-msgstr "RPM (tours/minute)"
-
-#: ../indicator-sensors/is-indicator.c:239
-#: ../indicator-sensors/is-indicator.c:240
-msgid "Preferences…"
-msgstr "Préférences…"
-
-#: ../indicator-sensors/is-indicator.c:241
-#: ../indicator-sensors/is-indicator.c:242
-msgid "About…"
+#: ../data/indicator-sensors.gschema.xml.in.h:2
+#: ../data/indicator-sensors.gschema.xml.in.in.h:2
+msgid ""
+"The primary sensor to display in the indicator, identified by it’s path."
 msgstr ""
+"The senseur primaire à afficher dans l'indicateur, identifié par son chemin."
 
-#: ../indicator-sensors/is-indicator.c:243
-#: ../indicator-sensors/is-indicator.c:244
-msgid "Quit"
-msgstr "Quitter"
+#: ../data/indicator-sensors.gschema.xml.in.h:3
+#: ../data/indicator-sensors.gschema.xml.in.in.h:3
+msgid "Display flags for the indicator"
+msgstr "Afficher les drapeaux indicateurs pour l'indicateur"
 
-#: ../indicator-sensors/is-indicator.c:313
-#, fuzzy
-msgid "Application Indicator for Unity showing hardware sensors."
-msgstr "Indicateur Unity qui affiche les données des capteurs matériel."
-
-#: ../indicator-sensors/is-indicator.c:602
-#: ../indicator-sensors/is-indicator.c:603
-#: ../indicator-sensors/is-indicator.c:694
-#: ../indicator-sensors/is-indicator.c:695
-msgid "No active sensors"
-msgstr "Aucun Capteur activé"
-
-#: ../indicator-sensors/is-indicator.c:734
-msgid "No Sensors"
-msgstr "Capteurs indisponibles"
-
-#: ../indicator-sensors/is-manager.c:364
-#: ../indicator-sensors/is-sensor-dialog.c:335
-msgid "Sensor"
-msgstr "Capteur"
-
-#: ../indicator-sensors/is-manager.c:372
-#: ../indicator-sensors/is-preferences-dialog.c:154
-msgid "Icon"
+#: ../data/indicator-sensors.gschema.xml.in.h:4
+#: ../data/indicator-sensors.gschema.xml.in.in.h:4
+msgid "The elements used to display the primary sensor within the indicator."
 msgstr ""
+"Les éléments utilisés pour afficher le capteur principal au sein de "
+"l'indicateur"
 
-#: ../indicator-sensors/is-manager.c:381
-#: ../indicator-sensors/is-preferences-dialog.c:159
-#: ../indicator-sensors/is-sensor-dialog.c:105
-msgid "Label"
-msgstr "Étiquette"
+#: ../data/indicator-sensors.gschema.xml.in.h:5
+#: ../data/indicator-sensors.gschema.xml.in.in.h:5
+msgid "Enabled sensors"
+msgstr "Senseurs activés"
 
-#: ../indicator-sensors/is-manager.c:391
-msgid "Enabled"
-msgstr "Activé"
+#: ../data/indicator-sensors.gschema.xml.in.h:6
+#: ../data/indicator-sensors.gschema.xml.in.in.h:6
+msgid "The list of enabled sensors to monitor, each identified by it’s path."
+msgstr ""
+"La liste des senseurs activés à monitorer, chacun identifié par son chemin."
 
-#: ../indicator-sensors/is-preferences-dialog.c:107
-msgid " Preferences"
-msgstr " Préférences"
-
-#: ../indicator-sensors/is-preferences-dialog.c:126
-msgid "General"
-msgstr "Général."
-
-#: ../indicator-sensors/is-preferences-dialog.c:137
-msgid "Start automatically on login"
-msgstr "Démarrage  à la connexion"
-
-#: ../indicator-sensors/is-preferences-dialog.c:145
-msgid "Primary sensor display"
-msgstr "Afficher le capteur primaire"
-
-#: ../indicator-sensors/is-preferences-dialog.c:164
-#, fuzzy
-msgid "Value"
-msgstr "Valeur seulement"
-
-#: ../indicator-sensors/is-preferences-dialog.c:175
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:4
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:4
+#: ../data/indicator-sensors.gschema.xml.in.h:7
+#: ../data/indicator-sensors.gschema.xml.in.in.h:7
+#: ../indicator-sensors/is-preferences-dialog.c:168
 msgid "Temperature scale"
 msgstr "Échelle de température"
 
-#: ../indicator-sensors/is-preferences-dialog.c:185
+#: ../data/indicator-sensors.gschema.xml.in.h:8
+#: ../data/indicator-sensors.gschema.xml.in.in.h:8
+msgid "The temperature scale to display temperature sensor values."
+msgstr "L'échelle de température à afficher pour les capteur de température."
+
+#: ../data/indicator-sensors.gschema.xml.in.h:9
+#: ../data/indicator-sensors.gschema.xml.in.in.h:9
+msgid "Show indicator"
+msgstr ""
+
+#: ../data/indicator-sensors.gschema.xml.in.h:10
+#: ../data/indicator-sensors.gschema.xml.in.in.h:10
+msgid "Whether to show the indicator in the notification area."
+msgstr ""
+
+#: ../data/indicator-sensors.desktop.in.h:1
+#: ../indicator-sensors/is-application.c:822
+msgid "Hardware Sensors Indicator"
+msgstr "Indicateur de capteurs matériel"
+
+#: ../data/indicator-sensors.desktop.in.h:2
+msgid "An indicator for Unity which displays hardware sensor readings"
+msgstr "Indicateur Unity qui affiche les données des capteurs matériel."
+
+#: ../indicator-sensors/indicator-sensors.c:140
+msgid "No Sensors Enabled For Monitoring"
+msgstr ""
+
+#: ../indicator-sensors/indicator-sensors.c:141
+msgid ""
+"Sensors detected but none are enabled for monitoring. To enable monitoring "
+"of sensors open the Preferences window and select the sensors to monitor"
+msgstr ""
+
+#: ../indicator-sensors/is-application.c:824
+#, fuzzy
+msgid "Indicator for GNOME / Unity showing hardware sensors."
+msgstr "Indicateur d'Application pour Unity affichant les capteurs du matériel"
+
+#: ../indicator-sensors/is-fan-sensor.c:40
+msgid " RPM"
+msgstr ""
+
+#: ../indicator-sensors/is-indicator.c:160
+msgid "Preferences…"
+msgstr "Préférences…"
+
+#: ../indicator-sensors/is-indicator.c:161
+msgid "Preferences"
+msgstr "Préférences"
+
+#: ../indicator-sensors/is-indicator.c:162
+msgid "About…"
+msgstr "A propos"
+
+#: ../indicator-sensors/is-indicator.c:163
+#, fuzzy
+msgid "About"
+msgstr "A propos"
+
+#: ../indicator-sensors/is-indicator.c:164
+#: ../indicator-sensors/is-indicator.c:165
+msgid "Quit"
+msgstr "Quitter"
+
+#: ../indicator-sensors/is-indicator.c:236
+msgid "No Sensors"
+msgstr "Capteurs indisponibles"
+
+#: ../indicator-sensors/is-indicator.c:694
+#: ../indicator-sensors/is-indicator.c:841
+msgid "No active sensors"
+msgstr "Aucun Capteur activé"
+
+#: ../indicator-sensors/is-manager.c:293
+#: ../indicator-sensors/is-sensor-dialog.c:311
+msgid "Sensor"
+msgstr "Capteur"
+
+#: ../indicator-sensors/is-manager.c:301
+#: ../indicator-sensors/is-preferences-dialog.c:149
+msgid "Icon"
+msgstr "Icone"
+
+#: ../indicator-sensors/is-manager.c:310
+#: ../indicator-sensors/is-preferences-dialog.c:154
+#: ../indicator-sensors/is-sensor-dialog.c:102
+msgid "Label"
+msgstr "Étiquette"
+
+#: ../indicator-sensors/is-manager.c:320
+msgid "Enabled"
+msgstr "Activé"
+
+#: ../indicator-sensors/is-preferences-dialog.c:108
+msgid " Preferences"
+msgstr " Préférences"
+
+#: ../indicator-sensors/is-preferences-dialog.c:127
+msgid "General"
+msgstr "Général."
+
+#: ../indicator-sensors/is-preferences-dialog.c:135
+msgid "Start automatically on login"
+msgstr "Démarrage  à la connexion"
+
+#: ../indicator-sensors/is-preferences-dialog.c:141
+msgid "Primary sensor display"
+msgstr "Afficher le capteur primaire"
+
+#: ../indicator-sensors/is-preferences-dialog.c:159
+msgid "Value"
+msgstr "Valeur"
+
+#: ../indicator-sensors/is-preferences-dialog.c:176
 msgid "Celsius (°C)"
 msgstr "Celsius (°C)"
 
-#: ../indicator-sensors/is-preferences-dialog.c:197
+#: ../indicator-sensors/is-preferences-dialog.c:187
 msgid "Fahrenheit (°F)"
 msgstr "Fahrenheit (°F)"
 
-#: ../indicator-sensors/is-preferences-dialog.c:209
-#, fuzzy
-msgid "Preferences"
-msgstr " Préférences"
+#: ../indicator-sensors/is-sensor.c:388
+msgid "Sensor Alarm"
+msgstr "Alarme des capteurs"
 
-#: ../indicator-sensors/is-preferences-dialog.c:211
-msgid "Plugins"
-msgstr ""
-
-#: ../indicator-sensors/is-sensor-dialog.c:85
+#: ../indicator-sensors/is-sensor-dialog.c:84
 msgid " Sensor Properties"
 msgstr " Propriétés du capteur"
 
-#: ../indicator-sensors/is-sensor-dialog.c:118
+#: ../indicator-sensors/is-sensor-dialog.c:111
 msgid "Alarm"
 msgstr "Alarme"
 
-#: ../indicator-sensors/is-sensor-dialog.c:128
+#: ../indicator-sensors/is-sensor-dialog.c:119
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: ../indicator-sensors/is-sensor-dialog.c:131
+#: ../indicator-sensors/is-sensor-dialog.c:122
 msgid "Below"
 msgstr "Ci-dessous"
 
-#: ../indicator-sensors/is-sensor-dialog.c:134
+#: ../indicator-sensors/is-sensor-dialog.c:125
 msgid "Above"
 msgstr "Ci-dessus"
 
-#: ../indicator-sensors/is-sensor-dialog.c:159
+#: ../indicator-sensors/is-sensor-dialog.c:143
 msgid "Low value"
-msgstr ""
+msgstr "Faible valeur"
 
-#: ../indicator-sensors/is-sensor-dialog.c:182
+#: ../indicator-sensors/is-sensor-dialog.c:162
 msgid "High value"
-msgstr ""
+msgstr "Haute valeur"
 
 #. first placeholder is sensor name
 #: ../plugins/aticonfig/is-aticonfig-plugin.c:159
@@ -166,74 +225,42 @@ msgstr "Erreur de lecture de la température du GPU %d"
 msgid "Error reading fanspeed value for GPU %d"
 msgstr "Erreur de lecture de la température du ventilateur pour le GPU %d"
 
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:305
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:308
 msgid "Temperature"
 msgstr "Température"
 
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:323
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:326
 msgid "Fan"
 msgstr "Ventilateur"
 
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:1
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:1
-#, fuzzy
-msgid "Display flags for the indicator"
-msgstr "Mode d'affichage par défaut de l'indicateur"
-
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:2
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:2
-msgid "Enabled sensors"
-msgstr "Senseurs activés"
-
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:3
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:3
-msgid "Primary sensor to display"
-msgstr "Capteur primaire à afficher"
-
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:5
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:5
-#, fuzzy
-msgid "The elements used to display the primary sensor within the indicator."
-msgstr "Mode d'affichage du capteur primaire dans l'indicateur."
-
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:6
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:6
-msgid "The list of enabled sensors to monitor, each identified by it’s path."
-msgstr ""
-"La liste des senseurs activés à monitorer, chacun identifié par son chemin."
-
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:7
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:7
-msgid ""
-"The primary sensor to display in the indicator, identified by it’s path."
-msgstr ""
-"The senseur primaire à afficher dans l'indicateur, identifié par son chemin."
-
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.h:8
-#: ../plugins/gsettings/indicator-sensors.gschema.xml.in.in.h:8
-msgid "The temperature scale to display temperature sensor values."
-msgstr "L'échelle de température à afficher pour les capteur de température."
-
-#: ../plugins/libnotify/is-libnotify-plugin.c:152
-msgid "Sensor Alarm"
-msgstr "Alarme des capteurs"
-
 #. first placeholder is sensor name,
 #. * second is error message
-#: ../plugins/libsensors/is-libsensors-plugin.c:173
+#: ../plugins/libsensors/is-libsensors-plugin.c:174
 #, c-format
 msgid "Error getting sensor value for sensor %s: %s [%d]"
 msgstr "Erreur à l'obtention des valeur du capteur %s: %s [%d]"
 
 #. translators: V is the unit for Voltage, replace with
 #. appropriate unit
-#: ../plugins/libsensors/is-libsensors-plugin.c:314
+#: ../plugins/libsensors/is-libsensors-plugin.c:315
 msgid "V"
 msgstr "Volt"
 
+#: ../plugins/libsensors/is-libsensors-plugin.c:375
+#, fuzzy
+msgid "No Sensors Detected"
+msgstr "Capteurs indisponibles"
+
+#: ../plugins/libsensors/is-libsensors-plugin.c:376
+#, c-format
+msgid ""
+"Try running the command 'sensors-detect' from the command-line and "
+"restarting %s"
+msgstr ""
+
 #. first placeholder is
 #. * sensor name
-#: ../plugins/nvidia/is-nvidia-plugin.c:173
+#: ../plugins/nvidia/is-nvidia-plugin.c:192
 #, c-format
 msgid "Error getting sensor value for sensor %s"
 msgstr "Erreur à l'obtention des données du capteur %s"
@@ -248,29 +275,8 @@ msgstr "Erreur à la lecture des nouvelles données du capteur SMART %s"
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "Erreur au rafraîchissement des données du capteur SMART %s"
 
-#~ msgid "Label and value"
-#~ msgstr "Étiquette et valeur"
+#~ msgid "RPM"
+#~ msgstr "RPM (tours/minute)"
 
-#~ msgid "Default alarm limit value"
-#~ msgstr "Limite de la valeur par défaut de l'alarme"
-
-#~ msgid "Default alarm maximum sensor value"
-#~ msgstr "Valeur maximale par défaut de l'alarme du capteur"
-
-#~ msgid "Default alarm mode"
-#~ msgstr "Mode par défaut de l'alarme"
-
-#~ msgid "Label for a sensor"
-#~ msgstr "Étiquette du capteur"
-
-#~ msgid "The alarm mode for a sensor."
-#~ msgstr "Mode d'alarme pour le capteur."
-
-#~ msgid "The default alarm maximum value for a sensor."
-#~ msgstr "Valeur maximale par défaut pour un capteur."
-
-#~ msgid "The default label for a sensor"
-#~ msgstr "Étiquette par défaut du capteur"
-
-#~ msgid "The default value to trigger an alarm for a sensor."
-#~ msgstr "Valeur par défaut pour déclencher l'alarme d'un capteur."
+#~ msgid "Plugins"
+#~ msgstr "Extensions"

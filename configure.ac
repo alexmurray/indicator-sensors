@@ -29,7 +29,7 @@ AM_GNU_GETTEXT([external])
 GETTEXT_PACKAGE=indicator-sensors
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
-ALL_LINGUAS="ca de en_GB eo es fr gl ko ro ru sr tr uk"
+ALL_LINGUAS="ar ca cs de en_GB eo es fr gl hr hu it ko lt nl pl ro ru sk sr tr uk"
 AM_GLIB_GNU_GETTEXT
 
 # ========== export compiler / linker options ======== #
