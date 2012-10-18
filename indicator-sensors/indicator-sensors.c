@@ -71,6 +71,17 @@ int main(int argc, char **argv)
 	PeasEngine *engine;
 	PeasExtensionSet *set;
 	GError *error = NULL;
+	gchar *locale_dir;
+
+	/* Setup locale/gettext */
+	setlocale(LC_ALL, "");
+
+	locale_dir = g_build_filename(DATADIR, "locale", NULL);
+	bindtextdomain(GETTEXT_PACKAGE, locale_dir);
+	g_free(locale_dir);
+
+	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+	textdomain(GETTEXT_PACKAGE);
 
 	gtk_init(&argc, &argv);
 
