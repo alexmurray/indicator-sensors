@@ -15,8 +15,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-10-17 09:41+0000\n"
-"X-Generator: Launchpad (build 16152)\n"
+"X-Launchpad-Export-Date: 2012-11-28 14:12+0000\n"
+"X-Generator: Launchpad (build 16309)\n"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:1
 #: ../data/indicator-sensors.gschema.xml.in.in.h:1
@@ -95,9 +95,8 @@ msgid ""
 msgstr ""
 
 #: ../indicator-sensors/is-application.c:824
-#, fuzzy
 msgid "Indicator for GNOME / Unity showing hardware sensors."
-msgstr "Indicador de aplicación para Unity mostrando los sensores de hardware"
+msgstr ""
 
 #: ../indicator-sensors/is-fan-sensor.c:40
 msgid " RPM"
@@ -116,9 +115,8 @@ msgid "About…"
 msgstr "Acerca de…"
 
 #: ../indicator-sensors/is-indicator.c:163
-#, fuzzy
 msgid "About"
-msgstr "Acerca de…"
+msgstr ""
 
 #: ../indicator-sensors/is-indicator.c:164
 #: ../indicator-sensors/is-indicator.c:165
@@ -248,9 +246,8 @@ msgid "V"
 msgstr "V"
 
 #: ../plugins/libsensors/is-libsensors-plugin.c:375
-#, fuzzy
 msgid "No Sensors Detected"
-msgstr "No hay sensores"
+msgstr ""
 
 #: ../plugins/libsensors/is-libsensors-plugin.c:376
 #, c-format
@@ -275,9 +272,3 @@ msgstr "Error leyendo los nuevos datos SMART del sensor %s"
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "Error actualizando los datos SMART del sensor %s"
-
-#~ msgid "RPM"
-#~ msgstr "RPM"
-
-#~ msgid "Plugins"
-#~ msgstr "Complementos"

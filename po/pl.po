@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-18 22:05+1030\n"
-"PO-Revision-Date: 2012-09-28 18:19+0000\n"
+"PO-Revision-Date: 2012-11-03 12:48+0000\n"
 "Last-Translator: Krzysiek Karolak <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-10-17 09:41+0000\n"
-"X-Generator: Launchpad (build 16152)\n"
+"X-Launchpad-Export-Date: 2012-11-28 14:12+0000\n"
+"X-Generator: Launchpad (build 16309)\n"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:1
 #: ../data/indicator-sensors.gschema.xml.in.in.h:1
@@ -67,12 +67,12 @@ msgstr "Skala temperatury do wyświetlania wartości temperatury czujników."
 #: ../data/indicator-sensors.gschema.xml.in.h:9
 #: ../data/indicator-sensors.gschema.xml.in.in.h:9
 msgid "Show indicator"
-msgstr ""
+msgstr "Pokaż wskaźnik"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:10
 #: ../data/indicator-sensors.gschema.xml.in.in.h:10
 msgid "Whether to show the indicator in the notification area."
-msgstr ""
+msgstr "Czy pokazywać wskaźnik w obszarze powiadomień."
 
 #: ../data/indicator-sensors.desktop.in.h:1
 #: ../indicator-sensors/is-application.c:822
@@ -85,22 +85,24 @@ msgstr "Wskaźnik dla interfejsu Unity, pokazujący odczyty czujników sprzętu"
 
 #: ../indicator-sensors/indicator-sensors.c:140
 msgid "No Sensors Enabled For Monitoring"
-msgstr ""
+msgstr "Brak Czujników włączonych do monitorowania"
 
 #: ../indicator-sensors/indicator-sensors.c:141
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
 msgstr ""
+"Czujniki zostały wykryte, ale żadne nie są włączone do monitorowania. Aby "
+"włączyć monitorowanie czujników, otwórz okno Preferencje i wybierz czujniki "
+"do monitorowania."
 
 #: ../indicator-sensors/is-application.c:824
-#, fuzzy
 msgid "Indicator for GNOME / Unity showing hardware sensors."
-msgstr "Aplikacja dla interfejsu Unity pokazująca wskaźnik czujników sprzętu."
+msgstr "Wskaźnik dla GNOME / Unity pokazujący czujniki sprzętu."
 
 #: ../indicator-sensors/is-fan-sensor.c:40
 msgid " RPM"
-msgstr ""
+msgstr " RPM"
 
 #: ../indicator-sensors/is-indicator.c:160
 msgid "Preferences…"
@@ -115,9 +117,8 @@ msgid "About…"
 msgstr "O programie..."
 
 #: ../indicator-sensors/is-indicator.c:163
-#, fuzzy
 msgid "About"
-msgstr "O programie..."
+msgstr "O programie"
 
 #: ../indicator-sensors/is-indicator.c:164
 #: ../indicator-sensors/is-indicator.c:165
@@ -247,9 +248,8 @@ msgid "V"
 msgstr "V"
 
 #: ../plugins/libsensors/is-libsensors-plugin.c:375
-#, fuzzy
 msgid "No Sensors Detected"
-msgstr "Brak czujników"
+msgstr "Nie wykryto czujników"
 
 #: ../plugins/libsensors/is-libsensors-plugin.c:376
 #, c-format
@@ -257,6 +257,7 @@ msgid ""
 "Try running the command 'sensors-detect' from the command-line and "
 "restarting %s"
 msgstr ""
+"Spróbuj uruchomić komendę 'sensors-detect' z linii poleceń i zrestartować %s"
 
 #. first placeholder is
 #. * sensor name
@@ -274,9 +275,3 @@ msgstr "Błąd odczytu nowych danych SMART dla czujnika %s"
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "Błąd odświeżania danych SMART dla czujnika %s"
-
-#~ msgid "RPM"
-#~ msgstr "RPM"
-
-#~ msgid "Plugins"
-#~ msgstr "Wtyczki"
