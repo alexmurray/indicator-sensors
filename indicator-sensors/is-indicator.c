@@ -78,7 +78,7 @@ struct _IsIndicatorPrivate
         GSList *menu_items;
 };
 
-        static GtkMenu *
+static GtkMenu *
 is_indicator_get_menu(IsIndicator *self)
 {
         GtkMenu *menu;
@@ -92,7 +92,7 @@ is_indicator_get_menu(IsIndicator *self)
 }
 
 #if !HAVE_APPINDICATOR
-        static void
+static void
 popup_menu(GtkStatusIcon *status_icon,
            guint button,
            guint activate_time,
@@ -105,7 +105,7 @@ popup_menu(GtkStatusIcon *status_icon,
 }
 #endif
 
-        static void
+static void
 is_indicator_set_menu(IsIndicator *self,
                       GtkMenu *menu)
 {
@@ -118,7 +118,7 @@ is_indicator_set_menu(IsIndicator *self,
 #endif
 }
 
-        static gboolean
+static gboolean
 fake_add_enable_sensors(IsIndicator *self)
 {
         IsManager *manager;
@@ -158,22 +158,22 @@ static void quit_action(GtkAction *action,
 
 static GtkActionEntry entries[] = {
         { "Preferences", "application-preferences", N_("Preferences…"), NULL,
-                N_("Preferences"), G_CALLBACK(prefs_action) },
+          N_("Preferences"), G_CALLBACK(prefs_action) },
         { "About", "about", N_("About…"), NULL,
-                N_("About"), G_CALLBACK(about_action) },
+          N_("About"), G_CALLBACK(about_action) },
         { "Quit", GTK_STOCK_QUIT, N_("Quit"), NULL,
-                N_("Quit"), G_CALLBACK(quit_action) },
+          N_("Quit"), G_CALLBACK(quit_action) },
 };
 static guint n_entries = G_N_ELEMENTS(entries);
 
 static const gchar *ui_info =
-"<ui>"
-"  <popup name='Indicator'>"
-"    <menuitem action='Preferences' />"
-"    <menuitem action='About' />"
-"    <menuitem action='Quit' />"
-"  </popup>"
-"</ui>";
+        "<ui>"
+        "  <popup name='Indicator'>"
+        "    <menuitem action='Preferences' />"
+        "    <menuitem action='About' />"
+        "    <menuitem action='Quit' />"
+        "  </popup>"
+        "</ui>";
 
 static void prefs_action(GtkAction *action,
                          IsIndicator *self)
@@ -193,7 +193,7 @@ static void quit_action(GtkAction *action,
         is_application_quit(self->priv->application);
 }
 
-        static void
+static void
 is_indicator_set_label(IsIndicator *self,
                        const gchar *label)
 {
@@ -204,7 +204,7 @@ is_indicator_set_label(IsIndicator *self,
 #endif
 }
 
-        static void
+static void
 is_indicator_constructed(GObject *object)
 {
         IsIndicator *self = IS_INDICATOR(object);
@@ -242,7 +242,7 @@ is_indicator_constructed(GObject *object)
         fake_add_enable_sensors(IS_INDICATOR(object));
 }
 
-        static void
+static void
 is_indicator_class_init(IsIndicatorClass *klass)
 {
         GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
@@ -285,36 +285,36 @@ is_indicator_class_init(IsIndicatorClass *klass)
 
 }
 
-        static void
+static void
 is_indicator_init(IsIndicator *self)
 {
         self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_INDICATOR,
                                                  IsIndicatorPrivate);
 }
 
-        static void
+static void
 is_indicator_get_property(GObject *object,
                           guint property_id, GValue *value, GParamSpec *pspec)
 {
         IsIndicator *self = IS_INDICATOR(object);
 
         switch (property_id) {
-                case PROP_APPLICATION:
-                        g_value_set_object(value, is_indicator_get_application(self));
-                        break;
-                case PROP_PRIMARY_SENSOR_PATH:
-                        g_value_set_string(value, is_indicator_get_primary_sensor_path(self));
-                        break;
-                case PROP_DISPLAY_FLAGS:
-                        g_value_set_int(value, is_indicator_get_display_flags(self));
-                        break;
-                default:
-                        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-                        break;
+        case PROP_APPLICATION:
+                g_value_set_object(value, is_indicator_get_application(self));
+                break;
+        case PROP_PRIMARY_SENSOR_PATH:
+                g_value_set_string(value, is_indicator_get_primary_sensor_path(self));
+                break;
+        case PROP_DISPLAY_FLAGS:
+                g_value_set_int(value, is_indicator_get_display_flags(self));
+                break;
+        default:
+                G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+                break;
         }
 }
 
-        static void
+static void
 is_indicator_set_property(GObject *object,
                           guint property_id, const GValue *value, GParamSpec *pspec)
 {
@@ -323,26 +323,26 @@ is_indicator_set_property(GObject *object,
         IsManager *manager;
 
         switch (property_id) {
-                case PROP_APPLICATION:
-                        g_assert(!priv->application);
-                        priv->application = g_object_ref(g_value_get_object(value));
-                        manager = is_application_get_manager(priv->application);
-                        g_signal_connect(manager, "sensor-enabled",
-                                         G_CALLBACK(sensor_enabled), self);
-                        g_signal_connect(manager, "sensor-disabled",
-                                         G_CALLBACK(sensor_disabled), self);
-                        g_signal_connect(manager, "sensor-added",
-                                         G_CALLBACK(sensor_added), self);
-                        break;
-                case PROP_PRIMARY_SENSOR_PATH:
-                        is_indicator_set_primary_sensor_path(self, g_value_get_string(value));
-                        break;
-                case PROP_DISPLAY_FLAGS:
-                        is_indicator_set_display_flags(self, g_value_get_int(value));
-                        break;
-                default:
-                        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-                        break;
+        case PROP_APPLICATION:
+                g_assert(!priv->application);
+                priv->application = g_object_ref(g_value_get_object(value));
+                manager = is_application_get_manager(priv->application);
+                g_signal_connect(manager, "sensor-enabled",
+                                 G_CALLBACK(sensor_enabled), self);
+                g_signal_connect(manager, "sensor-disabled",
+                                 G_CALLBACK(sensor_disabled), self);
+                g_signal_connect(manager, "sensor-added",
+                                 G_CALLBACK(sensor_added), self);
+                break;
+        case PROP_PRIMARY_SENSOR_PATH:
+                is_indicator_set_primary_sensor_path(self, g_value_get_string(value));
+                break;
+        case PROP_DISPLAY_FLAGS:
+                is_indicator_set_display_flags(self, g_value_get_int(value));
+                break;
+        default:
+                G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+                break;
         }
 }
 
@@ -375,7 +375,7 @@ out:
 }
 #endif
 
-        static void
+static void
 is_indicator_dispose(GObject *object)
 {
         IsIndicator *self = (IsIndicator *)object;
@@ -402,7 +402,7 @@ is_indicator_dispose(GObject *object)
         G_OBJECT_CLASS(is_indicator_parent_class)->dispose(object);
 }
 
-        static void
+static void
 is_indicator_finalize(GObject *object)
 {
         IsIndicator *self = (IsIndicator *)object;
@@ -455,14 +455,14 @@ static const gchar * const value_overlay_icons[NUM_OVERLAY_ICONS] = {
         "very-high-value-icon"
 };
 
-        static gchar *
+static gchar *
 icon_cache_dir()
 {
         return g_build_path(G_DIR_SEPARATOR_S, g_get_user_cache_dir(),
                             "indicator-sensors", "icons", NULL);
 }
 
-        static gboolean
+static gboolean
 prepare_cache_icon(const gchar * const base_icon_name,
                    const gchar * const overlay_name,
                    const gchar * const icon_path,
@@ -524,7 +524,7 @@ out:
         return ret;
 }
 
-        static gchar *
+static gchar *
 sensor_icon_path(IsSensor *sensor)
 {
         gdouble value, low, high;
@@ -571,7 +571,7 @@ out:
 }
 #endif
 
-        static void
+static void
 update_sensor_menu_item_label(IsIndicator *self,
                               IsSensor *sensor,
                               GtkMenuItem *menu_item)
@@ -637,7 +637,7 @@ update_sensor_menu_item_label(IsIndicator *self,
 
 }
 
-        static void
+static void
 sensor_notify(IsSensor *sensor,
               GParamSpec *psec,
               IsIndicator *self)
@@ -654,7 +654,7 @@ sensor_notify(IsSensor *sensor,
         }
 }
 
-        static void
+static void
 sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
 {
         is_warning("indicator", "sensor %s error: %s",
@@ -662,7 +662,7 @@ sensor_error(IsSensor *sensor, GError *error, IsIndicator *self)
                    error->message);
 }
 
-        static void
+static void
 _sensor_disabled(IsSensor *sensor,
                  IsIndicator *self)
 {
@@ -690,7 +690,12 @@ _sensor_disabled(IsSensor *sensor,
         if (sensor != priv->primary) {
                 goto out;
         }
-        if (!priv->menu_items) {
+        if (priv->menu_items) {
+                /* choose top-most menu item and set it as primary one */
+                menu_item = GTK_WIDGET(priv->menu_items->data);
+                /* activate it to make this the new primary sensor */
+                gtk_menu_item_activate(GTK_MENU_ITEM(menu_item));
+        } else {
                 is_indicator_set_label(self, _("No active sensors"));
 #if !HAVE_APPINDICATOR
                 gtk_status_icon_set_from_stock(GTK_STATUS_ICON(self),
@@ -703,25 +708,15 @@ out:
         return;
 }
 
-        static void
+static void
 sensor_disabled(IsManager *manager,
                 IsSensor *sensor,
                 IsIndicator *self)
 {
-        IsIndicatorPrivate *priv;
-        GtkWidget *menu_item;
-
-        priv = self->priv;
-
         _sensor_disabled(sensor, self);
-
-        /* choose top-most menu item and set it as primary one */
-        menu_item = GTK_WIDGET(priv->menu_items->data);
-        /* activate it to make this the new primary sensor */
-        gtk_menu_item_activate(GTK_MENU_ITEM(menu_item));
 }
 
-        static void
+static void
 sensor_menu_item_toggled(GtkMenuItem *menu_item,
                          IsIndicator *self)
 {
@@ -742,7 +737,7 @@ sensor_menu_item_toggled(GtkMenuItem *menu_item,
         }
 }
 
-        static void
+static void
 sensor_enabled(IsManager *manager,
                IsSensor *sensor,
                gint position,
@@ -829,7 +824,7 @@ sensor_enabled(IsManager *manager,
         }
 }
 
-        static void
+static void
 sensor_added(IsManager *manager,
              IsSensor *sensor,
              IsIndicator *self)
@@ -846,7 +841,7 @@ sensor_added(IsManager *manager,
         }
 }
 
-        IsIndicator *
+IsIndicator *
 is_indicator_new(IsApplication *application)
 {
         IsIndicator *self = g_object_new(IS_TYPE_INDICATOR,
@@ -952,7 +947,7 @@ void is_indicator_set_display_flags(IsIndicator *self,
         }
 }
 
-        IsIndicatorDisplayFlags
+IsIndicatorDisplayFlags
 is_indicator_get_display_flags(IsIndicator *self)
 {
         g_return_val_if_fail(IS_IS_INDICATOR(self), 0);
