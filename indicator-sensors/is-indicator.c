@@ -214,6 +214,7 @@ is_indicator_constructed(GObject *object)
         GtkWidget *menu;
 
         action_group = gtk_action_group_new("AppActions");
+        gtk_action_group_set_translation_domain(action_group, GETTEXT_PACKAGE);
         gtk_action_group_add_actions(action_group,
                                      entries, n_entries,
                                      self);
