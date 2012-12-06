@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-18 22:05+1030\n"
+"POT-Creation-Date: 2012-12-06 19:54+1030\n"
 "PO-Revision-Date: 2012-07-07 11:01+0000\n"
 "Last-Translator: Eduard Hummel <22edel22@gmail.com>\n"
 "Language-Team: Slovak <sk@li.org>\n"
@@ -79,11 +79,11 @@ msgstr "Indikátor snímača hardvéru"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:140
+#: ../indicator-sensors/indicator-sensors.c:151
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:141
+#: ../indicator-sensors/indicator-sensors.c:152
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -122,8 +122,8 @@ msgstr "Ukončiť"
 msgid "No Sensors"
 msgstr "Bez snímača"
 
-#: ../indicator-sensors/is-indicator.c:694
-#: ../indicator-sensors/is-indicator.c:841
+#: ../indicator-sensors/is-indicator.c:699
+#: ../indicator-sensors/is-indicator.c:836
 msgid "No active sensors"
 msgstr "Neaktivované snímače"
 
@@ -148,8 +148,9 @@ msgid "Enabled"
 msgstr "Aktivovaný"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
-msgid " Preferences"
-msgstr " Nastavenia"
+#, fuzzy
+msgid "Hardware Sensors Indicator Preferences"
+msgstr "Indikátor snímača hardvéru"
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
@@ -267,3 +268,6 @@ msgstr ""
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr ""
+
+#~ msgid " Preferences"
+#~ msgstr " Nastavenia"

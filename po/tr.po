@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-18 22:05+1030\n"
+"POT-Creation-Date: 2012-12-06 19:54+1030\n"
 "PO-Revision-Date: 2012-09-30 17:09+0000\n"
 "Last-Translator: Şâkir Aşçı <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -82,11 +82,11 @@ msgstr "Donanım Algılayıcı Göstergesi"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Unity için donanım algılayıcı okumalarını bildiren bir gösterge"
 
-#: ../indicator-sensors/indicator-sensors.c:140
+#: ../indicator-sensors/indicator-sensors.c:151
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:141
+#: ../indicator-sensors/indicator-sensors.c:152
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -125,8 +125,8 @@ msgstr "Çık"
 msgid "No Sensors"
 msgstr "Algılayıcı yok"
 
-#: ../indicator-sensors/is-indicator.c:694
-#: ../indicator-sensors/is-indicator.c:841
+#: ../indicator-sensors/is-indicator.c:699
+#: ../indicator-sensors/is-indicator.c:836
 msgid "No active sensors"
 msgstr "Etkin algılayıcı yok"
 
@@ -151,8 +151,9 @@ msgid "Enabled"
 msgstr "Etkin"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
-msgid " Preferences"
-msgstr " Tercihler"
+#, fuzzy
+msgid "Hardware Sensors Indicator Preferences"
+msgstr "Donanım Algılayıcı Göstergesi"
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
@@ -270,3 +271,6 @@ msgstr "%s algılayıcısının SMART verisinin okunmasında hatâ"
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "%s algılayıcısının SMART verisinin yenilenmesinde hatâ"
+
+#~ msgid " Preferences"
+#~ msgstr " Tercihler"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-18 22:05+1030\n"
+"POT-Creation-Date: 2012-12-06 19:54+1030\n"
 "PO-Revision-Date: 2012-04-14 05:06+0000\n"
 "Last-Translator: Hanine HAMZIOUI <Unknown>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -83,11 +83,11 @@ msgstr "Indicateur de capteurs matériel"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Indicateur Unity qui affiche les données des capteurs matériel."
 
-#: ../indicator-sensors/indicator-sensors.c:140
+#: ../indicator-sensors/indicator-sensors.c:151
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:141
+#: ../indicator-sensors/indicator-sensors.c:152
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -126,8 +126,8 @@ msgstr "Quitter"
 msgid "No Sensors"
 msgstr "Capteurs indisponibles"
 
-#: ../indicator-sensors/is-indicator.c:694
-#: ../indicator-sensors/is-indicator.c:841
+#: ../indicator-sensors/is-indicator.c:699
+#: ../indicator-sensors/is-indicator.c:836
 msgid "No active sensors"
 msgstr "Aucun Capteur activé"
 
@@ -152,8 +152,9 @@ msgid "Enabled"
 msgstr "Activé"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
-msgid " Preferences"
-msgstr " Préférences"
+#, fuzzy
+msgid "Hardware Sensors Indicator Preferences"
+msgstr "Indicateur de capteurs matériel"
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
@@ -271,3 +272,6 @@ msgstr "Erreur à la lecture des nouvelles données du capteur SMART %s"
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "Erreur au rafraîchissement des données du capteur SMART %s"
+
+#~ msgid " Preferences"
+#~ msgstr " Préférences"

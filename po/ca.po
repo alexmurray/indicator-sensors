@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-18 22:05+1030\n"
+"POT-Creation-Date: 2012-12-06 19:54+1030\n"
 "PO-Revision-Date: 2011-04-14 17:13+0000\n"
 "Last-Translator: David Planella <david.planella@ubuntu.com>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -79,11 +79,11 @@ msgstr ""
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:140
+#: ../indicator-sensors/indicator-sensors.c:151
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:141
+#: ../indicator-sensors/indicator-sensors.c:152
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -122,8 +122,8 @@ msgstr ""
 msgid "No Sensors"
 msgstr "No hi ha sensors"
 
-#: ../indicator-sensors/is-indicator.c:694
-#: ../indicator-sensors/is-indicator.c:841
+#: ../indicator-sensors/is-indicator.c:699
+#: ../indicator-sensors/is-indicator.c:836
 msgid "No active sensors"
 msgstr ""
 
@@ -148,7 +148,7 @@ msgid "Enabled"
 msgstr ""
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
-msgid " Preferences"
+msgid "Hardware Sensors Indicator Preferences"
 msgstr ""
 
 #: ../indicator-sensors/is-preferences-dialog.c:127

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-18 22:05+1030\n"
+"POT-Creation-Date: 2012-12-06 19:54+1030\n"
 "PO-Revision-Date: 2012-02-29 14:53+0000\n"
 "Last-Translator: Jan Simon <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
@@ -81,11 +81,11 @@ msgstr "Status-Applet zur Anzeige von Systeminformation."
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Ein Status-Applet für Unity, das Systeminformationen anzeigt."
 
-#: ../indicator-sensors/indicator-sensors.c:140
+#: ../indicator-sensors/indicator-sensors.c:151
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:141
+#: ../indicator-sensors/indicator-sensors.c:152
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -124,8 +124,8 @@ msgstr "Programm beenden"
 msgid "No Sensors"
 msgstr "Keine Sensoren"
 
-#: ../indicator-sensors/is-indicator.c:694
-#: ../indicator-sensors/is-indicator.c:841
+#: ../indicator-sensors/is-indicator.c:699
+#: ../indicator-sensors/is-indicator.c:836
 msgid "No active sensors"
 msgstr "Keine aktiven Systeminformations-Module"
 
@@ -150,8 +150,9 @@ msgid "Enabled"
 msgstr "Aktiviert"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
-msgid " Preferences"
-msgstr " Einstellungen"
+#, fuzzy
+msgid "Hardware Sensors Indicator Preferences"
+msgstr "Status-Applet zur Anzeige von Systeminformation."
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
@@ -269,3 +270,6 @@ msgstr "Fehler bei dem Versuch neue SMART-Werte von %s zu lesen."
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "Fehler beim Aktualisieren der SMART-Werte von %s"
+
+#~ msgid " Preferences"
+#~ msgstr " Einstellungen"

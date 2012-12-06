@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-18 22:05+1030\n"
+"POT-Creation-Date: 2012-12-06 19:54+1030\n"
 "PO-Revision-Date: 2012-03-25 18:05+0000\n"
 "Last-Translator: Bence Lukács <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
@@ -81,11 +81,11 @@ msgstr "Hardver-szenzor indikátor"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Egy indikátor a Unityhez, ami megmutatja a hardver-szenzor adatait."
 
-#: ../indicator-sensors/indicator-sensors.c:140
+#: ../indicator-sensors/indicator-sensors.c:151
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:141
+#: ../indicator-sensors/indicator-sensors.c:152
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -124,8 +124,8 @@ msgstr "Kilépés"
 msgid "No Sensors"
 msgstr "Nincs szenzor"
 
-#: ../indicator-sensors/is-indicator.c:694
-#: ../indicator-sensors/is-indicator.c:841
+#: ../indicator-sensors/is-indicator.c:699
+#: ../indicator-sensors/is-indicator.c:836
 msgid "No active sensors"
 msgstr "Nincs aktív szenzor"
 
@@ -150,8 +150,9 @@ msgid "Enabled"
 msgstr "Engedélyezve"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
-msgid " Preferences"
-msgstr " Beállítások"
+#, fuzzy
+msgid "Hardware Sensors Indicator Preferences"
+msgstr "Hardver-szenzor indikátor"
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
@@ -269,3 +270,6 @@ msgstr "%s szenzor új SMART adatainak beolvasása meghiúsult"
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "%s szenzor SMART adatainak frissítése meghiúsult"
+
+#~ msgid " Preferences"
+#~ msgstr " Beállítások"

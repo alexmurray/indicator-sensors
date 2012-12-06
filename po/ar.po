@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-18 22:05+1030\n"
+"POT-Creation-Date: 2012-12-06 19:54+1030\n"
 "PO-Revision-Date: 2012-04-27 22:15+0000\n"
 "Last-Translator: Hanine HAMZIOUI <Unknown>\n"
 "Language-Team: Arabic <ar@li.org>\n"
@@ -79,11 +79,11 @@ msgstr "مؤشر مستشعرات الأجهزة"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "مؤشر خاص بيونيتي (Unity) لعرض قراءآت مستشعرات الأجهزة"
 
-#: ../indicator-sensors/indicator-sensors.c:140
+#: ../indicator-sensors/indicator-sensors.c:151
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:141
+#: ../indicator-sensors/indicator-sensors.c:152
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -122,8 +122,8 @@ msgstr "أُخرج"
 msgid "No Sensors"
 msgstr "لا مستشعرات"
 
-#: ../indicator-sensors/is-indicator.c:694
-#: ../indicator-sensors/is-indicator.c:841
+#: ../indicator-sensors/is-indicator.c:699
+#: ../indicator-sensors/is-indicator.c:836
 msgid "No active sensors"
 msgstr "لا مستشعرات نشيطة"
 
@@ -148,8 +148,9 @@ msgid "Enabled"
 msgstr "ممكّن"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
-msgid " Preferences"
-msgstr " تفضيلات"
+#, fuzzy
+msgid "Hardware Sensors Indicator Preferences"
+msgstr "مؤشر مستشعرات الأجهزة"
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
@@ -267,3 +268,6 @@ msgstr ""
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr ""
+
+#~ msgid " Preferences"
+#~ msgstr " تفضيلات"

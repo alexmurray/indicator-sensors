@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-18 22:05+1030\n"
+"POT-Creation-Date: 2012-12-06 19:54+1030\n"
 "PO-Revision-Date: 2012-06-02 10:37+0000\n"
 "Last-Translator: gogo <trebelnik2@gmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
@@ -80,11 +80,11 @@ msgstr "Indikator senzora hardvera"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Indikator za Unity koji prikazuje očitanja senzora hardvera"
 
-#: ../indicator-sensors/indicator-sensors.c:140
+#: ../indicator-sensors/indicator-sensors.c:151
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:141
+#: ../indicator-sensors/indicator-sensors.c:152
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -123,8 +123,8 @@ msgstr "Zatvori"
 msgid "No Sensors"
 msgstr "Nema senzora"
 
-#: ../indicator-sensors/is-indicator.c:694
-#: ../indicator-sensors/is-indicator.c:841
+#: ../indicator-sensors/is-indicator.c:699
+#: ../indicator-sensors/is-indicator.c:836
 msgid "No active sensors"
 msgstr "Nema aktivnih senzora"
 
@@ -149,8 +149,9 @@ msgid "Enabled"
 msgstr "Omogućeno"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
-msgid " Preferences"
-msgstr " Osobitosti"
+#, fuzzy
+msgid "Hardware Sensors Indicator Preferences"
+msgstr "Indikator senzora hardvera"
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
@@ -268,3 +269,6 @@ msgstr "Greška čitanja novih SMART podataka za senzor %s"
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "Greška osvježavanja SMART podataka za senzor %s"
+
+#~ msgid " Preferences"
+#~ msgstr " Osobitosti"
