@@ -105,7 +105,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
         priv->application_settings = g_settings_new("indicator-sensors.application");
         priv->indicator_settings = g_settings_new("indicator-sensors.indicator");
 
-	gtk_window_set_title(GTK_WINDOW(self), _(PACKAGE_NAME " Preferences"));
+	gtk_window_set_title(GTK_WINDOW(self), _("Hardware Sensors Indicator Preferences"));
 	gtk_window_set_default_size(GTK_WINDOW(self), 500, 600);
 
 	priv->sensor_properties_button =
