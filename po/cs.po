@@ -15,8 +15,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-11-28 14:12+0000\n"
-"X-Generator: Launchpad (build 16309)\n"
+"X-Launchpad-Export-Date: 2012-12-07 11:20+0000\n"
+"X-Generator: Launchpad (build 16341)\n"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:1
 #: ../data/indicator-sensors.gschema.xml.in.in.h:1
@@ -154,9 +154,8 @@ msgid "Enabled"
 msgstr "Povoleno"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
-#, fuzzy
 msgid "Hardware Sensors Indicator Preferences"
-msgstr "Indikátor hardwarových senzorů"
+msgstr ""
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
@@ -274,6 +273,3 @@ msgstr "Chyba při čtení SMART dat u senzoru %s"
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "Chyba při znovu načítání SMART dat u senzoru %s"
-
-#~ msgid " Preferences"
-#~ msgstr " Předvolby"
