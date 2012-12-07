@@ -11,3 +11,7 @@ endif
 if UDISKS
 SUBDIRS += udisks
 endif
+
+if UDISKS2
+SUBDIRS += udisks2
+endif

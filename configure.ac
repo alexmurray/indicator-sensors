@@ -1,6 +1,6 @@
 # ================= initialization =================== #
 AC_PREREQ([2.68])
-AC_INIT([Hardware Sensors Indicator],[0.3],[https://bugs.launchpad.net/indicator-sensors],[indicator-sensors])
+AC_INIT([Hardware Sensors Indicator],[0.4],[https://bugs.launchpad.net/indicator-sensors],[indicator-sensors])
 
 AC_CONFIG_HEADERS([indicator-sensors/config.h])
 AC_CONFIG_SRCDIR([indicator-sensors/indicator-sensors.c])
@@ -47,6 +47,7 @@ GTK_REQUIRED=3.0.0
 APPINDICATOR_REQUIRED=0.0.7
 LIBPEAS_REQUIRED=0.7.2
 LIBNOTIFY_REQUIRED=0.7.2
+LIBUDISKS2_REQUIRED=2.0.0
 LIBATASMART_REQUIRED=0.16
 
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= $GLIB_REQUIRED)
@@ -151,6 +152,12 @@ AC_SUBST(LIBATASMART_CFLAGS)
 AC_SUBST(LIBATASMART_LIBS)
 AM_CONDITIONAL(UDISKS, test -n "$LIBATASMART_CFLAGS")
 
+PKG_CHECK_MODULES(LIBUDISKS2, udisks2 >= $LIBUDISKS2_REQUIRED,
+                  HAVE_LIBUDISKS2="yes", HAVE_LIBUDISKS2="no")
+AC_SUBST(LIBUDISKS2_CFLAGS)
+AC_SUBST(LIBUDISKS2_LIBS)
+AM_CONDITIONAL(UDISKS2, test -n "$LIBUDISKS2_CFLAGS")
+
 # ============ enable extra warnings etc ============= #
 if test "$USE_MAINTAINER_MODE" = "yes"; then
    CFLAGS+=" -ggdb"
@@ -204,6 +211,7 @@ AC_CONFIG_FILES([
 	plugins/libsensors/Makefile
 	plugins/nvidia/Makefile
 	plugins/udisks/Makefile
+	plugins/udisks2/Makefile
 	po/Makefile.in
 ])
 AC_OUTPUT

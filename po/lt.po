@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-07 21:57+1030\n"
+"POT-Creation-Date: 2012-12-08 01:12+1030\n"
 "PO-Revision-Date: 2012-12-07 10:26+0000\n"
 "Last-Translator: Mantas Kriaučiūnas <mantas@akl.lt>\n"
 "Language-Team: Lithuanian <lt@li.org>\n"
@@ -264,6 +264,7 @@ msgid "Error getting sensor value for sensor %s"
 msgstr "Klaida gaunant duomenis iš daviklio „%s“"
 
 #: ../plugins/udisks/is-udisks-plugin.c:149
+#: ../plugins/udisks2/is-udisks2-plugin.c:126
 #, c-format
 msgid "Error reading new SMART data for sensor %s"
 msgstr ""

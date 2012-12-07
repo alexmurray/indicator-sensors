@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-07 21:57+1030\n"
+"POT-Creation-Date: 2012-12-08 01:12+1030\n"
 "PO-Revision-Date: 2011-07-23 23:15+0000\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -259,6 +259,7 @@ msgid "Error getting sensor value for sensor %s"
 msgstr ""
 
 #: ../plugins/udisks/is-udisks-plugin.c:149
+#: ../plugins/udisks2/is-udisks2-plugin.c:126
 #, c-format
 msgid "Error reading new SMART data for sensor %s"
 msgstr ""

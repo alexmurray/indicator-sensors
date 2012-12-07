@@ -13,3 +13,4 @@ plugins/aticonfig/is-aticonfig-plugin.c
 plugins/libsensors/is-libsensors-plugin.c
 plugins/nvidia/is-nvidia-plugin.c
 plugins/udisks/is-udisks-plugin.c
+plugins/udisks2/is-udisks2-plugin.c
