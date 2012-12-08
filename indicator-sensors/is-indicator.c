@@ -691,20 +691,6 @@ _sensor_disabled(IsSensor *sensor,
         if (sensor != priv->primary) {
                 goto out;
         }
-        if (priv->menu_items) {
-                /* choose top-most menu item and set it as primary one */
-                menu_item = GTK_WIDGET(priv->menu_items->data);
-                /* activate it to make this the new primary sensor */
-                gtk_menu_item_activate(GTK_MENU_ITEM(menu_item));
-        } else {
-                is_indicator_set_label(self, _("No active sensors"));
-#if !HAVE_APPINDICATOR
-                gtk_status_icon_set_from_stock(GTK_STATUS_ICON(self),
-                                               GTK_STOCK_DIALOG_WARNING);
-#endif
-                g_object_unref(priv->primary);
-                priv->primary = NULL;
-        }
 out:
         return;
 }
@@ -714,7 +700,23 @@ sensor_disabled(IsManager *manager,
                 IsSensor *sensor,
                 IsIndicator *self)
 {
+        IsIndicatorPrivate *priv = self->priv;
+
         _sensor_disabled(sensor, self);
+
+        if (priv->menu_items) {
+                /* choose top-most menu item and set it as primary one */
+                GtkWidget *menu_item = GTK_WIDGET(priv->menu_items->data);
+                /* activate it to make this the new primary sensor */
+                gtk_menu_item_activate(GTK_MENU_ITEM(menu_item));
+        } else {
+                is_indicator_set_label(self, _("No active sensors"));
+#if !HAVE_APPINDICATOR
+                gtk_status_icon_set_from_stock(GTK_STATUS_ICON(self),
+                                               GTK_STOCK_DIALOG_WARNING);
+#endif
+                g_clear_object(&priv->primary);
+        }
 }
 
 static void
