@@ -178,6 +178,82 @@ out:
 }
 
 static void
+object_removed_cb(GDBusObjectManager *obj_manager,
+                  GDBusObject *object,
+                  gpointer data)
+{
+        IsUDisks2Plugin *self;
+        IsManager *manager;
+        const gchar *id;
+        gchar *path = NULL;
+
+        self = IS_UDISKS2_PLUGIN(data);
+
+        id = g_dbus_object_get_object_path(object);
+        /* ignore if is not a drive */
+        if (!g_str_has_prefix(id, "/org/freedesktop/UDisks2/drives/")) {
+                goto out;
+        }
+
+        id = g_strrstr(id, "/") + 1;
+        path = g_strdup_printf("udisks2/%s", id);
+        manager = is_application_get_manager(self->priv->application);
+        is_debug("udisks2", "Removing sensor %s as drive removed", id);
+        is_manager_remove_path(manager, path);
+
+out:
+        g_free(path);
+}
+
+static void
+object_added_cb(GDBusObjectManager *manager,
+                GDBusObject *object,
+                gpointer data)
+{
+        IsUDisks2Plugin *self;
+        UDisksDrive *drive = NULL;
+        UDisksDriveAta *ata_drive = NULL;
+        const gchar *id;
+        gchar *path = NULL;
+        IsSensor *sensor;
+
+        self = IS_UDISKS2_PLUGIN(data);
+
+        id = g_dbus_object_get_object_path(object);
+        /* ignore if is not a drive */
+        if (!g_str_has_prefix(id, "/org/freedesktop/UDisks2/drives/")) {
+                goto out;
+        }
+        g_object_get(object,
+                     "drive", &drive,
+                     "drive-ata", &ata_drive,
+                     NULL);
+        if (!drive || !ata_drive ||
+            !udisks_drive_ata_get_smart_enabled(ata_drive)) {
+                goto out;
+        }
+
+        id = g_strrstr(id, "/") + 1;
+        path = g_strdup_printf("udisks2/%s", id);
+        sensor = is_temperature_sensor_new(path);
+        is_sensor_set_label(sensor, udisks_drive_get_model(drive));
+        is_sensor_set_digits(sensor, 0);
+        is_sensor_set_icon(sensor, IS_STOCK_DISK);
+        /* only update every minute to avoid waking disk too much */
+        is_sensor_set_update_interval(sensor, 60);
+        g_signal_connect(sensor, "update-value",
+                         G_CALLBACK(update_sensor_value), self);
+        is_debug("udisks2", "Adding sensor %s as drive added", id);
+        is_manager_add_sensor(is_application_get_manager(self->priv->application),
+                              sensor);
+
+out:
+        g_free(path);
+        g_clear_object(&drive);
+        g_clear_object(&ata_drive);
+}
+
+static void
 is_udisks2_plugin_client_ready_cb(GObject *source,
                                   GAsyncResult *res,
                                   gpointer data)
@@ -204,43 +280,15 @@ is_udisks2_plugin_client_ready_cb(GObject *source,
 
         objects = g_dbus_object_manager_get_objects(manager);
         for (_list = objects; _list != NULL; _list = _list->next) {
-                GDBusObject *object = G_DBUS_OBJECT(_list->data);
-                UDisksDrive *drive;
-                UDisksDriveAta *ata_drive;
-                gchar *id;
-                gchar *path;
-                IsSensor *sensor;
-
-                g_object_get(object,
-                             "drive", &drive,
-                             "drive-ata", &ata_drive, NULL);
-                if (!drive || !ata_drive ||
-                    !udisks_drive_ata_get_smart_enabled(ata_drive)) {
-                        g_clear_object(&drive);
-                        g_clear_object(&ata_drive);
-                        continue;
-                }
-
-                id = g_strdup(g_dbus_object_get_object_path(object));
-		path = g_strdup_printf("udisks2/%s", g_strrstr(id, "/") + 1);
-		sensor = is_temperature_sensor_new(path);
-                is_sensor_set_label(sensor, udisks_drive_get_model(drive));
-                is_sensor_set_digits(sensor, 0);
-                is_sensor_set_icon(sensor, IS_STOCK_DISK);
-		/* only update every minute to avoid waking disk too much */
-		is_sensor_set_update_interval(sensor, 60);
-		g_signal_connect(sensor, "update-value",
-				 G_CALLBACK(update_sensor_value), self);
-		is_manager_add_sensor(is_application_get_manager(priv->application),
-                                      sensor);
-
-                g_free(path);
-                g_free(id);
-                g_clear_object(&drive);
-                g_clear_object(&ata_drive);
+                object_added_cb(manager, G_DBUS_OBJECT(_list->data), self);
+                g_object_unref(G_OBJECT(_list->data));
         }
-        g_list_foreach(objects, (GFunc)g_object_unref, NULL);
         g_list_free(objects);
+
+        g_signal_connect(manager, "object-added",
+                         G_CALLBACK(object_added_cb), self);
+        g_signal_connect(manager, "object-removed",
+                         G_CALLBACK(object_removed_cb), self);
 
 out:
         return;

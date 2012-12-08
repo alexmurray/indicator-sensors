@@ -210,11 +210,10 @@ enable_sensor(IsManager *self,
 }
 
 static void
-disable_sensor(IsManager *self,
-	       GtkTreeIter *iter,
-	       IsSensor *sensor)
+_disable_sensor(IsManager *self,
+                GtkTreeIter *iter,
+                IsSensor *sensor)
 {
-	gboolean ret;
 	IsManagerPrivate *priv;
         guint i;
 
@@ -229,12 +228,22 @@ disable_sensor(IsManager *self,
          * following this one we just removed is at its location so no need to
          * preincrement the first time */
         while (i < g_slist_length(priv->enabled_list)) {
-          g_signal_emit(self, signals[SIGNAL_SENSOR_POSITION_CHANGED], 0,
-                        g_slist_nth_data(priv->enabled_list, i), i);
-          i++;
+                g_signal_emit(self, signals[SIGNAL_SENSOR_POSITION_CHANGED], 0,
+                              g_slist_nth_data(priv->enabled_list, i), i);
+                i++;
         }
+}
 
-	ret = g_tree_remove(priv->enabled_paths, is_sensor_get_path(sensor));
+static void
+disable_sensor(IsManager *self,
+	       GtkTreeIter *iter,
+	       IsSensor *sensor)
+{
+	gboolean ret;
+
+        _disable_sensor(self, iter, sensor);
+
+	ret = g_tree_remove(self->priv->enabled_paths, is_sensor_get_path(sensor));
 	g_assert(ret);
 	g_object_notify_by_pspec(G_OBJECT(self),
 				 properties[PROP_ENABLED_SENSORS]);
@@ -413,6 +422,45 @@ is_manager_add_sensor(IsManager *self,
 	if (g_tree_lookup(priv->enabled_paths, is_sensor_get_path(sensor))) {
 		enable_sensor(self, &iter, sensor);
 	}
+
+out:
+	return ret;
+}
+
+gboolean
+is_manager_remove_path(IsManager *self,
+                       const gchar *path)
+{
+	IsManagerPrivate *priv;
+        IsSensor *sensor;
+	GtkTreeIter iter;
+	gboolean ret = FALSE;
+
+	g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
+	g_return_val_if_fail(path, FALSE);
+
+	priv = self->priv;
+
+        ret = is_store_get_iter(priv->store, path, &iter);
+        if (!ret) {
+                is_warning("manager", "Unable to remove sensor with path %s as it doesn't exist",
+                           path);
+                goto out;
+        }
+
+        gtk_tree_model_get(GTK_TREE_MODEL(priv->store), &iter,
+                           IS_STORE_COL_SENSOR, &sensor,
+                           -1);
+	/* disable sensor if is in enabled-sensors list but don't modify list
+         * of enabled sensors since wasn't triggered by user action */
+	if (g_tree_lookup(priv->enabled_paths, is_sensor_get_path(sensor))) {
+		_disable_sensor(self, &iter, sensor);
+	}
+	ret = is_store_remove(priv->store, &iter);
+	if (!ret) {
+		goto out;
+	}
+	g_signal_emit(self, signals[SIGNAL_SENSOR_REMOVED], 0, sensor);
 
 out:
 	return ret;
