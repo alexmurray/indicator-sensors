@@ -256,7 +256,33 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
 
         manager = is_application_get_manager(self->priv->application);
 
-        /* search for sensors and add them to manager */
+        is_debug("aticonfig", "Checking for hybrid system with integrated GPU active");
+        ret = g_spawn_command_line_sync("aticonfig --pxl",
+                                        &output, NULL, NULL, &error);
+        if (!ret) {
+                is_warning("aticonfig", "Error calling aticonfig to detect if running on a hybrid system with integrated GPU active: %s",
+                           error->message);
+                g_error_free(error);
+                goto out;
+        }
+        regex = g_regex_new("^.*integrated gpu is active.*$",
+                            G_REGEX_CASELESS | G_REGEX_MULTILINE, 0, &error);
+        if (!regex) {
+                is_warning("aticonfig", "Error compiling regex to detect if running on a hybrid system with integrated GPU active: %s",
+                           error->message);
+                g_error_free(error);
+                goto out;
+        }
+
+        ret = g_regex_match(regex, output, 0, &match);
+        if (ret) {
+                is_warning("aticonfig", "Running on a hybrid system with integrated active - bailing so we don't hit bug LP #1016896");
+                goto out;
+        }
+
+        is_debug("aticonfig", "This does not appear to be a hybrid system with integrated GPU active - we're good to go!");
+
+       /* search for sensors and add them to manager */
         is_debug("aticonfig", "searching for sensors");
 
         /* call aticonfig with --list-adapters to get available adapters,
