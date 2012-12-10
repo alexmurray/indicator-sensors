@@ -265,6 +265,9 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
                 g_error_free(error);
                 goto out;
         }
+        is_debug("aticonfig", "Trying to match output to see if integrated GPU is active: '%s'",
+                 output);
+
         regex = g_regex_new("^.*integrated gpu is active.*$",
                             G_REGEX_CASELESS | G_REGEX_MULTILINE, 0, &error);
         if (!regex) {
@@ -274,7 +277,7 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
                 goto out;
         }
 
-        ret = g_regex_match(regex, output, 0, &match);
+        ret = g_regex_match(regex, output, 0, NULL);
         if (ret) {
                 is_warning("aticonfig", "Running on a hybrid system with integrated active - bailing so we don't hit bug LP #1016896");
                 goto out;
