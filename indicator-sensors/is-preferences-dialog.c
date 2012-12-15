@@ -215,11 +215,42 @@ is_preferences_dialog_get_property(GObject *object,
 }
 
 static void
+update_flags_sensitivities(IsPreferencesDialog *self)
+{
+        IsPreferencesDialogPrivate *priv = self->priv;
+	IsIndicatorDisplayFlags flags = g_settings_get_int(priv->indicator_settings,
+                                                           "display-flags");
+
+        if (flags == IS_INDICATOR_DISPLAY_ICON) {
+                /* only icon is shown - make sure it can't be disabled */
+                gtk_widget_set_sensitive(priv->display_icon_check_button,
+                                         FALSE);
+        } else if (flags == IS_INDICATOR_DISPLAY_LABEL) {
+                /* only label is shown - make sure it can't be disabled */
+                gtk_widget_set_sensitive(priv->display_label_check_button,
+                                         FALSE);
+        } else if (flags == IS_INDICATOR_DISPLAY_VALUE) {
+                /* only value is shown - make sure it can't be disabled */
+                gtk_widget_set_sensitive(priv->display_value_check_button,
+                                         FALSE);
+        } else {
+                /* set all sensitive */
+                gtk_widget_set_sensitive(priv->display_icon_check_button,
+                                         TRUE);
+                gtk_widget_set_sensitive(priv->display_label_check_button,
+                                         TRUE);
+                gtk_widget_set_sensitive(priv->display_value_check_button,
+                                         TRUE);
+        }
+}
+
+static void
 display_icon_toggled(GtkToggleButton *toggle_button,
 		     IsPreferencesDialog *self)
 {
+	IsPreferencesDialogPrivate *priv = self->priv;
 	gboolean display_icon = gtk_toggle_button_get_active(toggle_button);
-	IsIndicatorDisplayFlags flags = g_settings_get_int(self->priv->indicator_settings,
+	IsIndicatorDisplayFlags flags = g_settings_get_int(priv->indicator_settings,
                                                            "display-flags");
 
 	if (display_icon) {
@@ -227,16 +258,18 @@ display_icon_toggled(GtkToggleButton *toggle_button,
 	} else {
 		flags &= ~IS_INDICATOR_DISPLAY_ICON;
 	}
-        g_settings_set_int(self->priv->indicator_settings,
+        g_settings_set_int(priv->indicator_settings,
                            "display-flags", flags);
+        update_flags_sensitivities(self);
 }
 
 static void
 display_label_toggled(GtkToggleButton *toggle_button,
 		     IsPreferencesDialog *self)
 {
+	IsPreferencesDialogPrivate *priv = self->priv;
 	gboolean display_label = gtk_toggle_button_get_active(toggle_button);
-	IsIndicatorDisplayFlags flags = g_settings_get_int(self->priv->indicator_settings,
+	IsIndicatorDisplayFlags flags = g_settings_get_int(priv->indicator_settings,
                                                            "display-flags");
 
 	if (display_label) {
@@ -244,16 +277,18 @@ display_label_toggled(GtkToggleButton *toggle_button,
 	} else {
 		flags &= ~IS_INDICATOR_DISPLAY_LABEL;
 	}
-        g_settings_set_int(self->priv->indicator_settings,
+        g_settings_set_int(priv->indicator_settings,
                            "display-flags", flags);
+        update_flags_sensitivities(self);
 }
 
 static void
 display_value_toggled(GtkToggleButton *toggle_button,
                       IsPreferencesDialog *self)
 {
+	IsPreferencesDialogPrivate *priv = self->priv;
 	gboolean display_value = gtk_toggle_button_get_active(toggle_button);
-	IsIndicatorDisplayFlags flags = g_settings_get_int(self->priv->indicator_settings,
+	IsIndicatorDisplayFlags flags = g_settings_get_int(priv->indicator_settings,
                                                            "display-flags");
 
 	if (display_value) {
@@ -261,8 +296,9 @@ display_value_toggled(GtkToggleButton *toggle_button,
 	} else {
 		flags &= ~IS_INDICATOR_DISPLAY_VALUE;
 	}
-        g_settings_set_int(self->priv->indicator_settings,
+        g_settings_set_int(priv->indicator_settings,
                            "display-flags", flags);
+        update_flags_sensitivities(self);
 }
 
 static void
