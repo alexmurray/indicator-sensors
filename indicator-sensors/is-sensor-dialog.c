@@ -69,7 +69,9 @@ is_sensor_dialog_class_init(IsSensorDialogClass *klass)
 					g_param_spec_object("sensor", "sensor property",
 							    "sensor property blurp.",
 							    IS_TYPE_SENSOR,
-							    G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+							    G_PARAM_CONSTRUCT_ONLY |
+                                                            G_PARAM_READWRITE |
+                                                            G_PARAM_STATIC_STRINGS));
 
 }
 
