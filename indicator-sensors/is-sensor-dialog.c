@@ -22,6 +22,8 @@
 #include "is-sensor-dialog.h"
 #include <glib/gi18n.h>
 
+#define MAX_VALUE 100000
+
 G_DEFINE_TYPE(IsSensorDialog, is_sensor_dialog, GTK_TYPE_DIALOG);
 
 static void is_sensor_dialog_dispose(GObject *object);
@@ -127,8 +129,8 @@ is_sensor_dialog_init(IsSensorDialog *self)
 	gtk_grid_attach(GTK_GRID(grid), priv->alarm_mode_combo_box,
 			1, 2,
 			1, 1);
-	priv->alarm_value_spin_button = gtk_spin_button_new_with_range(-G_MAXDOUBLE,
-								       G_MAXDOUBLE,
+	priv->alarm_value_spin_button = gtk_spin_button_new_with_range(-MAX_VALUE,
+								       MAX_VALUE,
 								       1.0f);
 	gtk_widget_set_sensitive(priv->alarm_value_spin_button, FALSE);
 	gtk_grid_attach(GTK_GRID(grid), priv->alarm_value_spin_button,
@@ -146,8 +148,8 @@ is_sensor_dialog_init(IsSensorDialog *self)
 			0, 3,
 			1, 1);
 
-	priv->low_value = gtk_spin_button_new_with_range(-G_MAXDOUBLE,
-							 G_MAXDOUBLE,
+	priv->low_value = gtk_spin_button_new_with_range(-MAX_VALUE,
+							 MAX_VALUE,
 							 1.0f);
 	gtk_grid_attach(GTK_GRID(grid), priv->low_value,
 			1, 3,
@@ -165,8 +167,8 @@ is_sensor_dialog_init(IsSensorDialog *self)
 			0, 4,
 			1, 1);
 
-	priv->high_value = gtk_spin_button_new_with_range(-G_MAXDOUBLE,
-							  G_MAXDOUBLE,
+	priv->high_value = gtk_spin_button_new_with_range(-MAX_VALUE,
+							  MAX_VALUE,
 							  1.0f);
 	gtk_grid_attach(GTK_GRID(grid), priv->high_value,
 			1, 4,
