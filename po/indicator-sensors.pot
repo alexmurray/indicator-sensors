@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-08 01:12+1030\n"
+"POT-Creation-Date: 2013-01-23 19:34+1030\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -121,28 +121,28 @@ msgstr ""
 msgid "No Sensors"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:700
-#: ../indicator-sensors/is-indicator.c:837
+#: ../indicator-sensors/is-indicator.c:713
+#: ../indicator-sensors/is-indicator.c:839
 msgid "No active sensors"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:293
-#: ../indicator-sensors/is-sensor-dialog.c:311
+#: ../indicator-sensors/is-manager.c:302
+#: ../indicator-sensors/is-sensor-dialog.c:315
 msgid "Sensor"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:301
+#: ../indicator-sensors/is-manager.c:310
 #: ../indicator-sensors/is-preferences-dialog.c:149
 msgid "Icon"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:310
+#: ../indicator-sensors/is-manager.c:319
 #: ../indicator-sensors/is-preferences-dialog.c:154
-#: ../indicator-sensors/is-sensor-dialog.c:102
+#: ../indicator-sensors/is-sensor-dialog.c:106
 msgid "Label"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:320
+#: ../indicator-sensors/is-manager.c:329
 msgid "Enabled"
 msgstr ""
 
@@ -178,31 +178,31 @@ msgstr ""
 msgid "Sensor Alarm"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:84
+#: ../indicator-sensors/is-sensor-dialog.c:88
 msgid " Sensor Properties"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:111
+#: ../indicator-sensors/is-sensor-dialog.c:115
 msgid "Alarm"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:119
+#: ../indicator-sensors/is-sensor-dialog.c:123
 msgid "Disabled"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:122
+#: ../indicator-sensors/is-sensor-dialog.c:126
 msgid "Below"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:125
+#: ../indicator-sensors/is-sensor-dialog.c:129
 msgid "Above"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:143
+#: ../indicator-sensors/is-sensor-dialog.c:147
 msgid "Low value"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:162
+#: ../indicator-sensors/is-sensor-dialog.c:166
 msgid "High value"
 msgstr ""
 
@@ -218,11 +218,11 @@ msgstr ""
 msgid "Error reading fanspeed value for GPU %d"
 msgstr ""
 
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:308
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:337
 msgid "Temperature"
 msgstr ""
 
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:326
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:355
 msgid "Fan"
 msgstr ""
 

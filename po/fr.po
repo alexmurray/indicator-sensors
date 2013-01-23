@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-12-08 01:12+1030\n"
-"PO-Revision-Date: 2012-04-14 05:06+0000\n"
-"Last-Translator: Hanine HAMZIOUI <Unknown>\n"
+"POT-Creation-Date: 2013-01-23 19:34+1030\n"
+"PO-Revision-Date: 2012-12-10 21:52+0000\n"
+"Last-Translator: Thibault D <Unknown>\n"
 "Language-Team: French <fr@li.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-12-07 11:20+0000\n"
-"X-Generator: Launchpad (build 16341)\n"
+"X-Launchpad-Export-Date: 2013-01-23 09:00+0000\n"
+"X-Generator: Launchpad (build 16441)\n"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:1
 #: ../data/indicator-sensors.gschema.xml.in.in.h:1
@@ -67,12 +67,12 @@ msgstr "L'échelle de température à afficher pour les capteur de température.
 #: ../data/indicator-sensors.gschema.xml.in.h:9
 #: ../data/indicator-sensors.gschema.xml.in.in.h:9
 msgid "Show indicator"
-msgstr ""
+msgstr "Afficher l'indicateur"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:10
 #: ../data/indicator-sensors.gschema.xml.in.in.h:10
 msgid "Whether to show the indicator in the notification area."
-msgstr ""
+msgstr "Afficher ou non l'indicateur dans la zone de notification"
 
 #: ../data/indicator-sensors.desktop.in.h:1
 #: ../indicator-sensors/is-application.c:822
@@ -85,21 +85,23 @@ msgstr "Indicateur Unity qui affiche les données des capteurs matériel."
 
 #: ../indicator-sensors/indicator-sensors.c:151
 msgid "No Sensors Enabled For Monitoring"
-msgstr ""
+msgstr "Aucun capteur n'est supervisé"
 
 #: ../indicator-sensors/indicator-sensors.c:152
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
 msgstr ""
+"Des capteurs sont détectés mais ne sont pas supervisés. Pour les superviser, "
+"ouvrez la fenêtre des préférences et sélectionnez les capteurs à superviser."
 
 #: ../indicator-sensors/is-application.c:824
 msgid "Indicator for GNOME / Unity showing hardware sensors."
-msgstr ""
+msgstr "Indicateur pour GNOME / Unity affichant des capteurs matériels."
 
 #: ../indicator-sensors/is-fan-sensor.c:40
 msgid " RPM"
-msgstr ""
+msgstr " RPM"
 
 #: ../indicator-sensors/is-indicator.c:160
 msgid "Preferences…"
@@ -115,7 +117,7 @@ msgstr "A propos"
 
 #: ../indicator-sensors/is-indicator.c:163
 msgid "About"
-msgstr ""
+msgstr "À propos de"
 
 #: ../indicator-sensors/is-indicator.c:164
 #: ../indicator-sensors/is-indicator.c:165
@@ -126,34 +128,34 @@ msgstr "Quitter"
 msgid "No Sensors"
 msgstr "Capteurs indisponibles"
 
-#: ../indicator-sensors/is-indicator.c:700
-#: ../indicator-sensors/is-indicator.c:837
+#: ../indicator-sensors/is-indicator.c:713
+#: ../indicator-sensors/is-indicator.c:839
 msgid "No active sensors"
 msgstr "Aucun Capteur activé"
 
-#: ../indicator-sensors/is-manager.c:293
-#: ../indicator-sensors/is-sensor-dialog.c:311
+#: ../indicator-sensors/is-manager.c:302
+#: ../indicator-sensors/is-sensor-dialog.c:315
 msgid "Sensor"
 msgstr "Capteur"
 
-#: ../indicator-sensors/is-manager.c:301
+#: ../indicator-sensors/is-manager.c:310
 #: ../indicator-sensors/is-preferences-dialog.c:149
 msgid "Icon"
 msgstr "Icone"
 
-#: ../indicator-sensors/is-manager.c:310
+#: ../indicator-sensors/is-manager.c:319
 #: ../indicator-sensors/is-preferences-dialog.c:154
-#: ../indicator-sensors/is-sensor-dialog.c:102
+#: ../indicator-sensors/is-sensor-dialog.c:106
 msgid "Label"
 msgstr "Étiquette"
 
-#: ../indicator-sensors/is-manager.c:320
+#: ../indicator-sensors/is-manager.c:329
 msgid "Enabled"
 msgstr "Activé"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
 msgid "Hardware Sensors Indicator Preferences"
-msgstr ""
+msgstr "Préférences de l'indicateur de capteurs matériels"
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
@@ -183,31 +185,31 @@ msgstr "Fahrenheit (°F)"
 msgid "Sensor Alarm"
 msgstr "Alarme des capteurs"
 
-#: ../indicator-sensors/is-sensor-dialog.c:84
+#: ../indicator-sensors/is-sensor-dialog.c:88
 msgid " Sensor Properties"
 msgstr " Propriétés du capteur"
 
-#: ../indicator-sensors/is-sensor-dialog.c:111
+#: ../indicator-sensors/is-sensor-dialog.c:115
 msgid "Alarm"
 msgstr "Alarme"
 
-#: ../indicator-sensors/is-sensor-dialog.c:119
+#: ../indicator-sensors/is-sensor-dialog.c:123
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: ../indicator-sensors/is-sensor-dialog.c:122
+#: ../indicator-sensors/is-sensor-dialog.c:126
 msgid "Below"
 msgstr "Ci-dessous"
 
-#: ../indicator-sensors/is-sensor-dialog.c:125
+#: ../indicator-sensors/is-sensor-dialog.c:129
 msgid "Above"
 msgstr "Ci-dessus"
 
-#: ../indicator-sensors/is-sensor-dialog.c:143
+#: ../indicator-sensors/is-sensor-dialog.c:147
 msgid "Low value"
 msgstr "Faible valeur"
 
-#: ../indicator-sensors/is-sensor-dialog.c:162
+#: ../indicator-sensors/is-sensor-dialog.c:166
 msgid "High value"
 msgstr "Haute valeur"
 
@@ -223,11 +225,11 @@ msgstr "Erreur de lecture de la température du GPU %d"
 msgid "Error reading fanspeed value for GPU %d"
 msgstr "Erreur de lecture de la température du ventilateur pour le GPU %d"
 
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:308
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:337
 msgid "Temperature"
 msgstr "Température"
 
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:326
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:355
 msgid "Fan"
 msgstr "Ventilateur"
 
@@ -246,7 +248,7 @@ msgstr "Volt"
 
 #: ../plugins/libsensors/is-libsensors-plugin.c:375
 msgid "No Sensors Detected"
-msgstr ""
+msgstr "Aucun capteur détecté"
 
 #: ../plugins/libsensors/is-libsensors-plugin.c:376
 #, c-format
@@ -254,6 +256,8 @@ msgid ""
 "Try running the command 'sensors-detect' from the command-line and "
 "restarting %s"
 msgstr ""
+"Essayez d’exécuter la commande 'sensors-detect' depuis la ligne de commande "
+"et de redémarrez %s"
 
 #. first placeholder is
 #. * sensor name
