@@ -75,6 +75,8 @@ struct _IsSensorPrivate
 	gchar *icon;
 	gdouble low_value;
 	gdouble high_value;
+        guint enable_alarm_id;
+        guint disable_alarm_id;
 };
 
 static void
@@ -351,6 +353,44 @@ is_sensor_get_value(IsSensor *self)
 	return self->priv->value;
 }
 
+static gboolean
+enable_alarm(IsSensor *self)
+{
+        NotifyNotification *notification =
+                is_notify(IS_NOTIFY_LEVEL_WARNING,
+                          _("Sensor Alarm"),
+                          "%s: %2.1f%s",
+                          is_sensor_get_label(self),
+                          is_sensor_get_value(self),
+                          is_sensor_get_units(self));
+        is_debug("sensor", "Displaying alarm notification");
+        g_object_set_data_full(G_OBJECT(self), "notification",
+                               notification, g_object_unref);
+        self->priv->alarmed = TRUE;
+        g_object_notify_by_pspec(G_OBJECT(self),
+                                 properties[PROP_ALARMED]);
+        self->priv->enable_alarm_id = 0;
+        /* remove as source */
+        return FALSE;
+}
+
+static gboolean
+disable_alarm(IsSensor *self)
+{
+        /* hide any notification */
+        NotifyNotification *notification =
+                g_object_get_data(G_OBJECT(self), "notification");
+        is_debug("sensor", "Closing alarm notification");
+        notify_notification_close(notification, NULL);
+        g_object_set_data(G_OBJECT(self), "notification",
+                          NULL);
+        self->priv->alarmed = FALSE;
+        g_object_notify_by_pspec(G_OBJECT(self),
+                                 properties[PROP_ALARMED]);
+        self->priv->disable_alarm_id = 0;
+        return FALSE;
+}
+
 static void
 update_alarmed(IsSensor *self)
 {
@@ -380,30 +420,35 @@ update_alarmed(IsSensor *self)
         }
 
 	if (priv->alarmed != alarmed) {
-		priv->alarmed = alarmed;
-                /* show a notification if are now alarmed */
+                /* use a 5 second hysteresis value so we don't become alarmed
+                 * too quickly for fluctuating values */
                 if (priv->alarmed) {
-                        NotifyNotification *notification =
-                        is_notify(IS_NOTIFY_LEVEL_WARNING,
-                                  _("Sensor Alarm"),
-                                  "%s: %2.1f%s",
-                                  is_sensor_get_label(self),
-                                  is_sensor_get_value(self),
-                                  is_sensor_get_units(self));
-                        is_debug("sensor", "Displaying alarm notification");
-                        g_object_set_data_full(G_OBJECT(self), "notification",
-                                               notification, g_object_unref);
+                        if (priv->enable_alarm_id) {
+                                g_source_remove(priv->enable_alarm_id);
+                                priv->enable_alarm_id = 0;
+                        }
+                        if (!priv->disable_alarm_id) {
+                                priv->disable_alarm_id =
+                                        g_timeout_add_seconds(5,
+                                                              (GSourceFunc)disable_alarm,
+                                                              self);
+                                is_debug("sensor", "Alarm triggered - will %sable in 5 seconds",
+                                         alarmed ? "en" : "dis");
+                        }
                 } else {
-                        /* hide any notification */
-                        NotifyNotification *notification =
-                                g_object_get_data(G_OBJECT(self), "notification");
-                        is_debug("sensor", "Closing alarm notification");
-                        notify_notification_close(notification, NULL);
-                        g_object_set_data(G_OBJECT(self), "notification",
-                                          NULL);
+                        if (priv->disable_alarm_id) {
+                                g_source_remove(priv->disable_alarm_id);
+                                priv->disable_alarm_id = 0;
+                        }
+                        if (!priv->enable_alarm_id) {
+                                priv->enable_alarm_id =
+                                        g_timeout_add_seconds(5,
+                                                              (GSourceFunc)enable_alarm,
+                                                              self);
+                                is_debug("sensor", "Alarm triggered - will %sable in 5 seconds",
+                                         alarmed ? "en" : "dis");
+                        }
                 }
-		g_object_notify_by_pspec(G_OBJECT(self),
-					 properties[PROP_ALARMED]);
 	}
 }
 
