@@ -356,8 +356,11 @@ is_sensor_get_value(IsSensor *self)
 static gboolean
 enable_alarm(IsSensor *self)
 {
-        NotifyNotification *notification =
-                is_notify(IS_NOTIFY_LEVEL_WARNING,
+        NotifyNotification *notification;
+
+        g_return_val_if_fail(self != NULL, FALSE);
+
+        notification = is_notify(IS_NOTIFY_LEVEL_WARNING,
                           _("Sensor Alarm"),
                           "%s: %2.1f%s",
                           is_sensor_get_label(self),
@@ -378,8 +381,11 @@ static gboolean
 disable_alarm(IsSensor *self)
 {
         /* hide any notification */
-        NotifyNotification *notification =
-                g_object_get_data(G_OBJECT(self), "notification");
+        NotifyNotification *notification;
+
+        g_return_val_if_fail(self != NULL, FALSE);
+
+        notification = g_object_get_data(G_OBJECT(self), "notification");
         is_debug("sensor", "Closing alarm notification");
         notify_notification_close(notification, NULL);
         g_object_set_data(G_OBJECT(self), "notification",

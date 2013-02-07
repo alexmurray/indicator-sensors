@@ -26,6 +26,7 @@
 #include <gtk/gtk.h>
 #include <libpeas/peas.h>
 #include <glib/gi18n.h>
+#include <locale.h>
 
 static void
 on_extension_added(PeasExtensionSet *set,
