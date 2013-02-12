@@ -426,8 +426,15 @@ update_alarmed(IsSensor *self)
         }
 
 	if (priv->alarmed != alarmed) {
-                /* use a 5 second hysteresis value so we don't become alarmed
-                 * too quickly for fluctuating values */
+                GSettings *settings;
+                gint delay;
+
+                settings = g_settings_new("indicator-sensors.sensor");
+                delay = g_settings_get_int(settings, "alarm-delay");
+
+                g_object_unref(settings);
+                /* use a hysteresis value so we don't become alarmed too
+                 * quickly for fluctuating values */
                 if (priv->alarmed) {
                         if (priv->enable_alarm_id) {
                                 g_source_remove(priv->enable_alarm_id);
@@ -435,11 +442,11 @@ update_alarmed(IsSensor *self)
                         }
                         if (!priv->disable_alarm_id) {
                                 priv->disable_alarm_id =
-                                        g_timeout_add_seconds(5,
+                                        g_timeout_add_seconds(delay,
                                                               (GSourceFunc)disable_alarm,
                                                               self);
-                                is_debug("sensor", "Alarm triggered - will %sable in 5 seconds",
-                                         alarmed ? "en" : "dis");
+                                is_debug("sensor", "Alarm triggered - will %sable in %d seconds",
+                                         alarmed ? "en" : "dis", delay);
                         }
                 } else {
                         if (priv->disable_alarm_id) {
@@ -448,11 +455,11 @@ update_alarmed(IsSensor *self)
                         }
                         if (!priv->enable_alarm_id) {
                                 priv->enable_alarm_id =
-                                        g_timeout_add_seconds(5,
+                                        g_timeout_add_seconds(delay,
                                                               (GSourceFunc)enable_alarm,
                                                               self);
-                                is_debug("sensor", "Alarm triggered - will %sable in 5 seconds",
-                                         alarmed ? "en" : "dis");
+                                is_debug("sensor", "Alarm triggered - will %sable in %d seconds",
+                                         alarmed ? "en" : "dis", delay);
                         }
                 }
 	}

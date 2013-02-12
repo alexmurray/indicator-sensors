@@ -19,6 +19,13 @@
       <_description>The list of enabled sensors to monitor, each identified by it’s path.</_description>
     </key>
   </schema>
+  <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.sensor" path="/apps/indicator-sensors/sensor/">
+    <key type="i" name="alarm-delay">
+      <default>5</default>
+      <_summary>Seconds to delay hiding / showing alarms</_summary>
+      <_description>Alarm delay adds some hysteresis so alarms aren't shown for quickly fluctuating values.</_description>
+    </key>
+  </schema>
   <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.application" path="/apps/indicator-sensors/application/">
     <!-- consider making this an enum -->
     <key type="i" name="temperature-scale">
