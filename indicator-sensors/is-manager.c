@@ -579,7 +579,7 @@ is_manager_get_enabled_sensors(IsManager *self)
 
 	/* if not freeing element data g_array_free() returns the element data
 	   which is exactly what we want */
-	return (gchar **)g_array_free(array, FALSE);
+	return (gchar **)(void *)g_array_free(array, FALSE);
 }
 
 static gboolean
