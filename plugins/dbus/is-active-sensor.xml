@@ -35,5 +35,10 @@
          @since: 2.30
     -->
     <property name="Index" type="u" access="read"/>
+
+    <!-- IconPath: The path to the icon of the sensor.
+         @since: 2.30
+    -->
+    <property name="IconPath" type="s" access="read"/>
 </interface>
 </node>

@@ -55,6 +55,7 @@ enum {
 	PROP_ICON,
 	PROP_LOW_VALUE,
 	PROP_HIGH_VALUE,
+	PROP_ICON_PATH,
 	LAST_PROPERTY
 };
 
@@ -77,6 +78,7 @@ struct _IsSensorPrivate
 	gdouble high_value;
         guint enable_alarm_id;
         guint disable_alarm_id;
+	gchar *icon_path;
 };
 
 static void
@@ -157,6 +159,13 @@ is_sensor_class_init(IsSensorClass *klass)
 							  0.0,
 							  G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 	g_object_class_install_property(gobject_class, PROP_HIGH_VALUE, properties[PROP_HIGH_VALUE]);
+	properties[PROP_ICON_PATH] = g_param_spec_string("icon-path",
+                                                         "sensor icon path",
+                                                         "path to the icon of this sensor.",
+                                                         IS_STOCK_CHIP,
+                                                         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+	g_object_class_install_property(gobject_class, PROP_ICON_PATH,
+                                        properties[PROP_ICON_PATH]);
 
 	signals[SIGNAL_UPDATE_VALUE] = g_signal_new("update-value",
 						    G_OBJECT_CLASS_TYPE(klass),
@@ -226,6 +235,9 @@ is_sensor_get_property(GObject *object,
 		break;
 	case PROP_HIGH_VALUE:
 		g_value_set_double(value, is_sensor_get_high_value(self));
+		break;
+	case PROP_ICON_PATH:
+		g_value_set_string(value, is_sensor_get_icon_path(self));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -397,6 +409,193 @@ disable_alarm(IsSensor *self)
         return FALSE;
 }
 
+
+typedef enum {
+        VERY_LOW_SENSOR_VALUE = 0,
+        LOW_SENSOR_VALUE,
+        NORMAL_SENSOR_VALUE,
+        HIGH_SENSOR_VALUE,
+        VERY_HIGH_SENSOR_VALUE
+} SensorValueRange;
+
+/* Cast a given value to a valid SensorValueRange */
+#define SENSOR_VALUE_RANGE(x) ((SensorValueRange)(CLAMP(x, VERY_LOW_SENSOR_VALUE, VERY_HIGH_SENSOR_VALUE)))
+
+static gdouble sensor_value_range_normalised(gdouble value,
+                                             gdouble low_value,
+                                             gdouble high_value) {
+        return ((value - low_value)/(high_value - low_value));
+}
+
+static SensorValueRange sensor_value_range(gdouble sensor_value,
+                                           gdouble low_value,
+                                           gdouble high_value) {
+        gdouble range;
+        range = sensor_value_range_normalised(sensor_value, low_value, high_value)*(gdouble)(VERY_HIGH_SENSOR_VALUE);
+
+        /* check if need to round up, otherwise let int conversion
+         * round down for us and make sure it is a valid range
+         * value */
+        return SENSOR_VALUE_RANGE(((gint)range + ((range - ((gint)range)) >= 0.5)));
+}
+
+#define DEFAULT_ICON_SIZE 22
+
+#define NUM_OVERLAY_ICONS 5
+
+static const gchar * const value_overlay_icons[NUM_OVERLAY_ICONS] = {
+        "very-low-value-icon",
+        "low-value-icon",
+        "normal-value-icon",
+        "high-value-icon",
+        "very-high-value-icon"
+};
+
+static const gchar *value_overlay_icon(gdouble value,
+                                       gdouble low,
+                                       gdouble high)
+{
+        SensorValueRange value_range = sensor_value_range(value, low, high);
+        return value_overlay_icons[value_range];
+}
+
+static gboolean
+prepare_cache_icon(const gchar *base_icon_name,
+                   const gchar *overlay_name,
+                   const gchar *icon_path,
+                   GError **error)
+{
+        GdkPixbuf *base_icon, *overlay_icon, *new_icon;
+        gchar *icon_dir;
+        GtkIconTheme *icon_theme;
+        gboolean ret;
+
+        ret = g_file_test(icon_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR);
+
+        if (ret) {
+                goto out;
+        }
+
+        icon_theme = gtk_icon_theme_get_default();
+        base_icon = gtk_icon_theme_load_icon(icon_theme,
+                                             base_icon_name,
+                                             DEFAULT_ICON_SIZE,
+                                             DEFAULT_ICON_SIZE,
+                                             error);
+        if (!base_icon)
+        {
+                goto out;
+        }
+        overlay_icon = gtk_icon_theme_load_icon(icon_theme,
+                                                overlay_name,
+                                                DEFAULT_ICON_SIZE,
+                                                DEFAULT_ICON_SIZE,
+                                                error);
+
+        if (!overlay_icon) {
+                g_object_unref(base_icon);
+                goto out;
+        }
+
+        new_icon = gdk_pixbuf_copy(base_icon);
+        gdk_pixbuf_composite(overlay_icon, new_icon,
+                             0, 0,
+                             DEFAULT_ICON_SIZE, DEFAULT_ICON_SIZE,
+                             0, 0,
+                             1.0, 1.0,
+                             GDK_INTERP_BILINEAR,
+                             255);
+        g_object_unref(overlay_icon);
+
+        /* ensure path to icon exists */
+        icon_dir = g_path_get_dirname(icon_path);
+        g_mkdir_with_parents(icon_dir, 0755);
+        g_free(icon_dir);
+
+        /* write out icon */
+        ret = gdk_pixbuf_save(new_icon, icon_path, "png", error, NULL);
+        g_object_unref(new_icon);
+        g_object_unref(base_icon);
+
+out:
+        return ret;
+}
+
+static gchar *
+get_icon_path(IsSensor *self)
+{
+        gdouble value, low, high;
+        const gchar *base_name, *overlay_name;
+        gchar *icon_name, *icon_path = NULL, *cache_dir;
+        gboolean ret;
+        GError *error = NULL;
+
+        base_name = is_sensor_get_icon(self);
+        value = is_sensor_get_value(self);
+        low = is_sensor_get_low_value(self);
+        high = is_sensor_get_high_value(self);
+
+        /* if no base icon return NULL */
+        if (!base_name) {
+                is_warning("sensor", "No base icon for sensor %s [%s]",
+                           is_sensor_get_label(self),
+                           is_sensor_get_path(self));
+                icon_path = NULL;
+                goto out;
+        }
+
+        /* no range - return base icon */
+        if (fabs(low - high) <= DBL_EPSILON) {
+                /* use base_name */
+                icon_path = g_strdup(base_name);
+                goto out;
+        }
+
+        overlay_name = value_overlay_icon(value, low, high);
+        cache_dir = g_build_filename(g_get_user_cache_dir(),
+                                     "indicator-sensors", "icons", NULL);
+        icon_name = g_strdup_printf("%s-%s.png", base_name, overlay_name);
+        icon_path = g_build_filename(cache_dir, icon_name, NULL);
+        g_free(icon_name);
+        g_free(cache_dir);
+
+        /* prepare cache icon */
+        ret = prepare_cache_icon(base_name, overlay_name, icon_path, &error);
+        if (!ret) {
+                is_warning("sensor", "Couldn't create cache icon %s from base %s and overlay %s for sensor %s: %s",
+                           icon_path, base_name, overlay_name,
+                           is_sensor_get_path(self),
+                           error ? error->message : "NO ERROR");
+                g_clear_error(&error);
+                /* return base_name instead */
+                g_free(icon_path);
+                icon_path = g_strdup(base_name);
+                goto out;
+        }
+
+out:
+        return icon_path;
+}
+
+static void
+update_icon_path(IsSensor *self)
+{
+        gchar *icon_path = get_icon_path(self);
+        if (g_strcmp0(icon_path, self->priv->icon_path)) {
+                is_debug("sensor", "New icon path %s (old %s) for sensor %s [%s]",
+                         icon_path,
+                         self->priv->icon_path,
+                         is_sensor_get_label(self),
+                         is_sensor_get_path(self));
+                g_free(self->priv->icon_path);
+                self->priv->icon_path = icon_path;
+                icon_path = NULL;
+		g_object_notify_by_pspec(G_OBJECT(self),
+                                         properties[PROP_ICON_PATH]);
+        }
+        g_free(icon_path);
+}
+
 static void
 update_alarmed(IsSensor *self)
 {
@@ -479,6 +678,7 @@ is_sensor_set_value(IsSensor *self,
 		priv->value = value;
 		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_VALUE]);
 		update_alarmed(self);
+		update_icon_path(self);
 	}
 }
 
@@ -639,6 +839,7 @@ is_sensor_set_icon(IsSensor *self,
 	g_free(self->priv->icon);
 	self->priv->icon = icon ? g_strdup(icon) : NULL;
 	g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ICON]);
+        update_icon_path(self);
 }
 
 gdouble
@@ -661,6 +862,7 @@ is_sensor_set_low_value(IsSensor *self,
 	if (fabs(priv->low_value - low_value) > DBL_EPSILON) {
 		priv->low_value = low_value;
 		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_LOW_VALUE]);
+		update_icon_path(self);
 	}
 }
 
@@ -684,5 +886,13 @@ is_sensor_set_high_value(IsSensor *self,
 	if (fabs(priv->high_value - high_value) > DBL_EPSILON) {
 		priv->high_value = high_value;
 		g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_HIGH_VALUE]);
+		update_icon_path(self);
 	}
+}
+
+const gchar *
+is_sensor_get_icon_path(IsSensor *self)
+{
+	g_return_val_if_fail(IS_IS_SENSOR(self), NULL);
+	return self->priv->icon_path;
 }

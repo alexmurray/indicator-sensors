@@ -125,6 +125,9 @@ sensor_property_changed(IsSensor *sensor,
         } else if (!g_strcmp0(name, "units")) {
                 is_active_sensor_set_units(active_sensor,
                                            is_sensor_get_units(sensor));
+        } else if (!g_strcmp0(name, "icon-path")) {
+                is_active_sensor_set_icon_path(active_sensor,
+                                               is_sensor_get_icon_path(sensor));
         } else if (!g_strcmp0(name, "digits")) {
                 is_active_sensor_set_digits(active_sensor,
                                            is_sensor_get_digits(sensor));

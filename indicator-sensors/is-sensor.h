@@ -102,11 +102,11 @@ void is_sensor_set_update_interval(IsSensor *self, guint update_interval);
 gboolean is_sensor_get_alarmed(IsSensor *self);
 const gchar *is_sensor_get_icon(IsSensor *self);
 void is_sensor_set_icon(IsSensor *self, const gchar *icon);
-gchar* is_sensor_get_icon_path(IsSensor *self);
 gdouble is_sensor_get_low_value(IsSensor *self);
 void is_sensor_set_low_value(IsSensor *self, gdouble value);
 gdouble is_sensor_get_high_value(IsSensor *self);
 void is_sensor_set_high_value(IsSensor *self, gdouble value);
+const gchar *is_sensor_get_icon_path(IsSensor *self);
 
 void sensor_prepare_cache_icons();
 
