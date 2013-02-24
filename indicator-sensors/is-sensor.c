@@ -582,11 +582,6 @@ update_icon_path(IsSensor *self)
 {
         gchar *icon_path = get_icon_path(self);
         if (g_strcmp0(icon_path, self->priv->icon_path)) {
-                is_debug("sensor", "New icon path %s (old %s) for sensor %s [%s]",
-                         icon_path,
-                         self->priv->icon_path,
-                         is_sensor_get_label(self),
-                         is_sensor_get_path(self));
                 g_free(self->priv->icon_path);
                 self->priv->icon_path = icon_path;
                 icon_path = NULL;
