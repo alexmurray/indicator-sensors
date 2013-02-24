@@ -205,6 +205,7 @@ sensor_enabled(IsManager *manager,
         is_active_sensor_set_value(active_sensor, is_sensor_get_value(sensor));
         is_active_sensor_set_digits(active_sensor, is_sensor_get_digits(sensor));
         is_active_sensor_set_index(active_sensor, i);
+        is_active_sensor_set_icon_path(active_sensor, is_sensor_get_icon_path(sensor));
 
         g_signal_connect(sensor, "notify",
                          G_CALLBACK(sensor_property_changed), active_sensor);
