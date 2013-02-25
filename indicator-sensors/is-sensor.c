@@ -15,6 +15,10 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
@@ -553,7 +557,7 @@ get_icon_path(IsSensor *self)
 
         overlay_name = value_overlay_icon(value, low, high);
         cache_dir = g_build_filename(g_get_user_cache_dir(),
-                                     "indicator-sensors", "icons", NULL);
+                                     PACKAGE, "icons", NULL);
         icon_name = g_strdup_printf("%s-%s.png", base_name, overlay_name);
         icon_path = g_build_filename(cache_dir, icon_name, NULL);
         g_free(icon_name);
