@@ -141,6 +141,9 @@ is_notifyv(IsNotifyLevel level,
                 notify_notification_set_hint(notification, "transient",
                                              g_variant_new_boolean(FALSE));
         }
+        /* set desktop entry hint for gnome-shell */
+        notify_notification_set_hint(notification, "desktop-entry",
+                                     g_variant_new_string(PACKAGE));
         notify_notification_show(notification, NULL);
         return notification;
 }
