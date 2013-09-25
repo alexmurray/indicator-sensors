@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-23 19:34+1030\n"
+"POT-Creation-Date: 2013-09-25 22:47+0930\n"
 "PO-Revision-Date: 2012-12-09 14:15+0000\n"
 "Last-Translator: Vlad Paul Paval <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
@@ -51,22 +51,34 @@ msgstr "Lista senzorilor activați, fiecare cu calea către el."
 
 #: ../data/indicator-sensors.gschema.xml.in.h:7
 #: ../data/indicator-sensors.gschema.xml.in.in.h:7
+msgid "Seconds to delay hiding / showing alarms"
+msgstr ""
+
+#: ../data/indicator-sensors.gschema.xml.in.h:8
+#: ../data/indicator-sensors.gschema.xml.in.in.h:8
+msgid ""
+"Alarm delay adds some hysteresis so alarms aren't shown for quickly "
+"fluctuating values."
+msgstr ""
+
+#: ../data/indicator-sensors.gschema.xml.in.h:9
+#: ../data/indicator-sensors.gschema.xml.in.in.h:9
 #: ../indicator-sensors/is-preferences-dialog.c:168
 msgid "Temperature scale"
 msgstr "Scară temperatură"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:8
-#: ../data/indicator-sensors.gschema.xml.in.in.h:8
+#: ../data/indicator-sensors.gschema.xml.in.h:10
+#: ../data/indicator-sensors.gschema.xml.in.in.h:10
 msgid "The temperature scale to display temperature sensor values."
 msgstr "Scara de temperatură pentru afișarea valorilor senzorilor."
 
-#: ../data/indicator-sensors.gschema.xml.in.h:9
-#: ../data/indicator-sensors.gschema.xml.in.in.h:9
+#: ../data/indicator-sensors.gschema.xml.in.h:11
+#: ../data/indicator-sensors.gschema.xml.in.in.h:11
 msgid "Show indicator"
 msgstr "Arată indicatorul"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:10
-#: ../data/indicator-sensors.gschema.xml.in.in.h:10
+#: ../data/indicator-sensors.gschema.xml.in.h:12
+#: ../data/indicator-sensors.gschema.xml.in.in.h:12
 msgid "Whether to show the indicator in the notification area."
 msgstr "Afișare indicator în zona de notificare."
 
@@ -79,11 +91,24 @@ msgstr "Indicator pentru senzori hardware"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Un indicator pentru Unity care afișează valorile senzorilor hardware"
 
-#: ../indicator-sensors/indicator-sensors.c:151
+#: ../data/indicator-sensors.appdata.xml.in.h:1
+msgid ""
+"Hardware Sensors Indicator provides temperature, fan and voltage sensor "
+"readings within the panel of your desktop."
+msgstr ""
+
+#: ../data/indicator-sensors.appdata.xml.in.h:2
+msgid ""
+"When running GNOME Shell it is recommended to also install the associated "
+"GNOME Shell extension from extensions.gnome.org - https://extensions.gnome."
+"org/extension/336/hardware-sensors-indicator/ ."
+msgstr ""
+
+#: ../indicator-sensors/indicator-sensors.c:152
 msgid "No Sensors Enabled For Monitoring"
 msgstr "Niciun senzor activat pentru monitorizare"
 
-#: ../indicator-sensors/indicator-sensors.c:152
+#: ../indicator-sensors/indicator-sensors.c:153
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -125,8 +150,8 @@ msgstr "Ieșire"
 msgid "No Sensors"
 msgstr "Niciun senzor"
 
-#: ../indicator-sensors/is-indicator.c:713
-#: ../indicator-sensors/is-indicator.c:839
+#: ../indicator-sensors/is-indicator.c:554
+#: ../indicator-sensors/is-indicator.c:680
 msgid "No active sensors"
 msgstr "Niciun senzor activ"
 
@@ -178,7 +203,7 @@ msgstr "Celsius (°C)"
 msgid "Fahrenheit (°F)"
 msgstr "Fahrenheit (°F)"
 
-#: ../indicator-sensors/is-sensor.c:388
+#: ../indicator-sensors/is-sensor.c:380
 msgid "Sensor Alarm"
 msgstr "Alarmă senzor"
 

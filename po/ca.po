@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-23 19:34+1030\n"
+"POT-Creation-Date: 2013-09-25 22:46+0930\n"
 "PO-Revision-Date: 2011-04-14 17:13+0000\n"
 "Last-Translator: David Planella <david.planella@ubuntu.com>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -51,22 +51,34 @@ msgstr ""
 
 #: ../data/indicator-sensors.gschema.xml.in.h:7
 #: ../data/indicator-sensors.gschema.xml.in.in.h:7
-#: ../indicator-sensors/is-preferences-dialog.c:168
-msgid "Temperature scale"
+msgid "Seconds to delay hiding / showing alarms"
 msgstr ""
 
 #: ../data/indicator-sensors.gschema.xml.in.h:8
 #: ../data/indicator-sensors.gschema.xml.in.in.h:8
-msgid "The temperature scale to display temperature sensor values."
+msgid ""
+"Alarm delay adds some hysteresis so alarms aren't shown for quickly "
+"fluctuating values."
 msgstr ""
 
 #: ../data/indicator-sensors.gschema.xml.in.h:9
 #: ../data/indicator-sensors.gschema.xml.in.in.h:9
-msgid "Show indicator"
+#: ../indicator-sensors/is-preferences-dialog.c:168
+msgid "Temperature scale"
 msgstr ""
 
 #: ../data/indicator-sensors.gschema.xml.in.h:10
 #: ../data/indicator-sensors.gschema.xml.in.in.h:10
+msgid "The temperature scale to display temperature sensor values."
+msgstr ""
+
+#: ../data/indicator-sensors.gschema.xml.in.h:11
+#: ../data/indicator-sensors.gschema.xml.in.in.h:11
+msgid "Show indicator"
+msgstr ""
+
+#: ../data/indicator-sensors.gschema.xml.in.h:12
+#: ../data/indicator-sensors.gschema.xml.in.in.h:12
 msgid "Whether to show the indicator in the notification area."
 msgstr ""
 
@@ -79,11 +91,24 @@ msgstr ""
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:151
-msgid "No Sensors Enabled For Monitoring"
+#: ../data/indicator-sensors.appdata.xml.in.h:1
+msgid ""
+"Hardware Sensors Indicator provides temperature, fan and voltage sensor "
+"readings within the panel of your desktop."
+msgstr ""
+
+#: ../data/indicator-sensors.appdata.xml.in.h:2
+msgid ""
+"When running GNOME Shell it is recommended to also install the associated "
+"GNOME Shell extension from extensions.gnome.org - https://extensions.gnome."
+"org/extension/336/hardware-sensors-indicator/ ."
 msgstr ""
 
 #: ../indicator-sensors/indicator-sensors.c:152
+msgid "No Sensors Enabled For Monitoring"
+msgstr ""
+
+#: ../indicator-sensors/indicator-sensors.c:153
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -122,8 +147,8 @@ msgstr ""
 msgid "No Sensors"
 msgstr "No hi ha sensors"
 
-#: ../indicator-sensors/is-indicator.c:713
-#: ../indicator-sensors/is-indicator.c:839
+#: ../indicator-sensors/is-indicator.c:554
+#: ../indicator-sensors/is-indicator.c:680
 msgid "No active sensors"
 msgstr ""
 
@@ -175,7 +200,7 @@ msgstr ""
 msgid "Fahrenheit (°F)"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor.c:388
+#: ../indicator-sensors/is-sensor.c:380
 msgid "Sensor Alarm"
 msgstr ""
 

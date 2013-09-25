@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-23 19:34+1030\n"
+"POT-Creation-Date: 2013-09-25 22:47+0930\n"
 "PO-Revision-Date: 2013-01-21 08:37+0000\n"
 "Last-Translator: Eugene Marshal <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -51,22 +51,34 @@ msgstr ""
 
 #: ../data/indicator-sensors.gschema.xml.in.h:7
 #: ../data/indicator-sensors.gschema.xml.in.in.h:7
+msgid "Seconds to delay hiding / showing alarms"
+msgstr ""
+
+#: ../data/indicator-sensors.gschema.xml.in.h:8
+#: ../data/indicator-sensors.gschema.xml.in.in.h:8
+msgid ""
+"Alarm delay adds some hysteresis so alarms aren't shown for quickly "
+"fluctuating values."
+msgstr ""
+
+#: ../data/indicator-sensors.gschema.xml.in.h:9
+#: ../data/indicator-sensors.gschema.xml.in.in.h:9
 #: ../indicator-sensors/is-preferences-dialog.c:168
 msgid "Temperature scale"
 msgstr "Температурная шкала"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:8
-#: ../data/indicator-sensors.gschema.xml.in.in.h:8
+#: ../data/indicator-sensors.gschema.xml.in.h:10
+#: ../data/indicator-sensors.gschema.xml.in.in.h:10
 msgid "The temperature scale to display temperature sensor values."
 msgstr "Температурная шкала измерения показаний датчиков"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:9
-#: ../data/indicator-sensors.gschema.xml.in.in.h:9
+#: ../data/indicator-sensors.gschema.xml.in.h:11
+#: ../data/indicator-sensors.gschema.xml.in.in.h:11
 msgid "Show indicator"
 msgstr "Показать индикатор"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:10
-#: ../data/indicator-sensors.gschema.xml.in.in.h:10
+#: ../data/indicator-sensors.gschema.xml.in.h:12
+#: ../data/indicator-sensors.gschema.xml.in.in.h:12
 msgid "Whether to show the indicator in the notification area."
 msgstr ""
 
@@ -79,11 +91,24 @@ msgstr "Индикатор аппаратных датчиков"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Индикатор показаний аппаратных датчиков для Unity"
 
-#: ../indicator-sensors/indicator-sensors.c:151
+#: ../data/indicator-sensors.appdata.xml.in.h:1
+msgid ""
+"Hardware Sensors Indicator provides temperature, fan and voltage sensor "
+"readings within the panel of your desktop."
+msgstr ""
+
+#: ../data/indicator-sensors.appdata.xml.in.h:2
+msgid ""
+"When running GNOME Shell it is recommended to also install the associated "
+"GNOME Shell extension from extensions.gnome.org - https://extensions.gnome."
+"org/extension/336/hardware-sensors-indicator/ ."
+msgstr ""
+
+#: ../indicator-sensors/indicator-sensors.c:152
 msgid "No Sensors Enabled For Monitoring"
 msgstr "Наблюдение за датчиками отключено"
 
-#: ../indicator-sensors/indicator-sensors.c:152
+#: ../indicator-sensors/indicator-sensors.c:153
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -124,8 +149,8 @@ msgstr "Выход"
 msgid "No Sensors"
 msgstr "Нет датчиков"
 
-#: ../indicator-sensors/is-indicator.c:713
-#: ../indicator-sensors/is-indicator.c:839
+#: ../indicator-sensors/is-indicator.c:554
+#: ../indicator-sensors/is-indicator.c:680
 msgid "No active sensors"
 msgstr "Нет активных датчиков"
 
@@ -177,7 +202,7 @@ msgstr "Цельсия"
 msgid "Fahrenheit (°F)"
 msgstr "Фаренгейта"
 
-#: ../indicator-sensors/is-sensor.c:388
+#: ../indicator-sensors/is-sensor.c:380
 msgid "Sensor Alarm"
 msgstr "Уровень тревоги"
 
