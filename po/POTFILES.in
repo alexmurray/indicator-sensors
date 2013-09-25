@@ -1,6 +1,7 @@
 data/indicator-sensors.gschema.xml.in
 data/indicator-sensors.gschema.xml.in.in
 data/indicator-sensors.desktop.in
+data/indicator-sensors.appdata.xml.in
 indicator-sensors/indicator-sensors.c
 indicator-sensors/is-application.c
 indicator-sensors/is-fan-sensor.c

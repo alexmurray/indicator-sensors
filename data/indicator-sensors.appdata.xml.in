@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application>
+  <id type="desktop">indicator-sensors.desktop</id>
+  <licence>CC0</licence>
+  <description>
+    <_p>
+      Hardware Sensors Indicator provides temperature, fan and voltage sensor
+      readings within the panel of your desktop.
+    </_p>
+    <_p>
+      When running GNOME Shell it is recommended to also install the
+      associated GNOME Shell extension from extensions.gnome.org -
+      https://extensions.gnome.org/extension/336/hardware-sensors-indicator/
+      .
+    </_p>
+  </description>
+  <screenshots>
+    <screenshot type="default" width="247" height="310">https://extensions.gnome.org/static/extension-data/screenshots/screenshot_336.png</screenshot>
+  </screenshots>
+  <url type="homepage">https://launchpad.net/indicator-sensors</url>
+  <updatecontact>murray.alex_at_gmail.com</updatecontact>
+</application>
