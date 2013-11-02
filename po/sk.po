@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-25 22:47+0930\n"
-"PO-Revision-Date: 2012-07-07 11:01+0000\n"
+"POT-Creation-Date: 2013-11-02 22:58+1030\n"
+"PO-Revision-Date: 2013-04-08 18:27+0000\n"
 "Last-Translator: Eduard Hummel <22edel22@gmail.com>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-01-23 09:00+0000\n"
-"X-Generator: Launchpad (build 16441)\n"
+"X-Launchpad-Export-Date: 2013-11-02 11:56+0000\n"
+"X-Generator: Launchpad (build 16820)\n"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:1
 #: ../data/indicator-sensors.gschema.xml.in.in.h:1
@@ -28,11 +28,13 @@ msgstr "Hlavný snímač na displeji"
 msgid ""
 "The primary sensor to display in the indicator, identified by it’s path."
 msgstr ""
+"Hlavný senzor pre zobrazenie v indikátoru, každý je identifikovaný vlastnou "
+"hlavičkou."
 
 #: ../data/indicator-sensors.gschema.xml.in.h:3
 #: ../data/indicator-sensors.gschema.xml.in.in.h:3
 msgid "Display flags for the indicator"
-msgstr ""
+msgstr "Zobrazenie znamenia pre indikátor"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:4
 #: ../data/indicator-sensors.gschema.xml.in.in.h:4
@@ -48,6 +50,8 @@ msgstr "Povolené snimače"
 #: ../data/indicator-sensors.gschema.xml.in.in.h:6
 msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr ""
+"Zoznam povolených senzorov na monitorovanie, každý je identifikovaný svojim "
+"miestom."
 
 #: ../data/indicator-sensors.gschema.xml.in.h:7
 #: ../data/indicator-sensors.gschema.xml.in.in.h:7
@@ -70,17 +74,17 @@ msgstr "Nameraná teplota"
 #: ../data/indicator-sensors.gschema.xml.in.h:10
 #: ../data/indicator-sensors.gschema.xml.in.in.h:10
 msgid "The temperature scale to display temperature sensor values."
-msgstr ""
+msgstr "Zobrazenie hodnoty teploty senzorov."
 
 #: ../data/indicator-sensors.gschema.xml.in.h:11
 #: ../data/indicator-sensors.gschema.xml.in.in.h:11
 msgid "Show indicator"
-msgstr ""
+msgstr "Zobrazenie indikátora"
 
 #: ../data/indicator-sensors.gschema.xml.in.h:12
 #: ../data/indicator-sensors.gschema.xml.in.in.h:12
 msgid "Whether to show the indicator in the notification area."
-msgstr ""
+msgstr "Zobrazenie indikátora v oznamovacej oblasti."
 
 #: ../data/indicator-sensors.desktop.in.h:1
 #: ../indicator-sensors/is-application.c:822
@@ -89,7 +93,7 @@ msgstr "Indikátor snímača hardvéru"
 
 #: ../data/indicator-sensors.desktop.in.h:2
 msgid "An indicator for Unity which displays hardware sensor readings"
-msgstr ""
+msgstr "Unity indikátor, ktorý zobrazuje hodnoty senzorov"
 
 #: ../data/indicator-sensors.appdata.xml.in.h:1
 msgid ""
@@ -106,21 +110,23 @@ msgstr ""
 
 #: ../indicator-sensors/indicator-sensors.c:152
 msgid "No Sensors Enabled For Monitoring"
-msgstr ""
+msgstr "Nie sú povolené žiadne senzory pre monitorovanie"
 
 #: ../indicator-sensors/indicator-sensors.c:153
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
 msgstr ""
+"Senzory sú detekované, ale žiadny nieje povolený pre monitorovanie. Pre "
+"povolenie senzorov otvorte ponuku s nastavením a vyberte požadovaný senzor"
 
 #: ../indicator-sensors/is-application.c:824
 msgid "Indicator for GNOME / Unity showing hardware sensors."
-msgstr ""
+msgstr "Indikátor pre GNOME / Unity zobrazujúcí hardvérové senzory."
 
 #: ../indicator-sensors/is-fan-sensor.c:40
 msgid " RPM"
-msgstr ""
+msgstr " RPM"
 
 #: ../indicator-sensors/is-indicator.c:160
 msgid "Preferences…"
@@ -136,7 +142,7 @@ msgstr "O mne..."
 
 #: ../indicator-sensors/is-indicator.c:163
 msgid "About"
-msgstr ""
+msgstr "O programe"
 
 #: ../indicator-sensors/is-indicator.c:164
 #: ../indicator-sensors/is-indicator.c:165
@@ -174,7 +180,7 @@ msgstr "Aktivovaný"
 
 #: ../indicator-sensors/is-preferences-dialog.c:108
 msgid "Hardware Sensors Indicator Preferences"
-msgstr ""
+msgstr "Predvoľby Indikátora Hardvérových Senzorov"
 
 #: ../indicator-sensors/is-preferences-dialog.c:127
 msgid "General"
@@ -257,7 +263,7 @@ msgstr "Ventilátor"
 #: ../plugins/libsensors/is-libsensors-plugin.c:174
 #, c-format
 msgid "Error getting sensor value for sensor %s: %s [%d]"
-msgstr ""
+msgstr "Chyba pri získavaní hodnoty zo senzoru %s:  %s [%d]"
 
 #. translators: V is the unit for Voltage, replace with
 #. appropriate unit
@@ -267,29 +273,29 @@ msgstr "Volt"
 
 #: ../plugins/libsensors/is-libsensors-plugin.c:375
 msgid "No Sensors Detected"
-msgstr ""
+msgstr "Nie sú detekované žiadne senzory"
 
 #: ../plugins/libsensors/is-libsensors-plugin.c:376
 #, c-format
 msgid ""
 "Try running the command 'sensors-detect' from the command-line and "
 "restarting %s"
-msgstr ""
+msgstr "Spustite príkaz 'sensors-detect' v príkazovom riadku a reštartujte %s"
 
 #. first placeholder is
 #. * sensor name
 #: ../plugins/nvidia/is-nvidia-plugin.c:192
 #, c-format
 msgid "Error getting sensor value for sensor %s"
-msgstr ""
+msgstr "Chyba pri získavaný hodnoty zo senzoru %s"
 
 #: ../plugins/udisks/is-udisks-plugin.c:149
 #: ../plugins/udisks2/is-udisks2-plugin.c:126
 #, c-format
 msgid "Error reading new SMART data for sensor %s"
-msgstr ""
+msgstr "Chyba pri načítaný SMART dát zo senzoru %s"
 
 #: ../plugins/udisks/is-udisks-plugin.c:165
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
-msgstr ""
+msgstr "Chyba pri načítaný SMART dát pre senzor %s"
