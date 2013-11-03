@@ -528,12 +528,6 @@ _sensor_disabled(IsSensor *sensor,
         g_signal_handlers_disconnect_by_func(sensor,
                                              sensor_error,
                                              self);
-        /* ignore if was not primary sensor, otherwise, get a new one */
-        if (sensor != priv->primary) {
-                goto out;
-        }
-out:
-        return;
 }
 
 static void
@@ -546,6 +540,10 @@ sensor_disabled(IsManager *manager,
         _sensor_disabled(sensor, self);
 
         if (priv->menu_items) {
+                /* ignore if was not primary sensor, otherwise, get a new one */
+                if (sensor != priv->primary) {
+                        goto out;
+                }
                 /* choose top-most menu item and set it as primary one */
                 GtkWidget *menu_item = GTK_WIDGET(priv->menu_items->data);
                 /* activate it to make this the new primary sensor */
@@ -558,6 +556,8 @@ sensor_disabled(IsManager *manager,
 #endif
                 g_clear_object(&priv->primary);
         }
+out:
+        return;
 }
 
 static void
