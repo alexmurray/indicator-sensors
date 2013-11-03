@@ -660,8 +660,8 @@ sensor_enabled(IsManager *manager,
                                  self);
                 gtk_widget_show_all(menu_item);
 
-                gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menu_item, position);
                 update_sensor_menu_item_label(self, sensor, GTK_MENU_ITEM(menu_item));
+                gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menu_item, position);
         } else {
                 is_debug("indicator", "Newly enabled sensor %s already has a menu-item, ignoring...",
                          is_sensor_get_path(sensor));
