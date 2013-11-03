@@ -1,6 +1,6 @@
 plugindir = $(libdir)/$(PACKAGE)/plugins/aticonfig
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir) 	\
 	$(GLIB_CFLAGS)		\
 	$(GTK_CFLAGS)		\
