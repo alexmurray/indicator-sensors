@@ -461,8 +461,8 @@ update_sensor_menu_item_label(IsIndicator *self,
                                                     is_sensor_get_icon_path(sensor),
                                                     is_sensor_get_label(sensor));
                 } else {
-                        /* set the empty string to show no icon */
-                        app_indicator_set_icon_full(APP_INDICATOR(self), "",
+                        /* set to a 1x1 transparent icon for no icon */
+                        app_indicator_set_icon_full(APP_INDICATOR(self), "indicator-sensors-no-icon",
                                                     is_sensor_get_label(sensor));
 
                 }

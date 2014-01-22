@@ -18,7 +18,7 @@ deviceicons_DATA = \
 	indicator-sensors-memory.png
 
 appicondir = $(datadir)/icons/hicolor/48x48/apps
-appicon_DATA = indicator-sensors.png
+appicon_DATA = indicator-sensors.png indicator-sensors-no-icon.png
 
 gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor
 
