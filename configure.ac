@@ -158,6 +158,11 @@ AC_SUBST(LIBUDISKS2_CFLAGS)
 AC_SUBST(LIBUDISKS2_LIBS)
 AM_CONDITIONAL(UDISKS2, test -n "$LIBUDISKS2_CFLAGS")
 
+# enable fake plugin if requested
+AC_ARG_ENABLE(fake,
+AS_HELP_STRING([--enable-fake], [Build plugin to generate fake sensors for testing]))
+AM_CONDITIONAL(FAKE, test "x$enable_fake" = "xyes")
+
 # ============ enable extra warnings etc ============= #
 if test "$USE_MAINTAINER_MODE" = "yes"; then
    CFLAGS+=" -ggdb"
@@ -208,6 +213,7 @@ AC_CONFIG_FILES([
 	plugins/Makefile
 	plugins/aticonfig/Makefile
 	plugins/dbus/Makefile
+	plugins/fake/Makefile
 	plugins/libsensors/Makefile
 	plugins/nvidia/Makefile
 	plugins/udisks/Makefile

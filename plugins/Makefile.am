@@ -15,3 +15,7 @@ endif
 if UDISKS2
 SUBDIRS += udisks2
 endif
+
+if FAKE
+SUBDIRS += fake
+endif
