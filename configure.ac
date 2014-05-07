@@ -26,7 +26,6 @@ IT_PROG_INTLTOOL([0.40.0])
 GETTEXT_PACKAGE=indicator-sensors
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
-ALL_LINGUAS="ar ca cs de en_GB eo es fr gl he hr hu it ko lt nl pl ro ru sk sr tr uk zh_CN"
 
 # ========== export compiler / linker options ======== #
 AC_SUBST(CFLAGS)
