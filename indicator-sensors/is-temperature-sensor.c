@@ -148,7 +148,7 @@ is_temperature_sensor_new(const gchar *path)
 {
 	return g_object_new(IS_TYPE_TEMPERATURE_SENSOR,
 			    "path", path,
-                            "digits", 0,
+                            "digits", 1,
 			    "scale", IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
 			    "high-value", 100.0,
 			    NULL);
