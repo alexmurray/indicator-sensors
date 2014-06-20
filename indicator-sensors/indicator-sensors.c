@@ -24,6 +24,8 @@
 #include "is-application.h"
 #include "is-indicator.h"
 #include <gtk/gtk.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 #include <libpeas/peas.h>
 #include <glib/gi18n.h>
 #include <locale.h>
@@ -61,6 +63,40 @@ on_plugin_list_notify(PeasEngine *engine,
 	}
 }
 
+static void
+clear_sensor_icon_cache(void)
+{
+  GDir *dir = NULL;
+  const gchar *filename;
+  gchar *cache_dir = g_build_filename(g_get_user_cache_dir(),
+				      PACKAGE, "icons", NULL);
+
+  dir = g_dir_open(cache_dir, 0, NULL);
+  if (dir == NULL)
+  {
+    is_error("main", "Failed to open icon cache dir %s\n", cache_dir);
+    goto exit;
+  }
+
+  for (filename = g_dir_read_name(dir);
+       filename != NULL;
+       filename = g_dir_read_name(dir))
+  {
+    gchar *path = g_build_filename(cache_dir, filename, NULL);
+    int ret = g_remove(path);
+    if (ret < 0)
+    {
+      is_error("main", "Error removing icon cache file: %s\n", path);
+    }
+    g_free(path);
+  }
+  g_dir_close(dir);
+
+  exit:
+  g_free(cache_dir);
+  return;
+}
+
 int main(int argc, char **argv)
 {
 	IsApplication *application;
@@ -83,6 +119,9 @@ int main(int argc, char **argv)
 
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
+
+	/* clear the sensor icon cache directory to use any new icon theme */
+	clear_sensor_icon_cache();
 
 	gtk_init(&argc, &argv);
 
