@@ -129,6 +129,7 @@ update_sensor_value(IsTemperatureSensor *sensor,
 	gsize len;
 	guint64 temperature;
 	gdouble value;
+	const gchar * const options[] = { "nowakeup", NULL };
 
 	priv = self->priv;
 
@@ -154,10 +155,9 @@ update_sensor_value(IsTemperatureSensor *sensor,
 	}
 
 	/* update smart data */
-	var = g_variant_new_strv(NULL, 0);
+	var = g_variant_new_strv(options, 0);
 	var = g_dbus_proxy_call_sync(proxy, "DriveAtaSmartRefreshData",
-				     g_variant_new_tuple(&var,
-							 1),
+				     g_variant_new_tuple(&var, 1),
 				     G_DBUS_CALL_FLAGS_NONE,
 				     -1, NULL, &error);
 	if (!var) {
