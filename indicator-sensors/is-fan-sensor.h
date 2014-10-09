@@ -23,38 +23,38 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_FAN_SENSOR		\
-	(is_fan_sensor_get_type())
-#define IS_FAN_SENSOR(obj)				\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),			\
-				    IS_TYPE_FAN_SENSOR,	\
-				    IsFanSensor))
-#define IS_FAN_SENSOR_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),			\
-				 IS_TYPE_FAN_SENSOR,	\
-				 IsFanSensorClass))
+#define IS_TYPE_FAN_SENSOR    \
+  (is_fan_sensor_get_type())
+#define IS_FAN_SENSOR(obj)        \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
+                              IS_TYPE_FAN_SENSOR, \
+                              IsFanSensor))
+#define IS_FAN_SENSOR_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_CAST((klass),     \
+                           IS_TYPE_FAN_SENSOR,  \
+                           IsFanSensorClass))
 #define IS_IS_FAN_SENSOR(obj)                                   \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),				\
-				    IS_TYPE_FAN_SENSOR))
-#define IS_IS_FAN_SENSOR_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),			\
-				 IS_TYPE_FAN_SENSOR))
-#define IS_FAN_SENSOR_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),			\
-				   IS_TYPE_FAN_SENSOR,	\
-				   IsFanSensorClass))
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),        \
+                              IS_TYPE_FAN_SENSOR))
+#define IS_IS_FAN_SENSOR_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
+                           IS_TYPE_FAN_SENSOR))
+#define IS_FAN_SENSOR_GET_CLASS(obj)      \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
+                             IS_TYPE_FAN_SENSOR,  \
+                             IsFanSensorClass))
 
 typedef struct _IsFanSensor      IsFanSensor;
 typedef struct _IsFanSensorClass IsFanSensorClass;
 
 struct _IsFanSensorClass
 {
-	IsSensorClass parent_class;
+  IsSensorClass parent_class;
 };
 
 struct _IsFanSensor
 {
-	IsSensor parent;
+  IsSensor parent;
 };
 
 GType is_fan_sensor_get_type(void) G_GNUC_CONST;

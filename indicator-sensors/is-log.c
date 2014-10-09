@@ -24,66 +24,67 @@
 #include <stdio.h>
 
 void is_log(const gchar *source,
-	    IsLogLevel level,
-	    const gchar *format,
-	    ...)
+            IsLogLevel level,
+            const gchar *format,
+            ...)
 {
-	va_list args;
+  va_list args;
 
-	va_start(args, format);
-	is_logv(source, level, format, args);
-	va_end(args);
+  va_start(args, format);
+  is_logv(source, level, format, args);
+  va_end(args);
 }
 
 static const gchar *
 is_log_level_to_string(IsLogLevel level)
 {
-	const gchar *str_level = NULL;
+  const gchar *str_level = NULL;
 
-	g_return_val_if_fail((int)level >= IS_LOG_LEVEL_ERROR &&
-			     level < NUM_IS_LOG_LEVELS, NULL);
+  g_return_val_if_fail((int)level >= IS_LOG_LEVEL_ERROR &&
+                       level < NUM_IS_LOG_LEVELS, NULL);
 
-	switch (level) {
-	case IS_LOG_LEVEL_ERROR:
-		str_level = "ERROR";
-		break;
+  switch (level)
+  {
+    case IS_LOG_LEVEL_ERROR:
+      str_level = "ERROR";
+      break;
 
-	case IS_LOG_LEVEL_CRITICAL:
-		str_level = "CRITICAL";
-		break;
+    case IS_LOG_LEVEL_CRITICAL:
+      str_level = "CRITICAL";
+      break;
 
-	case IS_LOG_LEVEL_WARNING:
-		str_level = "WARNING";
-		break;
+    case IS_LOG_LEVEL_WARNING:
+      str_level = "WARNING";
+      break;
 
-	case IS_LOG_LEVEL_MESSAGE:
-		str_level = "MESSAGE";
-		break;
+    case IS_LOG_LEVEL_MESSAGE:
+      str_level = "MESSAGE";
+      break;
 
-	case IS_LOG_LEVEL_DEBUG:
-		str_level = "DEBUG";
-		break;
+    case IS_LOG_LEVEL_DEBUG:
+      str_level = "DEBUG";
+      break;
 
-	case NUM_IS_LOG_LEVELS:
-	default:
-		g_assert_not_reached();
-	}
+    case NUM_IS_LOG_LEVELS:
+    default:
+      g_assert_not_reached();
+  }
 
-	return str_level;
+  return str_level;
 }
 
 void is_logv(const gchar *source,
-	     IsLogLevel level,
-	     const gchar *format,
-	     va_list args)
+             IsLogLevel level,
+             const gchar *format,
+             va_list args)
 {
-	gchar *fmt, *output;
+  gchar *fmt, *output;
 
-	/* TODO: perhaps add a more elaborate logger */
-	fmt = g_strdup_printf("[%s] %s: %s", source,
-			      is_log_level_to_string(level), format);
-	output = g_strdup_vprintf(fmt, args);
-	printf("%s\n", output);
-	g_free(output);
-	g_free(fmt);
+  /* TODO: perhaps add a more elaborate logger */
+  fmt = g_strdup_printf("[%s] %s: %s", source,
+                        is_log_level_to_string(level), format);
+  output = g_strdup_vprintf(fmt, args);
+  printf("%s\n", output);
+  g_free(output);
+  g_free(fmt);
 }

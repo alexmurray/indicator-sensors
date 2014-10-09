@@ -23,26 +23,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_LIBSENSORS_PLUGIN		\
-	(is_libsensors_plugin_get_type())
-#define IS_LIBSENSORS_PLUGIN(obj)				\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),			\
-				    IS_TYPE_LIBSENSORS_PLUGIN,	\
-				    IsLibsensorsPlugin))
-#define IS_LIBSENSORS_PLUGIN_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),			\
-				 IS_TYPE_LIBSENSORS_PLUGIN,	\
-				 IsLibsensorsPluginClass))
-#define IS_IS_LIBSENSORS_PLUGIN(obj)				\
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),			\
-				    IS_TYPE_LIBSENSORS_PLUGIN))
-#define IS_IS_LIBSENSORS_PLUGIN_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),			\
-				 IS_TYPE_LIBSENSORS_PLUGIN))
-#define IS_LIBSENSORS_PLUGIN_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),			\
-				   IS_TYPE_LIBSENSORS_PLUGIN,	\
-				   IsLibsensorsPluginClass))
+#define IS_TYPE_LIBSENSORS_PLUGIN   \
+  (is_libsensors_plugin_get_type())
+#define IS_LIBSENSORS_PLUGIN(obj)       \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
+                              IS_TYPE_LIBSENSORS_PLUGIN,  \
+                              IsLibsensorsPlugin))
+#define IS_LIBSENSORS_PLUGIN_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_CAST((klass),     \
+                           IS_TYPE_LIBSENSORS_PLUGIN, \
+                           IsLibsensorsPluginClass))
+#define IS_IS_LIBSENSORS_PLUGIN(obj)        \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),      \
+                              IS_TYPE_LIBSENSORS_PLUGIN))
+#define IS_IS_LIBSENSORS_PLUGIN_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
+                           IS_TYPE_LIBSENSORS_PLUGIN))
+#define IS_LIBSENSORS_PLUGIN_GET_CLASS(obj)     \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
+                             IS_TYPE_LIBSENSORS_PLUGIN, \
+                             IsLibsensorsPluginClass))
 
 typedef struct _IsLibsensorsPlugin      IsLibsensorsPlugin;
 typedef struct _IsLibsensorsPluginClass IsLibsensorsPluginClass;
@@ -50,13 +50,13 @@ typedef struct _IsLibsensorsPluginPrivate IsLibsensorsPluginPrivate;
 
 struct _IsLibsensorsPluginClass
 {
-	PeasExtensionBaseClass parent_class;
+  PeasExtensionBaseClass parent_class;
 };
 
 struct _IsLibsensorsPlugin
 {
-	PeasExtensionBase parent;
-	IsLibsensorsPluginPrivate *priv;
+  PeasExtensionBase parent;
+  IsLibsensorsPluginPrivate *priv;
 };
 
 GType is_libsensors_plugin_get_type(void) G_GNUC_CONST;

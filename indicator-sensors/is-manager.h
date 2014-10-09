@@ -24,26 +24,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_MANAGER			\
-	(is_manager_get_type())
-#define IS_MANAGER(obj)					\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),			\
-				    IS_TYPE_MANAGER,	\
-				    IsManager))
-#define IS_MANAGER_CLASS(klass)				\
-	(G_TYPE_CHECK_CLASS_CAST((klass),			\
-				 IS_TYPE_MANAGER,	\
-				 IsManagerClass))
-#define IS_IS_MANAGER(obj)				\
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),			\
-				    IS_TYPE_MANAGER))
-#define IS_IS_MANAGER_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),			\
-				 IS_TYPE_MANAGER))
-#define IS_MANAGER_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),			\
-				   IS_TYPE_MANAGER,	\
-				   IsManagerClass))
+#define IS_TYPE_MANAGER     \
+  (is_manager_get_type())
+#define IS_MANAGER(obj)         \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
+                              IS_TYPE_MANAGER,  \
+                              IsManager))
+#define IS_MANAGER_CLASS(klass)       \
+  (G_TYPE_CHECK_CLASS_CAST((klass),     \
+                           IS_TYPE_MANAGER, \
+                           IsManagerClass))
+#define IS_IS_MANAGER(obj)        \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),      \
+                              IS_TYPE_MANAGER))
+#define IS_IS_MANAGER_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
+                           IS_TYPE_MANAGER))
+#define IS_MANAGER_GET_CLASS(obj)     \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
+                             IS_TYPE_MANAGER, \
+                             IsManagerClass))
 
 typedef struct _IsManager      IsManager;
 typedef struct _IsManagerClass IsManagerClass;
@@ -51,29 +51,29 @@ typedef struct _IsManagerPrivate IsManagerPrivate;
 
 struct _IsManagerClass
 {
-	GtkTreeViewClass parent_class;
+  GtkTreeViewClass parent_class;
 };
 
 struct _IsManager
 {
-	GtkTreeView parent;
-	IsManagerPrivate *priv;
+  GtkTreeView parent;
+  IsManagerPrivate *priv;
 };
 
 GType is_manager_get_type(void) G_GNUC_CONST;
 IsManager *is_manager_new(void);
 gboolean is_manager_add_sensor(IsManager *self,
-			       IsSensor *sensor);
+                               IsSensor *sensor);
 gboolean is_manager_remove_path(IsManager *self,
                                 const gchar *path);
 IsSensor *is_manager_get_sensor(IsManager *self,
-				const gchar *path);
+                                const gchar *path);
 GSList *is_manager_get_all_sensors_list(IsManager *self);
 GSList *is_manager_get_enabled_sensors_list(IsManager *self);
 guint is_manager_get_num_enabled_sensors(IsManager *self);
 gchar **is_manager_get_enabled_sensors(IsManager *self);
 gboolean is_manager_set_enabled_sensors(IsManager *self,
-					const gchar **enabled_sensors);
+                                        const gchar **enabled_sensors);
 IsSensor *is_manager_get_selected_sensor(IsManager *self);
 
 G_END_DECLS

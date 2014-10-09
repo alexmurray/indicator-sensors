@@ -24,26 +24,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_STORE				\
-	(is_store_get_type())
-#define IS_STORE(obj)					\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),		\
-				    IS_TYPE_STORE,	\
-				    IsStore))
-#define IS_STORE_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),	\
-				 IS_TYPE_STORE,	\
-				 IsStoreClass))
-#define IS_IS_STORE(obj)				\
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),		\
-				    IS_TYPE_STORE))
-#define IS_IS_STORE_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),		\
-				 IS_TYPE_STORE))
-#define IS_STORE_GET_CLASS(obj)				\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),		\
-				   IS_TYPE_STORE,	\
-				   IsStoreClass))
+#define IS_TYPE_STORE       \
+  (is_store_get_type())
+#define IS_STORE(obj)         \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),    \
+                              IS_TYPE_STORE,  \
+                              IsStore))
+#define IS_STORE_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_CAST((klass), \
+                           IS_TYPE_STORE, \
+                           IsStoreClass))
+#define IS_IS_STORE(obj)        \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),    \
+                              IS_TYPE_STORE))
+#define IS_IS_STORE_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),   \
+                           IS_TYPE_STORE))
+#define IS_STORE_GET_CLASS(obj)       \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),   \
+                             IS_TYPE_STORE, \
+                             IsStoreClass))
 
 typedef struct _IsStore      IsStore;
 typedef struct _IsStoreClass IsStoreClass;
@@ -51,48 +51,48 @@ typedef struct _IsStorePrivate IsStorePrivate;
 
 struct _IsStoreClass
 {
-	GObjectClass parent_class;
+  GObjectClass parent_class;
 };
 
 struct _IsStore
 {
-	GObject parent;
-	IsStorePrivate *priv;
+  GObject parent;
+  IsStorePrivate *priv;
 };
 
 enum
 {
-	IS_STORE_COL_NAME = 0,
-	IS_STORE_COL_LABEL,
-	IS_STORE_COL_ICON,
-	IS_STORE_COL_IS_SENSOR,
-	IS_STORE_COL_SENSOR,
-	IS_STORE_COL_ENABLED,
-	IS_STORE_N_COLUMNS,
+  IS_STORE_COL_NAME = 0,
+  IS_STORE_COL_LABEL,
+  IS_STORE_COL_ICON,
+  IS_STORE_COL_IS_SENSOR,
+  IS_STORE_COL_SENSOR,
+  IS_STORE_COL_ENABLED,
+  IS_STORE_N_COLUMNS,
 };
 
 GType is_store_get_type(void) G_GNUC_CONST;
 IsStore *is_store_new(void);
 gboolean is_store_add_sensor(IsStore *self,
-			     IsSensor *sensor,
-			     GtkTreeIter *iter);
+                             IsSensor *sensor,
+                             GtkTreeIter *iter);
 gboolean is_store_remove(IsStore *self,
-			 GtkTreeIter *iter);
+                         GtkTreeIter *iter);
 gboolean is_store_remove_path(IsStore *self,
-			      const gchar *path);
+                              const gchar *path);
 gboolean is_store_set_label(IsStore *self,
-			    GtkTreeIter *iter,
-			    const gchar *label);
+                            GtkTreeIter *iter,
+                            const gchar *label);
 gboolean is_store_set_enabled(IsStore *self,
-			      GtkTreeIter *iter,
-			      gboolean enabled);
+                              GtkTreeIter *iter,
+                              gboolean enabled);
 gboolean is_store_get_iter(IsStore *self,
-			   const gchar *path,
-			   GtkTreeIter *iter);
+                           const gchar *path,
+                           GtkTreeIter *iter);
 #define is_store_get_iter_for_sensor(self, sensor, iter) \
-	is_store_get_iter(self,				\
-			  is_sensor_get_path(sensor),	\
-			  iter)
+  is_store_get_iter(self,       \
+                    is_sensor_get_path(sensor), \
+                    iter)
 G_END_DECLS
 
 #endif /* __IS_STORE_H__ */

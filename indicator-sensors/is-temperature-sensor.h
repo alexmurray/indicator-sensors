@@ -23,26 +23,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_TEMPERATURE_SENSOR		\
-	(is_temperature_sensor_get_type())
-#define IS_TEMPERATURE_SENSOR(obj)				\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),			\
-				    IS_TYPE_TEMPERATURE_SENSOR,	\
-				    IsTemperatureSensor))
-#define IS_TEMPERATURE_SENSOR_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),			\
-				 IS_TYPE_TEMPERATURE_SENSOR,	\
-				 IsTemperatureSensorClass))
+#define IS_TYPE_TEMPERATURE_SENSOR    \
+  (is_temperature_sensor_get_type())
+#define IS_TEMPERATURE_SENSOR(obj)        \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
+                              IS_TYPE_TEMPERATURE_SENSOR, \
+                              IsTemperatureSensor))
+#define IS_TEMPERATURE_SENSOR_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_CAST((klass),     \
+                           IS_TYPE_TEMPERATURE_SENSOR,  \
+                           IsTemperatureSensorClass))
 #define IS_IS_TEMPERATURE_SENSOR(obj)                                   \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),				\
-				    IS_TYPE_TEMPERATURE_SENSOR))
-#define IS_IS_TEMPERATURE_SENSOR_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),			\
-				 IS_TYPE_TEMPERATURE_SENSOR))
-#define IS_TEMPERATURE_SENSOR_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),			\
-				   IS_TYPE_TEMPERATURE_SENSOR,	\
-				   IsTemperatureSensorClass))
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),        \
+                              IS_TYPE_TEMPERATURE_SENSOR))
+#define IS_IS_TEMPERATURE_SENSOR_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
+                           IS_TYPE_TEMPERATURE_SENSOR))
+#define IS_TEMPERATURE_SENSOR_GET_CLASS(obj)      \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
+                             IS_TYPE_TEMPERATURE_SENSOR,  \
+                             IsTemperatureSensorClass))
 
 typedef struct _IsTemperatureSensor      IsTemperatureSensor;
 typedef struct _IsTemperatureSensorClass IsTemperatureSensorClass;
@@ -50,29 +50,30 @@ typedef struct _IsTemperatureSensorPrivate IsTemperatureSensorPrivate;
 
 struct _IsTemperatureSensorClass
 {
-	IsSensorClass parent_class;
+  IsSensorClass parent_class;
 };
 
 struct _IsTemperatureSensor
 {
-	IsSensor parent;
-	IsTemperatureSensorPrivate *priv;
+  IsSensor parent;
+  IsTemperatureSensorPrivate *priv;
 };
 
-typedef enum {
-	IS_TEMPERATURE_SENSOR_SCALE_INVALID,
-	IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
-	IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT,
-	NUM_IS_TEMPERATURE_SENSOR_SCALE,
+typedef enum
+{
+  IS_TEMPERATURE_SENSOR_SCALE_INVALID,
+  IS_TEMPERATURE_SENSOR_SCALE_CELSIUS,
+  IS_TEMPERATURE_SENSOR_SCALE_FAHRENHEIT,
+  NUM_IS_TEMPERATURE_SENSOR_SCALE,
 } IsTemperatureSensorScale;
 
 GType is_temperature_sensor_get_type(void) G_GNUC_CONST;
 IsSensor *is_temperature_sensor_new(const gchar *path);
 void is_temperature_sensor_set_scale(IsTemperatureSensor *sensor,
-				     IsTemperatureSensorScale scale);
+                                     IsTemperatureSensorScale scale);
 IsTemperatureSensorScale is_temperature_sensor_get_scale(IsTemperatureSensor *sensor);
 void is_temperature_sensor_set_celsius_value(IsTemperatureSensor *sensor,
-					     gdouble value);
+    gdouble value);
 
 G_END_DECLS
 

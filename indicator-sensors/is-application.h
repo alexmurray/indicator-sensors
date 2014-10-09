@@ -23,26 +23,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_APPLICATION			\
-	(is_application_get_type())
-#define IS_APPLICATION(obj)				\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),		\
-				    IS_TYPE_APPLICATION,	\
-				    IsApplication))
-#define IS_APPLICATION_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),		\
-				 IS_TYPE_APPLICATION,	\
-				 IsApplicationClass))
-#define IS_IS_APPLICATION(obj)				\
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),		\
-				    IS_TYPE_APPLICATION))
-#define IS_IS_APPLICATION_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),		\
-				 IS_TYPE_APPLICATION))
-#define IS_APPLICATION_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),		\
-				   IS_TYPE_APPLICATION,	\
-				   IsApplicationClass))
+#define IS_TYPE_APPLICATION     \
+  (is_application_get_type())
+#define IS_APPLICATION(obj)       \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),    \
+                              IS_TYPE_APPLICATION,  \
+                              IsApplication))
+#define IS_APPLICATION_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_CAST((klass),   \
+                           IS_TYPE_APPLICATION, \
+                           IsApplicationClass))
+#define IS_IS_APPLICATION(obj)        \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),    \
+                              IS_TYPE_APPLICATION))
+#define IS_IS_APPLICATION_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),   \
+                           IS_TYPE_APPLICATION))
+#define IS_APPLICATION_GET_CLASS(obj)     \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),   \
+                             IS_TYPE_APPLICATION, \
+                             IsApplicationClass))
 
 typedef struct _IsApplication      IsApplication;
 typedef struct _IsApplicationClass IsApplicationClass;
@@ -50,13 +50,13 @@ typedef struct _IsApplicationPrivate IsApplicationPrivate;
 
 struct _IsApplicationClass
 {
-	GObjectClass parent_class;
+  GObjectClass parent_class;
 };
 
 struct _IsApplication
 {
-	GObject parent;
-	IsApplicationPrivate *priv;
+  GObject parent;
+  IsApplicationPrivate *priv;
 };
 
 GType is_application_get_type(void) G_GNUC_CONST;
@@ -71,7 +71,7 @@ gboolean is_application_get_autostart(IsApplication *self);
 void is_application_set_autostart(IsApplication *self, gboolean autostart);
 IsTemperatureSensorScale is_application_get_temperature_scale(IsApplication *self);
 void is_application_set_temperature_scale(IsApplication *self,
-                                          IsTemperatureSensorScale scale);
+    IsTemperatureSensorScale scale);
 void is_application_show_preferences(IsApplication *self);
 void is_application_show_about(IsApplication *self);
 void is_application_quit(IsApplication *self);

@@ -23,26 +23,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_NVIDIA_PLUGIN		\
-	(is_nvidia_plugin_get_type())
-#define IS_NVIDIA_PLUGIN(obj)				\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),			\
-				    IS_TYPE_NVIDIA_PLUGIN,	\
-				    IsNvidiaPlugin))
-#define IS_NVIDIA_PLUGIN_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),			\
-				 IS_TYPE_NVIDIA_PLUGIN,	\
-				 IsNvidiaPluginClass))
-#define IS_IS_NVIDIA_PLUGIN(obj)				\
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),			\
-				    IS_TYPE_NVIDIA_PLUGIN))
-#define IS_IS_NVIDIA_PLUGIN_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),			\
-				 IS_TYPE_NVIDIA_PLUGIN))
-#define IS_NVIDIA_PLUGIN_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),			\
-				   IS_TYPE_NVIDIA_PLUGIN,	\
-				   IsNvidiaPluginClass))
+#define IS_TYPE_NVIDIA_PLUGIN   \
+  (is_nvidia_plugin_get_type())
+#define IS_NVIDIA_PLUGIN(obj)       \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
+                              IS_TYPE_NVIDIA_PLUGIN,  \
+                              IsNvidiaPlugin))
+#define IS_NVIDIA_PLUGIN_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_CAST((klass),     \
+                           IS_TYPE_NVIDIA_PLUGIN, \
+                           IsNvidiaPluginClass))
+#define IS_IS_NVIDIA_PLUGIN(obj)        \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),      \
+                              IS_TYPE_NVIDIA_PLUGIN))
+#define IS_IS_NVIDIA_PLUGIN_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
+                           IS_TYPE_NVIDIA_PLUGIN))
+#define IS_NVIDIA_PLUGIN_GET_CLASS(obj)     \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
+                             IS_TYPE_NVIDIA_PLUGIN, \
+                             IsNvidiaPluginClass))
 
 typedef struct _IsNvidiaPlugin      IsNvidiaPlugin;
 typedef struct _IsNvidiaPluginClass IsNvidiaPluginClass;
@@ -50,13 +50,13 @@ typedef struct _IsNvidiaPluginPrivate IsNvidiaPluginPrivate;
 
 struct _IsNvidiaPluginClass
 {
-	PeasExtensionBaseClass parent_class;
+  PeasExtensionBaseClass parent_class;
 };
 
 struct _IsNvidiaPlugin
 {
-	PeasExtensionBase parent;
-	IsNvidiaPluginPrivate *priv;
+  PeasExtensionBase parent;
+  IsNvidiaPluginPrivate *priv;
 };
 
 GType is_nvidia_plugin_get_type(void) G_GNUC_CONST;

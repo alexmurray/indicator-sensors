@@ -26,26 +26,26 @@ G_BEGIN_DECLS
 /* response id returned when clicking on properties button */
 #define IS_PREFERENCES_DIALOG_RESPONSE_SENSOR_PROPERTIES 1
 
-#define IS_TYPE_PREFERENCES_DIALOG		\
-	(is_preferences_dialog_get_type())
-#define IS_PREFERENCES_DIALOG(obj)				\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),			\
-				    IS_TYPE_PREFERENCES_DIALOG,	\
-				    IsPreferencesDialog))
-#define IS_PREFERENCES_DIALOG_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),			\
-				 IS_TYPE_PREFERENCES_DIALOG,	\
-				 IsPreferencesDialogClass))
+#define IS_TYPE_PREFERENCES_DIALOG    \
+  (is_preferences_dialog_get_type())
+#define IS_PREFERENCES_DIALOG(obj)        \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
+                              IS_TYPE_PREFERENCES_DIALOG, \
+                              IsPreferencesDialog))
+#define IS_PREFERENCES_DIALOG_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_CAST((klass),     \
+                           IS_TYPE_PREFERENCES_DIALOG,  \
+                           IsPreferencesDialogClass))
 #define IS_IS_PREFERENCES_DIALOG(obj)                                   \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),				\
-				    IS_TYPE_PREFERENCES_DIALOG))
-#define IS_IS_PREFERENCES_DIALOG_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),			\
-				 IS_TYPE_PREFERENCES_DIALOG))
-#define IS_PREFERENCES_DIALOG_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),			\
-				   IS_TYPE_PREFERENCES_DIALOG,	\
-				   IsPreferencesDialogClass))
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),        \
+                              IS_TYPE_PREFERENCES_DIALOG))
+#define IS_IS_PREFERENCES_DIALOG_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
+                           IS_TYPE_PREFERENCES_DIALOG))
+#define IS_PREFERENCES_DIALOG_GET_CLASS(obj)      \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
+                             IS_TYPE_PREFERENCES_DIALOG,  \
+                             IsPreferencesDialogClass))
 
 typedef struct _IsPreferencesDialog      IsPreferencesDialog;
 typedef struct _IsPreferencesDialogClass IsPreferencesDialogClass;
@@ -53,13 +53,13 @@ typedef struct _IsPreferencesDialogPrivate IsPreferencesDialogPrivate;
 
 struct _IsPreferencesDialogClass
 {
-	GtkDialogClass parent_class;
+  GtkDialogClass parent_class;
 };
 
 struct _IsPreferencesDialog
 {
-	GtkDialog parent;
-	IsPreferencesDialogPrivate *priv;
+  GtkDialog parent;
+  IsPreferencesDialogPrivate *priv;
 };
 
 GType is_preferences_dialog_get_type(void) G_GNUC_CONST;

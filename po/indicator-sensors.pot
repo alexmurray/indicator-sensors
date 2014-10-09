@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-02 22:58+1030\n"
+"POT-Creation-Date: 2014-10-09 22:33+1030\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,7 +62,7 @@ msgstr ""
 
 #: ../data/indicator-sensors.gschema.xml.in.h:9
 #: ../data/indicator-sensors.gschema.xml.in.in.h:9
-#: ../indicator-sensors/is-preferences-dialog.c:168
+#: ../indicator-sensors/is-preferences-dialog.c:172
 msgid "Temperature scale"
 msgstr ""
 
@@ -82,7 +82,7 @@ msgid "Whether to show the indicator in the notification area."
 msgstr ""
 
 #: ../data/indicator-sensors.desktop.in.h:1
-#: ../indicator-sensors/is-application.c:822
+#: ../indicator-sensors/is-application.c:861
 msgid "Hardware Sensors Indicator"
 msgstr ""
 
@@ -103,17 +103,17 @@ msgid ""
 "org/extension/336/hardware-sensors-indicator/ ."
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:152
+#: ../indicator-sensors/indicator-sensors.c:194
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:153
+#: ../indicator-sensors/indicator-sensors.c:195
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
 msgstr ""
 
-#: ../indicator-sensors/is-application.c:824
+#: ../indicator-sensors/is-application.c:863
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr ""
 
@@ -121,154 +121,170 @@ msgstr ""
 msgid " RPM"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:160
+#: ../indicator-sensors/is-indicator.c:165
 msgid "Preferences…"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:161
+#: ../indicator-sensors/is-indicator.c:166
 msgid "Preferences"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:162
+#: ../indicator-sensors/is-indicator.c:169
 msgid "About…"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:163
+#: ../indicator-sensors/is-indicator.c:170
 msgid "About"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:164
-#: ../indicator-sensors/is-indicator.c:165
+#: ../indicator-sensors/is-indicator.c:173
+msgid "_Quit"
+msgstr ""
+
+#: ../indicator-sensors/is-indicator.c:174
 msgid "Quit"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:237
+#: ../indicator-sensors/is-indicator.c:248
 msgid "No Sensors"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:554
-#: ../indicator-sensors/is-indicator.c:680
+#: ../indicator-sensors/is-indicator.c:570
+#: ../indicator-sensors/is-indicator.c:704
 msgid "No active sensors"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:302
-#: ../indicator-sensors/is-sensor-dialog.c:315
+#: ../indicator-sensors/is-manager.c:311
+#: ../indicator-sensors/is-sensor-dialog.c:318
 msgid "Sensor"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:310
-#: ../indicator-sensors/is-preferences-dialog.c:149
+#: ../indicator-sensors/is-manager.c:319
+#: ../indicator-sensors/is-preferences-dialog.c:153
 msgid "Icon"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:319
-#: ../indicator-sensors/is-preferences-dialog.c:154
-#: ../indicator-sensors/is-sensor-dialog.c:106
+#: ../indicator-sensors/is-manager.c:328
+#: ../indicator-sensors/is-preferences-dialog.c:158
+#: ../indicator-sensors/is-sensor-dialog.c:107
 msgid "Label"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:329
+#: ../indicator-sensors/is-manager.c:338
 msgid "Enabled"
 msgstr ""
 
-#: ../indicator-sensors/is-preferences-dialog.c:108
+#: ../indicator-sensors/is-preferences-dialog.c:112
 msgid "Hardware Sensors Indicator Preferences"
 msgstr ""
 
-#: ../indicator-sensors/is-preferences-dialog.c:127
+#: ../indicator-sensors/is-preferences-dialog.c:117
+msgid "_Properties"
+msgstr ""
+
+#: ../indicator-sensors/is-preferences-dialog.c:121
+#: ../indicator-sensors/is-sensor-dialog.c:93
+msgid "_Close"
+msgstr ""
+
+#: ../indicator-sensors/is-preferences-dialog.c:131
 msgid "General"
 msgstr ""
 
-#: ../indicator-sensors/is-preferences-dialog.c:135
+#: ../indicator-sensors/is-preferences-dialog.c:139
 msgid "Start automatically on login"
 msgstr ""
 
-#: ../indicator-sensors/is-preferences-dialog.c:141
+#: ../indicator-sensors/is-preferences-dialog.c:145
 msgid "Primary sensor display"
 msgstr ""
 
-#: ../indicator-sensors/is-preferences-dialog.c:159
+#: ../indicator-sensors/is-preferences-dialog.c:163
 msgid "Value"
 msgstr ""
 
-#: ../indicator-sensors/is-preferences-dialog.c:176
+#: ../indicator-sensors/is-preferences-dialog.c:180
 msgid "Celsius (°C)"
 msgstr ""
 
-#: ../indicator-sensors/is-preferences-dialog.c:187
+#: ../indicator-sensors/is-preferences-dialog.c:191
 msgid "Fahrenheit (°F)"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor.c:380
+#: ../indicator-sensors/is-sensor.c:386
 msgid "Sensor Alarm"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:88
+#: ../indicator-sensors/is-sensor.c:952
+msgid "Sensor Error"
+msgstr ""
+
+#: ../indicator-sensors/is-sensor-dialog.c:89
 msgid " Sensor Properties"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:115
+#: ../indicator-sensors/is-sensor-dialog.c:116
 msgid "Alarm"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:123
+#: ../indicator-sensors/is-sensor-dialog.c:124
 msgid "Disabled"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:126
+#: ../indicator-sensors/is-sensor-dialog.c:127
 msgid "Below"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:129
+#: ../indicator-sensors/is-sensor-dialog.c:130
 msgid "Above"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:147
+#: ../indicator-sensors/is-sensor-dialog.c:148
 msgid "Low value"
 msgstr ""
 
-#: ../indicator-sensors/is-sensor-dialog.c:166
+#: ../indicator-sensors/is-sensor-dialog.c:167
 msgid "High value"
 msgstr ""
 
 #. first placeholder is sensor name
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:159
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:168
 #, c-format
 msgid "Error reading temperature value for GPU %d"
 msgstr ""
 
 #. first placeholder is sensor name
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:198
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:209
 #, c-format
 msgid "Error reading fanspeed value for GPU %d"
 msgstr ""
 
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:337
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:368
 msgid "Temperature"
 msgstr ""
 
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:355
+#: ../plugins/aticonfig/is-aticonfig-plugin.c:389
 msgid "Fan"
 msgstr ""
 
 #. first placeholder is sensor name,
 #. * second is error message
-#: ../plugins/libsensors/is-libsensors-plugin.c:174
+#: ../plugins/libsensors/is-libsensors-plugin.c:183
 #, c-format
 msgid "Error getting sensor value for sensor %s: %s [%d]"
 msgstr ""
 
 #. translators: V is the unit for Voltage, replace with
 #. appropriate unit
-#: ../plugins/libsensors/is-libsensors-plugin.c:315
+#: ../plugins/libsensors/is-libsensors-plugin.c:338
 msgid "V"
 msgstr ""
 
-#: ../plugins/libsensors/is-libsensors-plugin.c:375
+#: ../plugins/libsensors/is-libsensors-plugin.c:402
 msgid "No Sensors Detected"
 msgstr ""
 
-#: ../plugins/libsensors/is-libsensors-plugin.c:376
+#: ../plugins/libsensors/is-libsensors-plugin.c:403
 #, c-format
 msgid ""
 "Try running the command 'sensors-detect' from the command-line and "
@@ -277,18 +293,29 @@ msgstr ""
 
 #. first placeholder is
 #. * sensor name
-#: ../plugins/nvidia/is-nvidia-plugin.c:192
+#: ../plugins/nvidia/is-nvidia-plugin.c:209
 #, c-format
 msgid "Error getting sensor value for sensor %s"
 msgstr ""
 
-#: ../plugins/udisks/is-udisks-plugin.c:149
-#: ../plugins/udisks2/is-udisks2-plugin.c:126
+#: ../plugins/udisks/is-udisks-plugin.c:155
+#: ../plugins/udisks2/is-udisks2-plugin.c:131
 #, c-format
 msgid "Error reading new SMART data for sensor %s"
 msgstr ""
 
-#: ../plugins/udisks/is-udisks-plugin.c:165
+#: ../plugins/udisks/is-udisks-plugin.c:171
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
+msgstr ""
+
+#: ../plugins/udisks2/is-udisks2-plugin.c:163
+#, c-format
+msgid "Error reading power management state for sensor %s"
+msgstr ""
+
+#. first placeholder is sensor name
+#: ../plugins/udisks2/is-udisks2-plugin.c:181
+#, c-format
+msgid "Error getting sensor value for disk sensor %s: disk is idle"
 msgstr ""

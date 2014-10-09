@@ -25,22 +25,22 @@ G_BEGIN_DECLS
 
 typedef enum
 {
-	IS_LOG_LEVEL_ERROR = 0,
-	IS_LOG_LEVEL_CRITICAL,
-	IS_LOG_LEVEL_WARNING,
-	IS_LOG_LEVEL_MESSAGE,
-	IS_LOG_LEVEL_DEBUG,
-	NUM_IS_LOG_LEVELS,
+  IS_LOG_LEVEL_ERROR = 0,
+  IS_LOG_LEVEL_CRITICAL,
+  IS_LOG_LEVEL_WARNING,
+  IS_LOG_LEVEL_MESSAGE,
+  IS_LOG_LEVEL_DEBUG,
+  NUM_IS_LOG_LEVELS,
 } IsLogLevel;
 
 void is_log(const gchar *source,
-	    IsLogLevel level,
-	    const gchar *format,
-	    ...) G_GNUC_PRINTF(3, 4);
+            IsLogLevel level,
+            const gchar *format,
+            ...) G_GNUC_PRINTF(3, 4);
 void is_logv(const gchar *source,
-	     IsLogLevel level,
-	     const gchar *format,
-	     va_list args);
+             IsLogLevel level,
+             const gchar *format,
+             va_list args);
 #define is_error(source, ...) is_log(source, IS_LOG_LEVEL_ERROR, __VA_ARGS__)
 #define is_critical(source, ...) is_log(source, IS_LOG_LEVEL_CRITICAL, __VA_ARGS__)
 #define is_warning(source, ...) is_log(source, IS_LOG_LEVEL_WARNING, __VA_ARGS__)

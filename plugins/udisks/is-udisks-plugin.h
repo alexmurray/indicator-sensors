@@ -23,26 +23,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_UDISKS_PLUGIN		\
-	(is_udisks_plugin_get_type())
-#define IS_UDISKS_PLUGIN(obj)				\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),			\
-				    IS_TYPE_UDISKS_PLUGIN,	\
-				    IsUdisksPlugin))
-#define IS_UDISKS_PLUGIN_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),			\
-				 IS_TYPE_UDISKS_PLUGIN,	\
-				 IsUdisksPluginClass))
-#define IS_IS_UDISKS_PLUGIN(obj)				\
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),			\
-				    IS_TYPE_UDISKS_PLUGIN))
-#define IS_IS_UDISKS_PLUGIN_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),			\
-				 IS_TYPE_UDISKS_PLUGIN))
-#define IS_UDISKS_PLUGIN_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),			\
-				   IS_TYPE_UDISKS_PLUGIN,	\
-				   IsUdisksPluginClass))
+#define IS_TYPE_UDISKS_PLUGIN   \
+  (is_udisks_plugin_get_type())
+#define IS_UDISKS_PLUGIN(obj)       \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
+                              IS_TYPE_UDISKS_PLUGIN,  \
+                              IsUdisksPlugin))
+#define IS_UDISKS_PLUGIN_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_CAST((klass),     \
+                           IS_TYPE_UDISKS_PLUGIN, \
+                           IsUdisksPluginClass))
+#define IS_IS_UDISKS_PLUGIN(obj)        \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),      \
+                              IS_TYPE_UDISKS_PLUGIN))
+#define IS_IS_UDISKS_PLUGIN_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
+                           IS_TYPE_UDISKS_PLUGIN))
+#define IS_UDISKS_PLUGIN_GET_CLASS(obj)     \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
+                             IS_TYPE_UDISKS_PLUGIN, \
+                             IsUdisksPluginClass))
 
 typedef struct _IsUdisksPlugin      IsUdisksPlugin;
 typedef struct _IsUdisksPluginClass IsUdisksPluginClass;
@@ -50,13 +50,13 @@ typedef struct _IsUdisksPluginPrivate IsUdisksPluginPrivate;
 
 struct _IsUdisksPluginClass
 {
-	PeasExtensionBaseClass parent_class;
+  PeasExtensionBaseClass parent_class;
 };
 
 struct _IsUdisksPlugin
 {
-	PeasExtensionBase parent;
-	IsUdisksPluginPrivate *priv;
+  PeasExtensionBase parent;
+  IsUdisksPluginPrivate *priv;
 };
 
 GType is_udisks_plugin_get_type(void) G_GNUC_CONST;

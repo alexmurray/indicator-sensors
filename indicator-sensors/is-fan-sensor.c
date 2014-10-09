@@ -23,23 +23,23 @@ G_DEFINE_TYPE(IsFanSensor, is_fan_sensor, IS_TYPE_SENSOR);
 static void
 is_fan_sensor_class_init(IsFanSensorClass *klass)
 {
-	/* nothing to do */
+  /* nothing to do */
 }
 
 static void
 is_fan_sensor_init(IsFanSensor *self)
 {
-	/* nothing to do */
+  /* nothing to do */
 }
 
 IsSensor *
 is_fan_sensor_new(const gchar *path)
 {
-	return g_object_new(IS_TYPE_FAN_SENSOR,
-			    "path", path,
-			    "units", _(" RPM"),
-                            "low-value", 100.0,
-                            "high-value", 5000.0,
-			    "icon", IS_STOCK_FAN,
-			    NULL);
+  return g_object_new(IS_TYPE_FAN_SENSOR,
+                      "path", path,
+                      "units", _(" RPM"),
+                      "low-value", 100.0,
+                      "high-value", 5000.0,
+                      "icon", IS_STOCK_FAN,
+                      NULL);
 }

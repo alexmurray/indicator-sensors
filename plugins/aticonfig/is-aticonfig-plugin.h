@@ -23,26 +23,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_ATICONFIG_PLUGIN		\
-	(is_aticonfig_plugin_get_type())
-#define IS_ATICONFIG_PLUGIN(obj)				\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),			\
-				    IS_TYPE_ATICONFIG_PLUGIN,	\
-				    IsATIConfigPlugin))
-#define IS_ATICONFIG_PLUGIN_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),			\
-				 IS_TYPE_ATICONFIG_PLUGIN,	\
-				 IsATIConfigPluginClass))
-#define IS_IS_ATICONFIG_PLUGIN(obj)				\
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),			\
-				    IS_TYPE_ATICONFIG_PLUGIN))
-#define IS_IS_ATICONFIG_PLUGIN_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),			\
-				 IS_TYPE_ATICONFIG_PLUGIN))
-#define IS_ATICONFIG_PLUGIN_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),			\
-				   IS_TYPE_ATICONFIG_PLUGIN,	\
-				   IsATIConfigPluginClass))
+#define IS_TYPE_ATICONFIG_PLUGIN    \
+  (is_aticonfig_plugin_get_type())
+#define IS_ATICONFIG_PLUGIN(obj)        \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
+                              IS_TYPE_ATICONFIG_PLUGIN, \
+                              IsATIConfigPlugin))
+#define IS_ATICONFIG_PLUGIN_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_CAST((klass),     \
+                           IS_TYPE_ATICONFIG_PLUGIN,  \
+                           IsATIConfigPluginClass))
+#define IS_IS_ATICONFIG_PLUGIN(obj)       \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),      \
+                              IS_TYPE_ATICONFIG_PLUGIN))
+#define IS_IS_ATICONFIG_PLUGIN_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
+                           IS_TYPE_ATICONFIG_PLUGIN))
+#define IS_ATICONFIG_PLUGIN_GET_CLASS(obj)      \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
+                             IS_TYPE_ATICONFIG_PLUGIN,  \
+                             IsATIConfigPluginClass))
 
 typedef struct _IsATIConfigPlugin      IsATIConfigPlugin;
 typedef struct _IsATIConfigPluginClass IsATIConfigPluginClass;
@@ -50,13 +50,13 @@ typedef struct _IsATIConfigPluginPrivate IsATIConfigPluginPrivate;
 
 struct _IsATIConfigPluginClass
 {
-	PeasExtensionBaseClass parent_class;
+  PeasExtensionBaseClass parent_class;
 };
 
 struct _IsATIConfigPlugin
 {
-	PeasExtensionBase parent;
-	IsATIConfigPluginPrivate *priv;
+  PeasExtensionBase parent;
+  IsATIConfigPluginPrivate *priv;
 };
 
 GType is_aticonfig_plugin_get_type(void) G_GNUC_CONST;

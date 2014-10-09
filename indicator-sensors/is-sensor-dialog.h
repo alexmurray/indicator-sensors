@@ -23,26 +23,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_SENSOR_DIALOG		\
-	(is_sensor_dialog_get_type())
-#define IS_SENSOR_DIALOG(obj)				\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),			\
-				    IS_TYPE_SENSOR_DIALOG,	\
-				    IsSensorDialog))
-#define IS_SENSOR_DIALOG_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),			\
-				 IS_TYPE_SENSOR_DIALOG,	\
-				 IsSensorDialogClass))
+#define IS_TYPE_SENSOR_DIALOG   \
+  (is_sensor_dialog_get_type())
+#define IS_SENSOR_DIALOG(obj)       \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
+                              IS_TYPE_SENSOR_DIALOG,  \
+                              IsSensorDialog))
+#define IS_SENSOR_DIALOG_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_CAST((klass),     \
+                           IS_TYPE_SENSOR_DIALOG, \
+                           IsSensorDialogClass))
 #define IS_IS_SENSOR_DIALOG(obj)                                   \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),				\
-				    IS_TYPE_SENSOR_DIALOG))
-#define IS_IS_SENSOR_DIALOG_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),			\
-				 IS_TYPE_SENSOR_DIALOG))
-#define IS_SENSOR_DIALOG_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),			\
-				   IS_TYPE_SENSOR_DIALOG,	\
-				   IsSensorDialogClass))
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),        \
+                              IS_TYPE_SENSOR_DIALOG))
+#define IS_IS_SENSOR_DIALOG_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
+                           IS_TYPE_SENSOR_DIALOG))
+#define IS_SENSOR_DIALOG_GET_CLASS(obj)     \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
+                             IS_TYPE_SENSOR_DIALOG, \
+                             IsSensorDialogClass))
 
 typedef struct _IsSensorDialog      IsSensorDialog;
 typedef struct _IsSensorDialogClass IsSensorDialogClass;
@@ -50,13 +50,13 @@ typedef struct _IsSensorDialogPrivate IsSensorDialogPrivate;
 
 struct _IsSensorDialogClass
 {
-	GtkDialogClass parent_class;
+  GtkDialogClass parent_class;
 };
 
 struct _IsSensorDialog
 {
-	GtkDialog parent;
-	IsSensorDialogPrivate *priv;
+  GtkDialog parent;
+  IsSensorDialogPrivate *priv;
 };
 
 GType is_sensor_dialog_get_type(void) G_GNUC_CONST;

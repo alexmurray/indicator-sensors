@@ -23,26 +23,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_DBUS_PLUGIN		\
-	(is_dbus_plugin_get_type())
-#define IS_DBUS_PLUGIN(obj)				\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),			\
-				    IS_TYPE_DBUS_PLUGIN,	\
-				    IsDBusPlugin))
-#define IS_DBUS_PLUGIN_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_CAST((klass),			\
-				 IS_TYPE_DBUS_PLUGIN,	\
-				 IsDBusPluginClass))
-#define IS_IS_DBUS_PLUGIN(obj)				\
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),			\
-				    IS_TYPE_DBUS_PLUGIN))
-#define IS_IS_DBUS_PLUGIN_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),			\
-				 IS_TYPE_DBUS_PLUGIN))
-#define IS_DBUS_PLUGIN_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),			\
-				   IS_TYPE_DBUS_PLUGIN,	\
-				   IsDBusPluginClass))
+#define IS_TYPE_DBUS_PLUGIN   \
+  (is_dbus_plugin_get_type())
+#define IS_DBUS_PLUGIN(obj)       \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
+                              IS_TYPE_DBUS_PLUGIN,  \
+                              IsDBusPlugin))
+#define IS_DBUS_PLUGIN_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_CAST((klass),     \
+                           IS_TYPE_DBUS_PLUGIN, \
+                           IsDBusPluginClass))
+#define IS_IS_DBUS_PLUGIN(obj)        \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),      \
+                              IS_TYPE_DBUS_PLUGIN))
+#define IS_IS_DBUS_PLUGIN_CLASS(klass)      \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
+                           IS_TYPE_DBUS_PLUGIN))
+#define IS_DBUS_PLUGIN_GET_CLASS(obj)     \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
+                             IS_TYPE_DBUS_PLUGIN, \
+                             IsDBusPluginClass))
 
 typedef struct _IsDBusPlugin      IsDBusPlugin;
 typedef struct _IsDBusPluginClass IsDBusPluginClass;
@@ -50,13 +50,13 @@ typedef struct _IsDBusPluginPrivate IsDBusPluginPrivate;
 
 struct _IsDBusPluginClass
 {
-	PeasExtensionBaseClass parent_class;
+  PeasExtensionBaseClass parent_class;
 };
 
 struct _IsDBusPlugin
 {
-	PeasExtensionBase parent;
-	IsDBusPluginPrivate *priv;
+  PeasExtensionBase parent;
+  IsDBusPluginPrivate *priv;
 };
 
 GType is_dbus_plugin_get_type(void) G_GNUC_CONST;

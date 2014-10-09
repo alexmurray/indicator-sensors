@@ -24,26 +24,26 @@
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_SENSOR				\
-	(is_sensor_get_type())
-#define IS_SENSOR(obj)					\
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),		\
-				    IS_TYPE_SENSOR,	\
-				    IsSensor))
-#define IS_SENSOR_CLASS(klass)				\
-	(G_TYPE_CHECK_CLASS_CAST((klass),		\
-				 IS_TYPE_SENSOR,	\
-				 IsSensorClass))
-#define IS_IS_SENSOR(obj)				\
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),		\
-				    IS_TYPE_SENSOR))
-#define IS_IS_SENSOR_CLASS(klass)			\
-	(G_TYPE_CHECK_CLASS_TYPE((klass),		\
-				 IS_TYPE_SENSOR))
-#define IS_SENSOR_GET_CLASS(obj)			\
-	(G_TYPE_INSTANCE_GET_CLASS((obj),		\
-				   IS_TYPE_SENSOR,	\
-				   IsSensorClass))
+#define IS_TYPE_SENSOR        \
+  (is_sensor_get_type())
+#define IS_SENSOR(obj)          \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),    \
+                              IS_TYPE_SENSOR, \
+                              IsSensor))
+#define IS_SENSOR_CLASS(klass)        \
+  (G_TYPE_CHECK_CLASS_CAST((klass),   \
+                           IS_TYPE_SENSOR,  \
+                           IsSensorClass))
+#define IS_IS_SENSOR(obj)       \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),    \
+                              IS_TYPE_SENSOR))
+#define IS_IS_SENSOR_CLASS(klass)     \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),   \
+                           IS_TYPE_SENSOR))
+#define IS_SENSOR_GET_CLASS(obj)      \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),   \
+                             IS_TYPE_SENSOR,  \
+                             IsSensorClass))
 
 typedef struct _IsSensor      IsSensor;
 typedef struct _IsSensorClass IsSensorClass;
@@ -51,23 +51,22 @@ typedef struct _IsSensorPrivate IsSensorPrivate;
 
 struct _IsSensorClass
 {
-	GObjectClass parent_class;
-	/* signals */
-	void (*update_value)(IsSensor *sensor);
-	void (*error)(IsSensor *sensor, GError *error);
+  GObjectClass parent_class;
+  /* signals */
+  void (*update_value)(IsSensor *sensor);
 };
 
 struct _IsSensor
 {
-	GObject parent;
-	IsSensorPrivate *priv;
+  GObject parent;
+  IsSensorPrivate *priv;
 };
 
 typedef enum
 {
-	IS_SENSOR_ALARM_MODE_DISABLED = 0,
-	IS_SENSOR_ALARM_MODE_LOW,
-	IS_SENSOR_ALARM_MODE_HIGH,
+  IS_SENSOR_ALARM_MODE_DISABLED = 0,
+  IS_SENSOR_ALARM_MODE_LOW,
+  IS_SENSOR_ALARM_MODE_HIGH,
 } IsSensorAlarmMode;
 
 /* device icons */
@@ -83,7 +82,6 @@ typedef enum
 GType is_sensor_get_type(void) G_GNUC_CONST;
 IsSensor *is_sensor_new(const gchar *path);
 void is_sensor_update_value(IsSensor *self);
-void is_sensor_emit_error(IsSensor *self, GError *error);
 const gchar *is_sensor_get_path(IsSensor *self);
 const gchar *is_sensor_get_label(IsSensor *self);
 void is_sensor_set_label(IsSensor *self, const gchar *label);
@@ -107,6 +105,8 @@ void is_sensor_set_low_value(IsSensor *self, gdouble value);
 gdouble is_sensor_get_high_value(IsSensor *self);
 void is_sensor_set_high_value(IsSensor *self, gdouble value);
 const gchar *is_sensor_get_icon_path(IsSensor *self);
+const gchar *is_sensor_get_error(IsSensor *self);
+void is_sensor_set_error(IsSensor *self, const gchar *error);
 
 void sensor_prepare_cache_icons();
 
