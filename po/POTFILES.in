@@ -11,6 +11,7 @@ indicator-sensors/is-preferences-dialog.c
 indicator-sensors/is-sensor.c
 indicator-sensors/is-sensor-dialog.c
 plugins/aticonfig/is-aticonfig-plugin.c
+plugins/fake/is-fake-plugin.c
 plugins/libsensors/is-libsensors-plugin.c
 plugins/nvidia/is-nvidia-plugin.c
 plugins/udisks/is-udisks-plugin.c
