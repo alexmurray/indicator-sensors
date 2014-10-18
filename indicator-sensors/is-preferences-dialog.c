@@ -22,6 +22,7 @@
 #include "is-preferences-dialog.h"
 #include "is-indicator.h"
 #include <glib/gi18n.h>
+#include <libpeas-gtk/peas-gtk.h>
 
 G_DEFINE_TYPE(IsPreferencesDialog, is_preferences_dialog, GTK_TYPE_DIALOG);
 
@@ -95,16 +96,27 @@ temperature_scale_toggled(GtkToggleButton *toggle_button,
 }
 
 static void
+sensor_properties_clicked_cb(GtkButton *button,
+                             gpointer data)
+{
+  IsPreferencesDialog *self = IS_PREFERENCES_DIALOG(data);
+
+  gtk_dialog_response(GTK_DIALOG(self), IS_PREFERENCES_DIALOG_RESPONSE_SENSOR_PROPERTIES);
+}
+
+static void
 is_preferences_dialog_init(IsPreferencesDialog *self)
 {
   IsPreferencesDialogPrivate *priv;
-  GtkWidget *label;
   GtkWidget *box;
+  GtkWidget *notebook;
+  GtkWidget *plugins;
+  GtkWidget *label;
   gchar *markup;
 
   self->priv = priv =
-                 G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_PREFERENCES_DIALOG,
-                     IsPreferencesDialogPrivate);
+    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_PREFERENCES_DIALOG,
+                                IsPreferencesDialogPrivate);
 
   priv->application_settings = g_settings_new("indicator-sensors.application");
   priv->indicator_settings = g_settings_new("indicator-sensors.indicator");
@@ -112,10 +124,9 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
   gtk_window_set_title(GTK_WINDOW(self), _("Hardware Sensors Indicator Preferences"));
   gtk_window_set_default_size(GTK_WINDOW(self), 500, 600);
 
-  priv->sensor_properties_button =
-    gtk_dialog_add_button(GTK_DIALOG(self),
-                          _("_Properties"),
-                          IS_PREFERENCES_DIALOG_RESPONSE_SENSOR_PROPERTIES);
+  priv->sensor_properties_button = gtk_button_new_with_mnemonic(_("_Properties"));
+  g_signal_connect(priv->sensor_properties_button, "clicked",
+                   G_CALLBACK(sensor_properties_clicked_cb), self);
   gtk_widget_set_sensitive(priv->sensor_properties_button, FALSE);
   gtk_dialog_add_button(GTK_DIALOG(self),
                         _("_Close"), GTK_RESPONSE_ACCEPT);
@@ -136,7 +147,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
                   0, 0,
                   1, 1) ;
   priv->autostart_check_button = gtk_check_button_new_with_label
-                                 (_("Start automatically on login"));
+    (_("Start automatically on login"));
   gtk_widget_set_sensitive(priv->autostart_check_button, FALSE);
   gtk_grid_attach(GTK_GRID(priv->grid), priv->autostart_check_button,
                   0, 1,
@@ -177,7 +188,7 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
                   1, 1);
 
   priv->celsius_radio_button = gtk_radio_button_new_with_label
-                               (NULL, _("Celsius (\302\260C)"));
+    (NULL, _("Celsius (\302\260C)"));
   gtk_widget_set_sensitive(priv->celsius_radio_button, FALSE);
   gtk_widget_set_hexpand(priv->celsius_radio_button, TRUE);
   gtk_grid_attach(GTK_GRID(priv->grid), priv->celsius_radio_button,
@@ -197,8 +208,22 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
   g_signal_connect(priv->fahrenheit_radio_button, "toggled",
                    G_CALLBACK(temperature_scale_toggled), self);
 
+  notebook = gtk_notebook_new();
+  label = gtk_label_new(_("Preferences"));
+  box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+  gtk_box_pack_start(GTK_BOX(box), priv->grid, TRUE, TRUE, 0);
+  gtk_widget_set_hexpand(priv->sensor_properties_button, FALSE);
+  gtk_widget_set_halign(priv->sensor_properties_button, GTK_ALIGN_END);
+  gtk_box_pack_start(GTK_BOX(box), priv->sensor_properties_button, FALSE, TRUE, 0);
+
+  gtk_notebook_append_page(GTK_NOTEBOOK(notebook), box, label);
+
+  plugins = peas_gtk_plugin_manager_new(NULL);
+  label = gtk_label_new(_("Plugins"));
+  gtk_notebook_append_page(GTK_NOTEBOOK(notebook), plugins, label);
+
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(self))),
-                     priv->grid, TRUE, TRUE, 0);
+                     notebook, TRUE, TRUE, 0);
 }
 
 static void
