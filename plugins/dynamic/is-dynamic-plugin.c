@@ -135,6 +135,7 @@ update_sensor_from_max(IsDynamicPlugin *self)
 
   label = g_strdup_printf("Δ%s", is_sensor_get_label(priv->max));
   is_sensor_set_label(priv->sensor, label);
+  is_sensor_set_icon(priv->sensor, is_sensor_get_icon(priv->max));
   is_sensor_set_value(priv->sensor, is_sensor_get_value(priv->max));
   is_sensor_set_units(priv->sensor, is_sensor_get_units(priv->max));
   is_sensor_set_digits(priv->sensor, is_sensor_get_digits(priv->max));
@@ -257,6 +258,7 @@ on_sensor_disabled(IsManager *manager,
       priv->max_rate = 0.0;
 
       is_sensor_set_label(priv->sensor, "Δ");
+      is_sensor_set_icon(priv->sensor, IS_STOCK_CHIP);
       is_sensor_set_value(priv->sensor, 0.0);
       is_sensor_set_units(priv->sensor, "");
       is_sensor_set_digits(priv->sensor, 1);
@@ -302,6 +304,7 @@ is_dynamic_plugin_activate(PeasActivatable *activatable)
   is_debug("dynamic", "creating virtual sensor");
   priv->sensor = is_sensor_new(DYNAMIC_SENSOR_PATH);
   is_sensor_set_label(priv->sensor, "Δ");
+  is_sensor_set_icon(priv->sensor, IS_STOCK_CHIP);
   is_sensor_set_value(priv->sensor, 0.0);
   is_sensor_set_units(priv->sensor, "");
   is_sensor_set_digits(priv->sensor, 1);
