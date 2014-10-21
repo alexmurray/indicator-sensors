@@ -84,7 +84,8 @@ void is_logv(const gchar *source,
   fmt = g_strdup_printf("[%s] %s: %s", source,
                         is_log_level_to_string(level), format);
   output = g_strdup_vprintf(fmt, args);
-  printf("%s\n", output);
+  fprintf(stdout, "%s\n", output);
+  fflush(stdout);
   g_free(output);
   g_free(fmt);
 }
