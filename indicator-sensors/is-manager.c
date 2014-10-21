@@ -474,9 +474,12 @@ is_manager_remove_path(IsManager *self,
   ret = is_store_remove(priv->store, &iter);
   if (!ret)
   {
+    is_warning("manager", "Unable to remove iter from store for sensor: %s",
+               path);
     goto out;
   }
   g_signal_emit(self, signals[SIGNAL_SENSOR_REMOVED], 0, sensor);
+  is_message("manager", "removed sensor: %s", path);
 
 out:
   return ret;
