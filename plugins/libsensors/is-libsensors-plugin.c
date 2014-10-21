@@ -30,6 +30,8 @@
 #include <sensors/error.h>
 #include <glib/gi18n.h>
 
+#define LIBSENSORS_PATH_PREFIX "libsensors"
+
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsLibsensorsPlugin,
@@ -311,7 +313,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
       continue;
     }
 
-    path = g_strdup_printf("libsensors/%s/%d",
+    path = g_strdup_printf(LIBSENSORS_PATH_PREFIX "/%s/%d",
                            chip_name_string,
                            input_feature->number);
     if (main_feature->type == SENSORS_FEATURE_TEMP)
@@ -411,10 +413,10 @@ is_libsensors_plugin_deactivate(PeasActivatable *activatable)
 {
   IsLibsensorsPlugin *plugin = IS_LIBSENSORS_PLUGIN(activatable);
   IsLibsensorsPluginPrivate *priv = plugin->priv;
+  IsManager *manager;
 
-  (void)priv;
-
-  /* TODO: remove sensors from manager since we are being unloaded */
+  manager = is_application_get_manager(priv->application);
+  is_manager_remove_paths_with_prefix(manager, LIBSENSORS_PATH_PREFIX);
 }
 
 static void

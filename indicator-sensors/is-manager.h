@@ -64,6 +64,8 @@ GType is_manager_get_type(void) G_GNUC_CONST;
 IsManager *is_manager_new(void);
 gboolean is_manager_add_sensor(IsManager *self,
                                IsSensor *sensor);
+gboolean is_manager_remove_paths_with_prefix(IsManager *self,
+                                             const gchar *prefix);
 gboolean is_manager_remove_path(IsManager *self,
                                 const gchar *path);
 IsSensor *is_manager_get_sensor(IsManager *self,

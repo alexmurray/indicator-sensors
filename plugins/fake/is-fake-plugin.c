@@ -26,6 +26,8 @@
 #include <indicator-sensors/is-application.h>
 #include <glib/gi18n.h>
 
+#define FAKE_PATH_PREFIX "fake"
+
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsFakePlugin,
@@ -136,7 +138,7 @@ is_fake_plugin_activate(PeasActivatable *activatable)
     gchar *label;
     IsSensor *sensor;
 
-    path = g_strdup_printf("fake/sensor%d", i);
+    path = g_strdup_printf(FAKE_PATH_PREFIX "/sensor%d", i);
     if (g_rand_boolean(priv->rand))
     {
       n_fans++;
@@ -173,10 +175,10 @@ is_fake_plugin_deactivate(PeasActivatable *activatable)
 {
   IsFakePlugin *plugin = IS_FAKE_PLUGIN(activatable);
   IsFakePluginPrivate *priv = plugin->priv;
+  IsManager *manager;
 
-  (void)priv;
-
-  /* TODO: remove sensors from manager since we are being unloaded */
+  manager = is_application_get_manager(priv->application);
+  is_manager_remove_paths_with_prefix(manager, FAKE_PATH_PREFIX);
 }
 
 static void

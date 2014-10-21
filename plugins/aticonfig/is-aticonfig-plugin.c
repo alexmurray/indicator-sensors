@@ -30,6 +30,8 @@
 #include <indicator-sensors/is-log.h>
 #include <glib/gi18n.h>
 
+#define ATICONFIG_PATH_PREFIX "aticonfig"
+
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsATIConfigPlugin,
@@ -137,7 +139,7 @@ is_aticonfig_plugin_finalize(GObject *object)
   G_OBJECT_CLASS(is_aticonfig_plugin_parent_class)->finalize(object);
 }
 
-#define ATICONFIG_PATH_PREFIX "aticonfig/GPU"
+#define ATICONFIG_GPU_PREFIX ATICONFIG_PATH_PREFIX "/GPU"
 
 static gboolean aticonfig_get_temperature(IsATIConfigPlugin *self,
     int gpu,
@@ -232,7 +234,7 @@ update_sensor_value(IsSensor *sensor,
   GError *error = NULL;
 
   path = is_sensor_get_path(sensor);
-  gpu = g_ascii_strtoll(path + strlen(ATICONFIG_PATH_PREFIX), NULL, 10);
+  gpu = g_ascii_strtoll(path + strlen(ATICONFIG_GPU_PREFIX), NULL, 10);
 
   if (IS_IS_TEMPERATURE_SENSOR(sensor))
   {
@@ -365,7 +367,7 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
     }
     else
     {
-      path = g_strdup_printf("%s%d%s", ATICONFIG_PATH_PREFIX, i, _("Temperature"));
+      path = g_strdup_printf("%s%d%s", ATICONFIG_GPU_PREFIX, i, _("Temperature"));
       sensor = is_temperature_sensor_new(path);
       is_sensor_set_label(sensor, name);
       is_sensor_set_icon(sensor, IS_STOCK_GPU);
@@ -386,7 +388,7 @@ is_aticonfig_plugin_activate(PeasActivatable *activatable)
     }
     else
     {
-      path = g_strdup_printf("%s%d%s", ATICONFIG_PATH_PREFIX, i, _("Fan"));
+      path = g_strdup_printf("%s%d%s", ATICONFIG_GPU_PREFIX, i, _("Fan"));
       sensor = is_sensor_new(path);
       is_sensor_set_label(sensor, name);
       /* fan sensors are given as a percentage from 0 to 100 */
@@ -425,10 +427,10 @@ is_aticonfig_plugin_deactivate(PeasActivatable *activatable)
 {
   IsATIConfigPlugin *plugin = IS_ATICONFIG_PLUGIN(activatable);
   IsATIConfigPluginPrivate *priv = plugin->priv;
+  IsManager *manager;
 
-  (void)priv;
-
-  /* TODO: remove sensors from manager since we are being unloaded */
+  manager = is_application_get_manager(priv->application);
+  is_manager_remove_paths_with_prefix(manager, ATICONFIG_PATH_PREFIX);
 }
 
 static void

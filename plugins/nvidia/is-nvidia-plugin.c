@@ -30,6 +30,8 @@
 #include <NVCtrl/NVCtrlLib.h>
 #include <glib/gi18n.h>
 
+#define NVIDIA_PATH_PREFIX "nvidia"
+
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsNvidiaPlugin,
@@ -358,7 +360,7 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
           continue;
         }
 
-        path = g_strdup_printf("nvidia/%s%d", map[j].description, idx);
+        path = g_strdup_printf(NVIDIA_PATH_PREFIX "/%s%d", map[j].description, idx);
 #ifdef NV_CTRL_TARGET_TYPE_COOLER
         if (map[j].target == NV_CTRL_TARGET_TYPE_COOLER)
         {
@@ -403,10 +405,10 @@ is_nvidia_plugin_deactivate(PeasActivatable *activatable)
 {
   IsNvidiaPlugin *plugin = IS_NVIDIA_PLUGIN(activatable);
   IsNvidiaPluginPrivate *priv = plugin->priv;
+  IsManager *manager;
 
-  (void)priv;
-
-  /* TODO: remove sensors from manager since we are being unloaded */
+  manager = is_application_get_manager(priv->application);
+  is_manager_remove_paths_with_prefix(manager, NVIDIA_PATH_PREFIX);
 }
 
 static void

@@ -32,6 +32,8 @@
 #define UDISKS_OBJECT_PATH           "/org/freedesktop/UDisks"
 #define UDISKS_DEVICE_INTERFACE_NAME "org.freedesktop.UDisks.Device"
 
+#define UDISKS_PATH_PREFIX "udisks"
+
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsUdisksPlugin,
@@ -340,7 +342,7 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
       continue;
     }
     name = g_path_get_basename(path);
-    sensor_path = g_strdup_printf("udisks/%s", name);
+    sensor_path = g_strdup_printf(UDISKS_PATH_PREFIX "/%s", name);
     sensor = is_temperature_sensor_new(sensor_path);
     is_sensor_set_label(sensor, g_variant_get_string(model, NULL));
     is_sensor_set_digits(sensor, 0);
@@ -369,11 +371,14 @@ is_udisks_plugin_deactivate(PeasActivatable *activatable)
 {
   IsUdisksPlugin *self = IS_UDISKS_PLUGIN(activatable);
   IsUdisksPluginPrivate *priv = self->priv;
+  IsManager *manager;
 
   if (priv->connection)
   {
     g_object_unref(priv->connection);
   }
+  manager = is_application_get_manager(priv->application);
+  is_manager_remove_paths_with_prefix(manager, UDISKS_PATH_PREFIX);
 }
 
 static void

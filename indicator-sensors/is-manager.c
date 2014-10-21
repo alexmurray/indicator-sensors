@@ -441,6 +441,32 @@ out:
 }
 
 gboolean
+is_manager_remove_paths_with_prefix(IsManager *self,
+                                    const gchar *prefix)
+{
+  GSList *sensors, *_list;
+  gboolean ret = FALSE;
+
+  sensors = is_manager_get_all_sensors_list(self);
+  for (_list = sensors;
+       _list != NULL;
+       _list = _list->next)
+  {
+    IsSensor *sensor = IS_SENSOR(_list->data);
+    const gchar *path = is_sensor_get_path(sensor);
+    ret = g_str_has_prefix(path, prefix);
+
+    if (ret)
+      ret |= is_manager_remove_path(self, path);
+
+    g_object_unref(sensor);
+  }
+  g_slist_free(sensors);
+
+  return ret;
+}
+
+gboolean
 is_manager_remove_path(IsManager *self,
                        const gchar *path)
 {

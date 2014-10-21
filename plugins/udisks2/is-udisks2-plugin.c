@@ -27,6 +27,8 @@
 #include <gio/gio.h>
 #include <glib/gi18n.h>
 
+#define UDISKS2_PATH_PREFIX "udisks2"
+
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsUDisks2Plugin,
@@ -254,7 +256,7 @@ object_removed_cb(GDBusObjectManager *obj_manager,
   }
 
   id = g_strrstr(id, "/") + 1;
-  path = g_strdup_printf("udisks2/%s", id);
+  path = g_strdup_printf(UDISKS2_PATH_PREFIX "/%s", id);
   manager = is_application_get_manager(self->priv->application);
   is_debug("udisks2", "Removing sensor %s as drive removed", id);
   is_manager_remove_path(manager, path);
@@ -373,11 +375,14 @@ is_udisks2_plugin_deactivate(PeasActivatable *activatable)
 {
   IsUDisks2Plugin *self = IS_UDISKS2_PLUGIN(activatable);
   IsUDisks2PluginPrivate *priv = self->priv;
+  IsManager *manager;
 
   if (priv->client)
   {
     g_object_unref(priv->client);
   }
+  manager = is_application_get_manager(priv->application);
+  is_manager_remove_paths_with_prefix(manager, UDISKS2_PATH_PREFIX);
 }
 
 static void
