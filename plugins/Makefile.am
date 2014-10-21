@@ -1,4 +1,4 @@
-SUBDIRS = aticonfig dbus
+SUBDIRS = aticonfig dbus dynamic
 
 if LIBSENSORS
 SUBDIRS += libsensors

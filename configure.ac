@@ -227,6 +227,7 @@ AC_CONFIG_FILES([
 	plugins/Makefile
 	plugins/aticonfig/Makefile
 	plugins/dbus/Makefile
+	plugins/dynamic/Makefile
 	plugins/fake/Makefile
 	plugins/libsensors/Makefile
 	plugins/nvidia/Makefile
