@@ -5,7 +5,8 @@ AM_CPPFLAGS = \
 	$(GLIB_CFLAGS)		\
 	$(GTK_CFLAGS)		\
 	$(APPINDICATOR_CFLAGS)	\
-	$(LIBPEAS_CFLAGS)
+	$(LIBPEAS_CFLAGS)       \
+	$(DEBUG_CFLAGS)
 
 plugin_LTLIBRARIES = libfake.la
 

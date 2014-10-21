@@ -6,7 +6,8 @@ AM_CPPFLAGS = \
 	$(GTK_CFLAGS)		\
 	$(APPINDICATOR_CFLAGS)	\
 	$(LIBPEAS_CFLAGS) 	\
-	$(GIO_CFLAGS)
+	$(GIO_CFLAGS)           \
+	$(DEBUG_CFLAGS)
 
 plugin_LTLIBRARIES = libdbus.la
 

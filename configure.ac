@@ -191,6 +191,20 @@ fi
 
 AC_SUBST(CFLAGS)
 
+# ========== extra debugging options ================= #
+m4_define([debug_default],[minimum])
+AC_ARG_ENABLE([debug],
+              [AS_HELP_STRING([--enable-debug=@<:@no/minimum/yes@:>@],
+                              [turn on debugging @<:@default=debug_default@:>@])],
+                              [],
+                              [enable_debug=debug_default])
+AS_CASE([$enable_debug],
+        [yes], [ test "$cflags_set" = set || CFLAGS="$CFLAGS -O0 -g3 -ggdb" DEBUG_CFLAGS="-DDEBUG" ],
+        [minimum], [ DEBUG_CFLAGS="-DG_DISABLE_CAST_CHECKS" ],
+        [no], [ DEBUG_CFLAGS="-DG_DISABLE_ASSERT -DG_DISABLE_CHECKS -DG_DISABLE_CAST_CHECKS" ],
+        [AC_MSG_ERROR([Unknown argument to --enable-debug])])
+AC_SUBST(DEBUG_CFLAGS)
+
 # =========== we need glib-genmarshal ================ #
 AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
 
