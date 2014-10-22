@@ -230,6 +230,7 @@ AC_CONFIG_FILES([
 	plugins/dynamic/Makefile
 	plugins/fake/Makefile
 	plugins/libsensors/Makefile
+	plugins/max/Makefile
 	plugins/nvidia/Makefile
 	plugins/udisks/Makefile
 	plugins/udisks2/Makefile

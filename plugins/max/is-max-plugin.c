@@ -19,7 +19,7 @@
 #include <config.h>
 #endif
 
-#include "is-dynamic-plugin.h"
+#include "is-max-plugin.h"
 #include <stdlib.h>
 #include <math.h>
 #include <indicator-sensors/is-application.h>
@@ -29,48 +29,37 @@
 
 static void peas_activatable_iface_init(PeasActivatableInterface *iface);
 
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsDynamicPlugin,
-                               is_dynamic_plugin,
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsMaxPlugin,
+                               is_max_plugin,
                                PEAS_TYPE_EXTENSION_BASE,
                                0,
                                G_IMPLEMENT_INTERFACE_DYNAMIC(PEAS_TYPE_ACTIVATABLE,
                                                              peas_activatable_iface_init));
 
-#define DYNAMIC_RATE_DATA_KEY "dynamic-rate-data"
-
-#define DYNAMIC_SENSOR_PATH "virtual/dynamic"
-
-#define EWMA_ALPHA 0.2
+#define MAX_SENSOR_PATH "virtual/max"
 
 enum
 {
   PROP_OBJECT = 1,
 };
 
-struct _IsDynamicPluginPrivate
+struct _IsMaxPluginPrivate
 {
   IsApplication *application;
   IsSensor *sensor;
   IsSensor *max;
-  gdouble max_rate;
+  gdouble max_value;
 };
 
-typedef struct _RateData
-{
-  gdouble rate;
-  gdouble last_value;
-  gint64 last_time;
-} RateData;
-
-static void is_dynamic_plugin_finalize(GObject *object);
+static void is_max_plugin_finalize(GObject *object);
 
 static void
-is_dynamic_plugin_set_property(GObject *object,
-                               guint prop_id,
-                               const GValue *value,
-                               GParamSpec *pspec)
+is_max_plugin_set_property(GObject *object,
+                           guint prop_id,
+                           const GValue *value,
+                           GParamSpec *pspec)
 {
-  IsDynamicPlugin *plugin = IS_DYNAMIC_PLUGIN(object);
+  IsMaxPlugin *plugin = IS_MAX_PLUGIN(object);
 
   switch (prop_id)
   {
@@ -85,12 +74,12 @@ is_dynamic_plugin_set_property(GObject *object,
 }
 
 static void
-is_dynamic_plugin_get_property(GObject *object,
-                               guint prop_id,
-                               GValue *value,
-                               GParamSpec *pspec)
+is_max_plugin_get_property(GObject *object,
+                           guint prop_id,
+                           GValue *value,
+                           GParamSpec *pspec)
 {
-  IsDynamicPlugin *plugin = IS_DYNAMIC_PLUGIN(object);
+  IsMaxPlugin *plugin = IS_MAX_PLUGIN(object);
 
   switch (prop_id)
   {
@@ -105,35 +94,35 @@ is_dynamic_plugin_get_property(GObject *object,
 }
 
 static void
-is_dynamic_plugin_init(IsDynamicPlugin *self)
+is_max_plugin_init(IsMaxPlugin *self)
 {
-  IsDynamicPluginPrivate *priv =
-    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_DYNAMIC_PLUGIN,
-                                IsDynamicPluginPrivate);
+  IsMaxPluginPrivate *priv =
+    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_MAX_PLUGIN,
+                                IsMaxPluginPrivate);
 
   self->priv = priv;
 }
 
 static void
-is_dynamic_plugin_finalize(GObject *object)
+is_max_plugin_finalize(GObject *object)
 {
-  IsDynamicPlugin *self = (IsDynamicPlugin *)object;
-  IsDynamicPluginPrivate *priv = self->priv;
+  IsMaxPlugin *self = (IsMaxPlugin *)object;
+  IsMaxPluginPrivate *priv = self->priv;
 
   (void)priv;
 
-  G_OBJECT_CLASS(is_dynamic_plugin_parent_class)->finalize(object);
+  G_OBJECT_CLASS(is_max_plugin_parent_class)->finalize(object);
 }
 
 static void
-update_sensor_from_max(IsDynamicPlugin *self)
+update_sensor_from_max(IsMaxPlugin *self)
 {
-  IsDynamicPluginPrivate *priv;
+  IsMaxPluginPrivate *priv;
   gchar *label;
 
   priv = self->priv;
 
-  label = g_strdup_printf("Δ%s", is_sensor_get_label(priv->max));
+  label = g_strdup_printf("↑%s", is_sensor_get_label(priv->max));
   is_sensor_set_label(priv->sensor, label);
   is_sensor_set_icon(priv->sensor, is_sensor_get_icon(priv->max));
   is_sensor_set_value(priv->sensor, is_sensor_get_value(priv->max));
@@ -147,69 +136,27 @@ on_sensor_value_notify(IsSensor *sensor,
                        GParamSpec *pspec,
                        gpointer user_data)
 {
-  IsDynamicPlugin *self;
-  IsDynamicPluginPrivate *priv;
-  RateData *data;
-  gdouble value, dv, dt, rate;
-  gint64 now;
+  IsMaxPlugin *self;
+  IsMaxPluginPrivate *priv;
+  gdouble value;
 
-  self = IS_DYNAMIC_PLUGIN(user_data);
+  self = IS_MAX_PLUGIN(user_data);
   priv = self->priv;
 
   value = is_sensor_get_value(sensor);
-  now = g_get_monotonic_time();
 
-  data = g_object_get_data(G_OBJECT(sensor), DYNAMIC_RATE_DATA_KEY);
-  if (data == NULL)
-  {
-    is_debug("dynamic", "Creating new dynamic rate data for sensor: %s",
-             is_sensor_get_label(sensor));
-
-    // allocate data
-    data = g_malloc0(sizeof(*data));
-    data->rate = 0.0f;
-    data->last_value = value;
-    data->last_time = now;
-    g_object_set_data_full(G_OBJECT(sensor), DYNAMIC_RATE_DATA_KEY,
-                           data, g_free);
-    goto exit;
-  }
-
-  is_debug("dynamic", "Got existing rate data for sensor: %s - rate: %f, last_value %f, last_time %lld",
-           is_sensor_get_label(sensor),
-           data->rate,
-           data->last_value,
-           data->last_time);
-  dv = value - data->last_value;
-  dt = ((double)(now - data->last_time) /
-        (double)G_USEC_PER_SEC);
-
-  // convert rate to units per second
-  rate = fabs(dv / dt);
-  is_debug("dynamic", "abs rate of change of sensor %s: %f (t0: %f, t-1: %f, dv: %f, dt: %f)",
-           is_sensor_get_label(sensor), rate, value, data->last_value,
-           dv, dt);
-
-  // calculate exponentially weighted moving average of rate
-  rate = (EWMA_ALPHA * rate) + ((1 - EWMA_ALPHA) * data->rate);
-  data->rate = rate;
-  data->last_value = value;
-  data->last_time = now;
-  is_debug("dynamic", "EWMA abs rate of change of sensor %s: %f",
-           is_sensor_get_label(sensor), rate);
-
-  if (rate > priv->max_rate && sensor != priv->max)
+  if (value > priv->max_value && sensor != priv->max)
   {
     // let's see if we can get away without taking a reference on sensor
     priv->max = sensor;
 
-    is_message("dynamic", "New highest EWMA rate sensor: %s (rate %f)",
-               is_sensor_get_label(sensor), rate);
+    is_message("max", "New highest value sensor: %s (value %f)",
+               is_sensor_get_label(sensor), value);
   }
 
   if (sensor == priv->max)
   {
-    priv->max_rate = rate;
+    priv->max_value = value;
 
     update_sensor_from_max(self);
   }
@@ -224,7 +171,7 @@ on_sensor_enabled(IsManager *manager,
                   gint index,
                   gpointer data)
 {
-  IsDynamicPlugin *self = (IsDynamicPlugin *)data;
+  IsMaxPlugin *self = (IsMaxPlugin *)data;
 
   // don't bother monitoring any virtual sensors
   if (!g_str_has_prefix(is_sensor_get_path(sensor),
@@ -238,24 +185,24 @@ on_sensor_disabled(IsManager *manager,
                    IsSensor *sensor,
                    gpointer data)
 {
-  IsDynamicPlugin *self = (IsDynamicPlugin *)data;
-  IsDynamicPluginPrivate *priv = self->priv;
+  IsMaxPlugin *self = (IsMaxPlugin *)data;
+  IsMaxPluginPrivate *priv = self->priv;
 
   // don't bother monitoring ourself
   if (g_ascii_strcasecmp(is_sensor_get_path(sensor),
-                         DYNAMIC_SENSOR_PATH) != 0)
+                         MAX_SENSOR_PATH) != 0)
   {
     g_signal_handlers_disconnect_by_func(sensor,
                                          G_CALLBACK(on_sensor_value_notify),
                                          self);
     if (priv->max == sensor)
     {
-      // get all sensors and find the one with the maximum rate and switch to
+      // get all sensors and find the one with the maximum value and switch to
       // this
       GSList *sensors, *_list;
 
       priv->max = NULL;
-      priv->max_rate = 0.0;
+      priv->max_value = 0.0;
 
       is_sensor_set_label(priv->sensor, "Δ");
       is_sensor_set_icon(priv->sensor, IS_STOCK_CHIP);
@@ -268,13 +215,11 @@ on_sensor_disabled(IsManager *manager,
            _list != NULL;
            _list = _list->next)
       {
-        RateData *rate_data = g_object_get_data(G_OBJECT(sensor),
-                                                DYNAMIC_RATE_DATA_KEY);
-        if (rate_data == NULL)
-          continue;
-        if (rate_data->rate > priv->max_rate)
+        gdouble value = is_sensor_get_value(sensor);
+
+        if (value > priv->max_value)
         {
-          priv->max_rate = rate_data->rate;
+          priv->max_value = value;
           priv->max = sensor;
         }
       }
@@ -289,20 +234,20 @@ on_sensor_disabled(IsManager *manager,
 }
 
 static void
-is_dynamic_plugin_activate(PeasActivatable *activatable)
+is_max_plugin_activate(PeasActivatable *activatable)
 {
-  IsDynamicPlugin *self = IS_DYNAMIC_PLUGIN(activatable);
-  IsDynamicPluginPrivate *priv = self->priv;
+  IsMaxPlugin *self = IS_MAX_PLUGIN(activatable);
+  IsMaxPluginPrivate *priv = self->priv;
   IsManager *manager;
   GSList *sensors, *_list;
   int i = 0;
 
   manager = is_application_get_manager(priv->application);
 
-  // create our virtual sensor which mimics the current highest rate of change
-  // sensor's value and label
-  is_debug("dynamic", "creating virtual sensor");
-  priv->sensor = is_sensor_new(DYNAMIC_SENSOR_PATH);
+  // create our virtual sensor which mimics the current highest value sensor's
+  // value and label
+  is_debug("max", "creating virtual sensor");
+  priv->sensor = is_sensor_new(MAX_SENSOR_PATH);
   is_sensor_set_label(priv->sensor, "Δ");
   is_sensor_set_icon(priv->sensor, IS_STOCK_CHIP);
   is_sensor_set_value(priv->sensor, 0.0);
@@ -310,7 +255,7 @@ is_dynamic_plugin_activate(PeasActivatable *activatable)
   is_sensor_set_digits(priv->sensor, 1);
   is_manager_add_sensor(manager, priv->sensor);
 
-  is_debug("dynamic", "attaching to signals");
+  is_debug("max", "attaching to signals");
   sensors = is_manager_get_enabled_sensors_list(manager);
   for (_list = sensors;
        _list != NULL;
@@ -330,18 +275,18 @@ is_dynamic_plugin_activate(PeasActivatable *activatable)
 }
 
 static void
-is_dynamic_plugin_deactivate(PeasActivatable *activatable)
+is_max_plugin_deactivate(PeasActivatable *activatable)
 {
-  IsDynamicPlugin *self = IS_DYNAMIC_PLUGIN(activatable);
-  IsDynamicPluginPrivate *priv = self->priv;
+  IsMaxPlugin *self = IS_MAX_PLUGIN(activatable);
+  IsMaxPluginPrivate *priv = self->priv;
   IsManager *manager;
   GSList *sensors, *_list;
 
-  is_debug("dynamic", "dettaching from signals");
+  is_debug("max", "dettaching from signals");
 
   manager = is_application_get_manager(priv->application);
 
-  is_manager_remove_path(manager, DYNAMIC_SENSOR_PATH);
+  is_manager_remove_path(manager, MAX_SENSOR_PATH);
   sensors = is_manager_get_enabled_sensors_list(manager);
   for (_list = sensors;
        _list != NULL;
@@ -360,15 +305,15 @@ is_dynamic_plugin_deactivate(PeasActivatable *activatable)
 }
 
 static void
-is_dynamic_plugin_class_init(IsDynamicPluginClass *klass)
+is_max_plugin_class_init(IsMaxPluginClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  g_type_class_add_private(klass, sizeof(IsDynamicPluginPrivate));
+  g_type_class_add_private(klass, sizeof(IsMaxPluginPrivate));
 
-  gobject_class->get_property = is_dynamic_plugin_get_property;
-  gobject_class->set_property = is_dynamic_plugin_set_property;
-  gobject_class->finalize = is_dynamic_plugin_finalize;
+  gobject_class->get_property = is_max_plugin_get_property;
+  gobject_class->set_property = is_max_plugin_set_property;
+  gobject_class->finalize = is_max_plugin_finalize;
 
   g_object_class_override_property(gobject_class, PROP_OBJECT, "object");
 }
@@ -376,12 +321,12 @@ is_dynamic_plugin_class_init(IsDynamicPluginClass *klass)
 static void
 peas_activatable_iface_init(PeasActivatableInterface *iface)
 {
-  iface->activate = is_dynamic_plugin_activate;
-  iface->deactivate = is_dynamic_plugin_deactivate;
+  iface->activate = is_max_plugin_activate;
+  iface->deactivate = is_max_plugin_deactivate;
 }
 
 static void
-is_dynamic_plugin_class_finalize(IsDynamicPluginClass *klass)
+is_max_plugin_class_finalize(IsMaxPluginClass *klass)
 {
   /* nothing to do */
 }
@@ -389,9 +334,9 @@ is_dynamic_plugin_class_finalize(IsDynamicPluginClass *klass)
 G_MODULE_EXPORT void
 peas_register_types(PeasObjectModule *module)
 {
-  is_dynamic_plugin_register_type(G_TYPE_MODULE(module));
+  is_max_plugin_register_type(G_TYPE_MODULE(module));
 
   peas_object_module_register_extension_type(module,
                                              PEAS_TYPE_ACTIVATABLE,
-                                             IS_TYPE_DYNAMIC_PLUGIN);
+                                             IS_TYPE_MAX_PLUGIN);
 }

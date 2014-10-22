@@ -1,4 +1,4 @@
-SUBDIRS = aticonfig dbus dynamic
+SUBDIRS = aticonfig dbus dynamic max
 
 if LIBSENSORS
 SUBDIRS += libsensors
