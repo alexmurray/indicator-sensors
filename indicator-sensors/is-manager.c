@@ -417,7 +417,7 @@ is_manager_add_sensor(IsManager *self,
 {
   IsManagerPrivate *priv;
   GtkTreeIter iter;
-  gboolean ret = FALSE;
+  gboolean ret;
 
   g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
   g_return_val_if_fail(IS_IS_SENSOR(sensor), FALSE);
