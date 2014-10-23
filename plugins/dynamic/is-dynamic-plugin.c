@@ -157,6 +157,14 @@ on_sensor_value_notify(IsSensor *sensor,
   priv = self->priv;
 
   value = is_sensor_get_value(sensor);
+
+  if (value - IS_SENSOR_VALUE_UNSET <= DBL_EPSILON)
+  {
+    is_debug("dynamic", "sensor value for sensor %s is unset - ignoring",
+             is_sensor_get_label(sensor));
+    goto exit;
+  }
+
   now = g_get_monotonic_time();
 
   data = g_object_get_data(G_OBJECT(sensor), DYNAMIC_RATE_DATA_KEY);
@@ -227,10 +235,13 @@ on_sensor_enabled(IsManager *manager,
   IsDynamicPlugin *self = (IsDynamicPlugin *)data;
 
   // don't bother monitoring any virtual sensors
-  if (!g_str_has_prefix(is_sensor_get_path(sensor),
-                        "virtual/") != 0)
+  if (!g_str_has_prefix(is_sensor_get_path(sensor), "virtual/") != 0)
+  {
+    is_debug("dynamic", "sensor enabled: %s", is_sensor_get_label(sensor));
+    on_sensor_value_notify(sensor, NULL, self);
     g_signal_connect(sensor, "notify::value",
                      G_CALLBACK(on_sensor_value_notify), self);
+  }
 }
 
 static void
@@ -241,10 +252,10 @@ on_sensor_disabled(IsManager *manager,
   IsDynamicPlugin *self = (IsDynamicPlugin *)data;
   IsDynamicPluginPrivate *priv = self->priv;
 
-  // don't bother monitoring ourself
-  if (g_ascii_strcasecmp(is_sensor_get_path(sensor),
-                         DYNAMIC_SENSOR_PATH) != 0)
+  // don't bother monitoring any virtual sensors
+  if (!g_str_has_prefix(is_sensor_get_path(sensor), "virtual/") != 0)
   {
+    is_debug("dynamic", "sensor disabled: %s", is_sensor_get_label(sensor));
     g_signal_handlers_disconnect_by_func(sensor,
                                          G_CALLBACK(on_sensor_value_notify),
                                          self);
@@ -268,20 +279,7 @@ on_sensor_disabled(IsManager *manager,
            _list != NULL;
            _list = _list->next)
       {
-        RateData *rate_data = g_object_get_data(G_OBJECT(sensor),
-                                                DYNAMIC_RATE_DATA_KEY);
-        if (rate_data == NULL)
-          continue;
-        if (rate_data->rate > priv->max_rate)
-        {
-          priv->max_rate = rate_data->rate;
-          priv->max = sensor;
-        }
-      }
-
-      if (priv->max)
-      {
-        update_sensor_from_max(self);
+        on_sensor_value_notify(IS_SENSOR(_list->data), NULL, self);
       }
     }
 
