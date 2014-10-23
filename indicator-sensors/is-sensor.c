@@ -111,7 +111,7 @@ is_sensor_class_init(IsSensorClass *klass)
   g_object_class_install_property(gobject_class, PROP_LABEL, properties[PROP_LABEL]);
   properties[PROP_VALUE] = g_param_spec_double("value", "sensor value",
                            "value of this sensor.",
-                           -G_MAXDOUBLE, G_MAXDOUBLE, 0.0,
+                           -G_MAXDOUBLE, G_MAXDOUBLE, IS_SENSOR_VALUE_UNSET,
                            G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
   g_object_class_install_property(gobject_class, PROP_VALUE, properties[PROP_VALUE]);
   properties[PROP_DIGITS] = g_param_spec_uint("digits", "number of digits for this sensor",
@@ -325,6 +325,7 @@ is_sensor_new(const gchar *path)
                       "path", path,
                       "label", NULL,
                       "digits", 1,
+                      "value", IS_SENSOR_VALUE_UNSET,
                       "alarm-value", 0.0,
                       "alarm-mode", IS_SENSOR_ALARM_MODE_DISABLED,
                       "units", "?",

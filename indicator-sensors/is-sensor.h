@@ -79,6 +79,8 @@ typedef enum
 #define IS_STOCK_FAN "indicator-sensors-fan"
 #define IS_STOCK_CASE "indicator-sensors-case"
 
+#define IS_SENSOR_VALUE_UNSET (-G_MAXDOUBLE)
+
 GType is_sensor_get_type(void) G_GNUC_CONST;
 IsSensor *is_sensor_new(const gchar *path);
 void is_sensor_update_value(IsSensor *self);
