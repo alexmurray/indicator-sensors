@@ -139,8 +139,9 @@ smart_update_ready_cb(GObject *source,
 
   /* temperature is in kelvin */
   temp_k = udisks_drive_ata_get_smart_temperature(drive);
-  /* convert to celcius if is non-zero otherwise report as simply 0C */
-  is_temperature_sensor_set_celsius_value(sensor, temp_k ? temp_k - 273.15 : temp_k);
+  /* convert to celsius and set if is non-zero */
+  if (fabs(temp_k) > DBL_EPSILON)
+    is_temperature_sensor_set_celsius_value(sensor,  temp_k - 273.15);
   is_sensor_set_error(IS_SENSOR(sensor), NULL);
 
 out:
