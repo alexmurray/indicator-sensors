@@ -35,6 +35,7 @@ data/indicator-sensors.gschema.xml.in
 data/indicator-sensors.appdata.xml
 m4/*
 plugins/dbus/is-active-sensor-generated*
+plugins/dbus/is-org-gnome-shell-search-provider-generated*
 po/.intltool-merge-cache
 po/*.gmo
 po/*.sed
