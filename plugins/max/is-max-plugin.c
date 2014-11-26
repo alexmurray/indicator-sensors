@@ -179,8 +179,8 @@ on_sensor_enabled(IsManager *manager,
 {
   IsMaxPlugin *self = (IsMaxPlugin *)data;
 
-  // don't bother monitoring any virtual sensors
-  if (!g_str_has_prefix(is_sensor_get_path(sensor), "virtual/") != 0)
+  // don't bother monitoring non-temperature sensors
+  if (IS_IS_TEMPERATURE_SENSOR(sensor))
   {
     is_debug("max", "sensor enabled: %s", is_sensor_get_label(sensor));
     on_sensor_value_notify(sensor, NULL, self);
@@ -197,8 +197,8 @@ on_sensor_disabled(IsManager *manager,
   IsMaxPlugin *self = (IsMaxPlugin *)data;
   IsMaxPluginPrivate *priv = self->priv;
 
-  // don't bother monitoring any virtual sensors
-  if (!g_str_has_prefix(is_sensor_get_path(sensor), "virtual/") != 0)
+  // don't bother monitoring non-temperature sensors
+  if (IS_IS_TEMPERATURE_SENSOR(sensor))
   {
     is_debug("max", "sensor disabled: %s", is_sensor_get_label(sensor));
     g_signal_handlers_disconnect_by_func(sensor,
@@ -224,9 +224,12 @@ on_sensor_disabled(IsManager *manager,
            _list != NULL;
            _list = _list->next)
       {
-        on_sensor_value_notify(IS_SENSOR(_list->data),
-                               NULL,
-                               self);
+        if (IS_IS_TEMPERATURE_SENSOR(_list->data))
+        {
+          on_sensor_value_notify(IS_SENSOR(_list->data),
+                                 NULL,
+                                 self);
+        }
       }
     }
   }
