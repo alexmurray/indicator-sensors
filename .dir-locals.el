@@ -7,10 +7,10 @@
                       (setq flycheck-clang-include-path includes)
                       (setq flycheck-gcc-definitions definitions)
                       (setq flycheck-clang-definitions definitions)
-                      (setq company-clang-arguments (append
-                                                     (mapcar
-                                                      #'(lambda (s) (concat "-I" s))
-                                                      includes)
-                                                     (mapcar
-                                                      #'(lambda (s) (concat "-D" s))
-                                                      definitions))))))))
+                      (setq-local company-clang-arguments (append
+                                                           (mapcar
+                                                            #'(lambda (s) (concat "-I" s))
+                                                            includes)
+                                                           (mapcar
+                                                            #'(lambda (s) (concat "-D" s))
+                                                            definitions))))))))
