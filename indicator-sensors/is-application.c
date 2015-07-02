@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Alex Murray <alexmurray@fastmail.fm>
+ * Copyright (C) 2011 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -851,7 +851,7 @@ void is_application_show_preferences(IsApplication *self)
 
 void is_application_show_about(IsApplication *self)
 {
-  const gchar * const authors[] = { "Alex Murray <alexmurray@fastmail.fm>",
+  const gchar * const authors[] = { "Alex Murray <murray.alex@gmail.com>",
                                     NULL
                                   };
 
