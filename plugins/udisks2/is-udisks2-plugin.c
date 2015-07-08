@@ -26,6 +26,7 @@
 #include <udisks/udisks.h>
 #include <gio/gio.h>
 #include <glib/gi18n.h>
+#include <math.h>
 
 #define UDISKS2_PATH_PREFIX "udisks2"
 
