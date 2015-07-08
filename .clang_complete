@@ -24,7 +24,17 @@
 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 -I/usr/include/libpeas-1.0
 -I/usr/include/gobject-introspection-1.0
+-I/usr/include/udisks2
 -I./
 -I./indicator-sensors
+-I./plugins/aticonfig
+-I./plugins/dbus
+-I./plugins/dynamic
+-I./plugins/fake
+-I./plugins/libsensors
+-I./plugins/max
+-I./plugins/nvidia
+-I./plugins/udisks
+-I./plugins/udisks2
 -DHAVE_CONFIG_H
 
