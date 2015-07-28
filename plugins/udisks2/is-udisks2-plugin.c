@@ -178,14 +178,7 @@ pm_get_state_ready_cb(GObject *source,
   if (!state)
   {
     // standby - disk is idle so don't bother querying
-    g_set_error(&error,
-                g_quark_from_string("udisks2-plugin-error-quark"),
-                0,
-                /* first placeholder is sensor name */
-                _("Error getting sensor value for disk sensor %s: disk is idle"),
-                is_sensor_get_label(IS_SENSOR(sensor)));
-    is_sensor_set_error(IS_SENSOR(sensor), error->message);
-    g_error_free(error);
+    is_temperature_sensor_set_celsius_value(sensor, 0);
     goto out;
   }
 
