@@ -22,6 +22,7 @@
 #include "is-dynamic-plugin.h"
 #include <stdlib.h>
 #include <math.h>
+#include <inttypes.h>
 #include <indicator-sensors/is-application.h>
 #include <indicator-sensors/is-manager.h>
 #include <indicator-sensors/is-log.h>
@@ -183,7 +184,7 @@ on_sensor_value_notify(IsSensor *sensor,
     goto exit;
   }
 
-  is_debug("dynamic", "Got existing rate data for sensor: %s - rate: %f, last_value %f, last_time %lld",
+  is_debug("dynamic", "Got existing rate data for sensor: %s - rate: %f, last_value %f, last_time %"PRId64"",
            is_sensor_get_label(sensor),
            data->rate,
            data->last_value,

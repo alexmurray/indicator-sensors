@@ -272,6 +272,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
       case SENSORS_FEATURE_VID:
       case SENSORS_FEATURE_BEEP_ENABLE:
       case SENSORS_FEATURE_UNKNOWN:
+      case SENSORS_FEATURE_MAX:
         is_debug("libsensors", "Ignoring unimplemented sensor type %d",
                  main_feature->type);
         break;
