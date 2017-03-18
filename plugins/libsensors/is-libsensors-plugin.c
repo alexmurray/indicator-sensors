@@ -260,6 +260,9 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
                                              SENSORS_SUBFEATURE_TEMP_MIN);
         break;
 
+#if SENSORS_API_VERSION > 0x432
+      case SENSORS_FEATURE_MAX:
+#endif
 #if SENSORS_API_VERSION > 0x430
       case SENSORS_FEATURE_HUMIDITY:
       case SENSORS_FEATURE_MAX_MAIN:
@@ -272,7 +275,6 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
       case SENSORS_FEATURE_VID:
       case SENSORS_FEATURE_BEEP_ENABLE:
       case SENSORS_FEATURE_UNKNOWN:
-      case SENSORS_FEATURE_MAX:
         is_debug("libsensors", "Ignoring unimplemented sensor type %d",
                  main_feature->type);
         break;
