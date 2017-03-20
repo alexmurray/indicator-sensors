@@ -357,7 +357,6 @@ get_result_metas (IsDBusPlugin *self,
 {
   IsManager *manager;
   gint idx;
-  gchar *gicon_str;
   GVariantBuilder meta, metas;
 
   g_variant_builder_init(&metas, G_VARIANT_TYPE ("aa{sv}"));
@@ -368,6 +367,7 @@ get_result_metas (IsDBusPlugin *self,
     IsSensor *sensor = is_manager_get_sensor(manager, results[idx]);
     GIcon *gicon = g_themed_icon_new(is_sensor_get_icon(sensor));
     gchar *name;
+    gchar *gicon_str;
 
     g_variant_builder_init(&meta, G_VARIANT_TYPE ("a{sv}"));
     g_variant_builder_add(&meta, "{sv}",
