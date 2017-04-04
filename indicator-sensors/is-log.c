@@ -23,6 +23,15 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+static IsLogLevel is_log_level = IS_LOG_LEVEL_WARNING;
+
+void is_log_set_level(IsLogLevel level)
+{
+  g_return_if_fail((int)level >= IS_LOG_LEVEL_ERROR &&
+                       level < NUM_IS_LOG_LEVELS);
+  is_log_level = level;
+}
+
 void is_log(const gchar *source,
             IsLogLevel level,
             const gchar *format,
@@ -78,14 +87,17 @@ void is_logv(const gchar *source,
              const gchar *format,
              va_list args)
 {
-  gchar *fmt, *output;
+  if (level <= is_log_level)
+  {
+    gchar *fmt, *output;
 
-  /* TODO: perhaps add a more elaborate logger */
-  fmt = g_strdup_printf("[%s] %s: %s", source,
-                        is_log_level_to_string(level), format);
-  output = g_strdup_vprintf(fmt, args);
-  fprintf(stdout, "%s\n", output);
-  fflush(stdout);
-  g_free(output);
-  g_free(fmt);
+    /* TODO: perhaps add a more elaborate logger */
+    fmt = g_strdup_printf("[%s] %s: %s", source,
+                          is_log_level_to_string(level), format);
+    output = g_strdup_vprintf(fmt, args);
+    fprintf(stdout, "%s\n", output);
+    fflush(stdout);
+    g_free(output);
+    g_free(fmt);
+  }
 }

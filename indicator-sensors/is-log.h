@@ -33,6 +33,8 @@ typedef enum
   NUM_IS_LOG_LEVELS,
 } IsLogLevel;
 
+void is_log_set_level(IsLogLevel level);
+
 void is_log(const gchar *source,
             IsLogLevel level,
             const gchar *format,

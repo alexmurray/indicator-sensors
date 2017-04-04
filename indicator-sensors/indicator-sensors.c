@@ -30,6 +30,8 @@
 #include <glib/gi18n.h>
 #include <locale.h>
 
+static gboolean verbose = FALSE;
+
 static void
 on_extension_added(PeasExtensionSet *set,
                    PeasPluginInfo *info,
@@ -98,8 +100,15 @@ exit:
   return;
 }
 
+static GOptionEntry options[] =
+{
+  { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Print more verbose debug output", NULL },
+  { NULL }
+};
+
 int main(int argc, char **argv)
 {
+  GOptionContext *context;
   IsApplication *application;
   IsTemperatureSensorScale scale;
   gboolean show_indicator;
@@ -120,6 +129,21 @@ int main(int argc, char **argv)
 
   bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
   textdomain(GETTEXT_PACKAGE);
+
+  context = g_option_context_new("- hardware sensors monitor");
+  g_option_context_add_main_entries(context, options, GETTEXT_PACKAGE);
+  g_option_context_add_group(context, gtk_get_option_group (TRUE));
+
+  if (!g_option_context_parse(context, &argc, &argv, &error))
+  {
+    g_print("command-line option parsing failed: %s\n", error->message);
+    goto exit;
+  }
+
+  if (verbose)
+  {
+    is_log_set_level(IS_LOG_LEVEL_DEBUG);
+  }
 
   /* clear the sensor icon cache directory to use any new icon theme */
   clear_sensor_icon_cache();
@@ -204,5 +228,6 @@ int main(int argc, char **argv)
   g_object_unref(application);
   is_notify_uninit();
 
+exit:
   return 0;
 }
