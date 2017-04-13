@@ -360,10 +360,10 @@ is_sensor_set_label(IsSensor *self,
 
   priv = self->priv;
 
-  if (label != NULL && g_strcmp0(label, "") != 0)
+  if (g_strcmp0(label, priv->label) != 0)
   {
     g_free(priv->label);
-    priv->label = g_strdup(label);
+    priv->label = label ? g_strdup(label) : NULL;
     g_object_notify_by_pspec(G_OBJECT(self),
                              properties[PROP_LABEL]);
   }
@@ -796,9 +796,12 @@ is_sensor_set_units(IsSensor *self,
                     const gchar *units)
 {
   g_return_if_fail(IS_IS_SENSOR(self));
-  g_free(self->priv->units);
-  self->priv->units = units ? g_strdup(units) : NULL;
-  g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_UNITS]);
+  if (g_strcmp0(units, self->priv->units) != 0)
+  {
+    g_free(self->priv->units);
+    self->priv->units = units ? g_strdup(units) : NULL;
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_UNITS]);
+  }
 }
 
 guint
@@ -860,10 +863,13 @@ is_sensor_set_icon(IsSensor *self,
                    const gchar *icon)
 {
   g_return_if_fail(IS_IS_SENSOR(self));
-  g_free(self->priv->icon);
-  self->priv->icon = icon ? g_strdup(icon) : NULL;
-  g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ICON]);
-  update_icon_path(self);
+  if (g_strcmp0(icon, self->priv->icon) != 0)
+  {
+    g_free(self->priv->icon);
+    self->priv->icon = icon ? g_strdup(icon) : NULL;
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ICON]);
+    update_icon_path(self);
+  }
 }
 
 gdouble
