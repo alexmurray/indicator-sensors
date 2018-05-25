@@ -1,0 +1,66 @@
+name: indicator-sensors
+version: '0.8+git'
+summary: Provide hardware sensors readings in your desktop panel
+description: |
+ Application indicator to display and monitor the readings
+ from various hardware sensors (temperature, fan speeds, voltages
+ etc) in the desktop panel
+
+grade: devel
+confinement: strict
+#icon: pixmaps/indicator-sensors.png
+
+slots:
+  # for GtkApplication registration
+  indicator-sensors:
+    interface: dbus
+    bus: session
+    name: com.github.alexmurray.IndicatorSensors
+
+apps:
+  indicator-sensors:
+    command: desktop-launch indicator-sensors
+    #command: usr/bin/indicator-sensors
+    plugs:
+      - x11
+      - unity7
+      - desktop
+      - wayland
+      - gsettings
+      - pulseaudio
+      - home
+    desktop: usr/share/applications/indicator-sensors.desktop
+
+parts:
+  indicator-sensors:
+    after: [indicator-gtk3, desktop-gtk3]
+    source: .
+    source-type: git
+    plugin: autotools
+    configflags: [--prefix=/usr]
+    build-packages:
+      - intltool
+      - gnome-common
+      - gnome-doc-utils
+      - libglib2.0-dev
+      - libgdk-pixbuf2.0-0
+      - libgtk-3-dev
+      - libpeas-dev
+      - libnotify-dev
+      - libappindicator3-dev
+      - libsensors4-dev
+      - nvidia-settings
+      - libudisks2-dev
+    stage-packages:
+      - libc6
+      - libglib2.0-0
+      - libcairo2
+      - libgtk-3-0
+      - libpeas-1.0-0
+      - libnotify4
+      - libappindicator3-1
+      - libsensors4
+      - libudisks2-0
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
+      - zlib1g
