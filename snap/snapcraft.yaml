@@ -17,6 +17,13 @@ slots:
     bus: session
     name: com.github.alexmurray.IndicatorSensors
 
+plugs:
+  # for client to udisks2
+  udisks2:
+    interface: dbus
+    bus: session
+    name: org.freedesktop.UDisks2
+
 apps:
   indicator-sensors:
     command: desktop-launch snapcraft-preload indicator-sensors
