@@ -63,4 +63,5 @@ parts:
       - libudisks2-0
       - libpango-1.0-0
       - libpangocairo-1.0-0
+      - gir1.2-peas-1.0
       - zlib1g
