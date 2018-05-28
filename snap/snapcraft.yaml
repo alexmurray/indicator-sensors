@@ -20,7 +20,6 @@ slots:
 apps:
   indicator-sensors:
     command: desktop-launch indicator-sensors
-    #command: usr/bin/indicator-sensors
     plugs:
       - x11
       - unity7
@@ -29,6 +28,8 @@ apps:
       - gsettings
       - pulseaudio
       - home
+      - udisks2
+      - hardware-observe
     desktop: usr/share/applications/indicator-sensors.desktop
 
 parts:
@@ -37,7 +38,9 @@ parts:
     source: .
     source-type: git
     plugin: autotools
-    configflags: [--prefix=/usr]
+    configflags: [--prefix=/snap/indicator-sensors/current/usr]
+    organize:
+      snap/indicator-sensors/current/usr: usr
     build-packages:
       - intltool
       - gnome-common
