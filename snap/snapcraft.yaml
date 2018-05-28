@@ -19,7 +19,7 @@ slots:
 
 apps:
   indicator-sensors:
-    command: desktop-launch indicator-sensors
+    command: desktop-launch snapcraft-preload indicator-sensors
     plugs:
       - x11
       - unity7
@@ -33,6 +33,11 @@ apps:
     desktop: usr/share/applications/indicator-sensors.desktop
 
 parts:
+  # to workaround hard-coded /etc/sensors3.conf in libsensors
+  snapcraft-preload:
+    source: https://github.com/sergiusens/snapcraft-preload.git
+    plugin: cmake
+
   indicator-sensors:
     after: [indicator-gtk3, desktop-gtk3]
     source: .
