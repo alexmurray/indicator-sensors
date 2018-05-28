@@ -8,7 +8,7 @@ description: |
 
 grade: devel
 confinement: strict
-#icon: pixmaps/indicator-sensors.png
+icon: pixmaps/indicator-sensors.png
 
 slots:
   # for GtkApplication registration

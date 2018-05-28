@@ -98,12 +98,39 @@ is_libsensors_plugin_get_property(GObject *object,
 static void
 is_libsensors_plugin_init(IsLibsensorsPlugin *self)
 {
+  gint res;
+
   IsLibsensorsPluginPrivate *priv =
     G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_LIBSENSORS_PLUGIN,
                                 IsLibsensorsPluginPrivate);
 
   self->priv = priv;
-  if (sensors_init(NULL) == 0)
+
+  is_debug("libsensors", "Trying to initialise libsensors with default path...\n");
+  res = sensors_init(NULL);
+  if (res != 0)
+  {
+    is_warning("libsensors", "Failed to initialise libsensors with default path...\n");
+    if (getenv("SNAP") != NULL)
+    {
+      gchar *path;
+      FILE *f;
+      path = g_build_filename(getenv("SNAP"), "etc", "sensors3.conf", NULL);
+      f = fopen(path, "r");
+      if (f != NULL)
+      {
+        res = sensors_init(f);
+        if (res != 0)
+        {
+          is_warning("libsensors", "Failed to initialise libsensors with snap path %s...\n",
+                     path);
+        }
+      }
+      g_free(path);
+    }
+    // TODO: fclose(f) ?
+  }
+  if (res == 0)
   {
     priv->sensor_chip_names = g_hash_table_new_full(g_str_hash,
                               g_str_equal,
