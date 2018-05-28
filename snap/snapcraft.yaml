@@ -59,7 +59,8 @@ parts:
       - libnotify-dev
       - libappindicator3-dev
       - libsensors4-dev
-      - nvidia-settings
+      # not available on all arch
+      - try: [nvidia-settings]
       - libudisks2-dev
     stage-packages:
       - libc6
