@@ -1,5 +1,6 @@
 name: indicator-sensors
-version: '0.8+git'
+version: 'stable'
+version-script: git -C parts/indicator-sensors/build describe --tags
 summary: Provide hardware sensors readings in your desktop panel
 description: |
  Application indicator to display and monitor the readings
