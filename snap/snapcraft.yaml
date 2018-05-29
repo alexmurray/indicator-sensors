@@ -32,7 +32,6 @@ apps:
       - desktop
       - wayland
       - gsettings
-      - pulseaudio
       - home
       - udisks2
       - hardware-observe
