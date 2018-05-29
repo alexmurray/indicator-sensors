@@ -18,6 +18,10 @@ slots:
     name: com.github.alexmurray.IndicatorSensors
 
 plugs:
+  gnome-3-26-1604:
+    interface: content
+    target: $SNAP/gnome-platform
+    default-provider: gnome-3-26-1604:gnome-3-26-1604
 
 apps:
   indicator-sensors:
@@ -36,13 +40,14 @@ apps:
 
 parts:
   indicator-sensors:
-    after: [indicator-gtk3, desktop-gtk3]
+    after: [desktop-gnome-platform]
     source: .
     source-type: git
     plugin: autotools
     configflags: [--prefix=/snap/indicator-sensors/current/usr]
     organize:
       snap/indicator-sensors/current/usr: usr
+    build-attributes: [no-system-libraries]
     build-packages:
       - intltool
       - gnome-common
@@ -54,20 +59,11 @@ parts:
       - libnotify-dev
       - libappindicator3-dev
       - libsensors4-dev
+      - gobject-introspection
+      - libgirepository1.0-dev
       # not available on all arch
       - try: [nvidia-settings]
       - libudisks2-dev
     stage-packages:
-      - libc6
-      - libglib2.0-0
-      - libcairo2
-      - libgtk-3-0
-      - libpeas-1.0-0
-      - libnotify4
       - libappindicator3-1
-      - libsensors4
       - libudisks2-0
-      - libpango-1.0-0
-      - libpangocairo-1.0-0
-      - gir1.2-peas-1.0
-      - zlib1g
