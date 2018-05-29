@@ -7,6 +7,13 @@ description: |
  from various hardware sensors (temperature, fan speeds, voltages
  etc) in the desktop panel
 
+ Note: To enable you must manually assign permissions
+
+   sudo snap connect indicator-sensors:hardware-observe :hardware-observe
+
+ Also currently hard disk temperature readings via udisks2 is not functional
+ for the snap version due to snap package confinement policy.
+
 grade: devel
 confinement: strict
 icon: pixmaps/indicator-sensors.png
