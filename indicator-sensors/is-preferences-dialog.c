@@ -46,7 +46,6 @@ struct _IsPreferencesDialogPrivate
   GSettings *application_settings;
   GSettings *indicator_settings;
   GtkWidget *grid;
-  GtkWidget *autostart_check_button;
   GtkWidget *celsius_radio_button;
   GtkWidget *fahrenheit_radio_button;
   GtkWidget *display_icon_check_button;
@@ -146,12 +145,6 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
   gtk_grid_attach(GTK_GRID(priv->grid), label,
                   0, 0,
                   1, 1) ;
-  priv->autostart_check_button = gtk_check_button_new_with_label
-    (_("Start automatically on login"));
-  gtk_widget_set_sensitive(priv->autostart_check_button, FALSE);
-  gtk_grid_attach(GTK_GRID(priv->grid), priv->autostart_check_button,
-                  0, 1,
-                  3, 1);
 
   label = gtk_label_new(_("Primary sensor display"));
   gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
@@ -365,23 +358,6 @@ settings_display_flags_changed(GSettings *settings,
 }
 
 static void
-autostart_toggled(GtkToggleButton *toggle_button,
-                  IsApplication *application)
-{
-  is_application_set_autostart(application,
-                               gtk_toggle_button_get_active(toggle_button));
-}
-
-static void
-application_notify_autostart(IsApplication *application,
-                             GParamSpec *pspec,
-                             GtkToggleButton *check_button)
-{
-  gtk_toggle_button_set_active(check_button,
-                               is_application_get_autostart(application));
-}
-
-static void
 manager_selection_changed(GtkTreeSelection *selection,
                           IsPreferencesDialog *self)
 {
@@ -456,10 +432,6 @@ is_preferences_dialog_set_property(GObject *object,
       g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(manager)),
                        "changed", G_CALLBACK(manager_selection_changed),
                        self);
-      /* set state of autostart checkbutton */
-      gtk_widget_set_sensitive(priv->autostart_check_button, TRUE);
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->autostart_check_button),
-                                   is_application_get_autostart(priv->application));
       gtk_widget_set_sensitive(priv->celsius_radio_button, TRUE);
       gtk_widget_set_sensitive(priv->fahrenheit_radio_button, TRUE);
 
@@ -480,11 +452,6 @@ is_preferences_dialog_set_property(GObject *object,
         default:
           g_assert_not_reached();
       }
-      g_signal_connect(priv->autostart_check_button, "toggled",
-                       G_CALLBACK(autostart_toggled), priv->application);
-      g_signal_connect(priv->application, "notify::autostart",
-                       G_CALLBACK(application_notify_autostart),
-                       priv->autostart_check_button);
       scrolled_window = gtk_scrolled_window_new(NULL, NULL);
       gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
                                      GTK_POLICY_AUTOMATIC,

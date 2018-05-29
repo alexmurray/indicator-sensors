@@ -47,7 +47,6 @@ enum
   PROP_MANAGER = 1,
   PROP_SHOW_INDICATOR,
   PROP_POLL_TIMEOUT,
-  PROP_AUTOSTART,
   PROP_TEMPERATURE_SCALE,
   LAST_PROPERTY
 };
@@ -102,15 +101,6 @@ is_application_class_init(IsApplicationClass *klass)
   g_object_class_install_property(gobject_class, PROP_POLL_TIMEOUT,
                                   properties[PROP_POLL_TIMEOUT]);
 
-  properties[PROP_AUTOSTART] = g_param_spec_boolean("autostart",
-                               "autostart property",
-                               "start " PACKAGE " automatically on login.",
-                               FALSE,
-                               G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-
-  g_object_class_install_property(gobject_class, PROP_AUTOSTART,
-                                  properties[PROP_AUTOSTART]);
-
   /* TODO: convert to an enum type */
   properties[PROP_TEMPERATURE_SCALE] = g_param_spec_int("temperature-scale", "temperature scale",
                                        "Sensor temperature scale.",
@@ -151,36 +141,16 @@ update_sensors(IsApplication *self)
 }
 
 static void
-file_monitor_changed(GFileMonitor *monitor,
-                     GFile *file,
-                     GFile *other_file,
-                     GFileMonitorEvent event_type,
-                     IsManager *self)
-{
-  g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_AUTOSTART]);
-}
-
-static void
 is_application_init(IsApplication *self)
 {
   IsApplicationPrivate *priv;
   gchar *path;
-  GFile *file;
   GError *error = NULL;
   gboolean ret;
 
   priv = self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_APPLICATION,
                       IsApplicationPrivate);
   priv->poll_timeout = DEFAULT_POLL_TIMEOUT;
-  path = g_build_filename(g_get_user_config_dir(), "autostart",
-                          DESKTOP_FILENAME, NULL);
-  file = g_file_new_for_path(path);
-  priv->monitor = g_file_monitor_file(file, G_FILE_MONITOR_NONE,
-                                      NULL, NULL);
-  g_signal_connect(priv->monitor, "changed",
-                   G_CALLBACK(file_monitor_changed), self);
-  g_object_unref(file);
-  g_free(path);
   priv->temperature_scale = IS_TEMPERATURE_SENSOR_SCALE_CELSIUS;
 
   priv->sensor_config = g_key_file_new();
@@ -215,9 +185,6 @@ is_application_get_property(GObject *object,
       break;
     case PROP_POLL_TIMEOUT:
       g_value_set_uint(value, is_application_get_poll_timeout(self));
-      break;
-    case PROP_AUTOSTART:
-      g_value_set_boolean(value, is_application_get_autostart(self));
       break;
     case PROP_TEMPERATURE_SCALE:
       g_value_set_int(value, is_application_get_temperature_scale(self));
@@ -528,9 +495,6 @@ is_application_set_property(GObject *object,
     case PROP_POLL_TIMEOUT:
       is_application_set_poll_timeout(self, g_value_get_uint(value));
       break;
-    case PROP_AUTOSTART:
-      is_application_set_autostart(self, g_value_get_boolean(value));
-      break;
     case PROP_TEMPERATURE_SCALE:
       is_application_set_temperature_scale(self,
                                            g_value_get_int(value));
@@ -646,137 +610,6 @@ IsManager *is_application_get_manager(IsApplication *self)
   g_return_val_if_fail(IS_IS_APPLICATION(self), NULL);
 
   return self->priv->manager;
-}
-
-#define AUTOSTART_KEY "X-GNOME-Autostart-enabled"
-
-gboolean
-is_application_get_autostart(IsApplication *self)
-{
-  GKeyFile *key_file;
-  gchar *path;
-  GError *error = NULL;
-  gboolean ret = FALSE;
-
-  g_return_val_if_fail(IS_IS_APPLICATION(self), FALSE);
-
-  key_file = g_key_file_new();
-  path = g_build_filename(g_get_user_config_dir(), "autostart",
-                          DESKTOP_FILENAME, NULL);
-  ret = g_key_file_load_from_file(key_file, path, G_KEY_FILE_NONE, &error);
-  if (!ret)
-  {
-    is_debug("application", "Failed to load autostart desktop file '%s': %s",
-             path, error->message);
-    g_error_free(error);
-    goto out;
-  }
-  ret = g_key_file_get_boolean(key_file, G_KEY_FILE_DESKTOP_GROUP,
-                               AUTOSTART_KEY, &error);
-  if (error)
-  {
-    is_debug("application", "Failed to get key '%s' from autostart desktop file '%s': %s",
-             AUTOSTART_KEY, path, error->message);
-    g_error_free(error);
-  }
-
-out:
-  g_free(path);
-  g_key_file_free(key_file);
-  return ret;
-}
-
-void
-is_application_set_autostart(IsApplication *self,
-                             gboolean autostart)
-{
-  GKeyFile *key_file;
-  gboolean ret;
-  gchar *autostart_file;
-  GError *error = NULL;
-
-  g_return_if_fail(IS_IS_APPLICATION(self));
-
-  key_file = g_key_file_new();
-  autostart_file = g_build_filename(g_get_user_config_dir(), "autostart",
-                                    DESKTOP_FILENAME, NULL);
-  ret = g_key_file_load_from_file(key_file, autostart_file,
-                                  G_KEY_FILE_KEEP_COMMENTS |
-                                  G_KEY_FILE_KEEP_TRANSLATIONS,
-                                  &error);
-  if (!ret)
-  {
-    gchar *application_file;
-    gchar *autostart_dir;
-
-    is_debug("application", "Failed to load autostart desktop file '%s': %s",
-             autostart_file, error->message);
-    g_clear_error(&error);
-    /* make sure autostart dir exists */
-    autostart_dir = g_build_filename(g_get_user_config_dir(), "autostart",
-                                     NULL);
-    ret = g_mkdir_with_parents(autostart_dir, 0755);
-    if (ret != 0)
-    {
-      is_warning("application", "Failed to create autostart directory '%s'", autostart_dir);
-    }
-    g_free(autostart_dir);
-
-    application_file = g_build_filename("applications",
-                                        DESKTOP_FILENAME, NULL);
-    ret = g_key_file_load_from_data_dirs(key_file,
-                                         application_file,
-                                         NULL,
-                                         G_KEY_FILE_KEEP_COMMENTS |
-                                         G_KEY_FILE_KEEP_TRANSLATIONS,
-                                         &error);
-    if (!ret)
-    {
-      is_warning("application", "Failed to load application desktop file: %s",
-                 error->message);
-      g_clear_error(&error);
-      /* create file by hand */
-      g_key_file_set_string(key_file,
-                            G_KEY_FILE_DESKTOP_GROUP,
-                            G_KEY_FILE_DESKTOP_KEY_TYPE,
-                            "Application");
-      g_key_file_set_string(key_file,
-                            G_KEY_FILE_DESKTOP_GROUP,
-                            G_KEY_FILE_DESKTOP_KEY_NAME,
-                            _(PACKAGE_NAME));
-      g_key_file_set_string(key_file,
-                            G_KEY_FILE_DESKTOP_GROUP,
-                            G_KEY_FILE_DESKTOP_KEY_GENERIC_NAME,
-                            _(PACKAGE_NAME));
-      g_key_file_set_string(key_file,
-                            G_KEY_FILE_DESKTOP_GROUP,
-                            G_KEY_FILE_DESKTOP_KEY_EXEC,
-                            PACKAGE);
-      g_key_file_set_string(key_file,
-                            G_KEY_FILE_DESKTOP_GROUP,
-                            G_KEY_FILE_DESKTOP_KEY_ICON,
-                            PACKAGE);
-      g_key_file_set_string(key_file,
-                            G_KEY_FILE_DESKTOP_GROUP,
-                            G_KEY_FILE_DESKTOP_KEY_CATEGORIES,
-                            "System;");
-    }
-    g_free(application_file);
-  }
-  g_key_file_set_boolean(key_file, G_KEY_FILE_DESKTOP_GROUP,
-                         AUTOSTART_KEY, autostart);
-  ret = g_file_set_contents(autostart_file,
-                            g_key_file_to_data(key_file, NULL, NULL),
-                            -1,
-                            &error);
-  if (!ret)
-  {
-    is_warning("application", "Failed to write autostart desktop file '%s': %s",
-               autostart_file, error->message);
-    g_clear_error(&error);
-  }
-  g_free(autostart_file);
-  g_key_file_free(key_file);
 }
 
 IsTemperatureSensorScale is_application_get_temperature_scale(IsApplication *self)

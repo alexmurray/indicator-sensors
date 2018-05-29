@@ -67,8 +67,6 @@ void is_application_set_show_indicator(IsApplication *self,
 gboolean is_application_get_show_indicator(IsApplication *self);
 guint is_application_get_poll_timeout(IsApplication *self);
 void is_application_set_poll_timeout(IsApplication *self, guint poll_timeout);
-gboolean is_application_get_autostart(IsApplication *self);
-void is_application_set_autostart(IsApplication *self, gboolean autostart);
 IsTemperatureSensorScale is_application_get_temperature_scale(IsApplication *self);
 void is_application_set_temperature_scale(IsApplication *self,
     IsTemperatureSensorScale scale);
