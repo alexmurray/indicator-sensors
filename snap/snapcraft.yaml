@@ -14,7 +14,7 @@ description: |
  Also currently hard disk temperature readings via udisks2 is not functional
  for the snap version due to snap package confinement policy.
 
-grade: devel
+grade: stable
 confinement: strict
 icon: pixmaps/indicator-sensors.png
 
