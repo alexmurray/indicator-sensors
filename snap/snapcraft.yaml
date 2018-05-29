@@ -33,7 +33,6 @@ apps:
       - desktop
       - wayland
       - gsettings
-      - home
       - udisks2
       - hardware-observe
     desktop: usr/share/applications/indicator-sensors.desktop
