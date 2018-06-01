@@ -70,27 +70,21 @@ parts:
       # not available on all arch
       - try: [nvidia-settings]
       - libudisks2-dev
+
+  libraries:
+    plugin: nil
     stage-packages:
-      - libappindicator3-1
-      - libudisks2-0
+       - libsensors4
+       - libappindicator3-1
+       - libudisks2-0
     prime:
       # include only what we need which is not in the desktop-gnome-platform to
       # keep the snap size as small as possible
       - etc/sensors3.conf
       - etc/sensors.d/*
-      - usr/bin/indicator-sensors
       - usr/lib/*/libappindicator3.so.*
       - usr/lib/*/libdbusmenu-glib.so.*
       - usr/lib/*/libdbusmenu-gtk3.so.*
       - usr/lib/*/libindicator3.so.*
       - usr/lib/*/libsensors.so.*
       - usr/lib/*/libudisks2.so.*
-      - usr/lib/indicator-sensors/plugins/*
-      - usr/lib/**/libgirepository*
-      - usr/lib/**/libpeas*
-      - usr/share/appdata/indicator-sensors.appdata.xml
-      - usr/share/applications/indicator-sensors.desktop
-      - usr/share/glib-2.0/schemas/indicator-sensors.gschema.xml
-      - usr/share/icons/**/indicator-sensors*.png
-      - usr/share/icons/**/*-value-icon.png
-      - usr/share/locale/**/indicator-sensors*
