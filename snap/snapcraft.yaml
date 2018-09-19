@@ -25,6 +25,21 @@ plugs:
     interface: content
     target: $SNAP/gnome-platform
     default-provider: gnome-3-26-1604:gnome-3-26-1604
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/share/themes
+    default-provider: gtk-common-themes:gtk-3-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/share/icons
+    default-provider: gtk-common-themes:icon-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/share/sounds
+    default-provider: gtk-common-themes:sounds-themes
+
+environment:
+  XDG_DATA_DIRS: $SNAP/share:$XDG_DATA_DIRS
 
 apps:
   indicator-sensors:
