@@ -7,8 +7,6 @@ description: |
  from various hardware sensors (temperature, fan speeds, voltages
  etc) in the desktop panel
 
- NOTE: Currently hard disk temperature readings via udisks2 is not supported.
-
 grade: stable
 confinement: strict
 icon: pixmaps/indicator-sensors.png
