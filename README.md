@@ -16,13 +16,11 @@ etc) in the desktop panel for GNOME / Ubuntu
 The preferred way to install `indicator-sensors` is via the [snapcraft
 store](https://snapcraft.io/indicator-sensors).
 
-First ensure you have [snap support in your desktop install](https://docs.snapcraft.io/core/install)
+First ensure you have [snap support in your desktop
+install](https://docs.snapcraft.io/core/install)
 
-Then you can just <kbd>sudo snap install indicator-sensors</kbd> to install from the command line.
-
-<a href="snap://indicator-sensors">
-Install via the Desktop store
-</a>
+Then you can just <kbd>sudo snap install indicator-sensors</kbd> to install
+from the command line.
 
 ## License
 
