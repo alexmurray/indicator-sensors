@@ -6,7 +6,7 @@ AC_CONFIG_HEADERS([indicator-sensors/config.h])
 AC_CONFIG_SRCDIR([indicator-sensors/indicator-sensors.c])
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE([1.11 dist-bzip2])
+AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign])
 AM_MAINTAINER_MODE([enable])
 
 AM_SILENT_RULES([yes])
