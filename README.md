@@ -18,7 +18,11 @@ store](https://snapcraft.io/indicator-sensors).
 
 First ensure you have [snap support in your desktop install](https://docs.snapcraft.io/core/install)
 
-Then you can just <kbd>sudo snap install indicator-sensors</kbd> or <a href="snap://indicator-sensors">install via the Desktop store</a>
+Then you can just <kbd>sudo snap install indicator-sensors</kbd> to install from the command line.
+
+<a href="snap://indicator-sensors">
+Install via the Desktop store
+</a>
 
 ## License
 
