@@ -11,6 +11,10 @@ grade: stable
 confinement: strict
 icon: pixmaps/indicator-sensors.png
 
+# snapcraft doesn't know about the license field
+passthrough:
+  license: GPL-3.0+
+
 slots:
   # for GtkApplication registration
   indicator-sensors:
