@@ -287,6 +287,7 @@ object_added_cb(GDBusObjectManager *manager,
   if (!drive || !ata_drive ||
       !udisks_drive_ata_get_smart_enabled(ata_drive))
   {
+    is_debug("udisks2", "Ignoring drive at path %s as not ATA / SMART enabled\n", id);
     goto out;
   }
 
