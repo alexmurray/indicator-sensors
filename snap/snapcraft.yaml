@@ -9,7 +9,7 @@ description: |
 
 grade: stable
 confinement: strict
-icon: pixmaps/indicator-sensors.png
+icon: icons/hicolor/256x256/apps/indicator-sensors.png
 
 # snapcraft doesn't know about the license field
 passthrough:

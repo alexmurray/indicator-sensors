@@ -223,7 +223,7 @@ AC_CONFIG_FILES([
 	data/Makefile
 	data/indicator-sensors.gschema.xml.in
 	indicator-sensors/Makefile
-	pixmaps/Makefile
+	icons/Makefile
 	plugins/Makefile
 	plugins/aticonfig/Makefile
 	plugins/dbus/Makefile
