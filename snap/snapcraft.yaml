@@ -69,6 +69,8 @@ parts:
     organize:
       snap/indicator-sensors/current/usr: usr
     build-attributes: [no-system-libraries]
+    prepare:
+      sed -i.bak -e 's|^Icon=indicator-sensors$|Icon=${SNAP}/meta/gui/icon.png|g' data/indicator-sensors.desktop.in
     build-packages:
       - intltool
       - gnome-common
