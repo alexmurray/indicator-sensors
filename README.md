@@ -11,11 +11,11 @@ sensors (temperature, fan speeds, voltages etc) in the desktop panel for GNOME
 
 ## Installation
 
-### Snapcraft Store
+### Snap Store
 [![Get it from the Snap Store](https://raw.githubusercontent.com/snapcore/snap-store-badges/master/EN/%5BEN%5D-snap-store-black.png)](https://snapcraft.io/indicator-sensors)
 
-The preferred way to install `indicator-sensors` is via the [snapcraft
-store](https://snapcraft.io/indicator-sensors).
+The preferred way to install `indicator-sensors` is via the [Snap
+Store](https://snapcraft.io/indicator-sensors).
 
 First ensure you have [snap support in your desktop
 install](https://docs.snapcraft.io/core/install)
