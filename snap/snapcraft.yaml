@@ -7,6 +7,7 @@ description: |
  from various hardware sensors (temperature, fan speeds, voltages
  etc) in the desktop panel
 
+base: core18
 grade: stable
 confinement: strict
 icon: icons/hicolor/256x256/apps/indicator-sensors.png
@@ -23,10 +24,10 @@ slots:
     name: com.github.alexmurray.IndicatorSensors
 
 plugs:
-  gnome-3-26-1604:
+  gnome-3-28-1804:
     interface: content
     target: $SNAP/gnome-platform
-    default-provider: gnome-3-26-1604:gnome-3-26-1604
+    default-provider: gnome-3-28-1804:gnome-3-28-1804
   gtk-3-themes:
     interface: content
     target: $SNAP/share/themes
