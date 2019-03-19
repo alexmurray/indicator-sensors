@@ -82,9 +82,8 @@ parts:
       - libsensors4-dev
       - gobject-introspection
       - libgirepository1.0-dev
-      # not available on all arch
-      - try: [nvidia-settings]
       - libudisks2-dev
+      - try: [ libxnvctrl-dev ]
     override-prime: |
       set -eu
       snapcraftctl prime
@@ -111,6 +110,7 @@ parts:
        - libudisks2-0
        - libnotify4
        - libpeas-1.0-0
+       - try: [ libxnvctrl0 ]
     prime:
       # include only what we need which is not in the desktop-gnome-platform to
       # keep the snap size as small as possible
@@ -122,3 +122,4 @@ parts:
       - usr/lib/*/libindicator3.so.*
       - usr/lib/*/libsensors.so.*
       - usr/lib/*/libudisks2.so.*
+      - usr/lib/*/libXNVCtrl.so.*
