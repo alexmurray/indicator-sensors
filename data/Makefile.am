@@ -15,7 +15,8 @@ gsettings_SCHEMAS = indicator-sensors.gschema.xml
 @GSETTINGS_RULES@
 
 CLEANFILES = \
-        $(gsettings_SCHEMAS)
+        $(gsettings_SCHEMAS) \
+	indicator-sensors.appdata.xml
 
 DISTCLEANFILES = $(desktop_DATA) \
         $(gsettings_SCHEMAS)
