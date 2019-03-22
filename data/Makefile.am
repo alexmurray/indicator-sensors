@@ -3,7 +3,7 @@ desktop_in_files = indicator-sensors.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
 @INTLTOOL_XML_NOMERGE_RULE@
-appdatadir = $(datadir)/appdata
+appdatadir = $(datadir)/metainfo
 dist_appdata_DATA = $(appdata_in_files:.xml.in=.xml)
 appdata_in_files = indicator-sensors.appdata.xml.in
 
