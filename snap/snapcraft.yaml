@@ -11,10 +11,7 @@ base: core18
 grade: stable
 confinement: strict
 icon: icons/hicolor/256x256/apps/indicator-sensors.png
-
-# snapcraft doesn't know about the license field
-passthrough:
-  license: GPL-3.0+
+license: GPL-3.0+
 
 slots:
   # for GtkApplication registration
