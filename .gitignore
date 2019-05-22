@@ -5,6 +5,7 @@ indicator-sensors*.tar.*
 *.lo
 *.la
 *.so
+*.snap
 .deps*
 .libs*
 ABOUT-NLS
