@@ -473,9 +473,11 @@ update_sensor_menu_item_label(IsIndicator *self,
     {
       /* join label to existing text - if text is NULL this
          will just show label */
+      gchar *old = text;
       text = g_strjoin(" ",
                        is_sensor_get_label(sensor),
                        text, NULL);
+      g_free(old);
     }
     if (priv->display_flags & IS_INDICATOR_DISPLAY_ICON)
     {
@@ -490,6 +492,10 @@ update_sensor_menu_item_label(IsIndicator *self,
                                   is_sensor_get_label(sensor));
 
     }
+    /* prefix with a space */
+    gchar *old = text;
+    text = g_strjoin(" ", "", text, NULL);
+    g_free(old);
     app_indicator_set_label(APP_INDICATOR(self), text, text);
     g_free(text);
     app_indicator_set_status(APP_INDICATOR(self),
