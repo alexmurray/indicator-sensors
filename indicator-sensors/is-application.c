@@ -864,7 +864,7 @@ void is_application_show_about(IsApplication *self)
                         "copyright", "Copyright © 2011-2019 Alex Murray",
                         "logo-icon-name", PACKAGE,
                         "version", VERSION,
-                        "website", "https://launchpad.net/indicator-sensors",
+                        "website", "https://github.com/alexmurray/indicator-sensors",
                         NULL);
 }
 
