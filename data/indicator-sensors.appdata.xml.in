@@ -11,11 +11,15 @@
       readings within the panel of your desktop.
     </p>
     <p>
-      When running GNOME Shell it is recommended to also install the
-      associated GNOME Shell extension from extensions.gnome.org -
+      When running GNOME Shell a shell extension is required to view
+      sensors readings within the top panel. Therefore it is recommended to
+      also install either the KStatusNotifierItem/AppIndicator Support
+      extension
+      https://extensions.gnome.org/extension/615/appindicator-support/, or
+      the Hardware Sensors Indicator extension
       https://extensions.gnome.org/extension/336/hardware-sensors-indicator/
-      .
-    </p>
+      so that sensor readings are visible.
+      </p>
   </description>
   <screenshots>
     <screenshot type="default" width="247" height="310">
