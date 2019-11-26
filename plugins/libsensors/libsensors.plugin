@@ -4,6 +4,6 @@ IAge=2
 Name=LM-Sensors (libsensors)
 Description=Provides sensors from libsensors (lm-sensors)
 Authors=Alex Murray <murray.alex@gmail.com>
-Copyright=Copyright © 2011 Alex Murray
+Copyright=Copyright © 2011-2019 Alex Murray
 Website=http://github.com/alexmurray/indicator-sensors
 Help=http://github.com/alexmurray/indicator-sensors

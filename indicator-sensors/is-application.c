@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -861,7 +861,7 @@ void is_application_show_about(IsApplication *self)
                         "program-name", _("Hardware Sensors Indicator"),
                         "authors", authors,
                         "comments", _("Indicator for GNOME / Unity showing hardware sensors."),
-                        "copyright", "Copyright © 2011 Alex Murray",
+                        "copyright", "Copyright © 2011-2019 Alex Murray",
                         "logo-icon-name", PACKAGE,
                         "version", VERSION,
                         "website", "https://launchpad.net/indicator-sensors",
