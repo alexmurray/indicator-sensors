@@ -18,8 +18,8 @@
 #ifndef __IS_INDICATOR_H__
 #define __IS_INDICATOR_H__
 
-#if HAVE_APPINDICATOR
-#include <libappindicator/app-indicator.h>
+#if HAVE_AYATANA_APPINDICATOR
+#include <libayatana-appindicator/app-indicator.h>
 #else
 #include <gtk/gtk.h>
 #endif
@@ -53,7 +53,7 @@ typedef struct _IsIndicator      IsIndicator;
 typedef struct _IsIndicatorClass IsIndicatorClass;
 typedef struct _IsIndicatorPrivate IsIndicatorPrivate;
 
-#if HAVE_APPINDICATOR
+#if HAVE_AYATANA_APPINDICATOR
 #define IsIndicatorParentClass AppIndicatorClass
 #define IsIndicatorParent AppIndicator
 #define IS_INDICATOR_PARENT_TYPE APP_INDICATOR_TYPE

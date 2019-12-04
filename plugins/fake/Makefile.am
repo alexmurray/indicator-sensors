@@ -4,7 +4,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) 	\
 	$(GLIB_CFLAGS)		\
 	$(GTK_CFLAGS)		\
-	$(APPINDICATOR_CFLAGS)	\
+	$(AYATANA_APPINDICATOR_CFLAGS)	\
 	$(LIBPEAS_CFLAGS)       \
 	$(DEBUG_CFLAGS)
 
@@ -18,7 +18,7 @@ libfake_la_LDFLAGS = $(PLUGIN_LIBTOOL_FLAGS)
 libfake_la_LIBADD  = 	\
 	$(GLIB_LIBS)		\
 	$(GTK_LIBS) 		\
-	$(APPINDICATOR_LIBS)	\
+	$(AYATANA_APPINDICATOR_LIBS)	\
 	$(LIBPEAS_LIBS)
 
 plugin_DATA = fake.plugin

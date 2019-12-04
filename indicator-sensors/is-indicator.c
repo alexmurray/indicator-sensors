@@ -35,7 +35,7 @@ static void is_indicator_get_property(GObject *object,
                                       guint property_id, GValue *value, GParamSpec *pspec);
 static void is_indicator_set_property(GObject *object,
                                       guint property_id, const GValue *value, GParamSpec *pspec);
-#if HAVE_APPINDICATOR
+#if HAVE_AYATANA_APPINDICATOR
 static void is_indicator_connection_changed(AppIndicator *indicator,
     gboolean connected,
     gpointer data);
@@ -84,7 +84,7 @@ is_indicator_get_menu(IsIndicator *self)
 {
   GtkMenu *menu;
 
-#if HAVE_APPINDICATOR
+#if HAVE_AYATANA_APPINDICATOR
   menu = app_indicator_get_menu(APP_INDICATOR(self));
 #else
   menu = GTK_MENU(g_object_get_data(G_OBJECT(self), "indicator-menu"));
@@ -92,7 +92,7 @@ is_indicator_get_menu(IsIndicator *self)
   return menu;
 }
 
-#if !HAVE_APPINDICATOR
+#if !HAVE_AYATANA_APPINDICATOR
 static void
 popup_menu(GtkStatusIcon *status_icon,
            guint button,
@@ -110,7 +110,7 @@ static void
 is_indicator_set_menu(IsIndicator *self,
                       GtkMenu *menu)
 {
-#if HAVE_APPINDICATOR
+#if HAVE_AYATANA_APPINDICATOR
   app_indicator_set_menu(APP_INDICATOR(self), menu);
 #else
   g_object_set_data_full(G_OBJECT(self), "indicator-menu", menu,
@@ -207,7 +207,7 @@ static void
 is_indicator_set_label(IsIndicator *self,
                        const gchar *label)
 {
-#if HAVE_APPINDICATOR
+#if HAVE_AYATANA_APPINDICATOR
   app_indicator_set_label(APP_INDICATOR(self), label, label);
 #else
   gtk_status_icon_set_tooltip_text(GTK_STATUS_ICON(self), label);
@@ -247,7 +247,7 @@ is_indicator_constructed(GObject *object)
 
   is_indicator_set_label(self, _("No Sensors"));
   is_indicator_set_menu(self, GTK_MENU(menu));
-#if HAVE_APPINDICATOR
+#if HAVE_AYATANA_APPINDICATOR
   app_indicator_set_status(APP_INDICATOR(self), APP_INDICATOR_STATUS_ACTIVE);
 #endif
 
@@ -266,7 +266,7 @@ is_indicator_class_init(IsIndicatorClass *klass)
   gobject_class->constructed = is_indicator_constructed;
   gobject_class->dispose = is_indicator_dispose;
   gobject_class->finalize = is_indicator_finalize;
-#if HAVE_APPINDICATOR
+#if HAVE_AYATANA_APPINDICATOR
   APP_INDICATOR_CLASS(klass)->connection_changed = is_indicator_connection_changed;
 #endif
 
@@ -360,7 +360,7 @@ is_indicator_set_property(GObject *object,
   }
 }
 
-#if HAVE_APPINDICATOR
+#if HAVE_AYATANA_APPINDICATOR
 static void is_indicator_connection_changed(AppIndicator *indicator,
     gboolean connected,
     gpointer data)
@@ -414,7 +414,7 @@ is_indicator_dispose(GObject *object)
   }
   g_slist_free(sensors);
 
-#if !HAVE_APPINDICATOR
+#if !HAVE_AYATANA_APPINDICATOR
   g_object_set_data(G_OBJECT(self), "indicator-menu", NULL);
 #endif
   G_OBJECT_CLASS(is_indicator_parent_class)->dispose(object);
@@ -447,7 +447,7 @@ update_sensor_menu_item_label(IsIndicator *self,
   g_free(text);
   text = NULL;
 
-#if HAVE_APPINDICATOR
+#if HAVE_AYATANA_APPINDICATOR
   if (sensor == self->priv->primary)
   {
     IsIndicatorPrivate *priv = self->priv;
@@ -574,7 +574,7 @@ sensor_disabled(IsManager *manager,
   else
   {
     is_indicator_set_label(self, _("No active sensors"));
-#if !HAVE_APPINDICATOR
+#if !HAVE_AYATANA_APPINDICATOR
     gtk_status_icon_set_from_stock(GTK_STATUS_ICON(self),
                                    GTK_STOCK_DIALOG_WARNING);
 #endif
@@ -708,7 +708,7 @@ sensor_added(IsManager *manager,
   if (!self->priv->menu_items)
   {
     is_indicator_set_label(self, _("No active sensors"));
-#if !HAVE_APPINDICATOR
+#if !HAVE_AYATANA_APPINDICATOR
     gtk_status_icon_set_from_stock(GTK_STATUS_ICON(self),
                                    GTK_STOCK_DIALOG_WARNING);
 #endif
@@ -719,7 +719,7 @@ IsIndicator *
 is_indicator_new(IsApplication *application)
 {
   IsIndicator *self = g_object_new(IS_TYPE_INDICATOR,
-#if HAVE_APPINDICATOR
+#if HAVE_AYATANA_APPINDICATOR
                                    "id", PACKAGE,
                                    "category", "Hardware",
 #endif
