@@ -52,9 +52,7 @@ apps:
       - udisks2
       - hardware-observe
     desktop: usr/share/applications/indicator-sensors.desktop
-    # snapcraft doesn't know about the autostart field
-    passthrough:
-      autostart: indicator-sensors.desktop
+    autostart: indicator-sensors.desktop
 
 parts:
   indicator-sensors:
