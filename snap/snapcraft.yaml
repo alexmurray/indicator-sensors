@@ -71,6 +71,7 @@ parts:
        - libudisks2-0
        - libnotify4
        - libpeas-1.0-0
+       - libgtk3-nocsd0
        - try: [ libxnvctrl0 ]
     prime:
       # include only what we need which is not in the desktop-gnome-platform to
@@ -85,3 +86,4 @@ parts:
       - usr/lib/*/libsensors.so.*
       - usr/lib/*/libudisks2.so.*
       - usr/lib/*/libXNVCtrl.so.*
+      - usr/lib/*/libgtk3-nocsd.so.*
