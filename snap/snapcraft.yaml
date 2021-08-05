@@ -24,7 +24,7 @@ environment:
 
 apps:
   indicator-sensors:
-    command: indicator-sensors
+    command: usr/bin/indicator-sensors
     extensions: [gnome-3-28]
     plugs:
       - unity7
