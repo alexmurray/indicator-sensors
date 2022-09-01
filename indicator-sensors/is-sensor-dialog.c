@@ -400,6 +400,8 @@ is_sensor_dialog_dispose(GObject *object)
 
   if (priv->sensor)
   {
+    // disconnect all our signal handlers on sensor
+    g_signal_handlers_disconnect_by_data(priv->sensor, self);
     g_object_unref(priv->sensor);
     priv->sensor = NULL;
   }
