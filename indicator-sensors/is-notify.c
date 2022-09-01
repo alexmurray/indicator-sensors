@@ -103,7 +103,7 @@ is_notify_level_to_icon(IsNotifyLevel level)
       break;
 
     case IS_NOTIFY_LEVEL_INFO:
-      icon = "dialog-info";
+      icon = "dialog-information";
       break;
 
     case NUM_IS_NOTIFY_LEVELS:
