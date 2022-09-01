@@ -1,6 +1,6 @@
 # ================= initialization =================== #
 AC_PREREQ([2.68])
-AC_INIT([Hardware Sensors Indicator],[1.2],[https://github.com/alexmurray/indicator-sensors],[indicator-sensors])
+AC_INIT([Hardware Sensors Indicator],[1.3],[https://github.com/alexmurray/indicator-sensors],[indicator-sensors])
 
 AC_CONFIG_HEADERS([indicator-sensors/config.h])
 AC_CONFIG_SRCDIR([indicator-sensors/indicator-sensors.c])
