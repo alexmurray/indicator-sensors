@@ -6,7 +6,7 @@ description: |
  from various hardware sensors (temperature, fan speeds, voltages
  etc) in the desktop panel
 
-base: core18
+base: core22
 grade: stable
 confinement: strict
 icon: icons/hicolor/256x256/apps/indicator-sensors.png
@@ -25,10 +25,9 @@ environment:
 apps:
   indicator-sensors:
     command: usr/bin/indicator-sensors
-    extensions: [gnome-3-28]
+    extensions: [gnome]
     plugs:
       - unity7
-      - gsettings
       - udisks2
       - hardware-observe
     desktop: usr/share/applications/indicator-sensors.desktop
@@ -39,7 +38,7 @@ parts:
     source: .
     source-type: git
     plugin: autotools
-    configflags: [--prefix=/snap/indicator-sensors/current/usr]
+    autotools-configure-parameters: [--prefix=/snap/indicator-sensors/current/usr]
     organize:
       snap/indicator-sensors/current/usr: usr
     build-packages:
@@ -51,11 +50,11 @@ parts:
       - libpeas-dev
       - libnotify-dev
       - libayatana-appindicator3-dev
-      - libsensors4-dev
+      - libsensors-dev
       - gobject-introspection
       - libgirepository1.0-dev
       - libudisks2-dev
-      - try: [ libxnvctrl-dev ]
+      - libxnvctrl-dev
     override-prime: |
       set -eu
       snapcraftctl prime
@@ -65,14 +64,15 @@ parts:
   libraries:
     plugin: nil
     stage-packages:
-       - libsensors4
+       - libsensors5
        - libayatana-appindicator3-1
        - libayatana-indicator3-7
+       - libayatana-ido3-0.4-0
        - libudisks2-0
        - libnotify4
        - libpeas-1.0-0
        - libgtk3-nocsd0
-       - try: [ libxnvctrl0 ]
+       - libxnvctrl0
     prime:
       # include only what we need which is not in the desktop-gnome-platform to
       # keep the snap size as small as possible
@@ -80,6 +80,7 @@ parts:
       - etc/sensors.d/*
       - usr/lib/*/libayatana-appindicator3.so.*
       - usr/lib/*/libayatana-indicator3.so.*
+      - usr/lib/*/libayatana-ido3-0.4.so.*
       - usr/lib/*/libdbusmenu-glib.so.*
       - usr/lib/*/libdbusmenu-gtk3.so.*
       - usr/lib/*/libindicator3.so.*
