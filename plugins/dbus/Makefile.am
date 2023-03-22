@@ -34,12 +34,12 @@ dbus_search_provider_built_sources = \
 	is-org-gnome-shell-search-provider-generated.h \
 	$(NULL)
 
-$(dbus_search_provider_built_sources) : Makefile.am shell-search-provider-dbus-interfaces.xml
+$(dbus_search_provider_built_sources) : shell-search-provider-dbus-interfaces.xml Makefile.am
 	$(AM_V_GEN) gdbus-codegen \
 		--interface-prefix com.github.alexmurray.IndicatorSensors. \
 		--c-namespace Is \
 		--generate-c-code is-org-gnome-shell-search-provider-generated \
-		shell-search-provider-dbus-interfaces.xml \
+		$< \
 		$(NULL)
 
 active_sensor_built_sources = \
@@ -47,14 +47,14 @@ active_sensor_built_sources = \
 	is-active-sensor-generated.c \
 	is-active-sensor-generated-com.github.alexmurray.IndicatorSensors.ActiveSensor.xml
 
-$(active_sensor_built_sources): Makefile.am is-active-sensor.xml
+$(active_sensor_built_sources): is-active-sensor.xml Makefile.am
 	$(AM_V_GEN) gdbus-codegen \
 		--interface-prefix com.github.alexmurray.IndicatorSensors. \
 		--c-namespace Is \
 		--c-generate-object-manager \
 		--generate-c-code is-active-sensor-generated \
 		--generate-docbook is-active-sensor-generated \
-		is-active-sensor.xml \
+		$< \
 		$(NULL)
 
 searchproviderdir = $(datadir)/gnome-shell/search-providers
@@ -66,6 +66,7 @@ BUILT_SOURCES = $(dbus_search_provider_built_sources) \
 EXTRA_DIST =  $(plugin_DATA) \
 	shell-search-provider-dbus-interfaces.xml \
 	is-active-sensor.xml \
+	is-search-provider.ini \
 	$(NULL)
 
 CLEANFILES = $(dbus_search_provider_built_sources) \

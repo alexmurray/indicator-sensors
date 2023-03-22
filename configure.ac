@@ -14,6 +14,10 @@ AM_SILENT_RULES([yes])
 # ============== basic compiler settings ============= #
 AC_PROG_CC
 AC_PROG_INSTALL
+AC_PROG_LIBTOOL
+AC_PROG_AWK
+AC_PROG_FGREP
+AC_PROG_SED
 AC_HEADER_STDC
 
 # ================= initialize libtool =============== #
@@ -22,6 +26,25 @@ LT_INIT([disable-static])
 
 # =========== take care of some localization ========= #
 IT_PROG_INTLTOOL([0.40.0])
+
+# Check for and fix missing delete of intltool cache lock file.  Only
+# needed with intltool >= 0.51.0-5.1, but just always fix as that is
+# simpler and safe.
+AC_MSG_CHECKING([whether po/Makefile.in.in deletes intltool cache lock file])
+file='po/Makefile.in.in'
+if test ! -f "$srcdir/$file"; then
+	AC_MSG_RESULT([not applicable])
+elif $FGREP -q '.intltool-merge-cache.lock' "$srcdir/$file" 2> /dev/null; then
+	AC_MSG_RESULT([yes])
+else
+	test -w "$srcdir/$file" && \
+	$SED -i '/rm -f .intltool-merge-cache/s/$/ .intltool-merge-cache.lock/' "$srcdir/$file" 2> /dev/null
+	if $FGREP -q '.intltool-merge-cache.lock' "$srcdir/$file" 2> /dev/null; then
+		AC_MSG_RESULT([fixed])
+	else
+		AC_MSG_RESULT([no])
+	fi
+fi
 
 GETTEXT_PACKAGE=indicator-sensors
 AC_SUBST(GETTEXT_PACKAGE)
