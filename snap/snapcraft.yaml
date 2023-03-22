@@ -36,7 +36,6 @@ apps:
 parts:
   indicator-sensors:
     source: .
-    source-type: git
     plugin: autotools
     autotools-configure-parameters: [--prefix=/snap/indicator-sensors/current/usr]
     organize:
