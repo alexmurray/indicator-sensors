@@ -35,6 +35,11 @@ static void is_sensor_get_property(GObject *object,
 static void is_sensor_set_property(GObject *object,
                                    guint property_id, const GValue *value, GParamSpec *pspec);
 
+// alarm timeout should be more than the sensor poll timeout / hysteresis to ensure we
+// get at least one more reading in before showing any notification otherwise
+// there is no hysteresis
+#define DEFAULT_ALARM_TIMEOUT 5
+
 /* signal enum */
 enum
 {
@@ -645,12 +650,7 @@ update_alarmed(IsSensor *self)
   if (priv->alarmed != alarmed)
   {
     GSettings *settings;
-    gint delay;
 
-    settings = g_settings_new("indicator-sensors.sensor");
-    delay = g_settings_get_int(settings, "alarm-delay");
-
-    g_object_unref(settings);
     /* use a hysteresis value so we don't become alarmed too
      * quickly for fluctuating values */
     if (priv->alarmed)
@@ -663,11 +663,11 @@ update_alarmed(IsSensor *self)
       if (!priv->disable_alarm_id)
       {
         priv->disable_alarm_id =
-          g_timeout_add_seconds(delay,
+          g_timeout_add_seconds(DEFAULT_ALARM_TIMEOUT,
                                 (GSourceFunc)disable_alarm,
                                 self);
         is_debug("sensor", "Alarm triggered - will %sable in %d seconds",
-                 alarmed ? "en" : "dis", delay);
+                 alarmed ? "en" : "dis", DEFAULT_ALARM_TIMEOUT);
       }
     }
     else
@@ -680,11 +680,11 @@ update_alarmed(IsSensor *self)
       if (!priv->enable_alarm_id)
       {
         priv->enable_alarm_id =
-          g_timeout_add_seconds(delay,
+          g_timeout_add_seconds(DEFAULT_ALARM_TIMEOUT,
                                 (GSourceFunc)enable_alarm,
                                 self);
         is_debug("sensor", "Alarm triggered - will %sable in %d seconds",
-                 alarmed ? "en" : "dis", delay);
+                 alarmed ? "en" : "dis", DEFAULT_ALARM_TIMEOUT);
       }
     }
   }

@@ -39,7 +39,10 @@ static void is_application_get_property(GObject *object,
 static void is_application_set_property(GObject *object,
                                         guint property_id, const GValue *value, GParamSpec *pspec);
 
-#define DEFAULT_POLL_TIMEOUT 5
+// poll timeout should be less than the alarm timeout / hysteresis to ensure we
+// get at least one more reading in before showing the notification otherwise
+// there is no hysteresis
+#define DEFAULT_POLL_TIMEOUT 4
 
 /* properties */
 enum
