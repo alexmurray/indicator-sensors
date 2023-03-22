@@ -42,7 +42,7 @@ void is_log(const gchar *source,
 void is_logv(const gchar *source,
              IsLogLevel level,
              const gchar *format,
-             va_list args);
+             va_list args) G_GNUC_PRINTF(3, 0);
 #define is_error(source, ...) is_log(source, IS_LOG_LEVEL_ERROR, __VA_ARGS__)
 #define is_critical(source, ...) is_log(source, IS_LOG_LEVEL_CRITICAL, __VA_ARGS__)
 #define is_warning(source, ...) is_log(source, IS_LOG_LEVEL_WARNING, __VA_ARGS__)
