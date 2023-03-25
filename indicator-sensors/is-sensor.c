@@ -925,24 +925,27 @@ is_sensor_set_error(IsSensor *self,
 
   g_return_if_fail(IS_IS_SENSOR(self));
 
-  notification = g_object_get_data(G_OBJECT(self), "error-notification");
-  if (notification != NULL)
+  if (g_strcmp0(error, self->priv->error) != 0)
   {
-    is_debug("sensor", "Closing existing error notification");
-    notify_notification_close(notification, NULL);
-  }
-  g_free(self->priv->error);
-  self->priv->error = error ? g_strdup(error) : NULL;
+    notification = g_object_get_data(G_OBJECT(self), "error-notification");
+    if (notification != NULL)
+    {
+      is_debug("sensor", "Closing existing error notification");
+      notify_notification_close(notification, NULL);
+    }
+    g_free(self->priv->error);
+    self->priv->error = error ? g_strdup(error) : NULL;
 
-  if (self->priv->error)
-  {
-    notification = is_notify(IS_NOTIFY_LEVEL_WARNING,
-                             _("Sensor Error"),
-                             "%s",
-                             self->priv->error);
-    is_debug("sensor", "Displaying error notification");
-    g_object_set_data_full(G_OBJECT(self), "error-notification",
-                           notification, g_object_unref);
+    if (self->priv->error)
+    {
+      notification = is_notify(IS_NOTIFY_LEVEL_WARNING,
+                               _("Sensor Error"),
+                               "%s",
+                               self->priv->error);
+      is_debug("sensor", "Displaying error notification");
+      g_object_set_data_full(G_OBJECT(self), "error-notification",
+                             notification, g_object_unref);
+    }
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ERROR]);
   }
-  g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ERROR]);
 }
