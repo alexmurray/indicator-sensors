@@ -35,9 +35,9 @@ static void is_sensor_get_property(GObject *object,
 static void is_sensor_set_property(GObject *object,
                                    guint property_id, const GValue *value, GParamSpec *pspec);
 
-// alarm timeout should be more than the sensor poll timeout / hysteresis to ensure we
-// get at least one more reading in before showing any notification otherwise
-// there is no hysteresis
+// alarm timeout should be more than the sensor poll timeout / hysteresis to
+// ensure we get at least one more reading in before showing the alarm state
+// otherwise there is no hysteresis
 #define DEFAULT_ALARM_TIMEOUT 5
 
 /* signal enum */
@@ -384,19 +384,8 @@ is_sensor_get_value(IsSensor *self)
 static gboolean
 enable_alarm(IsSensor *self)
 {
-  NotifyNotification *notification;
-
   g_return_val_if_fail(self != NULL, FALSE);
 
-  notification = is_notify(IS_NOTIFY_LEVEL_WARNING,
-                           _("Sensor Alarm"),
-                           "%s: %2.1f%s",
-                           is_sensor_get_label(self),
-                           is_sensor_get_value(self),
-                           is_sensor_get_units(self));
-  is_debug("sensor", "Displaying alarm notification");
-  g_object_set_data_full(G_OBJECT(self), "notification",
-                         notification, g_object_unref);
   self->priv->alarmed = TRUE;
   g_object_notify_by_pspec(G_OBJECT(self),
                            properties[PROP_ALARMED]);
@@ -408,16 +397,8 @@ enable_alarm(IsSensor *self)
 static gboolean
 disable_alarm(IsSensor *self)
 {
-  /* hide any notification */
-  NotifyNotification *notification;
-
   g_return_val_if_fail(self != NULL, FALSE);
 
-  notification = g_object_get_data(G_OBJECT(self), "notification");
-  is_debug("sensor", "Closing alarm notification");
-  notify_notification_close(notification, NULL);
-  g_object_set_data(G_OBJECT(self), "notification",
-                    NULL);
   self->priv->alarmed = FALSE;
   g_object_notify_by_pspec(G_OBJECT(self),
                            properties[PROP_ALARMED]);
