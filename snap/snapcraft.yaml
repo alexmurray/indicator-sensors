@@ -1,4 +1,5 @@
 name: indicator-sensors
+title: Hardware Sensors Indicator
 version: git
 summary: Provide hardware sensors readings in your desktop panel
 description: |
