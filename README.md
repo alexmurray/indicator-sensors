@@ -23,6 +23,9 @@ install](https://docs.snapcraft.io/core/install)
 Then you can just <kbd>sudo snap install indicator-sensors</kbd> to install
 from the command line.
 
+To allow access to sensor data:
+`snap connect indicator-sensors:hardware-observe :hardware-observe`
+
 ## License
 
 Copyright © 2018 Alex Murray
