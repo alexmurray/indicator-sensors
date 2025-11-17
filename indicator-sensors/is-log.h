@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,18 +35,17 @@ typedef enum
 
 void is_log_set_level(IsLogLevel level);
 
-void is_log(const gchar *source,
-            IsLogLevel level,
-            const gchar *format,
-            ...) G_GNUC_PRINTF(3, 4);
-void is_logv(const gchar *source,
-             IsLogLevel level,
-             const gchar *format,
+void is_log(const gchar *source, IsLogLevel level, const gchar *format, ...)
+    G_GNUC_PRINTF(3, 4);
+void is_logv(const gchar *source, IsLogLevel level, const gchar *format,
              va_list args) G_GNUC_PRINTF(3, 0);
 #define is_error(source, ...) is_log(source, IS_LOG_LEVEL_ERROR, __VA_ARGS__)
-#define is_critical(source, ...) is_log(source, IS_LOG_LEVEL_CRITICAL, __VA_ARGS__)
-#define is_warning(source, ...) is_log(source, IS_LOG_LEVEL_WARNING, __VA_ARGS__)
-#define is_message(source, ...) is_log(source, IS_LOG_LEVEL_MESSAGE, __VA_ARGS__)
+#define is_critical(source, ...)                                               \
+  is_log(source, IS_LOG_LEVEL_CRITICAL, __VA_ARGS__)
+#define is_warning(source, ...)                                                \
+  is_log(source, IS_LOG_LEVEL_WARNING, __VA_ARGS__)
+#define is_message(source, ...)                                                \
+  is_log(source, IS_LOG_LEVEL_MESSAGE, __VA_ARGS__)
 #define is_debug(source, ...) is_log(source, IS_LOG_LEVEL_DEBUG, __VA_ARGS__)
 
 G_END_DECLS

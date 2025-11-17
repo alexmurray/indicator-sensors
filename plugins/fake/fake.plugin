@@ -1,6 +1,5 @@
 [Plugin]
 Module=libfake
-IAge=2
 Name=Fake Sensors
 Description=Provides fake sensors
 Authors=Alex Murray <murray.alex@gmail.com>

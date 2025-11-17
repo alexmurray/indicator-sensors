@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,31 +20,21 @@
 
 #include "is-sensor.h"
 
-
 G_BEGIN_DECLS
 
-#define IS_TYPE_FAN_SENSOR    \
-  (is_fan_sensor_get_type())
-#define IS_FAN_SENSOR(obj)        \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
-                              IS_TYPE_FAN_SENSOR, \
-                              IsFanSensor))
-#define IS_FAN_SENSOR_CLASS(klass)      \
-  (G_TYPE_CHECK_CLASS_CAST((klass),     \
-                           IS_TYPE_FAN_SENSOR,  \
-                           IsFanSensorClass))
-#define IS_IS_FAN_SENSOR(obj)                                   \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj),        \
-                              IS_TYPE_FAN_SENSOR))
-#define IS_IS_FAN_SENSOR_CLASS(klass)     \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
-                           IS_TYPE_FAN_SENSOR))
-#define IS_FAN_SENSOR_GET_CLASS(obj)      \
-  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
-                             IS_TYPE_FAN_SENSOR,  \
-                             IsFanSensorClass))
+#define IS_TYPE_FAN_SENSOR (is_fan_sensor_get_type())
+#define IS_FAN_SENSOR(obj)                                                     \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), IS_TYPE_FAN_SENSOR, IsFanSensor))
+#define IS_FAN_SENSOR_CLASS(klass)                                             \
+  (G_TYPE_CHECK_CLASS_CAST((klass), IS_TYPE_FAN_SENSOR, IsFanSensorClass))
+#define IS_IS_FAN_SENSOR(obj)                                                  \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj), IS_TYPE_FAN_SENSOR))
+#define IS_IS_FAN_SENSOR_CLASS(klass)                                          \
+  (G_TYPE_CHECK_CLASS_TYPE((klass), IS_TYPE_FAN_SENSOR))
+#define IS_FAN_SENSOR_GET_CLASS(obj)                                           \
+  (G_TYPE_INSTANCE_GET_CLASS((obj), IS_TYPE_FAN_SENSOR, IsFanSensorClass))
 
-typedef struct _IsFanSensor      IsFanSensor;
+typedef struct _IsFanSensor IsFanSensor;
 typedef struct _IsFanSensorClass IsFanSensorClass;
 
 struct _IsFanSensorClass

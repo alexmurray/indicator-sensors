@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,12 +35,7 @@ is_fan_sensor_init(IsFanSensor *self)
 IsSensor *
 is_fan_sensor_new(const gchar *path)
 {
-  return g_object_new(IS_TYPE_FAN_SENSOR,
-                      "path", path,
-                      "value", IS_SENSOR_VALUE_UNSET,
-                      "units", _(" RPM"),
-                      "low-value", 100.0,
-                      "high-value", 5000.0,
-                      "icon", IS_STOCK_FAN,
-                      NULL);
+  return g_object_new(IS_TYPE_FAN_SENSOR, "path", path, "value",
+                      IS_SENSOR_VALUE_UNSET, "units", _(" RPM"), "low-value",
+                      100.0, "high-value", 5000.0, "icon", IS_STOCK_FAN, NULL);
 }

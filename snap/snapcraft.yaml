@@ -47,12 +47,10 @@ parts:
       - libglib2.0-dev
       - libgdk-pixbuf2.0-0
       - libgtk-3-dev
-      - libpeas-dev
+      - libpeas-2-dev
       - libnotify-dev
       - libayatana-appindicator3-dev
       - libsensors-dev
-      - gobject-introspection
-      - libgirepository1.0-dev
       - libudisks2-dev
       - libxnvctrl-dev
     override-prime: |

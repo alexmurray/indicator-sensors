@@ -1,0 +1,2 @@
+option('enable-nvidia', type: 'boolean', value: true, description: 'enable nvidia plugin')
+option('enable-fake', type: 'boolean', value: false, description: 'enable fake plugin')

@@ -1,6 +1,5 @@
 [Plugin]
 Module=libdynamic
-IAge=2
 Name=Dynamic
 Description=Provides dynamic monitoring of sensors
 Authors=Alex Murray <murray.alex@gmail.com>

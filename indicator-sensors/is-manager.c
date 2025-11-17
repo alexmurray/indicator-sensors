@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,28 +15,30 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
+#include "is-log.h"
 #include "is-manager.h"
 #include "is-store.h"
 #include "marshallers.h"
-#include "marshallers.c"
-#include "is-log.h"
-#include <glib/gi18n.h>
 #include <gio/gio.h>
+#include <glib/gi18n.h>
 
-G_DEFINE_TYPE(IsManager, is_manager, GTK_TYPE_TREE_VIEW);
+typedef struct _IsManagerPrivate
+{
+  IsStore *store;
+  GTree *enabled_paths;
+  GSList *enabled_list;
+} IsManagerPrivate;
+
+G_DEFINE_TYPE_WITH_PRIVATE(IsManager, is_manager, GTK_TYPE_TREE_VIEW);
 
 static void is_manager_dispose(GObject *object);
 static void is_manager_finalize(GObject *object);
-static void
-is_manager_get_property(GObject *object,
-                        guint property_id, GValue *value, GParamSpec *pspec);
-static void
-is_manager_set_property(GObject *object,
-                        guint property_id, const GValue *value, GParamSpec *pspec);
+static void is_manager_get_property(GObject *object, guint property_id,
+                                    GValue *value, GParamSpec *pspec);
+static void is_manager_set_property(GObject *object, guint property_id,
+                                    const GValue *value, GParamSpec *pspec);
 
 /* signal enum */
 enum
@@ -60,86 +62,50 @@ enum
 
 static GParamSpec *properties[LAST_PROPERTY] = {NULL};
 
-struct _IsManagerPrivate
-{
-  IsStore *store;
-  GTree *enabled_paths;
-  GSList *enabled_list;
-};
-
 static void
 is_manager_class_init(IsManagerClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-
-  g_type_class_add_private(klass, sizeof(IsManagerPrivate));
 
   gobject_class->get_property = is_manager_get_property;
   gobject_class->set_property = is_manager_set_property;
   gobject_class->dispose = is_manager_dispose;
   gobject_class->finalize = is_manager_finalize;
 
-  properties[PROP_ENABLED_SENSORS] = g_param_spec_boxed("enabled-sensors",
-                                     "enabled-sensors property",
-                                     "enabled-sensors property blurp.",
-                                     G_TYPE_STRV,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+  properties[PROP_ENABLED_SENSORS] =
+      g_param_spec_boxed("enabled-sensors", "enabled-sensors property",
+                         "enabled-sensors property blurp.", G_TYPE_STRV,
+                         G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_property(gobject_class, PROP_ENABLED_SENSORS,
                                   properties[PROP_ENABLED_SENSORS]);
 
-  signals[SIGNAL_SENSOR_ADDED] = g_signal_new("sensor-added",
-                                 G_OBJECT_CLASS_TYPE(klass),
-                                 G_SIGNAL_RUN_LAST,
-                                 0,
-                                 NULL, NULL,
-                                 g_cclosure_marshal_VOID__OBJECT,
-                                 G_TYPE_NONE, 1,
-                                 IS_TYPE_SENSOR);
+  signals[SIGNAL_SENSOR_ADDED] = g_signal_new(
+      "sensor-added", G_OBJECT_CLASS_TYPE(klass), G_SIGNAL_RUN_LAST, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, IS_TYPE_SENSOR);
 
-  signals[SIGNAL_SENSOR_REMOVED] = g_signal_new("sensor-removed",
-                                   G_OBJECT_CLASS_TYPE(klass),
-                                   G_SIGNAL_RUN_LAST,
-                                   0,
-                                   NULL, NULL,
-                                   g_cclosure_marshal_VOID__OBJECT,
-                                   G_TYPE_NONE, 1,
-                                   IS_TYPE_SENSOR);
+  signals[SIGNAL_SENSOR_REMOVED] = g_signal_new(
+      "sensor-removed", G_OBJECT_CLASS_TYPE(klass), G_SIGNAL_RUN_LAST, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, IS_TYPE_SENSOR);
 
-  signals[SIGNAL_SENSOR_ENABLED] = g_signal_new("sensor-enabled",
-                                   G_OBJECT_CLASS_TYPE(klass),
-                                   G_SIGNAL_RUN_LAST,
-                                   0,
-                                   NULL, NULL,
-                                   g_cclosure_user_marshal_VOID__OBJECT_INT,
-                                   G_TYPE_NONE, 2,
-                                   IS_TYPE_SENSOR,
-                                   G_TYPE_INT);
+  signals[SIGNAL_SENSOR_ENABLED] = g_signal_new(
+      "sensor-enabled", G_OBJECT_CLASS_TYPE(klass), G_SIGNAL_RUN_LAST, 0, NULL,
+      NULL, g_cclosure_user_marshal_VOID__OBJECT_INT, G_TYPE_NONE, 2,
+      IS_TYPE_SENSOR, G_TYPE_INT);
 
-  signals[SIGNAL_SENSOR_DISABLED] = g_signal_new("sensor-disabled",
-                                    G_OBJECT_CLASS_TYPE(klass),
-                                    G_SIGNAL_RUN_LAST,
-                                    0,
-                                    NULL, NULL,
-                                    g_cclosure_marshal_VOID__OBJECT,
-                                    G_TYPE_NONE, 1,
-                                    IS_TYPE_SENSOR);
+  signals[SIGNAL_SENSOR_DISABLED] = g_signal_new(
+      "sensor-disabled", G_OBJECT_CLASS_TYPE(klass), G_SIGNAL_RUN_LAST, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, IS_TYPE_SENSOR);
 
-  signals[SIGNAL_SENSOR_POSITION_CHANGED] = g_signal_new("sensor-position-changed",
-      G_OBJECT_CLASS_TYPE(klass),
-      G_SIGNAL_RUN_LAST,
-      0,
-      NULL, NULL,
-      g_cclosure_user_marshal_VOID__OBJECT_INT,
-      G_TYPE_NONE, 2,
-      IS_TYPE_SENSOR,
-      G_TYPE_INT);
+  signals[SIGNAL_SENSOR_POSITION_CHANGED] = g_signal_new(
+      "sensor-position-changed", G_OBJECT_CLASS_TYPE(klass), G_SIGNAL_RUN_LAST,
+      0, NULL, NULL, g_cclosure_user_marshal_VOID__OBJECT_INT, G_TYPE_NONE, 2,
+      IS_TYPE_SENSOR, G_TYPE_INT);
 }
 
-static void sensor_label_edited(GtkCellRendererText *renderer,
-                                gchar *path_string,
-                                gchar *new_label,
-                                IsManager *self)
+static void
+sensor_label_edited(GtkCellRendererText *renderer, gchar *path_string,
+                    gchar *new_label, IsManager *self)
 {
   IsManagerPrivate *priv;
   GtkTreePath *path;
@@ -147,14 +113,12 @@ static void sensor_label_edited(GtkCellRendererText *renderer,
   GtkTreeModel *model;
   IsSensor *sensor;
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   path = gtk_tree_path_new_from_string(path_string);
   model = GTK_TREE_MODEL(priv->store);
   gtk_tree_model_get_iter(model, &iter, path);
-  gtk_tree_model_get(model, &iter,
-                     IS_STORE_COL_SENSOR, &sensor,
-                     -1);
+  gtk_tree_model_get(model, &iter, IS_STORE_COL_SENSOR, &sensor, -1);
   is_sensor_set_label(sensor, new_label);
   g_object_unref(sensor);
   gtk_tree_path_free(path);
@@ -168,7 +132,7 @@ sensor_cmp_by_path(IsSensor *a, IsSensor *b, IsManager *self)
   GtkTreePath *a_path, *b_path;
   gint ret;
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   is_store_get_iter_for_sensor(priv->store, a, &a_iter);
   is_store_get_iter_for_sensor(priv->store, b, &b_iter);
@@ -181,23 +145,18 @@ sensor_cmp_by_path(IsSensor *a, IsSensor *b, IsManager *self)
 }
 
 static void
-enable_sensor(IsManager *self,
-              GtkTreeIter *iter,
-              IsSensor *sensor)
+enable_sensor(IsManager *self, GtkTreeIter *iter, IsSensor *sensor)
 {
   IsManagerPrivate *priv;
   guint i;
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   is_store_set_enabled(priv->store, iter, TRUE);
-  priv->enabled_list = g_slist_insert_sorted_with_data(priv->enabled_list,
-                       sensor,
-                       (GCompareDataFunc)sensor_cmp_by_path,
-                       self);
+  priv->enabled_list = g_slist_insert_sorted_with_data(
+      priv->enabled_list, sensor, (GCompareDataFunc)sensor_cmp_by_path, self);
   i = g_slist_index(priv->enabled_list, sensor);
-  g_signal_emit(self, signals[SIGNAL_SENSOR_ENABLED], 0, sensor,
-                i);
+  g_signal_emit(self, signals[SIGNAL_SENSOR_ENABLED], 0, sensor, i);
   /* signal position changed for all following sensors */
   while (++i < g_slist_length(priv->enabled_list))
   {
@@ -208,25 +167,21 @@ enable_sensor(IsManager *self,
   {
     gchar *path = g_strdup(is_sensor_get_path(sensor));
     g_tree_insert(priv->enabled_paths, path, path);
-    g_object_notify_by_pspec(G_OBJECT(self),
-                             properties[PROP_ENABLED_SENSORS]);
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ENABLED_SENSORS]);
   }
 }
 
 static void
-_disable_sensor(IsManager *self,
-                GtkTreeIter *iter,
-                IsSensor *sensor)
+_disable_sensor(IsManager *self, GtkTreeIter *iter, IsSensor *sensor)
 {
   IsManagerPrivate *priv;
   guint i;
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   i = g_slist_index(priv->enabled_list, sensor);
   is_store_set_enabled(priv->store, iter, FALSE);
-  priv->enabled_list = g_slist_remove(priv->enabled_list,
-                                      sensor);
+  priv->enabled_list = g_slist_remove(priv->enabled_list, sensor);
   g_signal_emit(self, signals[SIGNAL_SENSOR_DISABLED], 0, sensor);
   /* signal position changed for all following sensors - the first sensor
    * following this one we just removed is at its location so no need to
@@ -240,23 +195,21 @@ _disable_sensor(IsManager *self,
 }
 
 static void
-disable_sensor(IsManager *self,
-               GtkTreeIter *iter,
-               IsSensor *sensor)
+disable_sensor(IsManager *self, GtkTreeIter *iter, IsSensor *sensor)
 {
+  IsManagerPrivate *priv = is_manager_get_instance_private(self);
   gboolean ret;
 
   _disable_sensor(self, iter, sensor);
 
-  ret = g_tree_remove(self->priv->enabled_paths, is_sensor_get_path(sensor));
+  ret = g_tree_remove(priv->enabled_paths, is_sensor_get_path(sensor));
   g_assert(ret);
-  g_object_notify_by_pspec(G_OBJECT(self),
-                           properties[PROP_ENABLED_SENSORS]);
+  g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ENABLED_SENSORS]);
 }
 
-static void sensor_toggled(GtkCellRendererToggle *renderer,
-                           gchar *path_string,
-                           IsManager *self)
+static void
+sensor_toggled(GtkCellRendererToggle *renderer, gchar *path_string,
+               IsManager *self)
 {
   IsManagerPrivate *priv;
   GtkTreePath *path;
@@ -265,14 +218,12 @@ static void sensor_toggled(GtkCellRendererToggle *renderer,
   IsSensor *sensor;
   gboolean enabled;
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   path = gtk_tree_path_new_from_string(path_string);
   model = GTK_TREE_MODEL(priv->store);
   gtk_tree_model_get_iter(model, &iter, path);
-  gtk_tree_model_get(model, &iter,
-                     IS_STORE_COL_SENSOR, &sensor,
-                     -1);
+  gtk_tree_model_get(model, &iter, IS_STORE_COL_SENSOR, &sensor, -1);
   if (sensor)
   {
     /* as was toggled need to invert */
@@ -297,88 +248,74 @@ is_manager_init(IsManager *self)
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *col;
 
-  priv = G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_MANAGER,
-                                     IsManagerPrivate);
+  priv = is_manager_get_instance_private(self);
 
-  self->priv = priv;
-  priv->enabled_paths = g_tree_new_full((GCompareDataFunc)g_strcmp0, NULL,
-                                        g_free, NULL);
+  priv->enabled_paths =
+      g_tree_new_full((GCompareDataFunc)g_strcmp0, NULL, g_free, NULL);
   priv->store = is_store_new();
-  gtk_tree_view_set_model(GTK_TREE_VIEW(self),
-                          GTK_TREE_MODEL(priv->store));
+  gtk_tree_view_set_model(GTK_TREE_VIEW(self), GTK_TREE_MODEL(priv->store));
   /* id column */
   renderer = gtk_cell_renderer_text_new();
-  col = gtk_tree_view_column_new_with_attributes(_("Sensor"),
-        renderer,
-        "text", IS_STORE_COL_NAME,
-        NULL);
+  col = gtk_tree_view_column_new_with_attributes(_("Sensor"), renderer, "text",
+                                                 IS_STORE_COL_NAME, NULL);
   gtk_tree_view_column_set_expand(col, FALSE);
   gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
 
   renderer = gtk_cell_renderer_pixbuf_new();
-  col = gtk_tree_view_column_new_with_attributes(_("Icon"),
-        renderer,
-        "icon-name", IS_STORE_COL_ICON,
-        NULL);
+  col = gtk_tree_view_column_new_with_attributes(
+      _("Icon"), renderer, "icon-name", IS_STORE_COL_ICON, NULL);
   gtk_tree_view_column_set_expand(col, FALSE);
   gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
 
   renderer = gtk_cell_renderer_text_new();
   g_object_set(renderer, "editable", TRUE, NULL);
-  col = gtk_tree_view_column_new_with_attributes(_("Label"),
-        renderer,
-        "text", IS_STORE_COL_LABEL,
-        NULL);
+  col = gtk_tree_view_column_new_with_attributes(_("Label"), renderer, "text",
+                                                 IS_STORE_COL_LABEL, NULL);
   gtk_tree_view_column_set_expand(col, TRUE);
-  g_signal_connect(renderer, "edited", G_CALLBACK(sensor_label_edited),
-                   self);
+  g_signal_connect(renderer, "edited", G_CALLBACK(sensor_label_edited), self);
   gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
 
   renderer = gtk_cell_renderer_toggle_new();
-  col = gtk_tree_view_column_new_with_attributes(_("Enabled"),
-        renderer,
-        "active", IS_STORE_COL_ENABLED,
-        "visible", IS_STORE_COL_IS_SENSOR,
-        NULL);
+  col = gtk_tree_view_column_new_with_attributes(
+      _("Enabled"), renderer, "active", IS_STORE_COL_ENABLED, "visible",
+      IS_STORE_COL_IS_SENSOR, NULL);
   gtk_tree_view_column_set_expand(col, FALSE);
-  g_signal_connect(renderer, "toggled", G_CALLBACK(sensor_toggled),
-                   self);
+  g_signal_connect(renderer, "toggled", G_CALLBACK(sensor_toggled), self);
   gtk_tree_view_append_column(GTK_TREE_VIEW(self), col);
-
 }
 
 static void
-is_manager_get_property(GObject *object,
-                        guint property_id, GValue *value, GParamSpec *pspec)
+is_manager_get_property(GObject *object, guint property_id, GValue *value,
+                        GParamSpec *pspec)
 {
   IsManager *self = IS_MANAGER(object);
 
   switch (property_id)
   {
-    case PROP_ENABLED_SENSORS:
-      g_value_take_boxed(value, is_manager_get_enabled_sensors(self));
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-      break;
+  case PROP_ENABLED_SENSORS:
+    g_value_take_boxed(value, is_manager_get_enabled_sensors(self));
+    break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+    break;
   }
 }
 
 static void
-is_manager_set_property(GObject *object,
-                        guint property_id, const GValue *value, GParamSpec *pspec)
+is_manager_set_property(GObject *object, guint property_id, const GValue *value,
+                        GParamSpec *pspec)
 {
   IsManager *self = IS_MANAGER(object);
 
   switch (property_id)
   {
-    case PROP_ENABLED_SENSORS:
-      is_manager_set_enabled_sensors(self,
-                                     (const gchar **)g_value_get_boxed(value));
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-      break;
+  case PROP_ENABLED_SENSORS:
+    is_manager_set_enabled_sensors(self,
+                                   (const gchar **)g_value_get_boxed(value));
+    break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+    break;
   }
 }
 
@@ -386,7 +323,7 @@ static void
 is_manager_dispose(GObject *object)
 {
   IsManager *self = (IsManager *)object;
-  IsManagerPrivate *priv = self->priv;
+  IsManagerPrivate *priv = is_manager_get_instance_private(self);
 
   (void)priv;
 
@@ -397,7 +334,7 @@ static void
 is_manager_finalize(GObject *object)
 {
   IsManager *self = (IsManager *)object;
-  IsManagerPrivate *priv = self->priv;
+  IsManagerPrivate *priv = is_manager_get_instance_private(self);
 
   g_tree_unref(priv->enabled_paths);
   g_slist_free(priv->enabled_list);
@@ -412,8 +349,7 @@ is_manager_new(void)
 }
 
 gboolean
-is_manager_add_sensor(IsManager *self,
-                      IsSensor *sensor)
+is_manager_add_sensor(IsManager *self, IsSensor *sensor)
 {
   IsManagerPrivate *priv;
   GtkTreeIter iter;
@@ -422,7 +358,7 @@ is_manager_add_sensor(IsManager *self,
   g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
   g_return_val_if_fail(IS_IS_SENSOR(sensor), FALSE);
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   ret = is_store_add_sensor(priv->store, sensor, &iter);
   if (!ret)
@@ -441,16 +377,13 @@ out:
 }
 
 gboolean
-is_manager_remove_paths_with_prefix(IsManager *self,
-                                    const gchar *prefix)
+is_manager_remove_paths_with_prefix(IsManager *self, const gchar *prefix)
 {
   GSList *sensors, *_list;
   gboolean ret = FALSE;
 
   sensors = is_manager_get_all_sensors_list(self);
-  for (_list = sensors;
-       _list != NULL;
-       _list = _list->next)
+  for (_list = sensors; _list != NULL; _list = _list->next)
   {
     IsSensor *sensor = IS_SENSOR(_list->data);
     const gchar *path = is_sensor_get_path(sensor);
@@ -467,8 +400,7 @@ is_manager_remove_paths_with_prefix(IsManager *self,
 }
 
 gboolean
-is_manager_remove_path(IsManager *self,
-                       const gchar *path)
+is_manager_remove_path(IsManager *self, const gchar *path)
 {
   IsManagerPrivate *priv;
   IsSensor *sensor;
@@ -478,21 +410,21 @@ is_manager_remove_path(IsManager *self,
   g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
   g_return_val_if_fail(path, FALSE);
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   ret = is_store_get_iter(priv->store, path, &iter);
   if (!ret)
   {
-    is_warning("manager", "Unable to remove sensor with path %s as it doesn't exist",
+    is_warning("manager",
+               "Unable to remove sensor with path %s as it doesn't exist",
                path);
     goto out;
   }
 
-  gtk_tree_model_get(GTK_TREE_MODEL(priv->store), &iter,
-                     IS_STORE_COL_SENSOR, &sensor,
-                     -1);
+  gtk_tree_model_get(GTK_TREE_MODEL(priv->store), &iter, IS_STORE_COL_SENSOR,
+                     &sensor, -1);
   /* disable sensor if is in enabled-sensors list but don't modify list
-         * of enabled sensors since wasn't triggered by user action */
+   * of enabled sensors since wasn't triggered by user action */
   if (g_tree_lookup(priv->enabled_paths, is_sensor_get_path(sensor)))
   {
     _disable_sensor(self, &iter, sensor);
@@ -518,11 +450,9 @@ is_manager_get_enabled_sensors_list(IsManager *self)
   GSList *_list, *list = NULL;
 
   g_return_val_if_fail(IS_IS_MANAGER(self), NULL);
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
-  for (_list = priv->enabled_list;
-       _list != NULL;
-       _list = _list->next)
+  for (_list = priv->enabled_list; _list != NULL; _list = _list->next)
   {
     list = g_slist_prepend(list, g_object_ref(_list->data));
   }
@@ -531,8 +461,7 @@ is_manager_get_enabled_sensors_list(IsManager *self)
 }
 
 gboolean
-is_manager_set_enabled_sensors(IsManager *self,
-                               const gchar **enabled_sensors)
+is_manager_set_enabled_sensors(IsManager *self, const gchar **enabled_sensors)
 {
   IsManagerPrivate *priv;
   int i, n;
@@ -541,7 +470,7 @@ is_manager_set_enabled_sensors(IsManager *self,
 
   g_return_val_if_fail(IS_IS_MANAGER(self), FALSE);
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   tree = g_tree_new_full((GCompareDataFunc)g_strcmp0, NULL, g_free, NULL);
 
@@ -562,8 +491,7 @@ is_manager_set_enabled_sensors(IsManager *self,
       IsSensor *sensor;
 
       gtk_tree_model_get(GTK_TREE_MODEL(priv->store), &iter,
-                         IS_STORE_COL_SENSOR, &sensor,
-                         -1);
+                         IS_STORE_COL_SENSOR, &sensor, -1);
       enable_sensor(self, &iter, sensor);
     }
   }
@@ -583,33 +511,30 @@ is_manager_set_enabled_sensors(IsManager *self,
   }
   g_tree_destroy(priv->enabled_paths);
   priv->enabled_paths = tree;
-  g_object_notify_by_pspec(G_OBJECT(self),
-                           properties[PROP_ENABLED_SENSORS]);
+  g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ENABLED_SENSORS]);
   return TRUE;
 }
 
-guint is_manager_get_num_enabled_sensors(IsManager *self)
+guint
+is_manager_get_num_enabled_sensors(IsManager *self)
 {
   IsManagerPrivate *priv;
 
   g_return_val_if_fail(IS_IS_MANAGER(self), 0);
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   return g_slist_length(priv->enabled_list);
 }
 
 static gboolean
-add_key_to_array(const gchar *key,
-                 const gchar *value,
-                 GArray *array)
+add_key_to_array(const gchar *key, const gchar *value, GArray *array)
 {
   gchar *path = g_strdup(key);
   g_array_append_val(array, path);
   /* keep going */
   return FALSE;
 }
-
 
 gchar **
 is_manager_get_enabled_sensors(IsManager *self)
@@ -619,12 +544,11 @@ is_manager_get_enabled_sensors(IsManager *self)
 
   g_return_val_if_fail(IS_IS_MANAGER(self), NULL);
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   array = g_array_new(TRUE, FALSE, sizeof(gchar *));
 
-  g_tree_foreach(priv->enabled_paths,
-                 (GTraverseFunc)add_key_to_array, array);
+  g_tree_foreach(priv->enabled_paths, (GTraverseFunc)add_key_to_array, array);
 
   /* if not freeing element data g_array_free() returns the element data
      which is exactly what we want */
@@ -632,16 +556,12 @@ is_manager_get_enabled_sensors(IsManager *self)
 }
 
 static gboolean
-add_sensor_to_list(GtkTreeModel *model,
-                   GtkTreePath *path,
-                   GtkTreeIter *iter,
+add_sensor_to_list(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter,
                    GSList **list)
 {
   IsSensor *sensor;
 
-  gtk_tree_model_get(model, iter,
-                     IS_STORE_COL_SENSOR, &sensor,
-                     -1);
+  gtk_tree_model_get(model, iter, IS_STORE_COL_SENSOR, &sensor, -1);
 
   if (sensor)
   {
@@ -658,19 +578,17 @@ is_manager_get_all_sensors_list(IsManager *self)
   GSList *list = NULL;
 
   g_return_val_if_fail(IS_IS_MANAGER(self), NULL);
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   gtk_tree_model_foreach(GTK_TREE_MODEL(priv->store),
-                         (GtkTreeModelForeachFunc)add_sensor_to_list,
-                         &list);
+                         (GtkTreeModelForeachFunc)add_sensor_to_list, &list);
   list = g_slist_reverse(list);
 
   return list;
 }
 
 IsSensor *
-is_manager_get_sensor(IsManager *self,
-                      const gchar *path)
+is_manager_get_sensor(IsManager *self, const gchar *path)
 {
   IsManagerPrivate *priv;
   gboolean ret;
@@ -679,14 +597,13 @@ is_manager_get_sensor(IsManager *self,
 
   g_return_val_if_fail(IS_IS_MANAGER(self), NULL);
 
-  priv = self->priv;
+  priv = is_manager_get_instance_private(self);
 
   ret = is_store_get_iter(priv->store, path, &iter);
   if (ret)
   {
-    gtk_tree_model_get(GTK_TREE_MODEL(priv->store), &iter,
-                       IS_STORE_COL_SENSOR, &sensor,
-                       -1);
+    gtk_tree_model_get(GTK_TREE_MODEL(priv->store), &iter, IS_STORE_COL_SENSOR,
+                       &sensor, -1);
   }
 
   return sensor;
@@ -705,9 +622,7 @@ is_manager_get_selected_sensor(IsManager *self)
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(self));
   if (gtk_tree_selection_get_selected(selection, &model, &iter))
   {
-    gtk_tree_model_get(model, &iter,
-                       IS_STORE_COL_SENSOR, &sensor,
-                       -1);
+    gtk_tree_model_get(model, &iter, IS_STORE_COL_SENSOR, &sensor, -1);
   }
   return sensor;
 }

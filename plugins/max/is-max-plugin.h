@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,45 +18,33 @@
 #ifndef __IS_MAX_PLUGIN_H__
 #define __IS_MAX_PLUGIN_H__
 
-#include <libpeas/peas.h>
-
+#include <libpeas.h>
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_MAX_PLUGIN   \
-  (is_max_plugin_get_type())
-#define IS_MAX_PLUGIN(obj)       \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
-                              IS_TYPE_MAX_PLUGIN,  \
-                              IsMaxPlugin))
-#define IS_MAX_PLUGIN_CLASS(klass)     \
-  (G_TYPE_CHECK_CLASS_CAST((klass),     \
-                           IS_TYPE_MAX_PLUGIN, \
-                           IsMaxPluginClass))
-#define IS_IS_MAX_PLUGIN(obj)        \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj),      \
-                              IS_TYPE_MAX_PLUGIN))
-#define IS_IS_MAX_PLUGIN_CLASS(klass)      \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
-                           IS_TYPE_MAX_PLUGIN))
-#define IS_MAX_PLUGIN_GET_CLASS(obj)     \
-  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
-                             IS_TYPE_MAX_PLUGIN, \
-                             IsMaxPluginClass))
+#define IS_TYPE_MAX_PLUGIN (is_max_plugin_get_type())
+#define IS_MAX_PLUGIN(obj)                                                     \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), IS_TYPE_MAX_PLUGIN, IsMaxPlugin))
+#define IS_MAX_PLUGIN_CLASS(klass)                                             \
+  (G_TYPE_CHECK_CLASS_CAST((klass), IS_TYPE_MAX_PLUGIN, IsMaxPluginClass))
+#define IS_IS_MAX_PLUGIN(obj)                                                  \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj), IS_TYPE_MAX_PLUGIN))
+#define IS_IS_MAX_PLUGIN_CLASS(klass)                                          \
+  (G_TYPE_CHECK_CLASS_TYPE((klass), IS_TYPE_MAX_PLUGIN))
+#define IS_MAX_PLUGIN_GET_CLASS(obj)                                           \
+  (G_TYPE_INSTANCE_GET_CLASS((obj), IS_TYPE_MAX_PLUGIN, IsMaxPluginClass))
 
-typedef struct _IsMaxPlugin        IsMaxPlugin;
-typedef struct _IsMaxPluginClass   IsMaxPluginClass;
-typedef struct _IsMaxPluginPrivate IsMaxPluginPrivate;
+typedef struct _IsMaxPlugin IsMaxPlugin;
+typedef struct _IsMaxPluginClass IsMaxPluginClass;
 
 struct _IsMaxPluginClass
 {
-  PeasExtensionBaseClass parent_class;
+  GObjectClass parent_class;
 };
 
 struct _IsMaxPlugin
 {
-  PeasExtensionBase parent;
-  IsMaxPluginPrivate *priv;
+  GObject parent;
 };
 
 GType is_max_plugin_get_type(void) G_GNUC_CONST;

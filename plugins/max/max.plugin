@@ -1,6 +1,5 @@
 [Plugin]
 Module=libmax
-IAge=2
 Name=Max
 Description=Provides a virtual sensor which is the maximum of all active sensors
 Authors=Alex Murray <murray.alex@gmail.com>

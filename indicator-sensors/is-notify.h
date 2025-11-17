@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
 #ifndef __IS_NOTIFY_H__
 #define __IS_NOTIFY_H__
 
+#include <gio/gio.h>
 #include <glib.h>
 #include <stdarg.h>
-#include <libnotify/notification.h>
 
 G_BEGIN_DECLS
 
@@ -32,16 +32,10 @@ typedef enum
   NUM_IS_NOTIFY_LEVELS,
 } IsNotifyLevel;
 
-gboolean is_notify_init(void);
-void is_notify_uninit(void);
-NotifyNotification *is_notify(IsNotifyLevel level,
-                              const gchar *title,
-                              const gchar *format,
-                              ...) G_GNUC_PRINTF(3, 4);
-NotifyNotification *is_notifyv(IsNotifyLevel level,
-                               const gchar *title,
-                               const gchar *format,
-                               va_list args);
+GNotification *is_notify(IsNotifyLevel level, const gchar *title,
+                         const gchar *format, ...) G_GNUC_PRINTF(3, 4);
+GNotification *is_notifyv(IsNotifyLevel level, const gchar *title,
+                          const gchar *format, va_list args);
 G_END_DECLS
 
 #endif /* __IS_LOG_H__ */

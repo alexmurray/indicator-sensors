@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,38 +26,37 @@ static void is_store_finalize(GObject *object);
 static void is_store_tree_model_init(GtkTreeModelIface *iface);
 static GtkTreeModelFlags _is_store_get_flags(GtkTreeModel *tree_model);
 static gint _is_store_get_n_columns(GtkTreeModel *tree_model);
-static GType _is_store_get_column_type(GtkTreeModel *tree_model,
-                                       gint index);
-static gboolean _is_store_get_iter(GtkTreeModel *tree_model,
-                                   GtkTreeIter *iter,
+static GType _is_store_get_column_type(GtkTreeModel *tree_model, gint index);
+static gboolean _is_store_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
                                    GtkTreePath *path);
 static GtkTreePath *_is_store_get_path(GtkTreeModel *tree_model,
                                        GtkTreeIter *iter);
-static void _is_store_get_value(GtkTreeModel *tree_model,
-                                GtkTreeIter *iter,
-                                gint column,
-                                GValue *value);
+static void _is_store_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter,
+                                gint column, GValue *value);
 static gboolean _is_store_iter_next(GtkTreeModel *tree_model,
                                     GtkTreeIter *iter);
 static gboolean _is_store_iter_children(GtkTreeModel *tree_model,
-                                        GtkTreeIter *iter,
-                                        GtkTreeIter *parent);
+                                        GtkTreeIter *iter, GtkTreeIter *parent);
 static gboolean _is_store_iter_has_child(GtkTreeModel *tree_model,
-    GtkTreeIter *iter);
+                                         GtkTreeIter *iter);
 static gint _is_store_iter_n_children(GtkTreeModel *tree_model,
                                       GtkTreeIter *iter);
 static gboolean _is_store_iter_nth_child(GtkTreeModel *tree_model,
-    GtkTreeIter *iter,
-    GtkTreeIter *parent,
-    gint n);
+                                         GtkTreeIter *iter, GtkTreeIter *parent,
+                                         gint n);
 static gboolean _is_store_iter_parent(GtkTreeModel *tree_model,
-                                      GtkTreeIter *iter,
-                                      GtkTreeIter *child);
+                                      GtkTreeIter *iter, GtkTreeIter *child);
 
-G_DEFINE_TYPE_EXTENDED(IsStore, is_store, G_TYPE_OBJECT,
-                       0,
+typedef struct _IsStorePrivate
+{
+  GSequence *entries;
+  gint stamp;
+} IsStorePrivate;
+
+G_DEFINE_TYPE_EXTENDED(IsStore, is_store, G_TYPE_OBJECT, 0,
                        G_IMPLEMENT_INTERFACE(GTK_TYPE_TREE_MODEL,
-                           is_store_tree_model_init));
+                                             is_store_tree_model_init)
+                           G_ADD_PRIVATE(IsStore));
 
 typedef struct _IsStoreEntry IsStoreEntry;
 
@@ -98,18 +97,10 @@ entry_new(const gchar *name)
   return entry;
 }
 
-struct _IsStorePrivate
-{
-  GSequence *entries;
-  gint stamp;
-};
-
 static void
 is_store_class_init(IsStoreClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-
-  g_type_class_add_private(klass, sizeof(IsStorePrivate));
 
   gobject_class->dispose = is_store_dispose;
   gobject_class->finalize = is_store_finalize;
@@ -118,22 +109,17 @@ is_store_class_init(IsStoreClass *klass)
 static void
 is_store_init(IsStore *self)
 {
-  IsStorePrivate *priv =
-    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_STORE,
-                                IsStorePrivate);
+  IsStorePrivate *priv = is_store_get_instance_private(self);
 
-  self->priv = priv;
   priv->entries = g_sequence_new((GDestroyNotify)entry_free);
   priv->stamp = g_random_int();
 }
-
-
 
 static void
 is_store_dispose(GObject *object)
 {
   IsStore *self = (IsStore *)object;
-  IsStorePrivate *priv = self->priv;
+  IsStorePrivate *priv = is_store_get_instance_private(self);
 
   /* Make compiler happy */
   (void)priv;
@@ -145,7 +131,7 @@ static void
 is_store_finalize(GObject *object)
 {
   IsStore *self = (IsStore *)object;
-  IsStorePrivate *priv = self->priv;
+  IsStorePrivate *priv = is_store_get_instance_private(self);
 
   g_sequence_free(priv->entries);
 
@@ -155,7 +141,8 @@ is_store_finalize(GObject *object)
   G_OBJECT_CLASS(is_store_parent_class)->finalize(object);
 }
 
-static void is_store_tree_model_init(GtkTreeModelIface *iface)
+static void
+is_store_tree_model_init(GtkTreeModelIface *iface)
 {
   iface->get_flags = _is_store_get_flags;
   iface->get_n_columns = _is_store_get_n_columns;
@@ -171,47 +158,44 @@ static void is_store_tree_model_init(GtkTreeModelIface *iface)
   iface->iter_parent = _is_store_iter_parent;
 }
 
-static GtkTreeModelFlags _is_store_get_flags(GtkTreeModel *tree_model)
+static GtkTreeModelFlags
+_is_store_get_flags(GtkTreeModel *tree_model)
 {
   g_return_val_if_fail(IS_IS_STORE(tree_model), (GtkTreeModelFlags)0);
 
   return (GTK_TREE_MODEL_ITERS_PERSIST);
 }
 
-static gint _is_store_get_n_columns(GtkTreeModel *tree_model)
+static gint
+_is_store_get_n_columns(GtkTreeModel *tree_model)
 {
   g_return_val_if_fail(IS_IS_STORE(tree_model), 0);
 
   return IS_STORE_N_COLUMNS;
 }
 
-static const GType column_types[IS_STORE_N_COLUMNS] =
-{
-  G_TYPE_STRING, /* IS_STORE_COL_NAME */
-  G_TYPE_STRING, /* IS_STORE_COL_LABEL */
-  G_TYPE_STRING, /* IS_STORE_COL_ICON */
-  G_TYPE_BOOLEAN, /* IS_STORE_COL_IS_SENSOR */
-  G_TYPE_OBJECT, /* IS_STORE_COL_SENSOR */
-  G_TYPE_BOOLEAN, /* IS_STORE_COL_ENABLED */
+static const GType column_types[IS_STORE_N_COLUMNS] = {
+    G_TYPE_STRING,  /* IS_STORE_COL_NAME */
+    G_TYPE_STRING,  /* IS_STORE_COL_LABEL */
+    G_TYPE_STRING,  /* IS_STORE_COL_ICON */
+    G_TYPE_BOOLEAN, /* IS_STORE_COL_IS_SENSOR */
+    G_TYPE_OBJECT,  /* IS_STORE_COL_SENSOR */
+    G_TYPE_BOOLEAN, /* IS_STORE_COL_ENABLED */
 };
 
-static GType _is_store_get_column_type(GtkTreeModel *tree_model,
-                                       gint col)
+static GType
+_is_store_get_column_type(GtkTreeModel *tree_model, gint col)
 {
   g_return_val_if_fail(IS_IS_STORE(tree_model), G_TYPE_INVALID);
-  g_return_val_if_fail((col >= 0) &&
-                       (col < IS_STORE_N_COLUMNS), G_TYPE_INVALID);
+  g_return_val_if_fail((col >= 0) && (col < IS_STORE_N_COLUMNS),
+                       G_TYPE_INVALID);
 
   return column_types[col];
 }
 
 static gboolean
-get_iter_for_indices(IsStore *self,
-                     const gint *indices,
-                     const gint depth,
-                     gint i,
-                     GSequence *entries,
-                     GtkTreeIter *iter)
+get_iter_for_indices(IsStore *self, const gint *indices, const gint depth,
+                     gint i, GSequence *entries, GtkTreeIter *iter)
 {
   gint index;
   GSequenceIter *entry_iter;
@@ -225,13 +209,13 @@ get_iter_for_indices(IsStore *self,
   {
     goto out;
   }
-  entry_iter = g_sequence_get_iter_at_pos(entries,
-                                          index);
-  entry = (IsStoreEntry *) g_sequence_get(entry_iter);
+  entry_iter = g_sequence_get_iter_at_pos(entries, index);
+  entry = (IsStoreEntry *)g_sequence_get(entry_iter);
   /* if this is the required depth return this iter */
   if (i == depth - 1)
   {
-    iter->stamp = self->priv->stamp;
+    IsStorePrivate *priv = is_store_get_instance_private(self);
+    iter->stamp = priv->stamp;
     iter->user_data = entry->iter;
     ret = TRUE;
   }
@@ -239,17 +223,16 @@ get_iter_for_indices(IsStore *self,
   {
     /* parent shouldn't have a sensor */
     g_assert(!entry->sensor);
-    ret = get_iter_for_indices(self, indices, depth, ++i,
-                               entry->entries, iter);
+    ret = get_iter_for_indices(self, indices, depth, ++i, entry->entries, iter);
   }
 
 out:
   return ret;
 }
 
-gboolean _is_store_get_iter(GtkTreeModel *tree_model,
-                            GtkTreeIter *iter,
-                            GtkTreePath *path)
+gboolean
+_is_store_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
+                   GtkTreePath *path)
 {
   IsStore *self;
   IsStorePrivate *priv;
@@ -260,7 +243,7 @@ gboolean _is_store_get_iter(GtkTreeModel *tree_model,
   g_return_val_if_fail(path != NULL, FALSE);
 
   self = IS_STORE(tree_model);
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   indices = gtk_tree_path_get_indices(path);
   depth = gtk_tree_path_get_depth(path);
@@ -269,8 +252,8 @@ gboolean _is_store_get_iter(GtkTreeModel *tree_model,
   return ret;
 }
 
-static GtkTreePath *_is_store_get_path(GtkTreeModel *tree_model,
-                                       GtkTreeIter *iter)
+static GtkTreePath *
+_is_store_get_path(GtkTreeModel *tree_model, GtkTreeIter *iter)
 {
   IsStore *self;
   IsStorePrivate *priv;
@@ -281,7 +264,7 @@ static GtkTreePath *_is_store_get_path(GtkTreeModel *tree_model,
   g_return_val_if_fail(iter != NULL, NULL);
 
   self = IS_STORE(tree_model);
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   g_return_val_if_fail(iter->stamp == priv->stamp, NULL);
   g_assert(iter->user_data);
@@ -293,8 +276,7 @@ static GtkTreePath *_is_store_get_path(GtkTreeModel *tree_model,
   {
     IsStoreEntry *entry;
 
-    gtk_tree_path_prepend_index(path,
-                                g_sequence_iter_get_position(entry_iter));
+    gtk_tree_path_prepend_index(path, g_sequence_iter_get_position(entry_iter));
     entry = (IsStoreEntry *)g_sequence_get(entry_iter);
     entry_iter = entry->parent;
   }
@@ -302,10 +284,9 @@ static GtkTreePath *_is_store_get_path(GtkTreeModel *tree_model,
   return path;
 }
 
-static void _is_store_get_value(GtkTreeModel *tree_model,
-                                GtkTreeIter *iter,
-                                gint column,
-                                GValue *value)
+static void
+_is_store_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
+                    GValue *value)
 {
   IsStore *self;
   IsStorePrivate *priv;
@@ -315,54 +296,51 @@ static void _is_store_get_value(GtkTreeModel *tree_model,
   g_return_if_fail(iter != NULL);
 
   self = IS_STORE(tree_model);
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   g_return_if_fail(iter->stamp == priv->stamp);
   g_assert(iter->user_data);
 
   g_value_init(value, column_types[column]);
 
-  entry = (IsStoreEntry *)
-          g_sequence_get((GSequenceIter *)iter->user_data);
+  entry = (IsStoreEntry *)g_sequence_get((GSequenceIter *)iter->user_data);
   g_assert(entry);
 
   switch (column)
   {
-    case IS_STORE_COL_NAME:
-      g_value_set_string(value, entry->name);
-      break;
+  case IS_STORE_COL_NAME:
+    g_value_set_string(value, entry->name);
+    break;
 
-    case IS_STORE_COL_LABEL:
-      g_value_set_string(value, (entry->sensor ?
-                                 is_sensor_get_label(entry->sensor) :
-                                 NULL));
-      break;
+  case IS_STORE_COL_LABEL:
+    g_value_set_string(
+        value, (entry->sensor ? is_sensor_get_label(entry->sensor) : NULL));
+    break;
 
-    case IS_STORE_COL_IS_SENSOR:
-      g_value_set_boolean(value, (entry->sensor != NULL));
-      break;
+  case IS_STORE_COL_IS_SENSOR:
+    g_value_set_boolean(value, (entry->sensor != NULL));
+    break;
 
-    case IS_STORE_COL_SENSOR:
-      g_value_set_object(value, entry->sensor);
-      break;
+  case IS_STORE_COL_SENSOR:
+    g_value_set_object(value, entry->sensor);
+    break;
 
-    case IS_STORE_COL_ENABLED:
-      g_value_set_boolean(value, entry->enabled);
-      break;
+  case IS_STORE_COL_ENABLED:
+    g_value_set_boolean(value, entry->enabled);
+    break;
 
-    case IS_STORE_COL_ICON:
-      g_value_set_string(value, (entry->sensor ?
-                                 is_sensor_get_icon(entry->sensor) :
-                                 NULL));
-      break;
+  case IS_STORE_COL_ICON:
+    g_value_set_string(
+        value, (entry->sensor ? is_sensor_get_icon(entry->sensor) : NULL));
+    break;
 
-    default:
-      g_assert_not_reached();
+  default:
+    g_assert_not_reached();
   }
 }
 
-static gboolean _is_store_iter_next(GtkTreeModel *tree_model,
-                                    GtkTreeIter *iter)
+static gboolean
+_is_store_iter_next(GtkTreeModel *tree_model, GtkTreeIter *iter)
 {
   IsStore *self;
   IsStorePrivate *priv;
@@ -373,7 +351,7 @@ static gboolean _is_store_iter_next(GtkTreeModel *tree_model,
   g_return_val_if_fail(iter != NULL, FALSE);
 
   self = IS_STORE(tree_model);
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   g_return_val_if_fail(iter->stamp == priv->stamp, FALSE);
   g_assert(iter->user_data);
@@ -387,9 +365,9 @@ static gboolean _is_store_iter_next(GtkTreeModel *tree_model,
   return ret;
 }
 
-static gboolean _is_store_iter_children(GtkTreeModel *tree_model,
-                                        GtkTreeIter *iter,
-                                        GtkTreeIter *parent)
+static gboolean
+_is_store_iter_children(GtkTreeModel *tree_model, GtkTreeIter *iter,
+                        GtkTreeIter *parent)
 {
   IsStore *self;
   IsStorePrivate *priv;
@@ -399,13 +377,12 @@ static gboolean _is_store_iter_children(GtkTreeModel *tree_model,
   g_return_val_if_fail(IS_IS_STORE(tree_model), FALSE);
 
   self = IS_STORE(tree_model);
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   /* special case - return first node */
   if (!parent)
   {
-    GSequenceIter *seq_iter =
-      g_sequence_get_begin_iter(priv->entries);
+    GSequenceIter *seq_iter = g_sequence_get_begin_iter(priv->entries);
     if (seq_iter)
     {
       iter->stamp = priv->stamp;
@@ -429,8 +406,8 @@ out:
   return ret;
 }
 
-static gboolean _is_store_iter_has_child(GtkTreeModel *tree_model,
-    GtkTreeIter *iter)
+static gboolean
+_is_store_iter_has_child(GtkTreeModel *tree_model, GtkTreeIter *iter)
 {
   IsStore *self;
   IsStorePrivate *priv;
@@ -441,7 +418,7 @@ static gboolean _is_store_iter_has_child(GtkTreeModel *tree_model,
   g_return_val_if_fail(iter != NULL, FALSE);
 
   self = IS_STORE(tree_model);
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   g_return_val_if_fail(iter->stamp == priv->stamp, FALSE);
   g_assert(iter->user_data);
@@ -449,8 +426,7 @@ static gboolean _is_store_iter_has_child(GtkTreeModel *tree_model,
   /* end iter is invalid and has no entry associated with it */
   if (!g_sequence_iter_is_end((GSequenceIter *)iter->user_data))
   {
-    entry = (IsStoreEntry *)
-            g_sequence_get((GSequenceIter *)iter->user_data);
+    entry = (IsStoreEntry *)g_sequence_get((GSequenceIter *)iter->user_data);
 
     ret = (g_sequence_get_length(entry->entries) > 0);
   }
@@ -458,8 +434,8 @@ static gboolean _is_store_iter_has_child(GtkTreeModel *tree_model,
   return ret;
 }
 
-static gint _is_store_iter_n_children(GtkTreeModel *tree_model,
-                                      GtkTreeIter *iter)
+static gint
+_is_store_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 {
   IsStore *self;
   IsStorePrivate *priv;
@@ -469,7 +445,7 @@ static gint _is_store_iter_n_children(GtkTreeModel *tree_model,
   g_return_val_if_fail(IS_IS_STORE(tree_model), 0);
 
   self = IS_STORE(tree_model);
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   if (!iter)
   {
@@ -479,20 +455,16 @@ static gint _is_store_iter_n_children(GtkTreeModel *tree_model,
   g_return_val_if_fail(iter->stamp == priv->stamp, 0);
   g_assert(iter->user_data);
 
-  entry = (IsStoreEntry *)
-          g_sequence_get((GSequenceIter *)iter->user_data);
+  entry = (IsStoreEntry *)g_sequence_get((GSequenceIter *)iter->user_data);
   n = g_sequence_get_length(entry->entries);
 
 out:
   return n;
 }
 
-
-
-static gboolean _is_store_iter_nth_child(GtkTreeModel *tree_model,
-    GtkTreeIter *iter,
-    GtkTreeIter *parent,
-    gint n)
+static gboolean
+_is_store_iter_nth_child(GtkTreeModel *tree_model, GtkTreeIter *iter,
+                         GtkTreeIter *parent, gint n)
 {
   IsStore *self;
   IsStorePrivate *priv;
@@ -502,15 +474,14 @@ static gboolean _is_store_iter_nth_child(GtkTreeModel *tree_model,
   g_return_val_if_fail(IS_IS_STORE(tree_model), FALSE);
 
   self = IS_STORE(tree_model);
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   if (!parent)
   {
     g_return_val_if_fail(n >= 0 && n < g_sequence_get_length(priv->entries),
                          FALSE);
     iter->stamp = priv->stamp;
-    iter->user_data = g_sequence_get_iter_at_pos(priv->entries,
-                      n);
+    iter->user_data = g_sequence_get_iter_at_pos(priv->entries, n);
     ret = TRUE;
     goto out;
   }
@@ -518,8 +489,7 @@ static gboolean _is_store_iter_nth_child(GtkTreeModel *tree_model,
   g_return_val_if_fail(parent->stamp == priv->stamp, FALSE);
   g_assert(parent->user_data);
 
-  entry = (IsStoreEntry *)
-          g_sequence_get((GSequenceIter *)parent->user_data);
+  entry = (IsStoreEntry *)g_sequence_get((GSequenceIter *)parent->user_data);
   if (entry->entries)
   {
     iter->stamp = priv->stamp;
@@ -531,9 +501,9 @@ out:
   return ret;
 }
 
-static gboolean _is_store_iter_parent(GtkTreeModel *tree_model,
-                                      GtkTreeIter *iter,
-                                      GtkTreeIter *child)
+static gboolean
+_is_store_iter_parent(GtkTreeModel *tree_model, GtkTreeIter *iter,
+                      GtkTreeIter *child)
 {
   IsStore *self;
   IsStorePrivate *priv;
@@ -544,12 +514,11 @@ static gboolean _is_store_iter_parent(GtkTreeModel *tree_model,
   g_return_val_if_fail(child != NULL, FALSE);
 
   self = IS_STORE(tree_model);
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   g_return_val_if_fail(child->stamp == priv->stamp, FALSE);
   g_assert(child->user_data);
-  entry = (IsStoreEntry *)
-          g_sequence_get((GSequenceIter *)child->user_data);
+  entry = (IsStoreEntry *)g_sequence_get((GSequenceIter *)child->user_data);
   if (entry->parent)
   {
     iter->stamp = priv->stamp;
@@ -560,8 +529,7 @@ static gboolean _is_store_iter_parent(GtkTreeModel *tree_model,
 }
 
 static IsStoreEntry *
-find_entry(IsStore *self,
-           const gchar *path)
+find_entry(IsStore *self, const gchar *path)
 {
   IsStorePrivate *priv;
   GSequence *entries;
@@ -570,7 +538,7 @@ find_entry(IsStore *self,
   gchar **names;
   int i;
 
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   entries = priv->entries;
   names = g_strsplit(path, "/", 0);
@@ -583,8 +551,7 @@ find_entry(IsStore *self,
     entry = NULL;
 
     for (iter = g_sequence_get_begin_iter(entries);
-         !g_sequence_iter_is_end(iter);
-         iter = g_sequence_iter_next(iter))
+         !g_sequence_iter_is_end(iter); iter = g_sequence_iter_next(iter))
     {
       entry = (IsStoreEntry *)g_sequence_get(iter);
       if (g_strcmp0(entry->name, name) == 0)
@@ -611,9 +578,7 @@ is_store_new(void)
 }
 
 gboolean
-is_store_add_sensor(IsStore *self,
-                    IsSensor *sensor,
-                    GtkTreeIter *iter)
+is_store_add_sensor(IsStore *self, IsSensor *sensor, GtkTreeIter *iter)
 {
   IsStorePrivate *priv;
   GSequence *entries;
@@ -628,11 +593,12 @@ is_store_add_sensor(IsStore *self,
   g_return_val_if_fail(IS_IS_STORE(self), FALSE);
   g_return_val_if_fail(IS_IS_SENSOR(sensor), FALSE);
 
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
   entry = find_entry(self, is_sensor_get_path(sensor));
   if (entry)
   {
-    is_warning("store", "sensor %s already exists in store, not adding duplicate",
+    is_warning("store",
+               "sensor %s already exists in store, not adding duplicate",
                is_sensor_get_path(sensor));
     goto out;
   }
@@ -669,10 +635,8 @@ is_store_add_sensor(IsStore *self,
       entries = entry->entries;
       _iter.stamp = priv->stamp;
       _iter.user_data = entry->iter;
-      path = gtk_tree_model_get_path(GTK_TREE_MODEL(self),
-                                     &_iter);
-      gtk_tree_model_row_inserted(GTK_TREE_MODEL(self), path,
-                                  &_iter);
+      path = gtk_tree_model_get_path(GTK_TREE_MODEL(self), &_iter);
+      gtk_tree_model_row_inserted(GTK_TREE_MODEL(self), path, &_iter);
       gtk_tree_path_free(path);
       /* parent of the next entry we create will be this
        * entry */
@@ -689,10 +653,8 @@ is_store_add_sensor(IsStore *self,
   entry->sensor = g_object_ref(sensor);
   _iter.stamp = priv->stamp;
   _iter.user_data = entry->iter;
-  path = gtk_tree_model_get_path(GTK_TREE_MODEL(self),
-                                 &_iter);
-  gtk_tree_model_row_changed(GTK_TREE_MODEL(self), path,
-                             &_iter);
+  path = gtk_tree_model_get_path(GTK_TREE_MODEL(self), &_iter);
+  gtk_tree_model_row_changed(GTK_TREE_MODEL(self), path, &_iter);
   gtk_tree_path_free(path);
   /* return a copy of iter */
   if (iter != NULL)
@@ -707,15 +669,14 @@ out:
 }
 
 static void
-remove_entry(IsStore *self,
-             IsStoreEntry *entry)
+remove_entry(IsStore *self, IsStoreEntry *entry)
 {
   IsStorePrivate *priv;
   GtkTreeIter iter;
   GtkTreePath *path;
   GSequenceIter *parent_iter;
 
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   parent_iter = entry->parent;
   iter.stamp = priv->stamp;
@@ -737,8 +698,7 @@ remove_entry(IsStore *self,
 }
 
 gboolean
-is_store_remove_path(IsStore *self,
-                     const gchar *path)
+is_store_remove_path(IsStore *self, const gchar *path)
 {
   IsStoreEntry *entry = NULL;
   gboolean ret = FALSE;
@@ -756,9 +716,7 @@ is_store_remove_path(IsStore *self,
 }
 
 gboolean
-is_store_set_label(IsStore *self,
-                   GtkTreeIter *iter,
-                   const gchar *label)
+is_store_set_label(IsStore *self, GtkTreeIter *iter, const gchar *label)
 {
   IsStorePrivate *priv;
   IsStoreEntry *entry = NULL;
@@ -767,7 +725,7 @@ is_store_set_label(IsStore *self,
   g_return_val_if_fail(IS_IS_STORE(self), FALSE);
   g_return_val_if_fail(iter != NULL, FALSE);
 
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   g_return_val_if_fail(iter->stamp == priv->stamp, FALSE);
   g_return_val_if_fail(iter->user_data, FALSE);
@@ -790,9 +748,7 @@ is_store_set_label(IsStore *self,
 }
 
 gboolean
-is_store_set_enabled(IsStore *self,
-                     GtkTreeIter *iter,
-                     gboolean enabled)
+is_store_set_enabled(IsStore *self, GtkTreeIter *iter, gboolean enabled)
 {
   IsStorePrivate *priv;
   IsStoreEntry *entry = NULL;
@@ -801,7 +757,7 @@ is_store_set_enabled(IsStore *self,
   g_return_val_if_fail(IS_IS_STORE(self), FALSE);
   g_return_val_if_fail(iter != NULL, FALSE);
 
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   g_return_val_if_fail(iter->stamp == priv->stamp, FALSE);
   g_return_val_if_fail(iter->user_data, FALSE);
@@ -823,8 +779,7 @@ is_store_set_enabled(IsStore *self,
 }
 
 gboolean
-is_store_remove(IsStore *self,
-                GtkTreeIter *iter)
+is_store_remove(IsStore *self, GtkTreeIter *iter)
 {
   IsStorePrivate *priv;
   IsStoreEntry *entry;
@@ -832,20 +787,18 @@ is_store_remove(IsStore *self,
   g_return_val_if_fail(IS_IS_STORE(self), FALSE);
   g_return_val_if_fail(iter != NULL, FALSE);
 
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   g_return_val_if_fail(iter->stamp == priv->stamp, FALSE);
   g_return_val_if_fail(iter->user_data, FALSE);
 
-  entry = (IsStoreEntry *)
-          g_sequence_get((GSequenceIter *)(iter->user_data));
+  entry = (IsStoreEntry *)g_sequence_get((GSequenceIter *)(iter->user_data));
   remove_entry(self, entry);
   return TRUE;
 }
 
-gboolean is_store_get_iter(IsStore *self,
-                           const gchar *path,
-                           GtkTreeIter *iter)
+gboolean
+is_store_get_iter(IsStore *self, const gchar *path, GtkTreeIter *iter)
 {
   IsStorePrivate *priv;
   IsStoreEntry *entry = NULL;
@@ -854,7 +807,7 @@ gboolean is_store_get_iter(IsStore *self,
   g_return_val_if_fail(IS_IS_STORE(self), FALSE);
   g_return_val_if_fail(path != NULL, FALSE);
 
-  priv = self->priv;
+  priv = is_store_get_instance_private(self);
 
   entry = find_entry(self, path);
   if (!entry)

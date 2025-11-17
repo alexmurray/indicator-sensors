@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,102 +15,98 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "config.h"
 
 #include "is-libsensors-plugin.h"
-#include <stdlib.h>
-#include <indicator-sensors/is-temperature-sensor.h>
-#include <indicator-sensors/is-fan-sensor.h>
+#include <glib/gi18n.h>
+#include <indicator-sensors/is-activatable.h>
 #include <indicator-sensors/is-application.h>
+#include <indicator-sensors/is-fan-sensor.h>
 #include <indicator-sensors/is-log.h>
 #include <indicator-sensors/is-notify.h>
-#include <sensors/sensors.h>
+#include <indicator-sensors/is-temperature-sensor.h>
 #include <sensors/error.h>
-#include <glib/gi18n.h>
+#include <sensors/sensors.h>
+#include <stdlib.h>
 
 #define LIBSENSORS_PATH_PREFIX "libsensors"
 
-static void peas_activatable_iface_init(PeasActivatableInterface *iface);
-
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsLibsensorsPlugin,
-                               is_libsensors_plugin,
-                               PEAS_TYPE_EXTENSION_BASE,
-                               0,
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(PEAS_TYPE_ACTIVATABLE,
-                                   peas_activatable_iface_init));
-
-enum
-{
-  PROP_OBJECT = 1,
-};
-
-struct _IsLibsensorsPluginPrivate
+typedef struct _IsLibsensorsPluginPrivate
 {
   IsApplication *application;
   gboolean inited;
   GHashTable *sensor_chip_names;
+} IsLibsensorsPluginPrivate;
+
+static void is_activatable_iface_init(IsActivatableInterface *iface);
+
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(
+    IsLibsensorsPlugin, is_libsensors_plugin, G_TYPE_OBJECT, 0,
+    G_ADD_PRIVATE_DYNAMIC(IsLibsensorsPlugin)
+        G_IMPLEMENT_INTERFACE_DYNAMIC(IS_TYPE_ACTIVATABLE,
+                                      is_activatable_iface_init));
+
+enum
+{
+  PROP_APPLICATION = 1,
 };
 
 static void is_libsensors_plugin_finalize(GObject *object);
 
 static void
-is_libsensors_plugin_set_property(GObject *object,
-                                  guint prop_id,
-                                  const GValue *value,
-                                  GParamSpec *pspec)
+is_libsensors_plugin_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec)
 {
   IsLibsensorsPlugin *plugin = IS_LIBSENSORS_PLUGIN(object);
+  IsLibsensorsPluginPrivate *priv =
+      is_libsensors_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      plugin->priv->application = IS_APPLICATION(g_value_dup_object(value));
-      break;
+  case PROP_APPLICATION:
+    priv->application = IS_APPLICATION(g_value_dup_object(value));
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
-is_libsensors_plugin_get_property(GObject *object,
-                                  guint prop_id,
-                                  GValue *value,
+is_libsensors_plugin_get_property(GObject *object, guint prop_id, GValue *value,
                                   GParamSpec *pspec)
 {
   IsLibsensorsPlugin *plugin = IS_LIBSENSORS_PLUGIN(object);
+  IsLibsensorsPluginPrivate *priv =
+      is_libsensors_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      g_value_set_object(value, plugin->priv->application);
-      break;
+  case PROP_APPLICATION:
+    g_value_set_object(value, priv->application);
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
 is_libsensors_plugin_init(IsLibsensorsPlugin *self)
 {
+  IsLibsensorsPluginPrivate *priv =
+      is_libsensors_plugin_get_instance_private(self);
   gint res;
 
-  IsLibsensorsPluginPrivate *priv =
-    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_LIBSENSORS_PLUGIN,
-                                IsLibsensorsPluginPrivate);
-
-  self->priv = priv;
-
-  is_debug("libsensors", "Trying to initialise libsensors with default path...\n");
+  is_debug("libsensors",
+           "Trying to initialise libsensors with default path...\n");
   res = sensors_init(NULL);
   if (res != 0)
   {
-    is_warning("libsensors", "Failed to initialise libsensors with default path...\n");
+    is_warning("libsensors",
+               "Failed to initialise libsensors with default path...\n");
     if (getenv("SNAP") != NULL)
     {
       gchar *path;
@@ -122,7 +118,8 @@ is_libsensors_plugin_init(IsLibsensorsPlugin *self)
         res = sensors_init(f);
         if (res != 0)
         {
-          is_warning("libsensors", "Failed to initialise libsensors with snap path %s...\n",
+          is_warning("libsensors",
+                     "Failed to initialise libsensors with snap path %s...\n",
                      path);
         }
       }
@@ -132,10 +129,8 @@ is_libsensors_plugin_init(IsLibsensorsPlugin *self)
   }
   if (res == 0)
   {
-    priv->sensor_chip_names = g_hash_table_new_full(g_str_hash,
-                              g_str_equal,
-                              g_free,
-                              NULL);
+    priv->sensor_chip_names =
+        g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
     priv->inited = TRUE;
   }
 }
@@ -144,7 +139,8 @@ static void
 is_libsensors_plugin_finalize(GObject *object)
 {
   IsLibsensorsPlugin *self = (IsLibsensorsPlugin *)object;
-  IsLibsensorsPluginPrivate *priv = self->priv;
+  IsLibsensorsPluginPrivate *priv =
+      is_libsensors_plugin_get_instance_private(self);
 
   if (priv->sensor_chip_names)
   {
@@ -160,7 +156,8 @@ is_libsensors_plugin_finalize(GObject *object)
   G_OBJECT_CLASS(is_libsensors_plugin_parent_class)->finalize(object);
 }
 
-static gchar *get_chip_name_string(const sensors_chip_name *chip)
+static gchar *
+get_chip_name_string(const sensors_chip_name *chip)
 {
   gchar *name = NULL;
 
@@ -178,19 +175,19 @@ static gchar *get_chip_name_string(const sensors_chip_name *chip)
 }
 
 static void
-update_sensor_value(IsSensor *sensor,
-                    IsLibsensorsPlugin *self)
+update_sensor_value(IsSensor *sensor, IsLibsensorsPlugin *self)
 {
   const gchar *path;
   const sensors_chip_name *found_chip;
   gchar *offset, *end;
   int n, ret;
+  IsLibsensorsPluginPrivate *priv =
+      is_libsensors_plugin_get_instance_private(self);
   gdouble value = is_sensor_get_value(sensor);
 
   path = is_sensor_get_path(sensor);
 
-  found_chip = g_hash_table_lookup(self->priv->sensor_chip_names,
-                                   path);
+  found_chip = g_hash_table_lookup(priv->sensor_chip_names, path);
   g_assert(found_chip != NULL);
 
   /* get last separator */
@@ -205,12 +202,12 @@ update_sensor_value(IsSensor *sensor,
   if ((ret = sensors_get_value(found_chip, n, &value)) < 0 &&
       ret != -SENSORS_ERR_IO)
   {
-    GError *error = g_error_new(g_quark_from_string("libsensors-plugin-error-quark"),
-                                0,
-                                /* first placeholder is sensor name,
-                                 * second is error message */
-                                _("Error getting sensor value for sensor %s: %s [%d]"),
-                                path, sensors_strerror(ret), ret);
+    GError *error =
+        g_error_new(g_quark_from_string("libsensors-plugin-error-quark"), 0,
+                    /* first placeholder is sensor name,
+                     * second is error message */
+                    _("Error getting sensor value for sensor %s: %s [%d]"),
+                    path, sensors_strerror(ret), ret);
     is_sensor_set_error(sensor, error->message);
     g_error_free(error);
     goto out;
@@ -234,7 +231,8 @@ static void
 process_sensors_chip_name(IsLibsensorsPlugin *self,
                           const sensors_chip_name *chip_name)
 {
-  IsLibsensorsPluginPrivate *priv = self->priv;
+  IsLibsensorsPluginPrivate *priv =
+      is_libsensors_plugin_get_instance_private(self);
   gchar *chip_name_string = NULL;
   const sensors_feature *main_feature;
   gint nr1 = 0;
@@ -259,57 +257,50 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 
     switch (main_feature->type)
     {
-      case SENSORS_FEATURE_IN:
-        input_feature = sensors_get_subfeature(chip_name,
-                                               main_feature,
-                                               SENSORS_SUBFEATURE_IN_INPUT);
-        min_feature = sensors_get_subfeature(chip_name,
-                                             main_feature,
-                                             SENSORS_SUBFEATURE_IN_MIN);
-        break;
-      case SENSORS_FEATURE_FAN:
-        input_feature = sensors_get_subfeature(chip_name,
-                                               main_feature,
-                                               SENSORS_SUBFEATURE_FAN_INPUT);
-        min_feature = sensors_get_subfeature(chip_name,
-                                             main_feature,
-                                             SENSORS_SUBFEATURE_FAN_ALARM);
-        break;
-      case SENSORS_FEATURE_TEMP:
-        input_feature = sensors_get_subfeature(chip_name,
-                                               main_feature,
-                                               SENSORS_SUBFEATURE_TEMP_INPUT);
-        max_feature = sensors_get_subfeature(chip_name,
-                                             main_feature,
-                                             SENSORS_SUBFEATURE_TEMP_MAX);
-        min_feature = sensors_get_subfeature(chip_name,
-                                             main_feature,
-                                             SENSORS_SUBFEATURE_TEMP_MIN);
-        break;
+    case SENSORS_FEATURE_IN:
+      input_feature = sensors_get_subfeature(chip_name, main_feature,
+                                             SENSORS_SUBFEATURE_IN_INPUT);
+      min_feature = sensors_get_subfeature(chip_name, main_feature,
+                                           SENSORS_SUBFEATURE_IN_MIN);
+      break;
+    case SENSORS_FEATURE_FAN:
+      input_feature = sensors_get_subfeature(chip_name, main_feature,
+                                             SENSORS_SUBFEATURE_FAN_INPUT);
+      min_feature = sensors_get_subfeature(chip_name, main_feature,
+                                           SENSORS_SUBFEATURE_FAN_ALARM);
+      break;
+    case SENSORS_FEATURE_TEMP:
+      input_feature = sensors_get_subfeature(chip_name, main_feature,
+                                             SENSORS_SUBFEATURE_TEMP_INPUT);
+      max_feature = sensors_get_subfeature(chip_name, main_feature,
+                                           SENSORS_SUBFEATURE_TEMP_MAX);
+      min_feature = sensors_get_subfeature(chip_name, main_feature,
+                                           SENSORS_SUBFEATURE_TEMP_MIN);
+      break;
 
 #if SENSORS_API_VERSION > 0x432
-      case SENSORS_FEATURE_MAX:
+    case SENSORS_FEATURE_MAX:
 #endif
 #if SENSORS_API_VERSION > 0x430
-      case SENSORS_FEATURE_HUMIDITY:
-      case SENSORS_FEATURE_MAX_MAIN:
-      case SENSORS_FEATURE_INTRUSION:
-      case SENSORS_FEATURE_MAX_OTHER:
+    case SENSORS_FEATURE_HUMIDITY:
+    case SENSORS_FEATURE_MAX_MAIN:
+    case SENSORS_FEATURE_INTRUSION:
+    case SENSORS_FEATURE_MAX_OTHER:
 #endif
-      case SENSORS_FEATURE_POWER:
-      case SENSORS_FEATURE_ENERGY:
-      case SENSORS_FEATURE_CURR:
-      case SENSORS_FEATURE_VID:
-      case SENSORS_FEATURE_BEEP_ENABLE:
-      case SENSORS_FEATURE_UNKNOWN:
-        is_debug("libsensors", "Ignoring unimplemented sensor type %d",
-                 main_feature->type);
-        break;
+    case SENSORS_FEATURE_POWER:
+    case SENSORS_FEATURE_ENERGY:
+    case SENSORS_FEATURE_CURR:
+    case SENSORS_FEATURE_VID:
+    case SENSORS_FEATURE_BEEP_ENABLE:
+    case SENSORS_FEATURE_UNKNOWN:
+      is_debug("libsensors", "Ignoring unimplemented sensor type %d",
+               main_feature->type);
+      break;
 
-      default:
-        is_warning("libsensors", "error determining type for sensor '%s'",
-                   chip_name_string);
-        continue;
+    default:
+      is_warning("libsensors", "error determining type for sensor '%s'",
+                 chip_name_string);
+      continue;
     }
 
     if (!input_feature)
@@ -334,17 +325,19 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
 
     /* ignore IO Errors since some chips report these sometimes
        intermittently */
-    if ((ret = sensors_get_value(chip_name, input_feature->number, &value)) < 0 &&
+    if ((ret = sensors_get_value(chip_name, input_feature->number, &value)) <
+            0 &&
         ret != -SENSORS_ERR_IO)
     {
-      is_warning("libsensors", "could not get value for input feature of sensor '%s': %s [%d]",
-                 chip_name_string, sensors_strerror(ret), ret);
+      is_warning(
+          "libsensors",
+          "could not get value for input feature of sensor '%s': %s [%d]",
+          chip_name_string, sensors_strerror(ret), ret);
       free(label);
       continue;
     }
 
-    path = g_strdup_printf(LIBSENSORS_PATH_PREFIX "/%s/%d",
-                           chip_name_string,
+    path = g_strdup_printf(LIBSENSORS_PATH_PREFIX "/%s/%d", chip_name_string,
                            input_feature->number);
     if (main_feature->type == SENSORS_FEATURE_TEMP)
     {
@@ -395,8 +388,7 @@ process_sensors_chip_name(IsLibsensorsPlugin *self,
     /* take ownership of path pointer */
     g_hash_table_insert(priv->sensor_chip_names, path, (void *)chip_name);
     /* connect to update-value signal */
-    g_signal_connect(sensor, "update-value",
-                     G_CALLBACK(update_sensor_value),
+    g_signal_connect(sensor, "update-value", G_CALLBACK(update_sensor_value),
                      self);
     is_manager_add_sensor(is_application_get_manager(priv->application),
                           sensor);
@@ -408,10 +400,11 @@ out:
 }
 
 static void
-is_libsensors_plugin_activate(PeasActivatable *activatable)
+is_libsensors_plugin_activate(IsActivatable *activatable)
 {
   IsLibsensorsPlugin *self = IS_LIBSENSORS_PLUGIN(activatable);
-  IsLibsensorsPluginPrivate *priv = self->priv;
+  IsLibsensorsPluginPrivate *priv =
+      is_libsensors_plugin_get_instance_private(self);
   const sensors_chip_name *chip_name;
   int nr = 0;
 
@@ -430,19 +423,21 @@ is_libsensors_plugin_activate(PeasActivatable *activatable)
    * user to try and run sensors-detect from the command line */
   if (!g_hash_table_size(priv->sensor_chip_names))
   {
-    is_notify(IS_NOTIFY_LEVEL_INFO,
-              _("No Sensors Detected"),
-              _("Try running the command 'sensors-detect' from the command-line and restarting %s"), PACKAGE_NAME);
+    is_notify(IS_NOTIFY_LEVEL_INFO, _("No Sensors Detected"),
+              _("Try running the command 'sensors-detect' from the "
+                "command-line and restarting %s"),
+              PACKAGE_NAME);
   }
 out:
   return;
 }
 
 static void
-is_libsensors_plugin_deactivate(PeasActivatable *activatable)
+is_libsensors_plugin_deactivate(IsActivatable *activatable)
 {
   IsLibsensorsPlugin *plugin = IS_LIBSENSORS_PLUGIN(activatable);
-  IsLibsensorsPluginPrivate *priv = plugin->priv;
+  IsLibsensorsPluginPrivate *priv =
+      is_libsensors_plugin_get_instance_private(plugin);
   IsManager *manager;
 
   manager = is_application_get_manager(priv->application);
@@ -454,17 +449,16 @@ is_libsensors_plugin_class_init(IsLibsensorsPluginClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  g_type_class_add_private(klass, sizeof(IsLibsensorsPluginPrivate));
-
   gobject_class->get_property = is_libsensors_plugin_get_property;
   gobject_class->set_property = is_libsensors_plugin_set_property;
   gobject_class->finalize = is_libsensors_plugin_finalize;
 
-  g_object_class_override_property(gobject_class, PROP_OBJECT, "object");
+  g_object_class_override_property(gobject_class, PROP_APPLICATION,
+                                   "application");
 }
 
 static void
-peas_activatable_iface_init(PeasActivatableInterface *iface)
+is_activatable_iface_init(IsActivatableInterface *iface)
 {
   iface->activate = is_libsensors_plugin_activate;
   iface->deactivate = is_libsensors_plugin_deactivate;
@@ -481,7 +475,6 @@ peas_register_types(PeasObjectModule *module)
 {
   is_libsensors_plugin_register_type(G_TYPE_MODULE(module));
 
-  peas_object_module_register_extension_type(module,
-      PEAS_TYPE_ACTIVATABLE,
-      IS_TYPE_LIBSENSORS_PLUGIN);
+  peas_object_module_register_extension_type(module, IS_TYPE_ACTIVATABLE,
+                                             IS_TYPE_LIBSENSORS_PLUGIN);
 }

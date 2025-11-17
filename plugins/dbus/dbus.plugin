@@ -1,6 +1,5 @@
 [Plugin]
 Module=libdbus
-IAge=2
 Name=DBus
 Description=Provides sensor information over DBus
 Authors=Alex Murray <murray.alex@gmail.com>

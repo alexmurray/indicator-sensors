@@ -1,7 +1,5 @@
 data/indicator-sensors.gschema.xml.in
-data/indicator-sensors.gschema.xml.in.in
 data/indicator-sensors.desktop.in
-data/indicator-sensors.appdata.xml.in
 indicator-sensors/indicator-sensors.c
 indicator-sensors/is-application.c
 indicator-sensors/is-fan-sensor.c
@@ -10,7 +8,6 @@ indicator-sensors/is-manager.c
 indicator-sensors/is-preferences-dialog.c
 indicator-sensors/is-sensor.c
 indicator-sensors/is-sensor-dialog.c
-plugins/aticonfig/is-aticonfig-plugin.c
 plugins/fake/is-fake-plugin.c
 plugins/libsensors/is-libsensors-plugin.c
 plugins/nvidia/is-nvidia-plugin.c

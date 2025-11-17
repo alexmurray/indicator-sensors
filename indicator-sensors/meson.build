@@ -1,0 +1,40 @@
+gnome = import('gnome')
+
+marshalled_files = gnome.genmarshal(
+  'marshallers',
+  sources: ['marshallers.list'],
+)
+
+executable('indicator-sensors',
+           [
+             'indicator-sensors.c',
+             'is-activatable.c',
+             'is-activatable.h',
+             'is-application.c',
+             'is-application.h',
+             'is-log.h',
+             'is-log.c',
+             'is-notify.h',
+             'is-notify.c',
+             'is-indicator.h',
+             'is-indicator.c',
+             'is-sensor.h',
+             'is-sensor.c',
+             'is-temperature-sensor.h',
+             'is-temperature-sensor.c',
+             'is-fan-sensor.h',
+             'is-fan-sensor.c',
+             'is-store.h',
+             'is-store.c',
+             'is-manager.h',
+             'is-manager.c',
+             'is-preferences-dialog.h',
+             'is-preferences-dialog.c',
+             'is-sensor-dialog.h',
+             'is-sensor-dialog.c',
+           ] + marshalled_files,
+           dependencies: [glib_dep, gio_dep, gtk_dep, appindicator_dep,
+                          libpeas_dep],
+           include_directories : root_include_dir,
+           install: true,
+           install_dir: get_option('bindir'))
