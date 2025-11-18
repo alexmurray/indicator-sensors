@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-02 22:58+1030\n"
+"POT-Creation-Date: 2025-11-18 15:56+1030\n"
 "PO-Revision-Date: 2012-06-02 10:37+0000\n"
 "Last-Translator: gogo <trebelnik2@gmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
@@ -18,259 +18,227 @@ msgstr ""
 "X-Launchpad-Export-Date: 2013-11-02 11:56+0000\n"
 "X-Generator: Launchpad (build 16820)\n"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:1
-#: ../data/indicator-sensors.gschema.xml.in.in.h:1
+#: data/indicator-sensors.gschema.xml.in:5
 msgid "Primary sensor to display"
 msgstr "Glavni senzor za prikazati"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:2
-#: ../data/indicator-sensors.gschema.xml.in.in.h:2
+#: data/indicator-sensors.gschema.xml.in:6
 msgid ""
 "The primary sensor to display in the indicator, identified by it’s path."
 msgstr "Glavni senzor prikazan u indikatoru, identificiran svojom putanjom."
 
-#: ../data/indicator-sensors.gschema.xml.in.h:3
-#: ../data/indicator-sensors.gschema.xml.in.in.h:3
+#: data/indicator-sensors.gschema.xml.in:11
 msgid "Display flags for the indicator"
 msgstr ""
 
-#: ../data/indicator-sensors.gschema.xml.in.h:4
-#: ../data/indicator-sensors.gschema.xml.in.in.h:4
+#: data/indicator-sensors.gschema.xml.in:12
 msgid "The elements used to display the primary sensor within the indicator."
 msgstr "Elementi koji se koriste za prikaz glavnog senzora unutar indikatora."
 
-#: ../data/indicator-sensors.gschema.xml.in.h:5
-#: ../data/indicator-sensors.gschema.xml.in.in.h:5
+#: data/indicator-sensors.gschema.xml.in:18
 msgid "Enabled sensors"
 msgstr "Omogući senzore"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:6
-#: ../data/indicator-sensors.gschema.xml.in.in.h:6
+#: data/indicator-sensors.gschema.xml.in:19
 msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr ""
 "Popis omogućenih senzora za nadzor, svaki identificiran svojom putanjom."
 
-#: ../data/indicator-sensors.gschema.xml.in.h:7
-#: ../data/indicator-sensors.gschema.xml.in.in.h:7
-msgid "Seconds to delay hiding / showing alarms"
-msgstr ""
-
-#: ../data/indicator-sensors.gschema.xml.in.h:8
-#: ../data/indicator-sensors.gschema.xml.in.in.h:8
-msgid ""
-"Alarm delay adds some hysteresis so alarms aren't shown for quickly "
-"fluctuating values."
-msgstr ""
-
-#: ../data/indicator-sensors.gschema.xml.in.h:9
-#: ../data/indicator-sensors.gschema.xml.in.in.h:9
-#: ../indicator-sensors/is-preferences-dialog.c:168
+#: data/indicator-sensors.gschema.xml.in:26
+#: indicator-sensors/is-preferences-dialog.c:177
 msgid "Temperature scale"
 msgstr "Temperaturni raspon"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:10
-#: ../data/indicator-sensors.gschema.xml.in.in.h:10
+#: data/indicator-sensors.gschema.xml.in:27
 msgid "The temperature scale to display temperature sensor values."
 msgstr "Temperaturni raspon za prikaz senzora temp. vrijednosti."
 
-#: ../data/indicator-sensors.gschema.xml.in.h:11
-#: ../data/indicator-sensors.gschema.xml.in.in.h:11
+#: data/indicator-sensors.gschema.xml.in:31
 msgid "Show indicator"
 msgstr ""
 
-#: ../data/indicator-sensors.gschema.xml.in.h:12
-#: ../data/indicator-sensors.gschema.xml.in.in.h:12
+#: data/indicator-sensors.gschema.xml.in:32
 msgid "Whether to show the indicator in the notification area."
 msgstr ""
 
-#: ../data/indicator-sensors.desktop.in.h:1
-#: ../indicator-sensors/is-application.c:822
+#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:793
 msgid "Hardware Sensors Indicator"
 msgstr "Indikator senzora hardvera"
 
-#: ../data/indicator-sensors.desktop.in.h:2
+#: data/indicator-sensors.desktop.in:4
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Indikator za Unity koji prikazuje očitanja senzora hardvera"
 
-#: ../data/indicator-sensors.appdata.xml.in.h:1
-msgid ""
-"Hardware Sensors Indicator provides temperature, fan and voltage sensor "
-"readings within the panel of your desktop."
-msgstr ""
-
-#: ../data/indicator-sensors.appdata.xml.in.h:2
-msgid ""
-"When running GNOME Shell it is recommended to also install the associated "
-"GNOME Shell extension from extensions.gnome.org - https://extensions.gnome."
-"org/extension/336/hardware-sensors-indicator/ ."
-msgstr ""
-
-#: ../indicator-sensors/indicator-sensors.c:152
+#: indicator-sensors/indicator-sensors.c:199
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: ../indicator-sensors/indicator-sensors.c:153
+#: indicator-sensors/indicator-sensors.c:200
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
 msgstr ""
 
-#: ../indicator-sensors/is-application.c:824
+#: indicator-sensors/is-application.c:794
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr ""
 
-#: ../indicator-sensors/is-fan-sensor.c:40
+#: indicator-sensors/is-fan-sensor.c:39
 msgid " RPM"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:160
+#: indicator-sensors/is-indicator.c:123
 msgid "Preferences…"
 msgstr "Osobitosti..."
 
-#: ../indicator-sensors/is-indicator.c:161
+#: indicator-sensors/is-indicator.c:124
+#: indicator-sensors/is-preferences-dialog.c:201
 msgid "Preferences"
 msgstr "Osobitosti"
 
-#: ../indicator-sensors/is-indicator.c:162
+#: indicator-sensors/is-indicator.c:125
 msgid "About…"
 msgstr "O programu..."
 
-#: ../indicator-sensors/is-indicator.c:163
+#: indicator-sensors/is-indicator.c:125
 msgid "About"
 msgstr ""
 
-#: ../indicator-sensors/is-indicator.c:164
-#: ../indicator-sensors/is-indicator.c:165
+#: indicator-sensors/is-indicator.c:127
+#, fuzzy
+msgid "_Quit"
+msgstr "Zatvori"
+
+#: indicator-sensors/is-indicator.c:127
 msgid "Quit"
 msgstr "Zatvori"
 
-#: ../indicator-sensors/is-indicator.c:237
+#: indicator-sensors/is-indicator.c:194
 msgid "No Sensors"
 msgstr "Nema senzora"
 
-#: ../indicator-sensors/is-indicator.c:554
-#: ../indicator-sensors/is-indicator.c:680
+#: indicator-sensors/is-indicator.c:483 indicator-sensors/is-indicator.c:598
 msgid "No active sensors"
 msgstr "Nema aktivnih senzora"
 
-#: ../indicator-sensors/is-manager.c:302
-#: ../indicator-sensors/is-sensor-dialog.c:315
+#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:270
 msgid "Sensor"
 msgstr "Senzor"
 
-#: ../indicator-sensors/is-manager.c:310
-#: ../indicator-sensors/is-preferences-dialog.c:149
+#: indicator-sensors/is-manager.c:266
+#: indicator-sensors/is-preferences-dialog.c:158
 msgid "Icon"
 msgstr "Ikona"
 
-#: ../indicator-sensors/is-manager.c:319
-#: ../indicator-sensors/is-preferences-dialog.c:154
-#: ../indicator-sensors/is-sensor-dialog.c:106
+#: indicator-sensors/is-manager.c:272
+#: indicator-sensors/is-preferences-dialog.c:164
+#: indicator-sensors/is-sensor-dialog.c:98
 msgid "Label"
 msgstr ""
 
-#: ../indicator-sensors/is-manager.c:329
+#: indicator-sensors/is-manager.c:280
 msgid "Enabled"
 msgstr "Omogućeno"
 
-#: ../indicator-sensors/is-preferences-dialog.c:108
+#: indicator-sensors/is-preferences-dialog.c:123
 msgid "Hardware Sensors Indicator Preferences"
 msgstr ""
 
-#: ../indicator-sensors/is-preferences-dialog.c:127
+#: indicator-sensors/is-preferences-dialog.c:127
+#, fuzzy
+msgid "_Properties"
+msgstr " Svojstva senzora"
+
+#: indicator-sensors/is-preferences-dialog.c:131
+#: indicator-sensors/is-sensor-dialog.c:86
+msgid "_Close"
+msgstr ""
+
+#: indicator-sensors/is-preferences-dialog.c:140
 msgid "General"
 msgstr "Općenito"
 
-#: ../indicator-sensors/is-preferences-dialog.c:135
+#: indicator-sensors/is-preferences-dialog.c:146
 msgid "Start automatically on login"
 msgstr "Pokreni automatski prilikom prijave"
 
-#: ../indicator-sensors/is-preferences-dialog.c:141
+#: indicator-sensors/is-preferences-dialog.c:151
 msgid "Primary sensor display"
 msgstr "Glavni prikaz senzora"
 
-#: ../indicator-sensors/is-preferences-dialog.c:159
+#: indicator-sensors/is-preferences-dialog.c:170
 msgid "Value"
 msgstr "Vrijednost"
 
-#: ../indicator-sensors/is-preferences-dialog.c:176
+#: indicator-sensors/is-preferences-dialog.c:184
 msgid "Celsius (°C)"
 msgstr "Celzij (°C)"
 
-#: ../indicator-sensors/is-preferences-dialog.c:187
+#: indicator-sensors/is-preferences-dialog.c:192
 msgid "Fahrenheit (°F)"
 msgstr "Fahrenheit (°F)"
 
-#: ../indicator-sensors/is-sensor.c:380
-msgid "Sensor Alarm"
+#: indicator-sensors/is-sensor.c:896
+#, fuzzy
+msgid "Sensor Error"
 msgstr "Senzor alarma"
 
-#: ../indicator-sensors/is-sensor-dialog.c:88
+#: indicator-sensors/is-sensor-dialog.c:83
 msgid " Sensor Properties"
 msgstr " Svojstva senzora"
 
-#: ../indicator-sensors/is-sensor-dialog.c:115
+#: indicator-sensors/is-sensor-dialog.c:103
 msgid "Alarm"
 msgstr "Alarm"
 
-#: ../indicator-sensors/is-sensor-dialog.c:123
+#: indicator-sensors/is-sensor-dialog.c:108
 msgid "Disabled"
 msgstr "Onemogućeno"
 
-#: ../indicator-sensors/is-sensor-dialog.c:126
+#: indicator-sensors/is-sensor-dialog.c:110
 msgid "Below"
 msgstr "Ispod"
 
-#: ../indicator-sensors/is-sensor-dialog.c:129
+#: indicator-sensors/is-sensor-dialog.c:112
 msgid "Above"
 msgstr "Iznad"
 
-#: ../indicator-sensors/is-sensor-dialog.c:147
+#: indicator-sensors/is-sensor-dialog.c:123
 msgid "Low value"
 msgstr "Niža vrijednost"
 
-#: ../indicator-sensors/is-sensor-dialog.c:166
+#: indicator-sensors/is-sensor-dialog.c:134
 msgid "High value"
 msgstr "Viša vrijednost"
 
-#. first placeholder is sensor name
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:159
+#: plugins/fake/is-fake-plugin.c:139
 #, c-format
-msgid "Error reading temperature value for GPU %d"
-msgstr "Greška  čitanja vrijednosti temp. za GPU %d"
+msgid "Fake Fan %d"
+msgstr ""
 
-#. first placeholder is sensor name
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:198
+#: plugins/fake/is-fake-plugin.c:145
 #, c-format
-msgid "Error reading fanspeed value for GPU %d"
-msgstr "Greška  čitanja brzine ventilatora. za GPU %d"
-
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:337
-msgid "Temperature"
-msgstr "Temperatura"
-
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:355
-msgid "Fan"
-msgstr "Ventilator"
+msgid "Fake CPU %d"
+msgstr ""
 
 #. first placeholder is sensor name,
 #. * second is error message
-#: ../plugins/libsensors/is-libsensors-plugin.c:174
+#: plugins/libsensors/is-libsensors-plugin.c:209
 #, c-format
 msgid "Error getting sensor value for sensor %s: %s [%d]"
 msgstr "Greška dobivanja vrijednosti senzora za senzor %s: %s [%d]"
 
 #. translators: V is the unit for Voltage, replace with
 #. appropriate unit
-#: ../plugins/libsensors/is-libsensors-plugin.c:315
+#: plugins/libsensors/is-libsensors-plugin.c:363
 msgid "V"
 msgstr "V"
 
-#: ../plugins/libsensors/is-libsensors-plugin.c:375
+#: plugins/libsensors/is-libsensors-plugin.c:426
 msgid "No Sensors Detected"
 msgstr ""
 
-#: ../plugins/libsensors/is-libsensors-plugin.c:376
+#: plugins/libsensors/is-libsensors-plugin.c:427
 #, c-format
 msgid ""
 "Try running the command 'sensors-detect' from the command-line and "
@@ -279,18 +247,37 @@ msgstr ""
 
 #. first placeholder is
 #. * sensor name
-#: ../plugins/nvidia/is-nvidia-plugin.c:192
+#: plugins/nvidia/is-nvidia-plugin.c:182
 #, c-format
 msgid "Error getting sensor value for sensor %s"
 msgstr "Greška dobivanja vrijednosti senzora za senzor %s"
 
-#: ../plugins/udisks/is-udisks-plugin.c:149
-#: ../plugins/udisks2/is-udisks2-plugin.c:126
+#: plugins/udisks/is-udisks-plugin.c:143
+#: plugins/udisks2/is-udisks2-plugin.c:125
 #, c-format
 msgid "Error reading new SMART data for sensor %s"
 msgstr "Greška čitanja novih SMART podataka za senzor %s"
 
-#: ../plugins/udisks/is-udisks-plugin.c:165
+#: plugins/udisks/is-udisks-plugin.c:157
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "Greška osvježavanja SMART podataka za senzor %s"
+
+#: plugins/udisks2/is-udisks2-plugin.c:156
+#, fuzzy, c-format
+msgid "Error reading power management state for sensor %s"
+msgstr "Greška čitanja novih SMART podataka za senzor %s"
+
+#, c-format
+#~ msgid "Error reading temperature value for GPU %d"
+#~ msgstr "Greška  čitanja vrijednosti temp. za GPU %d"
+
+#, c-format
+#~ msgid "Error reading fanspeed value for GPU %d"
+#~ msgstr "Greška  čitanja brzine ventilatora. za GPU %d"
+
+#~ msgid "Temperature"
+#~ msgstr "Temperatura"
+
+#~ msgid "Fan"
+#~ msgstr "Ventilator"

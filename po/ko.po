@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-02 22:58+1030\n"
+"POT-Creation-Date: 2025-11-18 15:56+1030\n"
 "PO-Revision-Date: 2013-09-30 10:21+0000\n"
 "Last-Translator: Kim Boram <boramism@gmail.com>\n"
 "Language-Team: Korean <ko@li.org>\n"
@@ -18,103 +18,61 @@ msgstr ""
 "X-Launchpad-Export-Date: 2013-11-02 11:56+0000\n"
 "X-Generator: Launchpad (build 16820)\n"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:1
-#: ../data/indicator-sensors.gschema.xml.in.in.h:1
+#: data/indicator-sensors.gschema.xml.in:5
 msgid "Primary sensor to display"
 msgstr "표시할 주 센서"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:2
-#: ../data/indicator-sensors.gschema.xml.in.in.h:2
+#: data/indicator-sensors.gschema.xml.in:6
 msgid ""
 "The primary sensor to display in the indicator, identified by it’s path."
 msgstr "경로로 구분한 알리미에 표시할 주 센서를 설정합니다."
 
-#: ../data/indicator-sensors.gschema.xml.in.h:3
-#: ../data/indicator-sensors.gschema.xml.in.in.h:3
+#: data/indicator-sensors.gschema.xml.in:11
 msgid "Display flags for the indicator"
 msgstr "알리미의 플래그를 표시합니다."
 
-#: ../data/indicator-sensors.gschema.xml.in.h:4
-#: ../data/indicator-sensors.gschema.xml.in.in.h:4
+#: data/indicator-sensors.gschema.xml.in:12
 msgid "The elements used to display the primary sensor within the indicator."
 msgstr "알리미에 표시할 주 센서에 사용하는 요소입니다."
 
-#: ../data/indicator-sensors.gschema.xml.in.h:5
-#: ../data/indicator-sensors.gschema.xml.in.in.h:5
+#: data/indicator-sensors.gschema.xml.in:18
 msgid "Enabled sensors"
 msgstr "센서 사용"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:6
-#: ../data/indicator-sensors.gschema.xml.in.in.h:6
+#: data/indicator-sensors.gschema.xml.in:19
 msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr "경로로 구분하는 감시하도록 설정한 센서의 목록입니다."
 
-#: ../data/indicator-sensors.gschema.xml.in.h:7
-#: ../data/indicator-sensors.gschema.xml.in.in.h:7
-msgid "Seconds to delay hiding / showing alarms"
-msgstr "숨길 때와 경고 메시지를 표시할 때의 지연 시간"
-
-#: ../data/indicator-sensors.gschema.xml.in.h:8
-#: ../data/indicator-sensors.gschema.xml.in.in.h:8
-msgid ""
-"Alarm delay adds some hysteresis so alarms aren't shown for quickly "
-"fluctuating values."
-msgstr ""
-"경고 메시지를 표시하는 시간을 지연해 온도가 빠르게 변할 때 메시지가 끊임없이 "
-"나타나는 것을 막습니다."
-
-#: ../data/indicator-sensors.gschema.xml.in.h:9
-#: ../data/indicator-sensors.gschema.xml.in.in.h:9
-#: ../indicator-sensors/is-preferences-dialog.c:168
+#: data/indicator-sensors.gschema.xml.in:26
+#: indicator-sensors/is-preferences-dialog.c:177
 msgid "Temperature scale"
 msgstr "온도 단위"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:10
-#: ../data/indicator-sensors.gschema.xml.in.in.h:10
+#: data/indicator-sensors.gschema.xml.in:27
 msgid "The temperature scale to display temperature sensor values."
 msgstr "센서의 온도 값을 표시할 단위를 설정합니다."
 
-#: ../data/indicator-sensors.gschema.xml.in.h:11
-#: ../data/indicator-sensors.gschema.xml.in.in.h:11
+#: data/indicator-sensors.gschema.xml.in:31
 msgid "Show indicator"
 msgstr "알리미 보이기"
 
-#: ../data/indicator-sensors.gschema.xml.in.h:12
-#: ../data/indicator-sensors.gschema.xml.in.in.h:12
+#: data/indicator-sensors.gschema.xml.in:32
 msgid "Whether to show the indicator in the notification area."
 msgstr "알림 영역에 알리미를 표시할지 설정합니다."
 
-#: ../data/indicator-sensors.desktop.in.h:1
-#: ../indicator-sensors/is-application.c:822
+#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:793
 msgid "Hardware Sensors Indicator"
 msgstr "하드웨어 센서 알리미"
 
-#: ../data/indicator-sensors.desktop.in.h:2
+#: data/indicator-sensors.desktop.in:4
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "하드웨어 센서를 읽은 값을 표시하는 유니티용 알리미"
 
-#: ../data/indicator-sensors.appdata.xml.in.h:1
-msgid ""
-"Hardware Sensors Indicator provides temperature, fan and voltage sensor "
-"readings within the panel of your desktop."
-msgstr ""
-"하드웨어 센서 알리미는 데스크톱 패널에 온도와 팬, 전압 값을 읽어 표시합니다."
-
-#: ../data/indicator-sensors.appdata.xml.in.h:2
-msgid ""
-"When running GNOME Shell it is recommended to also install the associated "
-"GNOME Shell extension from extensions.gnome.org - https://extensions.gnome."
-"org/extension/336/hardware-sensors-indicator/ ."
-msgstr ""
-"그놈 쉘을 사용할 때는 그놈 확장 기능 사이트(https://extensions.gnome.org/"
-"extension/336/hardware-sensors-indicator/)에서 센서 알리미의 그놈 쉘 용 확장 "
-"기능을 설치해주십시오."
-
-#: ../indicator-sensors/indicator-sensors.c:152
+#: indicator-sensors/indicator-sensors.c:199
 msgid "No Sensors Enabled For Monitoring"
 msgstr "감시하도록 설정한 센서가 없습니다."
 
-#: ../indicator-sensors/indicator-sensors.c:153
+#: indicator-sensors/indicator-sensors.c:200
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -122,162 +80,166 @@ msgstr ""
 "센서를 발견했습니다. 하지만 감시할 센서로 설정한 센서가 없습니다. 감시할 센서"
 "를 설정하려면 기본 설정 창을 연 후 감시할 센서를 선택해주십시오."
 
-#: ../indicator-sensors/is-application.c:824
+#: indicator-sensors/is-application.c:794
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr "그놈 / 유니티 용 하드웨어 센서 알리미입니다."
 
-#: ../indicator-sensors/is-fan-sensor.c:40
+#: indicator-sensors/is-fan-sensor.c:39
 msgid " RPM"
 msgstr " RPM"
 
-#: ../indicator-sensors/is-indicator.c:160
+#: indicator-sensors/is-indicator.c:123
 msgid "Preferences…"
 msgstr "기본 설정…"
 
-#: ../indicator-sensors/is-indicator.c:161
+#: indicator-sensors/is-indicator.c:124
+#: indicator-sensors/is-preferences-dialog.c:201
 msgid "Preferences"
 msgstr "기본 설정"
 
-#: ../indicator-sensors/is-indicator.c:162
+#: indicator-sensors/is-indicator.c:125
 msgid "About…"
 msgstr "정보…"
 
-#: ../indicator-sensors/is-indicator.c:163
+#: indicator-sensors/is-indicator.c:125
 msgid "About"
 msgstr "정보"
 
-#: ../indicator-sensors/is-indicator.c:164
-#: ../indicator-sensors/is-indicator.c:165
+#: indicator-sensors/is-indicator.c:127
+#, fuzzy
+msgid "_Quit"
+msgstr "끝내기"
+
+#: indicator-sensors/is-indicator.c:127
 msgid "Quit"
 msgstr "끝내기"
 
-#: ../indicator-sensors/is-indicator.c:237
+#: indicator-sensors/is-indicator.c:194
 msgid "No Sensors"
 msgstr "센서 없음"
 
-#: ../indicator-sensors/is-indicator.c:554
-#: ../indicator-sensors/is-indicator.c:680
+#: indicator-sensors/is-indicator.c:483 indicator-sensors/is-indicator.c:598
 msgid "No active sensors"
 msgstr "감시 할 센서 없음"
 
-#: ../indicator-sensors/is-manager.c:302
-#: ../indicator-sensors/is-sensor-dialog.c:315
+#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:270
 msgid "Sensor"
 msgstr "센서"
 
-#: ../indicator-sensors/is-manager.c:310
-#: ../indicator-sensors/is-preferences-dialog.c:149
+#: indicator-sensors/is-manager.c:266
+#: indicator-sensors/is-preferences-dialog.c:158
 msgid "Icon"
 msgstr "아이콘"
 
-#: ../indicator-sensors/is-manager.c:319
-#: ../indicator-sensors/is-preferences-dialog.c:154
-#: ../indicator-sensors/is-sensor-dialog.c:106
+#: indicator-sensors/is-manager.c:272
+#: indicator-sensors/is-preferences-dialog.c:164
+#: indicator-sensors/is-sensor-dialog.c:98
 msgid "Label"
 msgstr "이름"
 
-#: ../indicator-sensors/is-manager.c:329
+#: indicator-sensors/is-manager.c:280
 msgid "Enabled"
 msgstr "사용"
 
-#: ../indicator-sensors/is-preferences-dialog.c:108
+#: indicator-sensors/is-preferences-dialog.c:123
 msgid "Hardware Sensors Indicator Preferences"
 msgstr "하드웨어 센서 알리미 기본 설정"
 
-#: ../indicator-sensors/is-preferences-dialog.c:127
+#: indicator-sensors/is-preferences-dialog.c:127
+#, fuzzy
+msgid "_Properties"
+msgstr " 센서 속성"
+
+#: indicator-sensors/is-preferences-dialog.c:131
+#: indicator-sensors/is-sensor-dialog.c:86
+msgid "_Close"
+msgstr ""
+
+#: indicator-sensors/is-preferences-dialog.c:140
 msgid "General"
 msgstr "일반"
 
-#: ../indicator-sensors/is-preferences-dialog.c:135
+#: indicator-sensors/is-preferences-dialog.c:146
 msgid "Start automatically on login"
 msgstr "로그인할 때 자동으로 시작"
 
-#: ../indicator-sensors/is-preferences-dialog.c:141
+#: indicator-sensors/is-preferences-dialog.c:151
 msgid "Primary sensor display"
 msgstr "주 센서에 표시할 항목"
 
-#: ../indicator-sensors/is-preferences-dialog.c:159
+#: indicator-sensors/is-preferences-dialog.c:170
 msgid "Value"
 msgstr "값"
 
-#: ../indicator-sensors/is-preferences-dialog.c:176
+#: indicator-sensors/is-preferences-dialog.c:184
 msgid "Celsius (°C)"
 msgstr "섭씨 (°C)"
 
-#: ../indicator-sensors/is-preferences-dialog.c:187
+#: indicator-sensors/is-preferences-dialog.c:192
 msgid "Fahrenheit (°F)"
 msgstr "화씨 (°F)"
 
-#: ../indicator-sensors/is-sensor.c:380
-msgid "Sensor Alarm"
+#: indicator-sensors/is-sensor.c:896
+#, fuzzy
+msgid "Sensor Error"
 msgstr "센서 경고"
 
-#: ../indicator-sensors/is-sensor-dialog.c:88
+#: indicator-sensors/is-sensor-dialog.c:83
 msgid " Sensor Properties"
 msgstr " 센서 속성"
 
-#: ../indicator-sensors/is-sensor-dialog.c:115
+#: indicator-sensors/is-sensor-dialog.c:103
 msgid "Alarm"
 msgstr "경고"
 
-#: ../indicator-sensors/is-sensor-dialog.c:123
+#: indicator-sensors/is-sensor-dialog.c:108
 msgid "Disabled"
 msgstr "사용 안 함"
 
-#: ../indicator-sensors/is-sensor-dialog.c:126
+#: indicator-sensors/is-sensor-dialog.c:110
 msgid "Below"
 msgstr "설정한 값 미만"
 
-#: ../indicator-sensors/is-sensor-dialog.c:129
+#: indicator-sensors/is-sensor-dialog.c:112
 msgid "Above"
 msgstr "설정한 값 초과"
 
-#: ../indicator-sensors/is-sensor-dialog.c:147
+#: indicator-sensors/is-sensor-dialog.c:123
 msgid "Low value"
 msgstr "최저 값"
 
-#: ../indicator-sensors/is-sensor-dialog.c:166
+#: indicator-sensors/is-sensor-dialog.c:134
 msgid "High value"
 msgstr "최고 값"
 
-#. first placeholder is sensor name
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:159
+#: plugins/fake/is-fake-plugin.c:139
 #, c-format
-msgid "Error reading temperature value for GPU %d"
-msgstr "GPU %d의 온도 값을 읽을 수 없습니다."
+msgid "Fake Fan %d"
+msgstr ""
 
-#. first placeholder is sensor name
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:198
+#: plugins/fake/is-fake-plugin.c:145
 #, c-format
-msgid "Error reading fanspeed value for GPU %d"
-msgstr "GPU %d의 팬 속도 값을 읽을 수 없습니다."
-
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:337
-msgid "Temperature"
-msgstr "온도"
-
-#: ../plugins/aticonfig/is-aticonfig-plugin.c:355
-msgid "Fan"
-msgstr "팬"
+msgid "Fake CPU %d"
+msgstr ""
 
 #. first placeholder is sensor name,
 #. * second is error message
-#: ../plugins/libsensors/is-libsensors-plugin.c:174
+#: plugins/libsensors/is-libsensors-plugin.c:209
 #, c-format
 msgid "Error getting sensor value for sensor %s: %s [%d]"
 msgstr "센서 %s에서 센서 값을 가져올 수 없습니다: %s [%d]"
 
 #. translators: V is the unit for Voltage, replace with
 #. appropriate unit
-#: ../plugins/libsensors/is-libsensors-plugin.c:315
+#: plugins/libsensors/is-libsensors-plugin.c:363
 msgid "V"
 msgstr "V"
 
-#: ../plugins/libsensors/is-libsensors-plugin.c:375
+#: plugins/libsensors/is-libsensors-plugin.c:426
 msgid "No Sensors Detected"
 msgstr "발견한 센서가 없습니다."
 
-#: ../plugins/libsensors/is-libsensors-plugin.c:376
+#: plugins/libsensors/is-libsensors-plugin.c:427
 #, c-format
 msgid ""
 "Try running the command 'sensors-detect' from the command-line and "
@@ -286,18 +248,63 @@ msgstr "명령줄에서 'sensors-detect' 명령을 실행한 후 %s을(를) 다�
 
 #. first placeholder is
 #. * sensor name
-#: ../plugins/nvidia/is-nvidia-plugin.c:192
+#: plugins/nvidia/is-nvidia-plugin.c:182
 #, c-format
 msgid "Error getting sensor value for sensor %s"
 msgstr "센서 %s의 값을 가져오는 중 오류가 발생했습니다."
 
-#: ../plugins/udisks/is-udisks-plugin.c:149
-#: ../plugins/udisks2/is-udisks2-plugin.c:126
+#: plugins/udisks/is-udisks-plugin.c:143
+#: plugins/udisks2/is-udisks2-plugin.c:125
 #, c-format
 msgid "Error reading new SMART data for sensor %s"
 msgstr "센서 %s의 새 SMART 데이터를 읽는 중 오류 발생"
 
-#: ../plugins/udisks/is-udisks-plugin.c:165
+#: plugins/udisks/is-udisks-plugin.c:157
 #, c-format
 msgid "Error refreshing SMART data for sensor %s"
 msgstr "센서 %s의 새 SMART 데이터를 다시 읽는 중 오류 발생"
+
+#: plugins/udisks2/is-udisks2-plugin.c:156
+#, fuzzy, c-format
+msgid "Error reading power management state for sensor %s"
+msgstr "센서 %s의 새 SMART 데이터를 읽는 중 오류 발생"
+
+#~ msgid "Seconds to delay hiding / showing alarms"
+#~ msgstr "숨길 때와 경고 메시지를 표시할 때의 지연 시간"
+
+#~ msgid ""
+#~ "Alarm delay adds some hysteresis so alarms aren't shown for quickly "
+#~ "fluctuating values."
+#~ msgstr ""
+#~ "경고 메시지를 표시하는 시간을 지연해 온도가 빠르게 변할 때 메시지가 끊임없"
+#~ "이 나타나는 것을 막습니다."
+
+#~ msgid ""
+#~ "Hardware Sensors Indicator provides temperature, fan and voltage sensor "
+#~ "readings within the panel of your desktop."
+#~ msgstr ""
+#~ "하드웨어 센서 알리미는 데스크톱 패널에 온도와 팬, 전압 값을 읽어 표시합니"
+#~ "다."
+
+#~ msgid ""
+#~ "When running GNOME Shell it is recommended to also install the associated "
+#~ "GNOME Shell extension from extensions.gnome.org - https://extensions."
+#~ "gnome.org/extension/336/hardware-sensors-indicator/ ."
+#~ msgstr ""
+#~ "그놈 쉘을 사용할 때는 그놈 확장 기능 사이트(https://extensions.gnome.org/"
+#~ "extension/336/hardware-sensors-indicator/)에서 센서 알리미의 그놈 쉘 용 확"
+#~ "장 기능을 설치해주십시오."
+
+#, c-format
+#~ msgid "Error reading temperature value for GPU %d"
+#~ msgstr "GPU %d의 온도 값을 읽을 수 없습니다."
+
+#, c-format
+#~ msgid "Error reading fanspeed value for GPU %d"
+#~ msgstr "GPU %d의 팬 속도 값을 읽을 수 없습니다."
+
+#~ msgid "Temperature"
+#~ msgstr "온도"
+
+#~ msgid "Fan"
+#~ msgstr "팬"
