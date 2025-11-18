@@ -7,11 +7,19 @@ description: |
  from various hardware sensors (temperature, fan speeds, voltages
  etc) in the desktop panel
 
-base: core22
+base: core24
 grade: stable
 confinement: strict
-icon: icons/hicolor/256x256/apps/indicator-sensors.png
+icon: icons/indicator-sensors-256x256.png
 license: GPL-3.0+
+contact:
+  - https://github.com/alexmurray/indicator-sensors/issues
+issues:
+  - https://github.com/alexmurray/indicator-sensors/issues
+website:
+  - https://github.com/alexmurray/indicator-sensors
+source-code:
+  - https://github.com/alexmurray/indicator-sensors
 
 slots:
   # for GtkApplication registration
@@ -37,8 +45,10 @@ apps:
 parts:
   indicator-sensors:
     source: .
-    plugin: autotools
-    autotools-configure-parameters: [--prefix=/snap/indicator-sensors/current/usr]
+    plugin: meson
+    meson-parameters:
+     - "--prefix=/snap/indicator-sensors/current/usr"
+     - "--buildtype=release"
     organize:
       snap/indicator-sensors/current/usr: usr
     build-packages:
@@ -67,8 +77,7 @@ parts:
        - libayatana-indicator3-7
        - libayatana-ido3-0.4-0
        - libudisks2-0
-       - libnotify4
-       - libpeas-1.0-0
+       - libpeas-2-0
        - libgtk3-nocsd0
        - libxnvctrl0
     prime:
@@ -86,3 +95,4 @@ parts:
       - usr/lib/*/libudisks2.so.*
       - usr/lib/*/libXNVCtrl.so.*
       - usr/lib/*/libgtk3-nocsd.so.*
+      - usr/lib/*/libpeas-2.so.*
