@@ -58,7 +58,6 @@ static void is_application_set_property(GObject *object, guint property_id,
 enum
 {
   PROP_MANAGER = 1,
-  PROP_SHOW_INDICATOR,
   PROP_POLL_TIMEOUT,
   PROP_AUTOSTART,
   PROP_TEMPERATURE_SCALE,
@@ -83,12 +82,6 @@ is_application_class_init(IsApplicationClass *klass)
   g_object_class_install_property(gobject_class, PROP_MANAGER,
                                   properties[PROP_MANAGER]);
 
-  properties[PROP_SHOW_INDICATOR] = g_param_spec_boolean(
-      "show-indicator", "show-indicator property",
-      "show-indicator property blurp.", TRUE,
-      G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-  g_object_class_install_property(gobject_class, PROP_SHOW_INDICATOR,
-                                  properties[PROP_SHOW_INDICATOR]);
   properties[PROP_POLL_TIMEOUT] = g_param_spec_uint(
       "poll-timeout", "poll-timeout property", "poll-timeout property blurp.",
       0, G_MAXUINT, DEFAULT_POLL_TIMEOUT,
@@ -194,9 +187,6 @@ is_application_get_property(GObject *object, guint property_id, GValue *value,
   {
   case PROP_MANAGER:
     g_value_set_object(value, is_application_get_manager(self));
-    break;
-  case PROP_SHOW_INDICATOR:
-    g_value_set_boolean(value, is_application_get_show_indicator(self));
     break;
   case PROP_POLL_TIMEOUT:
     g_value_set_uint(value, is_application_get_poll_timeout(self));
@@ -468,9 +458,6 @@ is_application_set_property(GObject *object, guint property_id,
                     "enabled-sensors", G_SETTINGS_BIND_DEFAULT);
     g_object_set_data_full(G_OBJECT(priv->manager), "gsettings", settings,
                            (GDestroyNotify)g_object_unref);
-    break;
-  case PROP_SHOW_INDICATOR:
-    is_application_set_show_indicator(self, g_value_get_boolean(value));
     break;
   case PROP_POLL_TIMEOUT:
     is_application_set_poll_timeout(self, g_value_get_uint(value));
@@ -804,60 +791,6 @@ is_application_quit(IsApplication *self)
   gtk_main_quit();
 }
 
-static void
-is_application_show_indicator(IsApplication *self)
-{
-  IsApplicationPrivate *priv;
-
-  priv = is_application_get_instance_private(self);
-
-  if (!priv->indicator)
-  {
-    GSettings *settings;
-
-    priv->indicator = is_indicator_new(self);
-
-    settings = g_settings_new("indicator-sensors.indicator");
-    is_indicator_set_primary_sensor_path(
-        priv->indicator, g_settings_get_string(settings, "primary-sensor"));
-    is_indicator_set_display_flags(
-        priv->indicator, g_settings_get_int(settings, "display-flags"));
-    g_settings_bind(settings, "primary-sensor", priv->indicator,
-                    "primary-sensor-path", G_SETTINGS_BIND_DEFAULT);
-    g_settings_bind(settings, "display-flags", priv->indicator, "display-flags",
-                    G_SETTINGS_BIND_DEFAULT);
-    g_object_set_data_full(G_OBJECT(priv->indicator), "gsettings", settings,
-                           (GDestroyNotify)g_object_unref);
-  }
-}
-
-static void
-is_application_hide_indicator(IsApplication *self)
-{
-  IsApplicationPrivate *priv;
-
-  priv = is_application_get_instance_private(self);
-
-  if (priv->indicator)
-  {
-    g_object_unref(priv->indicator);
-    priv->indicator = NULL;
-  }
-}
-
-void
-is_application_set_show_indicator(IsApplication *self, gboolean show_indicator)
-{
-  g_return_if_fail(IS_IS_APPLICATION(self));
-
-  if (show_indicator)
-  {
-    is_application_show_indicator(self);
-  }
-  else
-  {
-    is_application_hide_indicator(self);
-  }
 }
 
 gboolean

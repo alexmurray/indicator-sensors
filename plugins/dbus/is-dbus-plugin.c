@@ -21,6 +21,7 @@
 #include "is-dbus-plugin.h"
 #include "is-org-gnome-shell-search-provider-generated.h"
 #include <gio/gio.h>
+#include <glib.h>
 #include <glib/gi18n.h>
 #include <indicator-sensors/is-activatable.h>
 #include <indicator-sensors/is-application.h>
@@ -249,10 +250,6 @@ static const gchar introspection_xml[] =
     "  <interface name='com.github.alexmurray.IndicatorSensors'>"
     "    <method name='ShowPreferences'>"
     "    </method>"
-    "    <method name='ShowIndicator'>"
-    "    </method>"
-    "    <method name='HideIndicator'>"
-    "    </method>"
     "  </interface>"
     "</node>";
 
@@ -268,14 +265,6 @@ handle_method_call(GDBusConnection *connection, const gchar *sender,
   if (g_strcmp0(method_name, "ShowPreferences") == 0)
   {
     is_application_show_preferences(priv->application);
-  }
-  else if (g_strcmp0(method_name, "ShowIndicator") == 0)
-  {
-    is_application_set_show_indicator(priv->application, TRUE);
-  }
-  else if (g_strcmp0(method_name, "HideIndicator") == 0)
-  {
-    is_application_set_show_indicator(priv->application, FALSE);
   }
   g_dbus_method_invocation_return_value(invocation, NULL);
 }

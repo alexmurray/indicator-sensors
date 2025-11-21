@@ -51,9 +51,6 @@ struct _IsApplication
 GType is_application_get_type(void) G_GNUC_CONST;
 IsApplication *is_application_new(void);
 IsManager *is_application_get_manager(IsApplication *self);
-void is_application_set_show_indicator(IsApplication *self,
-                                       gboolean show_indicator);
-gboolean is_application_get_show_indicator(IsApplication *self);
 guint is_application_get_poll_timeout(IsApplication *self);
 void is_application_set_poll_timeout(IsApplication *self, guint poll_timeout);
 gboolean is_application_get_autostart(IsApplication *self);
