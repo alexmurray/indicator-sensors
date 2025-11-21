@@ -40,10 +40,12 @@ typedef struct _IsApplicationPrivate
   guint idle_write_id;
 } IsApplicationPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE(IsApplication, is_application, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE(IsApplication, is_application, G_TYPE_APPLICATION);
 
 static void is_application_dispose(GObject *object);
 static void is_application_finalize(GObject *object);
+static void is_application_startup(GApplication *application);
+static void is_application_activate(GApplication *application);
 static void is_application_get_property(GObject *object, guint property_id,
                                         GValue *value, GParamSpec *pspec);
 static void is_application_set_property(GObject *object, guint property_id,
@@ -70,11 +72,15 @@ static void
 is_application_class_init(IsApplicationClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  GApplicationClass *gapplication_class = G_APPLICATION_CLASS(klass);
 
   gobject_class->get_property = is_application_get_property;
   gobject_class->set_property = is_application_set_property;
   gobject_class->dispose = is_application_dispose;
   gobject_class->finalize = is_application_finalize;
+
+  gapplication_class->startup = is_application_startup;
+  gapplication_class->activate = is_application_activate;
 
   properties[PROP_MANAGER] = g_param_spec_object(
       "manager", "manager property", "manager property blurp.", IS_TYPE_MANAGER,
@@ -151,6 +157,9 @@ is_application_init(IsApplication *self)
   gboolean ret;
 
   priv = is_application_get_instance_private(self);
+
+  g_application_set_application_id(G_APPLICATION(self),
+                                   "com.github.alexmurray.IndicatorSensors");
 
   priv->poll_timeout = DEFAULT_POLL_TIMEOUT;
   path = g_build_filename(g_get_user_config_dir(), "autostart",
@@ -507,6 +516,80 @@ is_application_finalize(GObject *object)
 }
 
 static void
+on_prefs_action(GtkMenuItem *item, gpointer data)
+{
+  IsApplication *self = IS_APPLICATION(data);
+  is_application_show_preferences(self);
+}
+
+static void
+on_about_action(GtkMenuItem *item, gpointer data)
+{
+  IsApplication *self = IS_APPLICATION(data);
+  is_application_show_about(self);
+}
+
+static void
+on_quit_action(GtkMenuItem *item, gpointer data)
+{
+  IsApplication *self = IS_APPLICATION(data);
+  is_application_quit(self);
+}
+
+static void
+is_application_startup(GApplication *application)
+{
+  G_APPLICATION_CLASS(is_application_parent_class)->startup(application);
+
+  is_debug("application", "Application starting up");
+
+  IsApplication *self = IS_APPLICATION(application);
+  IsApplicationPrivate *priv;
+
+  priv = is_application_get_instance_private(IS_APPLICATION(application));
+
+  GtkWidget *menu = gtk_menu_new();
+  GtkWidget *separator_item = gtk_separator_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu), separator_item);
+  GtkWidget *prefs_item = gtk_menu_item_new_with_label(_("Preferences"));
+  g_signal_connect(prefs_item, "activate", G_CALLBACK(on_prefs_action), self);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu), prefs_item);
+
+  GtkWidget *about_item = gtk_menu_item_new_with_label(_("About"));
+  g_signal_connect(about_item, "activate", G_CALLBACK(on_about_action), self);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu), about_item);
+
+  GtkWidget *quit_item = gtk_menu_item_new_with_label(_("Quit"));
+  g_signal_connect(quit_item, "activate", G_CALLBACK(on_quit_action), self);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu), quit_item);
+  gtk_widget_show_all(menu);
+
+  priv->indicator = is_indicator_new(self, GTK_MENU(menu));
+
+  GSettings *settings = g_settings_new("indicator-sensors.indicator");
+  gchar *primary_sensor_path =
+      g_settings_get_string(settings, "primary-sensor");
+  is_indicator_set_primary_sensor_path(priv->indicator, primary_sensor_path);
+  g_free(primary_sensor_path);
+  is_indicator_set_display_flags(priv->indicator,
+                                 g_settings_get_int(settings, "display-flags"));
+  g_settings_bind(settings, "primary-sensor", priv->indicator,
+                  "primary-sensor-path", G_SETTINGS_BIND_DEFAULT);
+  g_settings_bind(settings, "display-flags", priv->indicator, "display-flags",
+                  G_SETTINGS_BIND_DEFAULT);
+  g_object_set_data_full(G_OBJECT(priv->indicator), "gsettings", settings,
+                         (GDestroyNotify)g_object_unref);
+}
+
+static void
+is_application_activate(GApplication *application)
+{
+  G_APPLICATION_CLASS(is_application_parent_class)->activate(application);
+  is_debug("application", "Application activated");
+  g_application_hold(application);
+}
+
+static void
 prefs_dialog_response(IsPreferencesDialog *dialog, gint response_id,
                       IsApplication *self)
 {
@@ -788,9 +871,7 @@ void
 is_application_quit(IsApplication *self)
 {
   g_return_if_fail(IS_IS_APPLICATION(self));
-  gtk_main_quit();
-}
-
+  g_application_release(G_APPLICATION(self));
 }
 
 gboolean

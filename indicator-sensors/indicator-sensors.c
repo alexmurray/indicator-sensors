@@ -201,10 +201,11 @@ main(int argc, char **argv)
     g_slist_free(sensors);
   }
 
-  gtk_main();
+  g_application_run(G_APPLICATION(application), argc, argv);
 
   g_object_unref(application);
 
 exit:
+  g_option_context_free(context);
   return 0;
 }

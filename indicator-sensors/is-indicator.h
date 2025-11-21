@@ -19,7 +19,6 @@
 #define __IS_INDICATOR_H__
 
 #include "is-application.h"
-#include "is-sensor.h"
 #include <libayatana-appindicator/app-indicator.h>
 
 G_BEGIN_DECLS
@@ -60,7 +59,7 @@ typedef enum
 } IsIndicatorDisplayFlags;
 
 GType is_indicator_get_type(void) G_GNUC_CONST;
-IsIndicator *is_indicator_new(IsApplication *application);
+IsIndicator *is_indicator_new(IsApplication *application, GtkMenu *menu);
 IsApplication *is_indicator_get_application(IsIndicator *self);
 void is_indicator_set_primary_sensor_path(IsIndicator *self, const gchar *path);
 const gchar *is_indicator_get_primary_sensor_path(IsIndicator *self);

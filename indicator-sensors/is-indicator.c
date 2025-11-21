@@ -21,7 +21,6 @@
 #include "is-application.h"
 #include "is-indicator.h"
 #include "is-log.h"
-#include "is-sensor-dialog.h"
 #include <glib/gi18n.h>
 
 typedef struct _IsIndicatorPrivate
@@ -62,28 +61,15 @@ enum
   PROP_APPLICATION = 1,
   PROP_PRIMARY_SENSOR_PATH,
   PROP_DISPLAY_FLAGS,
+  PROP_MENU, // ideally menu would be a property but AppIndicator
+             // doesn't expose it as such
   LAST_PROPERTY
 };
 
 static GParamSpec *properties[LAST_PROPERTY] = {NULL};
 
-static GtkMenu *
-is_indicator_get_menu(IsIndicator *self)
-{
-  GtkMenu *menu;
-
-  menu = app_indicator_get_menu(APP_INDICATOR(self));
-  return menu;
-}
-
-static void
-is_indicator_set_menu(IsIndicator *self, GtkMenu *menu)
-{
-  app_indicator_set_menu(APP_INDICATOR(self), menu);
-}
-
 static gboolean
-fake_add_enable_sensors(IsIndicator *self)
+process_existing_sensors(IsIndicator *self)
 {
   IsIndicatorPrivate *priv = is_indicator_get_instance_private(self);
   IsManager *manager;
@@ -115,87 +101,16 @@ fake_add_enable_sensors(IsIndicator *self)
   return FALSE;
 }
 
-static void prefs_action(GtkAction *action, IsIndicator *self);
-static void about_action(GtkAction *action, IsIndicator *self);
-static void quit_action(GtkAction *action, IsIndicator *self);
-
-static GtkActionEntry entries[] = {
-    {"Preferences", "application-preferences", N_("Preferences…"), NULL,
-     N_("Preferences"), G_CALLBACK(prefs_action)},
-    {"About", "about", N_("About…"), NULL, N_("About"),
-     G_CALLBACK(about_action)},
-    {"Quit", NULL, N_("_Quit"), NULL, N_("Quit"), G_CALLBACK(quit_action)},
-};
-static guint n_entries = G_N_ELEMENTS(entries);
-
-static const gchar *ui_info = "<ui>"
-                              "  <popup name='Indicator'>"
-                              "    <menuitem action='Preferences' />"
-                              "    <menuitem action='About' />"
-                              "    <menuitem action='Quit' />"
-                              "  </popup>"
-                              "</ui>";
-
-static void
-prefs_action(GtkAction *action, IsIndicator *self)
-{
-  IsIndicatorPrivate *priv = is_indicator_get_instance_private(self);
-  is_application_show_preferences(priv->application);
-}
-
-static void
-about_action(GtkAction *action, IsIndicator *self)
-{
-  IsIndicatorPrivate *priv = is_indicator_get_instance_private(self);
-  is_application_show_about(priv->application);
-}
-
-static void
-quit_action(GtkAction *action, IsIndicator *self)
-{
-  IsIndicatorPrivate *priv = is_indicator_get_instance_private(self);
-  is_application_quit(priv->application);
-}
-
-static void
-is_indicator_set_label(IsIndicator *self, const gchar *label)
-{
-  app_indicator_set_label(APP_INDICATOR(self), label, label);
-}
-
 static void
 is_indicator_constructed(GObject *object)
 {
   IsIndicator *self = IS_INDICATOR(object);
-  GtkActionGroup *action_group;
-  GtkUIManager *ui_manager;
-  GError *error = NULL;
-  GtkWidget *menu;
 
-  action_group = gtk_action_group_new("AppActions");
-  gtk_action_group_set_translation_domain(action_group, GETTEXT_PACKAGE);
-  gtk_action_group_add_actions(action_group, entries, n_entries, self);
-
-  ui_manager = gtk_ui_manager_new();
-  gtk_ui_manager_insert_action_group(ui_manager, action_group, 0);
-  if (!gtk_ui_manager_add_ui_from_string(ui_manager, ui_info, -1, &error))
-  {
-    g_error("Failed to build menus: %s\n", error->message);
-  }
-
-  menu = gtk_ui_manager_get_widget(ui_manager, "/ui/Indicator");
-  /* manually add separator since specifying it in the ui description
-     means it gets optimised out (since there is no menu item above it)
-     but if we manually add it and show the whole menu then all is
-     good... */
-  gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), gtk_separator_menu_item_new());
-  gtk_widget_show_all(menu);
-
-  is_indicator_set_label(self, _("No Sensors"));
-  is_indicator_set_menu(self, GTK_MENU(menu));
+  const gchar *label = _("No Sensors");
+  app_indicator_set_label(APP_INDICATOR(self), label, label);
   app_indicator_set_status(APP_INDICATOR(self), APP_INDICATOR_STATUS_ACTIVE);
 
-  fake_add_enable_sensors(IS_INDICATOR(object));
+  process_existing_sensors(IS_INDICATOR(object));
 }
 
 static void
@@ -232,6 +147,11 @@ is_indicator_class_init(IsIndicatorClass *klass)
       G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
   g_object_class_install_property(gobject_class, PROP_DISPLAY_FLAGS,
                                   properties[PROP_DISPLAY_FLAGS]);
+  properties[PROP_MENU] = g_param_spec_object(
+      "menu", "menu property", "menu property blurp.", GTK_TYPE_MENU,
+      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+  g_object_class_install_property(gobject_class, PROP_MENU,
+                                  properties[PROP_MENU]);
 }
 
 static void
@@ -255,6 +175,9 @@ is_indicator_get_property(GObject *object, guint property_id, GValue *value,
     break;
   case PROP_DISPLAY_FLAGS:
     g_value_set_int(value, is_indicator_get_display_flags(self));
+    break;
+  case PROP_MENU:
+    g_value_set_object(value, app_indicator_get_menu(APP_INDICATOR(self)));
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -287,6 +210,10 @@ is_indicator_set_property(GObject *object, guint property_id,
     break;
   case PROP_DISPLAY_FLAGS:
     is_indicator_set_display_flags(self, g_value_get_int(value));
+    break;
+  case PROP_MENU:
+    app_indicator_set_menu(APP_INDICATOR(self),
+                           GTK_MENU(g_value_get_object(value)));
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -453,7 +380,8 @@ _sensor_disabled(IsSensor *sensor, IsIndicator *self)
   /* destroy menu item */
   menu_item = GTK_WIDGET(g_object_get_data(G_OBJECT(sensor), "menu-item"));
   priv->menu_items = g_slist_remove(priv->menu_items, menu_item);
-  gtk_container_remove(GTK_CONTAINER(is_indicator_get_menu(self)), menu_item);
+  gtk_container_remove(
+      GTK_CONTAINER(app_indicator_get_menu(APP_INDICATOR(self))), menu_item);
   g_object_set_data(G_OBJECT(sensor), "menu-item", NULL);
 
   g_signal_handlers_disconnect_by_func(sensor, sensor_notify, self);
@@ -480,7 +408,8 @@ sensor_disabled(IsManager *manager, IsSensor *sensor, IsIndicator *self)
   }
   else
   {
-    is_indicator_set_label(self, _("No active sensors"));
+    const gchar *label = _("No active sensors");
+    app_indicator_set_label(APP_INDICATOR(self), label, label);
     g_clear_object(&priv->primary);
   }
 out:
@@ -534,7 +463,7 @@ sensor_enabled(IsManager *manager, IsSensor *sensor, gint position,
     g_signal_connect(sensor, "notify::high-value", G_CALLBACK(sensor_notify),
                      self);
     /* add a menu entry for this sensor */
-    menu = is_indicator_get_menu(self);
+    menu = app_indicator_get_menu(APP_INDICATOR(self));
     menu_item = gtk_check_menu_item_new();
     gtk_check_menu_item_set_draw_as_radio(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
     g_object_set_data(G_OBJECT(sensor), "menu-item", menu_item);
@@ -595,16 +524,18 @@ sensor_added(IsManager *manager, IsSensor *sensor, IsIndicator *self)
   IsIndicatorPrivate *priv = is_indicator_get_instance_private(self);
   if (!priv->menu_items)
   {
-    is_indicator_set_label(self, _("No active sensors"));
+    const gchar *label = _("No active sensors");
+    app_indicator_set_label(APP_INDICATOR(self), label, label);
   }
 }
 
 IsIndicator *
-is_indicator_new(IsApplication *application)
+is_indicator_new(IsApplication *application, GtkMenu *menu)
 {
-  IsIndicator *self = g_object_new(
-      IS_TYPE_INDICATOR, "id", PACKAGE, "category", "Hardware", "application",
-      application, "icon-name", PACKAGE, "title", PACKAGE_NAME, NULL);
+  IsIndicator *self =
+      g_object_new(IS_TYPE_INDICATOR, "id", PACKAGE, "category", "Hardware",
+                   "application", application, "menu", menu, "icon-name",
+                   PACKAGE, "title", PACKAGE_NAME, NULL);
   return IS_INDICATOR(self);
 }
 

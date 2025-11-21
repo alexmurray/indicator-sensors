@@ -40,12 +40,12 @@ typedef struct _IsApplicationClass IsApplicationClass;
 
 struct _IsApplicationClass
 {
-  GObjectClass parent_class;
+  GApplicationClass parent_class;
 };
 
 struct _IsApplication
 {
-  GObject parent;
+  GApplication parent;
 };
 
 GType is_application_get_type(void) G_GNUC_CONST;
