@@ -490,6 +490,7 @@ on_bus_acquired(GDBusConnection *connection, const gchar *name,
 
     sensor_enabled(manager, sensor, i++, self);
   }
+  g_slist_free(sensors);
   g_signal_connect(manager, "sensor-enabled", G_CALLBACK(sensor_enabled), self);
   g_signal_connect(manager, "sensor-disabled", G_CALLBACK(sensor_disabled),
                    self);
