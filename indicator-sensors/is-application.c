@@ -551,11 +551,11 @@ is_application_startup(GApplication *application)
   GtkWidget *menu = gtk_menu_new();
   GtkWidget *separator_item = gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(menu), separator_item);
-  GtkWidget *prefs_item = gtk_menu_item_new_with_label(_("Preferences"));
+  GtkWidget *prefs_item = gtk_menu_item_new_with_label(_("Preferences…"));
   g_signal_connect(prefs_item, "activate", G_CALLBACK(on_prefs_action), self);
   gtk_menu_shell_append(GTK_MENU_SHELL(menu), prefs_item);
 
-  GtkWidget *about_item = gtk_menu_item_new_with_label(_("About"));
+  GtkWidget *about_item = gtk_menu_item_new_with_label(_("About…"));
   g_signal_connect(about_item, "activate", G_CALLBACK(on_about_action), self);
   gtk_menu_shell_append(GTK_MENU_SHELL(menu), about_item);
 
