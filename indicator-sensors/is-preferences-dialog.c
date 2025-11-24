@@ -110,7 +110,6 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
 {
   IsPreferencesDialogPrivate *priv;
   GtkWidget *box;
-  GtkWidget *notebook;
   GtkWidget *label;
   gchar *markup;
 
@@ -200,8 +199,6 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
   g_signal_connect(priv->fahrenheit_radio_button, "toggled",
                    G_CALLBACK(temperature_scale_toggled), self);
 
-  notebook = gtk_notebook_new();
-  label = gtk_label_new(_("Preferences"));
   box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
   gtk_box_pack_start(GTK_BOX(box), priv->grid, TRUE, TRUE, 0);
   gtk_widget_set_hexpand(priv->sensor_properties_button, FALSE);
@@ -209,14 +206,8 @@ is_preferences_dialog_init(IsPreferencesDialog *self)
   gtk_box_pack_start(GTK_BOX(box), priv->sensor_properties_button, FALSE, TRUE,
                      0);
 
-  gtk_notebook_append_page(GTK_NOTEBOOK(notebook), box, label);
-
-  /* plugins = peas_gtk_plugin_manager_new(NULL); */
-  /* label = gtk_label_new(_("Plugins")); */
-  /* gtk_notebook_append_page(GTK_NOTEBOOK(notebook), plugins, label); */
-
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(self))),
-                     notebook, TRUE, TRUE, 0);
+                     box, TRUE, TRUE, 0);
 }
 
 static void
