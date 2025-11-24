@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-18 15:56+1030\n"
+"POT-Creation-Date: 2025-11-24 20:18+1030\n"
 "PO-Revision-Date: 2012-03-25 18:05+0000\n"
 "Last-Translator: Bence Lukács <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
@@ -46,7 +46,7 @@ msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr "Az ellenőrzött szenzorok listája, útvonaluk alapján azonosítva."
 
 #: data/indicator-sensors.gschema.xml.in:26
-#: indicator-sensors/is-preferences-dialog.c:177
+#: indicator-sensors/is-preferences-dialog.c:178
 msgid "Temperature scale"
 msgstr "Hőmérsékleti skála"
 
@@ -54,15 +54,7 @@ msgstr "Hőmérsékleti skála"
 msgid "The temperature scale to display temperature sensor values."
 msgstr "A hőmérsékleti skála megjelenítése a szenzor értékében."
 
-#: data/indicator-sensors.gschema.xml.in:31
-msgid "Show indicator"
-msgstr ""
-
-#: data/indicator-sensors.gschema.xml.in:32
-msgid "Whether to show the indicator in the notification area."
-msgstr ""
-
-#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:793
+#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:863
 msgid "Hardware Sensors Indicator"
 msgstr "Hardver-szenzor indikátor"
 
@@ -70,17 +62,29 @@ msgstr "Hardver-szenzor indikátor"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Egy indikátor a Unityhez, ami megmutatja a hardver-szenzor adatait."
 
-#: indicator-sensors/indicator-sensors.c:199
+#: indicator-sensors/indicator-sensors.c:194
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: indicator-sensors/indicator-sensors.c:200
+#: indicator-sensors/indicator-sensors.c:195
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
 msgstr ""
 
-#: indicator-sensors/is-application.c:794
+#: indicator-sensors/is-application.c:554
+msgid "Preferences…"
+msgstr "Beállítások…"
+
+#: indicator-sensors/is-application.c:558
+msgid "About…"
+msgstr "Névjegy..."
+
+#: indicator-sensors/is-application.c:562
+msgid "Quit"
+msgstr "Kilépés"
+
+#: indicator-sensors/is-application.c:864
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr ""
 
@@ -88,52 +92,26 @@ msgstr ""
 msgid " RPM"
 msgstr ""
 
-#: indicator-sensors/is-indicator.c:123
-msgid "Preferences…"
-msgstr "Beállítások…"
-
-#: indicator-sensors/is-indicator.c:124
-#: indicator-sensors/is-preferences-dialog.c:201
-msgid "Preferences"
-msgstr "Beállítások"
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About…"
-msgstr "Névjegy..."
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About"
-msgstr ""
-
-#: indicator-sensors/is-indicator.c:127
-#, fuzzy
-msgid "_Quit"
-msgstr "Kilépés"
-
-#: indicator-sensors/is-indicator.c:127
-msgid "Quit"
-msgstr "Kilépés"
-
-#: indicator-sensors/is-indicator.c:194
+#: indicator-sensors/is-indicator.c:109
 msgid "No Sensors"
 msgstr "Nincs szenzor"
 
-#: indicator-sensors/is-indicator.c:483 indicator-sensors/is-indicator.c:598
+#: indicator-sensors/is-indicator.c:411 indicator-sensors/is-indicator.c:527
 msgid "No active sensors"
 msgstr "Nincs aktív szenzor"
 
-#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:270
+#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:278
 msgid "Sensor"
 msgstr "Szenzor"
 
 #: indicator-sensors/is-manager.c:266
-#: indicator-sensors/is-preferences-dialog.c:158
+#: indicator-sensors/is-preferences-dialog.c:159
 msgid "Icon"
 msgstr "Ikon"
 
 #: indicator-sensors/is-manager.c:272
-#: indicator-sensors/is-preferences-dialog.c:164
-#: indicator-sensors/is-sensor-dialog.c:98
+#: indicator-sensors/is-preferences-dialog.c:165
+#: indicator-sensors/is-sensor-dialog.c:99
 msgid "Label"
 msgstr "Címke"
 
@@ -141,21 +119,21 @@ msgstr "Címke"
 msgid "Enabled"
 msgstr "Engedélyezve"
 
-#: indicator-sensors/is-preferences-dialog.c:123
+#: indicator-sensors/is-preferences-dialog.c:122
 msgid "Hardware Sensors Indicator Preferences"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:127
+#: indicator-sensors/is-preferences-dialog.c:126
 #, fuzzy
 msgid "_Properties"
 msgstr " Szenzor tulajdonságai"
 
-#: indicator-sensors/is-preferences-dialog.c:131
+#: indicator-sensors/is-preferences-dialog.c:130
 #: indicator-sensors/is-sensor-dialog.c:86
 msgid "_Close"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:140
+#: indicator-sensors/is-preferences-dialog.c:139
 msgid "General"
 msgstr "Általános"
 
@@ -167,15 +145,15 @@ msgstr "Automatikus indulás bejelentkezéskor"
 msgid "Primary sensor display"
 msgstr "Elsődleges szenzor megjelenítése"
 
-#: indicator-sensors/is-preferences-dialog.c:170
+#: indicator-sensors/is-preferences-dialog.c:171
 msgid "Value"
 msgstr "Érték"
 
-#: indicator-sensors/is-preferences-dialog.c:184
+#: indicator-sensors/is-preferences-dialog.c:186
 msgid "Celsius (°C)"
 msgstr "Celsius (°C)"
 
-#: indicator-sensors/is-preferences-dialog.c:192
+#: indicator-sensors/is-preferences-dialog.c:194
 msgid "Fahrenheit (°F)"
 msgstr "Fahrenheit (°F)"
 
@@ -188,27 +166,27 @@ msgstr "Szenzor riasztás"
 msgid " Sensor Properties"
 msgstr " Szenzor tulajdonságai"
 
-#: indicator-sensors/is-sensor-dialog.c:103
+#: indicator-sensors/is-sensor-dialog.c:105
 msgid "Alarm"
 msgstr "Riasztás"
 
-#: indicator-sensors/is-sensor-dialog.c:108
+#: indicator-sensors/is-sensor-dialog.c:111
 msgid "Disabled"
 msgstr "Letiltva"
 
-#: indicator-sensors/is-sensor-dialog.c:110
+#: indicator-sensors/is-sensor-dialog.c:113
 msgid "Below"
 msgstr "alatta"
 
-#: indicator-sensors/is-sensor-dialog.c:112
+#: indicator-sensors/is-sensor-dialog.c:115
 msgid "Above"
 msgstr "felette"
 
-#: indicator-sensors/is-sensor-dialog.c:123
+#: indicator-sensors/is-sensor-dialog.c:127
 msgid "Low value"
 msgstr "Alacsony érték"
 
-#: indicator-sensors/is-sensor-dialog.c:134
+#: indicator-sensors/is-sensor-dialog.c:140
 msgid "High value"
 msgstr "Magas érték"
 
@@ -268,6 +246,13 @@ msgstr "%s szenzor SMART adatainak frissítése meghiúsult"
 #, fuzzy, c-format
 msgid "Error reading power management state for sensor %s"
 msgstr "%s szenzor új SMART adatainak beolvasása meghiúsult"
+
+#~ msgid "Preferences"
+#~ msgstr "Beállítások"
+
+#, fuzzy
+#~ msgid "_Quit"
+#~ msgstr "Kilépés"
 
 #, c-format
 #~ msgid "Error reading temperature value for GPU %d"

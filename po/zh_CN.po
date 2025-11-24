@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-18 15:56+1030\n"
+"POT-Creation-Date: 2025-11-24 20:18+1030\n"
 "PO-Revision-Date: 2013-08-24 20:56+0000\n"
 "Last-Translator: Xiaoxing Ye <Unknown>\n"
 "Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
@@ -44,7 +44,7 @@ msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr ""
 
 #: data/indicator-sensors.gschema.xml.in:26
-#: indicator-sensors/is-preferences-dialog.c:177
+#: indicator-sensors/is-preferences-dialog.c:178
 msgid "Temperature scale"
 msgstr "温度缩放"
 
@@ -52,15 +52,7 @@ msgstr "温度缩放"
 msgid "The temperature scale to display temperature sensor values."
 msgstr "用于显示温度传感器值的温度单位。"
 
-#: data/indicator-sensors.gschema.xml.in:31
-msgid "Show indicator"
-msgstr "显示指示器"
-
-#: data/indicator-sensors.gschema.xml.in:32
-msgid "Whether to show the indicator in the notification area."
-msgstr "在通知区域显示指示器"
-
-#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:793
+#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:863
 msgid "Hardware Sensors Indicator"
 msgstr "硬件传感指示器"
 
@@ -68,11 +60,11 @@ msgstr "硬件传感指示器"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "用于在 Unity 显示硬件传感器读数的指示器"
 
-#: indicator-sensors/indicator-sensors.c:199
+#: indicator-sensors/indicator-sensors.c:194
 msgid "No Sensors Enabled For Monitoring"
 msgstr "没有启用任何传感器"
 
-#: indicator-sensors/indicator-sensors.c:200
+#: indicator-sensors/indicator-sensors.c:195
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -80,7 +72,19 @@ msgstr ""
 "已侦测到传感器，但没有正在监控的。要启用传感器的监控功能，打开偏好窗口并选择"
 "要监控的传感器。"
 
-#: indicator-sensors/is-application.c:794
+#: indicator-sensors/is-application.c:554
+msgid "Preferences…"
+msgstr "首选项..."
+
+#: indicator-sensors/is-application.c:558
+msgid "About…"
+msgstr "关于..."
+
+#: indicator-sensors/is-application.c:562
+msgid "Quit"
+msgstr "退出"
+
+#: indicator-sensors/is-application.c:864
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr "用于GNOME / Unity 显示硬件传感器信息的指示器。"
 
@@ -88,52 +92,26 @@ msgstr "用于GNOME / Unity 显示硬件传感器信息的指示器。"
 msgid " RPM"
 msgstr " 转每分"
 
-#: indicator-sensors/is-indicator.c:123
-msgid "Preferences…"
-msgstr "首选项..."
-
-#: indicator-sensors/is-indicator.c:124
-#: indicator-sensors/is-preferences-dialog.c:201
-msgid "Preferences"
-msgstr "首选项"
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About…"
-msgstr "关于..."
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About"
-msgstr "关于"
-
-#: indicator-sensors/is-indicator.c:127
-#, fuzzy
-msgid "_Quit"
-msgstr "退出"
-
-#: indicator-sensors/is-indicator.c:127
-msgid "Quit"
-msgstr "退出"
-
-#: indicator-sensors/is-indicator.c:194
+#: indicator-sensors/is-indicator.c:109
 msgid "No Sensors"
 msgstr "没有传感器"
 
-#: indicator-sensors/is-indicator.c:483 indicator-sensors/is-indicator.c:598
+#: indicator-sensors/is-indicator.c:411 indicator-sensors/is-indicator.c:527
 msgid "No active sensors"
 msgstr "没有活跃的传感器"
 
-#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:270
+#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:278
 msgid "Sensor"
 msgstr "传感器"
 
 #: indicator-sensors/is-manager.c:266
-#: indicator-sensors/is-preferences-dialog.c:158
+#: indicator-sensors/is-preferences-dialog.c:159
 msgid "Icon"
 msgstr "图标"
 
 #: indicator-sensors/is-manager.c:272
-#: indicator-sensors/is-preferences-dialog.c:164
-#: indicator-sensors/is-sensor-dialog.c:98
+#: indicator-sensors/is-preferences-dialog.c:165
+#: indicator-sensors/is-sensor-dialog.c:99
 msgid "Label"
 msgstr "标签"
 
@@ -141,21 +119,21 @@ msgstr "标签"
 msgid "Enabled"
 msgstr "已启用"
 
-#: indicator-sensors/is-preferences-dialog.c:123
+#: indicator-sensors/is-preferences-dialog.c:122
 msgid "Hardware Sensors Indicator Preferences"
 msgstr "硬件传感器指示器偏好设定"
 
-#: indicator-sensors/is-preferences-dialog.c:127
+#: indicator-sensors/is-preferences-dialog.c:126
 #, fuzzy
 msgid "_Properties"
 msgstr " 传感器属性"
 
-#: indicator-sensors/is-preferences-dialog.c:131
+#: indicator-sensors/is-preferences-dialog.c:130
 #: indicator-sensors/is-sensor-dialog.c:86
 msgid "_Close"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:140
+#: indicator-sensors/is-preferences-dialog.c:139
 msgid "General"
 msgstr "一般"
 
@@ -167,15 +145,15 @@ msgstr "在登入时自动启动"
 msgid "Primary sensor display"
 msgstr "需显示的主传感器"
 
-#: indicator-sensors/is-preferences-dialog.c:170
+#: indicator-sensors/is-preferences-dialog.c:171
 msgid "Value"
 msgstr "值"
 
-#: indicator-sensors/is-preferences-dialog.c:184
+#: indicator-sensors/is-preferences-dialog.c:186
 msgid "Celsius (°C)"
 msgstr "摄氏度 (°C)"
 
-#: indicator-sensors/is-preferences-dialog.c:192
+#: indicator-sensors/is-preferences-dialog.c:194
 msgid "Fahrenheit (°F)"
 msgstr "华氏度 (°F)"
 
@@ -188,27 +166,27 @@ msgstr "传感器警报"
 msgid " Sensor Properties"
 msgstr " 传感器属性"
 
-#: indicator-sensors/is-sensor-dialog.c:103
+#: indicator-sensors/is-sensor-dialog.c:105
 msgid "Alarm"
 msgstr "警告"
 
-#: indicator-sensors/is-sensor-dialog.c:108
+#: indicator-sensors/is-sensor-dialog.c:111
 msgid "Disabled"
 msgstr "已禁用"
 
-#: indicator-sensors/is-sensor-dialog.c:110
+#: indicator-sensors/is-sensor-dialog.c:113
 msgid "Below"
 msgstr "之下"
 
-#: indicator-sensors/is-sensor-dialog.c:112
+#: indicator-sensors/is-sensor-dialog.c:115
 msgid "Above"
 msgstr "之上"
 
-#: indicator-sensors/is-sensor-dialog.c:123
+#: indicator-sensors/is-sensor-dialog.c:127
 msgid "Low value"
 msgstr "低值"
 
-#: indicator-sensors/is-sensor-dialog.c:134
+#: indicator-sensors/is-sensor-dialog.c:140
 msgid "High value"
 msgstr ""
 
@@ -268,6 +246,22 @@ msgstr ""
 #, c-format
 msgid "Error reading power management state for sensor %s"
 msgstr ""
+
+#~ msgid "Show indicator"
+#~ msgstr "显示指示器"
+
+#~ msgid "Whether to show the indicator in the notification area."
+#~ msgstr "在通知区域显示指示器"
+
+#~ msgid "Preferences"
+#~ msgstr "首选项"
+
+#~ msgid "About"
+#~ msgstr "关于"
+
+#, fuzzy
+#~ msgid "_Quit"
+#~ msgstr "退出"
 
 #~ msgid "Temperature"
 #~ msgstr "温度"

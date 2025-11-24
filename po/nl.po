@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-18 15:56+1030\n"
+"POT-Creation-Date: 2025-11-24 20:18+1030\n"
 "PO-Revision-Date: 2013-02-01 20:23+0000\n"
 "Last-Translator: Sam Segers <sam.sgrs@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -48,7 +48,7 @@ msgstr ""
 "zijn pad."
 
 #: data/indicator-sensors.gschema.xml.in:26
-#: indicator-sensors/is-preferences-dialog.c:177
+#: indicator-sensors/is-preferences-dialog.c:178
 msgid "Temperature scale"
 msgstr "Temperatuurschaal"
 
@@ -56,15 +56,7 @@ msgstr "Temperatuurschaal"
 msgid "The temperature scale to display temperature sensor values."
 msgstr "De temperatuurschaal om temperatuursensorwaarden weer te geven."
 
-#: data/indicator-sensors.gschema.xml.in:31
-msgid "Show indicator"
-msgstr "Laat indicator zien"
-
-#: data/indicator-sensors.gschema.xml.in:32
-msgid "Whether to show the indicator in the notification area."
-msgstr "Laat de indicator zien in de notificatie"
-
-#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:793
+#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:863
 msgid "Hardware Sensors Indicator"
 msgstr "Hardwaresensorsindicator"
 
@@ -72,11 +64,11 @@ msgstr "Hardwaresensorsindicator"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Een indicator voor Unity die hardwaresensorwaarden weergeeft"
 
-#: indicator-sensors/indicator-sensors.c:199
+#: indicator-sensors/indicator-sensors.c:194
 msgid "No Sensors Enabled For Monitoring"
 msgstr "Geen Sensoren Ingeschakeld Voor Monitoring"
 
-#: indicator-sensors/indicator-sensors.c:200
+#: indicator-sensors/indicator-sensors.c:195
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -84,7 +76,19 @@ msgstr ""
 "Sensoren gedetecteerd maar er zijn geen ingeschakeld voor monitoring. Open "
 "de instellingen om monitoring van sensoren in te schakelen"
 
-#: indicator-sensors/is-application.c:794
+#: indicator-sensors/is-application.c:554
+msgid "Preferences…"
+msgstr "Voorkeuren…"
+
+#: indicator-sensors/is-application.c:558
+msgid "About…"
+msgstr "Over..."
+
+#: indicator-sensors/is-application.c:562
+msgid "Quit"
+msgstr "Afsluiten"
+
+#: indicator-sensors/is-application.c:864
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr "Indicator voor GNOME / Unity voor het weergeven van hardwaresensoren"
 
@@ -92,52 +96,26 @@ msgstr "Indicator voor GNOME / Unity voor het weergeven van hardwaresensoren"
 msgid " RPM"
 msgstr " RPM"
 
-#: indicator-sensors/is-indicator.c:123
-msgid "Preferences…"
-msgstr "Voorkeuren…"
-
-#: indicator-sensors/is-indicator.c:124
-#: indicator-sensors/is-preferences-dialog.c:201
-msgid "Preferences"
-msgstr "Voorkeuren"
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About…"
-msgstr "Over..."
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About"
-msgstr "Over"
-
-#: indicator-sensors/is-indicator.c:127
-#, fuzzy
-msgid "_Quit"
-msgstr "Afsluiten"
-
-#: indicator-sensors/is-indicator.c:127
-msgid "Quit"
-msgstr "Afsluiten"
-
-#: indicator-sensors/is-indicator.c:194
+#: indicator-sensors/is-indicator.c:109
 msgid "No Sensors"
 msgstr "Geen sensoren"
 
-#: indicator-sensors/is-indicator.c:483 indicator-sensors/is-indicator.c:598
+#: indicator-sensors/is-indicator.c:411 indicator-sensors/is-indicator.c:527
 msgid "No active sensors"
 msgstr "Geen actieve sensoren"
 
-#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:270
+#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:278
 msgid "Sensor"
 msgstr "Sensor"
 
 #: indicator-sensors/is-manager.c:266
-#: indicator-sensors/is-preferences-dialog.c:158
+#: indicator-sensors/is-preferences-dialog.c:159
 msgid "Icon"
 msgstr "Pictogram"
 
 #: indicator-sensors/is-manager.c:272
-#: indicator-sensors/is-preferences-dialog.c:164
-#: indicator-sensors/is-sensor-dialog.c:98
+#: indicator-sensors/is-preferences-dialog.c:165
+#: indicator-sensors/is-sensor-dialog.c:99
 msgid "Label"
 msgstr "Label"
 
@@ -145,21 +123,21 @@ msgstr "Label"
 msgid "Enabled"
 msgstr "Ingeschakeld"
 
-#: indicator-sensors/is-preferences-dialog.c:123
+#: indicator-sensors/is-preferences-dialog.c:122
 msgid "Hardware Sensors Indicator Preferences"
 msgstr "Hardwaresensoren Indicatie Instellingen"
 
-#: indicator-sensors/is-preferences-dialog.c:127
+#: indicator-sensors/is-preferences-dialog.c:126
 #, fuzzy
 msgid "_Properties"
 msgstr " Sensoreigenschappen"
 
-#: indicator-sensors/is-preferences-dialog.c:131
+#: indicator-sensors/is-preferences-dialog.c:130
 #: indicator-sensors/is-sensor-dialog.c:86
 msgid "_Close"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:140
+#: indicator-sensors/is-preferences-dialog.c:139
 msgid "General"
 msgstr "Algemeen"
 
@@ -171,15 +149,15 @@ msgstr "Automatisch starten bij het inloggen"
 msgid "Primary sensor display"
 msgstr "Hoordsensorscherm"
 
-#: indicator-sensors/is-preferences-dialog.c:170
+#: indicator-sensors/is-preferences-dialog.c:171
 msgid "Value"
 msgstr "Waarde"
 
-#: indicator-sensors/is-preferences-dialog.c:184
+#: indicator-sensors/is-preferences-dialog.c:186
 msgid "Celsius (°C)"
 msgstr "Celsius (°C)"
 
-#: indicator-sensors/is-preferences-dialog.c:192
+#: indicator-sensors/is-preferences-dialog.c:194
 msgid "Fahrenheit (°F)"
 msgstr "Fahrenheit (°F)"
 
@@ -192,27 +170,27 @@ msgstr "Sensoralarm"
 msgid " Sensor Properties"
 msgstr " Sensoreigenschappen"
 
-#: indicator-sensors/is-sensor-dialog.c:103
+#: indicator-sensors/is-sensor-dialog.c:105
 msgid "Alarm"
 msgstr "Alarm"
 
-#: indicator-sensors/is-sensor-dialog.c:108
+#: indicator-sensors/is-sensor-dialog.c:111
 msgid "Disabled"
 msgstr "Uitgeschakeld"
 
-#: indicator-sensors/is-sensor-dialog.c:110
+#: indicator-sensors/is-sensor-dialog.c:113
 msgid "Below"
 msgstr "Onder"
 
-#: indicator-sensors/is-sensor-dialog.c:112
+#: indicator-sensors/is-sensor-dialog.c:115
 msgid "Above"
 msgstr "Boven"
 
-#: indicator-sensors/is-sensor-dialog.c:123
+#: indicator-sensors/is-sensor-dialog.c:127
 msgid "Low value"
 msgstr "Lage waarde"
 
-#: indicator-sensors/is-sensor-dialog.c:134
+#: indicator-sensors/is-sensor-dialog.c:140
 msgid "High value"
 msgstr "Hoge waarde"
 
@@ -274,6 +252,22 @@ msgstr "Error bij herladen van SMART-data van sensor %s"
 #, fuzzy, c-format
 msgid "Error reading power management state for sensor %s"
 msgstr "Error bij lezen van nieuw SMART-data van sensor %s"
+
+#~ msgid "Show indicator"
+#~ msgstr "Laat indicator zien"
+
+#~ msgid "Whether to show the indicator in the notification area."
+#~ msgstr "Laat de indicator zien in de notificatie"
+
+#~ msgid "Preferences"
+#~ msgstr "Voorkeuren"
+
+#~ msgid "About"
+#~ msgstr "Over"
+
+#, fuzzy
+#~ msgid "_Quit"
+#~ msgstr "Afsluiten"
 
 #, c-format
 #~ msgid "Error reading temperature value for GPU %d"

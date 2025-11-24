@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-18 15:56+1030\n"
+"POT-Creation-Date: 2025-11-24 20:18+1030\n"
 "PO-Revision-Date: 2013-09-30 10:21+0000\n"
 "Last-Translator: Kim Boram <boramism@gmail.com>\n"
 "Language-Team: Korean <ko@li.org>\n"
@@ -44,7 +44,7 @@ msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr "경로로 구분하는 감시하도록 설정한 센서의 목록입니다."
 
 #: data/indicator-sensors.gschema.xml.in:26
-#: indicator-sensors/is-preferences-dialog.c:177
+#: indicator-sensors/is-preferences-dialog.c:178
 msgid "Temperature scale"
 msgstr "온도 단위"
 
@@ -52,15 +52,7 @@ msgstr "온도 단위"
 msgid "The temperature scale to display temperature sensor values."
 msgstr "센서의 온도 값을 표시할 단위를 설정합니다."
 
-#: data/indicator-sensors.gschema.xml.in:31
-msgid "Show indicator"
-msgstr "알리미 보이기"
-
-#: data/indicator-sensors.gschema.xml.in:32
-msgid "Whether to show the indicator in the notification area."
-msgstr "알림 영역에 알리미를 표시할지 설정합니다."
-
-#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:793
+#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:863
 msgid "Hardware Sensors Indicator"
 msgstr "하드웨어 센서 알리미"
 
@@ -68,11 +60,11 @@ msgstr "하드웨어 센서 알리미"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "하드웨어 센서를 읽은 값을 표시하는 유니티용 알리미"
 
-#: indicator-sensors/indicator-sensors.c:199
+#: indicator-sensors/indicator-sensors.c:194
 msgid "No Sensors Enabled For Monitoring"
 msgstr "감시하도록 설정한 센서가 없습니다."
 
-#: indicator-sensors/indicator-sensors.c:200
+#: indicator-sensors/indicator-sensors.c:195
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -80,7 +72,19 @@ msgstr ""
 "센서를 발견했습니다. 하지만 감시할 센서로 설정한 센서가 없습니다. 감시할 센서"
 "를 설정하려면 기본 설정 창을 연 후 감시할 센서를 선택해주십시오."
 
-#: indicator-sensors/is-application.c:794
+#: indicator-sensors/is-application.c:554
+msgid "Preferences…"
+msgstr "기본 설정…"
+
+#: indicator-sensors/is-application.c:558
+msgid "About…"
+msgstr "정보…"
+
+#: indicator-sensors/is-application.c:562
+msgid "Quit"
+msgstr "끝내기"
+
+#: indicator-sensors/is-application.c:864
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr "그놈 / 유니티 용 하드웨어 센서 알리미입니다."
 
@@ -88,52 +92,26 @@ msgstr "그놈 / 유니티 용 하드웨어 센서 알리미입니다."
 msgid " RPM"
 msgstr " RPM"
 
-#: indicator-sensors/is-indicator.c:123
-msgid "Preferences…"
-msgstr "기본 설정…"
-
-#: indicator-sensors/is-indicator.c:124
-#: indicator-sensors/is-preferences-dialog.c:201
-msgid "Preferences"
-msgstr "기본 설정"
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About…"
-msgstr "정보…"
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About"
-msgstr "정보"
-
-#: indicator-sensors/is-indicator.c:127
-#, fuzzy
-msgid "_Quit"
-msgstr "끝내기"
-
-#: indicator-sensors/is-indicator.c:127
-msgid "Quit"
-msgstr "끝내기"
-
-#: indicator-sensors/is-indicator.c:194
+#: indicator-sensors/is-indicator.c:109
 msgid "No Sensors"
 msgstr "센서 없음"
 
-#: indicator-sensors/is-indicator.c:483 indicator-sensors/is-indicator.c:598
+#: indicator-sensors/is-indicator.c:411 indicator-sensors/is-indicator.c:527
 msgid "No active sensors"
 msgstr "감시 할 센서 없음"
 
-#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:270
+#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:278
 msgid "Sensor"
 msgstr "센서"
 
 #: indicator-sensors/is-manager.c:266
-#: indicator-sensors/is-preferences-dialog.c:158
+#: indicator-sensors/is-preferences-dialog.c:159
 msgid "Icon"
 msgstr "아이콘"
 
 #: indicator-sensors/is-manager.c:272
-#: indicator-sensors/is-preferences-dialog.c:164
-#: indicator-sensors/is-sensor-dialog.c:98
+#: indicator-sensors/is-preferences-dialog.c:165
+#: indicator-sensors/is-sensor-dialog.c:99
 msgid "Label"
 msgstr "이름"
 
@@ -141,21 +119,21 @@ msgstr "이름"
 msgid "Enabled"
 msgstr "사용"
 
-#: indicator-sensors/is-preferences-dialog.c:123
+#: indicator-sensors/is-preferences-dialog.c:122
 msgid "Hardware Sensors Indicator Preferences"
 msgstr "하드웨어 센서 알리미 기본 설정"
 
-#: indicator-sensors/is-preferences-dialog.c:127
+#: indicator-sensors/is-preferences-dialog.c:126
 #, fuzzy
 msgid "_Properties"
 msgstr " 센서 속성"
 
-#: indicator-sensors/is-preferences-dialog.c:131
+#: indicator-sensors/is-preferences-dialog.c:130
 #: indicator-sensors/is-sensor-dialog.c:86
 msgid "_Close"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:140
+#: indicator-sensors/is-preferences-dialog.c:139
 msgid "General"
 msgstr "일반"
 
@@ -167,15 +145,15 @@ msgstr "로그인할 때 자동으로 시작"
 msgid "Primary sensor display"
 msgstr "주 센서에 표시할 항목"
 
-#: indicator-sensors/is-preferences-dialog.c:170
+#: indicator-sensors/is-preferences-dialog.c:171
 msgid "Value"
 msgstr "값"
 
-#: indicator-sensors/is-preferences-dialog.c:184
+#: indicator-sensors/is-preferences-dialog.c:186
 msgid "Celsius (°C)"
 msgstr "섭씨 (°C)"
 
-#: indicator-sensors/is-preferences-dialog.c:192
+#: indicator-sensors/is-preferences-dialog.c:194
 msgid "Fahrenheit (°F)"
 msgstr "화씨 (°F)"
 
@@ -188,27 +166,27 @@ msgstr "센서 경고"
 msgid " Sensor Properties"
 msgstr " 센서 속성"
 
-#: indicator-sensors/is-sensor-dialog.c:103
+#: indicator-sensors/is-sensor-dialog.c:105
 msgid "Alarm"
 msgstr "경고"
 
-#: indicator-sensors/is-sensor-dialog.c:108
+#: indicator-sensors/is-sensor-dialog.c:111
 msgid "Disabled"
 msgstr "사용 안 함"
 
-#: indicator-sensors/is-sensor-dialog.c:110
+#: indicator-sensors/is-sensor-dialog.c:113
 msgid "Below"
 msgstr "설정한 값 미만"
 
-#: indicator-sensors/is-sensor-dialog.c:112
+#: indicator-sensors/is-sensor-dialog.c:115
 msgid "Above"
 msgstr "설정한 값 초과"
 
-#: indicator-sensors/is-sensor-dialog.c:123
+#: indicator-sensors/is-sensor-dialog.c:127
 msgid "Low value"
 msgstr "최저 값"
 
-#: indicator-sensors/is-sensor-dialog.c:134
+#: indicator-sensors/is-sensor-dialog.c:140
 msgid "High value"
 msgstr "최고 값"
 
@@ -268,6 +246,22 @@ msgstr "센서 %s의 새 SMART 데이터를 다시 읽는 중 오류 발생"
 #, fuzzy, c-format
 msgid "Error reading power management state for sensor %s"
 msgstr "센서 %s의 새 SMART 데이터를 읽는 중 오류 발생"
+
+#~ msgid "Show indicator"
+#~ msgstr "알리미 보이기"
+
+#~ msgid "Whether to show the indicator in the notification area."
+#~ msgstr "알림 영역에 알리미를 표시할지 설정합니다."
+
+#~ msgid "Preferences"
+#~ msgstr "기본 설정"
+
+#~ msgid "About"
+#~ msgstr "정보"
+
+#, fuzzy
+#~ msgid "_Quit"
+#~ msgstr "끝내기"
 
 #~ msgid "Seconds to delay hiding / showing alarms"
 #~ msgstr "숨길 때와 경고 메시지를 표시할 때의 지연 시간"

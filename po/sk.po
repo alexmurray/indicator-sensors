@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-18 15:56+1030\n"
+"POT-Creation-Date: 2025-11-24 20:18+1030\n"
 "PO-Revision-Date: 2013-04-08 18:27+0000\n"
 "Last-Translator: Eduard Hummel <22edel22@gmail.com>\n"
 "Language-Team: Slovak <sk@li.org>\n"
@@ -48,7 +48,7 @@ msgstr ""
 "miestom."
 
 #: data/indicator-sensors.gschema.xml.in:26
-#: indicator-sensors/is-preferences-dialog.c:177
+#: indicator-sensors/is-preferences-dialog.c:178
 msgid "Temperature scale"
 msgstr "Nameraná teplota"
 
@@ -56,15 +56,7 @@ msgstr "Nameraná teplota"
 msgid "The temperature scale to display temperature sensor values."
 msgstr "Zobrazenie hodnoty teploty senzorov."
 
-#: data/indicator-sensors.gschema.xml.in:31
-msgid "Show indicator"
-msgstr "Zobrazenie indikátora"
-
-#: data/indicator-sensors.gschema.xml.in:32
-msgid "Whether to show the indicator in the notification area."
-msgstr "Zobrazenie indikátora v oznamovacej oblasti."
-
-#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:793
+#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:863
 msgid "Hardware Sensors Indicator"
 msgstr "Indikátor snímača hardvéru"
 
@@ -72,11 +64,11 @@ msgstr "Indikátor snímača hardvéru"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Unity indikátor, ktorý zobrazuje hodnoty senzorov"
 
-#: indicator-sensors/indicator-sensors.c:199
+#: indicator-sensors/indicator-sensors.c:194
 msgid "No Sensors Enabled For Monitoring"
 msgstr "Nie sú povolené žiadne senzory pre monitorovanie"
 
-#: indicator-sensors/indicator-sensors.c:200
+#: indicator-sensors/indicator-sensors.c:195
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -84,7 +76,19 @@ msgstr ""
 "Senzory sú detekované, ale žiadny nieje povolený pre monitorovanie. Pre "
 "povolenie senzorov otvorte ponuku s nastavením a vyberte požadovaný senzor"
 
-#: indicator-sensors/is-application.c:794
+#: indicator-sensors/is-application.c:554
+msgid "Preferences…"
+msgstr "Nastavenie..."
+
+#: indicator-sensors/is-application.c:558
+msgid "About…"
+msgstr "O mne..."
+
+#: indicator-sensors/is-application.c:562
+msgid "Quit"
+msgstr "Ukončiť"
+
+#: indicator-sensors/is-application.c:864
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr "Indikátor pre GNOME / Unity zobrazujúcí hardvérové senzory."
 
@@ -92,52 +96,26 @@ msgstr "Indikátor pre GNOME / Unity zobrazujúcí hardvérové senzory."
 msgid " RPM"
 msgstr " RPM"
 
-#: indicator-sensors/is-indicator.c:123
-msgid "Preferences…"
-msgstr "Nastavenie..."
-
-#: indicator-sensors/is-indicator.c:124
-#: indicator-sensors/is-preferences-dialog.c:201
-msgid "Preferences"
-msgstr "Nastavenia"
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About…"
-msgstr "O mne..."
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About"
-msgstr "O programe"
-
-#: indicator-sensors/is-indicator.c:127
-#, fuzzy
-msgid "_Quit"
-msgstr "Ukončiť"
-
-#: indicator-sensors/is-indicator.c:127
-msgid "Quit"
-msgstr "Ukončiť"
-
-#: indicator-sensors/is-indicator.c:194
+#: indicator-sensors/is-indicator.c:109
 msgid "No Sensors"
 msgstr "Bez snímača"
 
-#: indicator-sensors/is-indicator.c:483 indicator-sensors/is-indicator.c:598
+#: indicator-sensors/is-indicator.c:411 indicator-sensors/is-indicator.c:527
 msgid "No active sensors"
 msgstr "Neaktivované snímače"
 
-#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:270
+#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:278
 msgid "Sensor"
 msgstr "Snímač"
 
 #: indicator-sensors/is-manager.c:266
-#: indicator-sensors/is-preferences-dialog.c:158
+#: indicator-sensors/is-preferences-dialog.c:159
 msgid "Icon"
 msgstr "Ikona"
 
 #: indicator-sensors/is-manager.c:272
-#: indicator-sensors/is-preferences-dialog.c:164
-#: indicator-sensors/is-sensor-dialog.c:98
+#: indicator-sensors/is-preferences-dialog.c:165
+#: indicator-sensors/is-sensor-dialog.c:99
 msgid "Label"
 msgstr "Označenie"
 
@@ -145,21 +123,21 @@ msgstr "Označenie"
 msgid "Enabled"
 msgstr "Aktivovaný"
 
-#: indicator-sensors/is-preferences-dialog.c:123
+#: indicator-sensors/is-preferences-dialog.c:122
 msgid "Hardware Sensors Indicator Preferences"
 msgstr "Predvoľby Indikátora Hardvérových Senzorov"
 
-#: indicator-sensors/is-preferences-dialog.c:127
+#: indicator-sensors/is-preferences-dialog.c:126
 #, fuzzy
 msgid "_Properties"
 msgstr " Vlastnosti snímača"
 
-#: indicator-sensors/is-preferences-dialog.c:131
+#: indicator-sensors/is-preferences-dialog.c:130
 #: indicator-sensors/is-sensor-dialog.c:86
 msgid "_Close"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:140
+#: indicator-sensors/is-preferences-dialog.c:139
 msgid "General"
 msgstr "Všeobecné"
 
@@ -171,15 +149,15 @@ msgstr "Zapnúť automaticky pri prihlásení"
 msgid "Primary sensor display"
 msgstr "Základný snímač displeja"
 
-#: indicator-sensors/is-preferences-dialog.c:170
+#: indicator-sensors/is-preferences-dialog.c:171
 msgid "Value"
 msgstr "Hodnota"
 
-#: indicator-sensors/is-preferences-dialog.c:184
+#: indicator-sensors/is-preferences-dialog.c:186
 msgid "Celsius (°C)"
 msgstr "Celzia (°C)"
 
-#: indicator-sensors/is-preferences-dialog.c:192
+#: indicator-sensors/is-preferences-dialog.c:194
 msgid "Fahrenheit (°F)"
 msgstr "Fahrenheit (°F)"
 
@@ -192,27 +170,27 @@ msgstr "Snímač signalizácie"
 msgid " Sensor Properties"
 msgstr " Vlastnosti snímača"
 
-#: indicator-sensors/is-sensor-dialog.c:103
+#: indicator-sensors/is-sensor-dialog.c:105
 msgid "Alarm"
 msgstr "Signalizácia"
 
-#: indicator-sensors/is-sensor-dialog.c:108
+#: indicator-sensors/is-sensor-dialog.c:111
 msgid "Disabled"
 msgstr "Zakázaný"
 
-#: indicator-sensors/is-sensor-dialog.c:110
+#: indicator-sensors/is-sensor-dialog.c:113
 msgid "Below"
 msgstr "Nižšie"
 
-#: indicator-sensors/is-sensor-dialog.c:112
+#: indicator-sensors/is-sensor-dialog.c:115
 msgid "Above"
 msgstr "Vyššie"
 
-#: indicator-sensors/is-sensor-dialog.c:123
+#: indicator-sensors/is-sensor-dialog.c:127
 msgid "Low value"
 msgstr "Najnižšia hodnota"
 
-#: indicator-sensors/is-sensor-dialog.c:134
+#: indicator-sensors/is-sensor-dialog.c:140
 msgid "High value"
 msgstr "Najvyššia hodnota"
 
@@ -272,6 +250,22 @@ msgstr "Chyba pri načítaný SMART dát pre senzor %s"
 #, fuzzy, c-format
 msgid "Error reading power management state for sensor %s"
 msgstr "Chyba pri načítaný SMART dát zo senzoru %s"
+
+#~ msgid "Show indicator"
+#~ msgstr "Zobrazenie indikátora"
+
+#~ msgid "Whether to show the indicator in the notification area."
+#~ msgstr "Zobrazenie indikátora v oznamovacej oblasti."
+
+#~ msgid "Preferences"
+#~ msgstr "Nastavenia"
+
+#~ msgid "About"
+#~ msgstr "O programe"
+
+#, fuzzy
+#~ msgid "_Quit"
+#~ msgstr "Ukončiť"
 
 #, c-format
 #~ msgid "Error reading temperature value for GPU %d"

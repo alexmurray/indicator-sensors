@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-18 15:56+1030\n"
+"POT-Creation-Date: 2025-11-24 20:18+1030\n"
 "PO-Revision-Date: 2013-08-06 19:27+0000\n"
 "Last-Translator: pataquets <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -44,7 +44,7 @@ msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr ""
 
 #: data/indicator-sensors.gschema.xml.in:26
-#: indicator-sensors/is-preferences-dialog.c:177
+#: indicator-sensors/is-preferences-dialog.c:178
 msgid "Temperature scale"
 msgstr "Escala de temperatures"
 
@@ -52,15 +52,7 @@ msgstr "Escala de temperatures"
 msgid "The temperature scale to display temperature sensor values."
 msgstr ""
 
-#: data/indicator-sensors.gschema.xml.in:31
-msgid "Show indicator"
-msgstr "Mostra indicador"
-
-#: data/indicator-sensors.gschema.xml.in:32
-msgid "Whether to show the indicator in the notification area."
-msgstr ""
-
-#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:793
+#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:863
 msgid "Hardware Sensors Indicator"
 msgstr ""
 
@@ -68,17 +60,29 @@ msgstr ""
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr ""
 
-#: indicator-sensors/indicator-sensors.c:199
+#: indicator-sensors/indicator-sensors.c:194
 msgid "No Sensors Enabled For Monitoring"
 msgstr ""
 
-#: indicator-sensors/indicator-sensors.c:200
+#: indicator-sensors/indicator-sensors.c:195
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
 msgstr ""
 
-#: indicator-sensors/is-application.c:794
+#: indicator-sensors/is-application.c:554
+msgid "Preferences…"
+msgstr "Preferències…"
+
+#: indicator-sensors/is-application.c:558
+msgid "About…"
+msgstr ""
+
+#: indicator-sensors/is-application.c:562
+msgid "Quit"
+msgstr "Surt"
+
+#: indicator-sensors/is-application.c:864
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr ""
 
@@ -86,52 +90,26 @@ msgstr ""
 msgid " RPM"
 msgstr " RPM"
 
-#: indicator-sensors/is-indicator.c:123
-msgid "Preferences…"
-msgstr "Preferències…"
-
-#: indicator-sensors/is-indicator.c:124
-#: indicator-sensors/is-preferences-dialog.c:201
-msgid "Preferences"
-msgstr "Preferències"
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About…"
-msgstr ""
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About"
-msgstr "Quant a"
-
-#: indicator-sensors/is-indicator.c:127
-#, fuzzy
-msgid "_Quit"
-msgstr "Surt"
-
-#: indicator-sensors/is-indicator.c:127
-msgid "Quit"
-msgstr "Surt"
-
-#: indicator-sensors/is-indicator.c:194
+#: indicator-sensors/is-indicator.c:109
 msgid "No Sensors"
 msgstr "No hi ha sensors"
 
-#: indicator-sensors/is-indicator.c:483 indicator-sensors/is-indicator.c:598
+#: indicator-sensors/is-indicator.c:411 indicator-sensors/is-indicator.c:527
 msgid "No active sensors"
 msgstr "No hi ha sensors actius"
 
-#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:270
+#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:278
 msgid "Sensor"
 msgstr "Sensor"
 
 #: indicator-sensors/is-manager.c:266
-#: indicator-sensors/is-preferences-dialog.c:158
+#: indicator-sensors/is-preferences-dialog.c:159
 msgid "Icon"
 msgstr "Icona"
 
 #: indicator-sensors/is-manager.c:272
-#: indicator-sensors/is-preferences-dialog.c:164
-#: indicator-sensors/is-sensor-dialog.c:98
+#: indicator-sensors/is-preferences-dialog.c:165
+#: indicator-sensors/is-sensor-dialog.c:99
 msgid "Label"
 msgstr "Etiqueta"
 
@@ -139,20 +117,20 @@ msgstr "Etiqueta"
 msgid "Enabled"
 msgstr "Activat"
 
-#: indicator-sensors/is-preferences-dialog.c:123
+#: indicator-sensors/is-preferences-dialog.c:122
 msgid "Hardware Sensors Indicator Preferences"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:127
+#: indicator-sensors/is-preferences-dialog.c:126
 msgid "_Properties"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:131
+#: indicator-sensors/is-preferences-dialog.c:130
 #: indicator-sensors/is-sensor-dialog.c:86
 msgid "_Close"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:140
+#: indicator-sensors/is-preferences-dialog.c:139
 msgid "General"
 msgstr "General"
 
@@ -164,15 +142,15 @@ msgstr ""
 msgid "Primary sensor display"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:170
+#: indicator-sensors/is-preferences-dialog.c:171
 msgid "Value"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:184
+#: indicator-sensors/is-preferences-dialog.c:186
 msgid "Celsius (°C)"
 msgstr "Celsius (°C)"
 
-#: indicator-sensors/is-preferences-dialog.c:192
+#: indicator-sensors/is-preferences-dialog.c:194
 msgid "Fahrenheit (°F)"
 msgstr "Fahrenheit (°F)"
 
@@ -185,27 +163,27 @@ msgstr "Sensor"
 msgid " Sensor Properties"
 msgstr ""
 
-#: indicator-sensors/is-sensor-dialog.c:103
+#: indicator-sensors/is-sensor-dialog.c:105
 msgid "Alarm"
 msgstr "Alarma"
 
-#: indicator-sensors/is-sensor-dialog.c:108
+#: indicator-sensors/is-sensor-dialog.c:111
 msgid "Disabled"
 msgstr "Desactivat"
 
-#: indicator-sensors/is-sensor-dialog.c:110
+#: indicator-sensors/is-sensor-dialog.c:113
 msgid "Below"
 msgstr "Per sota"
 
-#: indicator-sensors/is-sensor-dialog.c:112
+#: indicator-sensors/is-sensor-dialog.c:115
 msgid "Above"
 msgstr "Per damunt"
 
-#: indicator-sensors/is-sensor-dialog.c:123
+#: indicator-sensors/is-sensor-dialog.c:127
 msgid "Low value"
 msgstr ""
 
-#: indicator-sensors/is-sensor-dialog.c:134
+#: indicator-sensors/is-sensor-dialog.c:140
 msgid "High value"
 msgstr ""
 
@@ -265,6 +243,19 @@ msgstr ""
 #, c-format
 msgid "Error reading power management state for sensor %s"
 msgstr ""
+
+#~ msgid "Show indicator"
+#~ msgstr "Mostra indicador"
+
+#~ msgid "Preferences"
+#~ msgstr "Preferències"
+
+#~ msgid "About"
+#~ msgstr "Quant a"
+
+#, fuzzy
+#~ msgid "_Quit"
+#~ msgstr "Surt"
 
 #~ msgid "Temperature"
 #~ msgstr "Temperatura"

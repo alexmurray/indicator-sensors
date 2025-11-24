@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-18 15:56+1030\n"
+"POT-Creation-Date: 2025-11-24 20:18+1030\n"
 "PO-Revision-Date: 2012-12-09 14:15+0000\n"
 "Last-Translator: Vlad Paul Paval <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
@@ -44,7 +44,7 @@ msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr "Lista senzorilor activați, fiecare cu calea către el."
 
 #: data/indicator-sensors.gschema.xml.in:26
-#: indicator-sensors/is-preferences-dialog.c:177
+#: indicator-sensors/is-preferences-dialog.c:178
 msgid "Temperature scale"
 msgstr "Scară temperatură"
 
@@ -52,15 +52,7 @@ msgstr "Scară temperatură"
 msgid "The temperature scale to display temperature sensor values."
 msgstr "Scara de temperatură pentru afișarea valorilor senzorilor."
 
-#: data/indicator-sensors.gschema.xml.in:31
-msgid "Show indicator"
-msgstr "Arată indicatorul"
-
-#: data/indicator-sensors.gschema.xml.in:32
-msgid "Whether to show the indicator in the notification area."
-msgstr "Afișare indicator în zona de notificare."
-
-#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:793
+#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:863
 msgid "Hardware Sensors Indicator"
 msgstr "Indicator pentru senzori hardware"
 
@@ -68,11 +60,11 @@ msgstr "Indicator pentru senzori hardware"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "Un indicator pentru Unity care afișează valorile senzorilor hardware"
 
-#: indicator-sensors/indicator-sensors.c:199
+#: indicator-sensors/indicator-sensors.c:194
 msgid "No Sensors Enabled For Monitoring"
 msgstr "Niciun senzor activat pentru monitorizare"
 
-#: indicator-sensors/indicator-sensors.c:200
+#: indicator-sensors/indicator-sensors.c:195
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
@@ -81,7 +73,19 @@ msgstr ""
 "Pentru activarea senzorilor accesați meniul Preferințe și alegeți senzorii "
 "doriți"
 
-#: indicator-sensors/is-application.c:794
+#: indicator-sensors/is-application.c:554
+msgid "Preferences…"
+msgstr "Preferințe..."
+
+#: indicator-sensors/is-application.c:558
+msgid "About…"
+msgstr "Despre..."
+
+#: indicator-sensors/is-application.c:562
+msgid "Quit"
+msgstr "Ieșire"
+
+#: indicator-sensors/is-application.c:864
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr "Indicator pentru GNOME/Unity care afișează senzori hardware."
 
@@ -89,52 +93,26 @@ msgstr "Indicator pentru GNOME/Unity care afișează senzori hardware."
 msgid " RPM"
 msgstr " RPM"
 
-#: indicator-sensors/is-indicator.c:123
-msgid "Preferences…"
-msgstr "Preferințe..."
-
-#: indicator-sensors/is-indicator.c:124
-#: indicator-sensors/is-preferences-dialog.c:201
-msgid "Preferences"
-msgstr "Preferințe"
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About…"
-msgstr "Despre..."
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About"
-msgstr "Despre"
-
-#: indicator-sensors/is-indicator.c:127
-#, fuzzy
-msgid "_Quit"
-msgstr "Ieșire"
-
-#: indicator-sensors/is-indicator.c:127
-msgid "Quit"
-msgstr "Ieșire"
-
-#: indicator-sensors/is-indicator.c:194
+#: indicator-sensors/is-indicator.c:109
 msgid "No Sensors"
 msgstr "Niciun senzor"
 
-#: indicator-sensors/is-indicator.c:483 indicator-sensors/is-indicator.c:598
+#: indicator-sensors/is-indicator.c:411 indicator-sensors/is-indicator.c:527
 msgid "No active sensors"
 msgstr "Niciun senzor activ"
 
-#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:270
+#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:278
 msgid "Sensor"
 msgstr "Senzor"
 
 #: indicator-sensors/is-manager.c:266
-#: indicator-sensors/is-preferences-dialog.c:158
+#: indicator-sensors/is-preferences-dialog.c:159
 msgid "Icon"
 msgstr "Pictogramă"
 
 #: indicator-sensors/is-manager.c:272
-#: indicator-sensors/is-preferences-dialog.c:164
-#: indicator-sensors/is-sensor-dialog.c:98
+#: indicator-sensors/is-preferences-dialog.c:165
+#: indicator-sensors/is-sensor-dialog.c:99
 msgid "Label"
 msgstr "Etichetă"
 
@@ -142,21 +120,21 @@ msgstr "Etichetă"
 msgid "Enabled"
 msgstr "Activat"
 
-#: indicator-sensors/is-preferences-dialog.c:123
+#: indicator-sensors/is-preferences-dialog.c:122
 msgid "Hardware Sensors Indicator Preferences"
 msgstr "Preferințe indicator senzori hardware"
 
-#: indicator-sensors/is-preferences-dialog.c:127
+#: indicator-sensors/is-preferences-dialog.c:126
 #, fuzzy
 msgid "_Properties"
 msgstr " Proprietăți senzor"
 
-#: indicator-sensors/is-preferences-dialog.c:131
+#: indicator-sensors/is-preferences-dialog.c:130
 #: indicator-sensors/is-sensor-dialog.c:86
 msgid "_Close"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:140
+#: indicator-sensors/is-preferences-dialog.c:139
 msgid "General"
 msgstr "General"
 
@@ -168,15 +146,15 @@ msgstr "Pornire automată la autentificare"
 msgid "Primary sensor display"
 msgstr "Afișare senzor principal"
 
-#: indicator-sensors/is-preferences-dialog.c:170
+#: indicator-sensors/is-preferences-dialog.c:171
 msgid "Value"
 msgstr "Valoare"
 
-#: indicator-sensors/is-preferences-dialog.c:184
+#: indicator-sensors/is-preferences-dialog.c:186
 msgid "Celsius (°C)"
 msgstr "Celsius (°C)"
 
-#: indicator-sensors/is-preferences-dialog.c:192
+#: indicator-sensors/is-preferences-dialog.c:194
 msgid "Fahrenheit (°F)"
 msgstr "Fahrenheit (°F)"
 
@@ -189,27 +167,27 @@ msgstr "Alarmă senzor"
 msgid " Sensor Properties"
 msgstr " Proprietăți senzor"
 
-#: indicator-sensors/is-sensor-dialog.c:103
+#: indicator-sensors/is-sensor-dialog.c:105
 msgid "Alarm"
 msgstr "Alarmă"
 
-#: indicator-sensors/is-sensor-dialog.c:108
+#: indicator-sensors/is-sensor-dialog.c:111
 msgid "Disabled"
 msgstr "Dezactivat"
 
-#: indicator-sensors/is-sensor-dialog.c:110
+#: indicator-sensors/is-sensor-dialog.c:113
 msgid "Below"
 msgstr "Dedesubt"
 
-#: indicator-sensors/is-sensor-dialog.c:112
+#: indicator-sensors/is-sensor-dialog.c:115
 msgid "Above"
 msgstr "Deasupra"
 
-#: indicator-sensors/is-sensor-dialog.c:123
+#: indicator-sensors/is-sensor-dialog.c:127
 msgid "Low value"
 msgstr "Valoare minimă"
 
-#: indicator-sensors/is-sensor-dialog.c:134
+#: indicator-sensors/is-sensor-dialog.c:140
 msgid "High value"
 msgstr "Valoare maximă"
 
@@ -269,6 +247,22 @@ msgstr "Eroare la actualizarea datelor SMART pentru senzorul %s"
 #, fuzzy, c-format
 msgid "Error reading power management state for sensor %s"
 msgstr "Eroare la citirea noilor date SMART pentru senzorului %s"
+
+#~ msgid "Show indicator"
+#~ msgstr "Arată indicatorul"
+
+#~ msgid "Whether to show the indicator in the notification area."
+#~ msgstr "Afișare indicator în zona de notificare."
+
+#~ msgid "Preferences"
+#~ msgstr "Preferințe"
+
+#~ msgid "About"
+#~ msgstr "Despre"
+
+#, fuzzy
+#~ msgid "_Quit"
+#~ msgstr "Ieșire"
 
 #, c-format
 #~ msgid "Error reading temperature value for GPU %d"

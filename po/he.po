@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: indicator-sensors\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-18 15:56+1030\n"
+"POT-Creation-Date: 2025-11-24 20:18+1030\n"
 "PO-Revision-Date: 2013-06-07 16:18+0000\n"
 "Last-Translator: mosko <d.mosko@gmail.com>\n"
 "Language-Team: Hebrew <he@li.org>\n"
@@ -44,7 +44,7 @@ msgid "The list of enabled sensors to monitor, each identified by it’s path."
 msgstr "רשימת החיישנים הזמינים לפיקוח, כל אחד מזוהה על-פי הנתיב שלו."
 
 #: data/indicator-sensors.gschema.xml.in:26
-#: indicator-sensors/is-preferences-dialog.c:177
+#: indicator-sensors/is-preferences-dialog.c:178
 msgid "Temperature scale"
 msgstr "סולם טמפרטורה"
 
@@ -52,15 +52,7 @@ msgstr "סולם טמפרטורה"
 msgid "The temperature scale to display temperature sensor values."
 msgstr "סולם הטמפרטורה בו יוצגו ערכי חיישן הטמפרטורה."
 
-#: data/indicator-sensors.gschema.xml.in:31
-msgid "Show indicator"
-msgstr "הצג אינדיקטור"
-
-#: data/indicator-sensors.gschema.xml.in:32
-msgid "Whether to show the indicator in the notification area."
-msgstr ""
-
-#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:793
+#: data/indicator-sensors.desktop.in:3 indicator-sensors/is-application.c:863
 msgid "Hardware Sensors Indicator"
 msgstr "אינדיקטור חיישני חומרה"
 
@@ -68,17 +60,29 @@ msgstr "אינדיקטור חיישני חומרה"
 msgid "An indicator for Unity which displays hardware sensor readings"
 msgstr "אינדיקטור ל-Unity שמציג קריאות חיישן חומרה"
 
-#: indicator-sensors/indicator-sensors.c:199
+#: indicator-sensors/indicator-sensors.c:194
 msgid "No Sensors Enabled For Monitoring"
 msgstr "אין חיישנים זמינים לפיקוח"
 
-#: indicator-sensors/indicator-sensors.c:200
+#: indicator-sensors/indicator-sensors.c:195
 msgid ""
 "Sensors detected but none are enabled for monitoring. To enable monitoring "
 "of sensors open the Preferences window and select the sensors to monitor"
 msgstr ""
 
-#: indicator-sensors/is-application.c:794
+#: indicator-sensors/is-application.c:554
+msgid "Preferences…"
+msgstr "העדפות..."
+
+#: indicator-sensors/is-application.c:558
+msgid "About…"
+msgstr "אודות..."
+
+#: indicator-sensors/is-application.c:562
+msgid "Quit"
+msgstr "יציאה"
+
+#: indicator-sensors/is-application.c:864
 msgid "Indicator for GNOME / Unity showing hardware sensors."
 msgstr "אינדיקטור ל-GNOME / Unity המציג חיישני חומרה."
 
@@ -86,52 +90,26 @@ msgstr "אינדיקטור ל-GNOME / Unity המציג חיישני חומרה."
 msgid " RPM"
 msgstr " סל\"ד"
 
-#: indicator-sensors/is-indicator.c:123
-msgid "Preferences…"
-msgstr "העדפות..."
-
-#: indicator-sensors/is-indicator.c:124
-#: indicator-sensors/is-preferences-dialog.c:201
-msgid "Preferences"
-msgstr "העדפות"
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About…"
-msgstr "אודות..."
-
-#: indicator-sensors/is-indicator.c:125
-msgid "About"
-msgstr "אודות"
-
-#: indicator-sensors/is-indicator.c:127
-#, fuzzy
-msgid "_Quit"
-msgstr "יציאה"
-
-#: indicator-sensors/is-indicator.c:127
-msgid "Quit"
-msgstr "יציאה"
-
-#: indicator-sensors/is-indicator.c:194
+#: indicator-sensors/is-indicator.c:109
 msgid "No Sensors"
 msgstr "אין חיישנים"
 
-#: indicator-sensors/is-indicator.c:483 indicator-sensors/is-indicator.c:598
+#: indicator-sensors/is-indicator.c:411 indicator-sensors/is-indicator.c:527
 msgid "No active sensors"
 msgstr "אין חיישנים פעילים"
 
-#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:270
+#: indicator-sensors/is-manager.c:259 indicator-sensors/is-sensor-dialog.c:278
 msgid "Sensor"
 msgstr "חיישן"
 
 #: indicator-sensors/is-manager.c:266
-#: indicator-sensors/is-preferences-dialog.c:158
+#: indicator-sensors/is-preferences-dialog.c:159
 msgid "Icon"
 msgstr "סמל"
 
 #: indicator-sensors/is-manager.c:272
-#: indicator-sensors/is-preferences-dialog.c:164
-#: indicator-sensors/is-sensor-dialog.c:98
+#: indicator-sensors/is-preferences-dialog.c:165
+#: indicator-sensors/is-sensor-dialog.c:99
 msgid "Label"
 msgstr "תווית"
 
@@ -139,21 +117,21 @@ msgstr "תווית"
 msgid "Enabled"
 msgstr "זמין"
 
-#: indicator-sensors/is-preferences-dialog.c:123
+#: indicator-sensors/is-preferences-dialog.c:122
 msgid "Hardware Sensors Indicator Preferences"
 msgstr "העדפות אינדיקטור חיישני חומרה"
 
-#: indicator-sensors/is-preferences-dialog.c:127
+#: indicator-sensors/is-preferences-dialog.c:126
 #, fuzzy
 msgid "_Properties"
 msgstr " מאפייני חיישן"
 
-#: indicator-sensors/is-preferences-dialog.c:131
+#: indicator-sensors/is-preferences-dialog.c:130
 #: indicator-sensors/is-sensor-dialog.c:86
 msgid "_Close"
 msgstr ""
 
-#: indicator-sensors/is-preferences-dialog.c:140
+#: indicator-sensors/is-preferences-dialog.c:139
 msgid "General"
 msgstr "כללי"
 
@@ -165,15 +143,15 @@ msgstr "הפעל אוטומטית בעת התחברות"
 msgid "Primary sensor display"
 msgstr "תצוגת חיישן ראשית"
 
-#: indicator-sensors/is-preferences-dialog.c:170
+#: indicator-sensors/is-preferences-dialog.c:171
 msgid "Value"
 msgstr "ערך"
 
-#: indicator-sensors/is-preferences-dialog.c:184
+#: indicator-sensors/is-preferences-dialog.c:186
 msgid "Celsius (°C)"
 msgstr "צלזיוס (°C)"
 
-#: indicator-sensors/is-preferences-dialog.c:192
+#: indicator-sensors/is-preferences-dialog.c:194
 msgid "Fahrenheit (°F)"
 msgstr "פרנהייט (°F)"
 
@@ -186,27 +164,27 @@ msgstr "התרעת חיישן"
 msgid " Sensor Properties"
 msgstr " מאפייני חיישן"
 
-#: indicator-sensors/is-sensor-dialog.c:103
+#: indicator-sensors/is-sensor-dialog.c:105
 msgid "Alarm"
 msgstr "התרעה"
 
-#: indicator-sensors/is-sensor-dialog.c:108
+#: indicator-sensors/is-sensor-dialog.c:111
 msgid "Disabled"
 msgstr "לא זמין"
 
-#: indicator-sensors/is-sensor-dialog.c:110
+#: indicator-sensors/is-sensor-dialog.c:113
 msgid "Below"
 msgstr "מתחת"
 
-#: indicator-sensors/is-sensor-dialog.c:112
+#: indicator-sensors/is-sensor-dialog.c:115
 msgid "Above"
 msgstr "מעל"
 
-#: indicator-sensors/is-sensor-dialog.c:123
+#: indicator-sensors/is-sensor-dialog.c:127
 msgid "Low value"
 msgstr "ערך תחתון"
 
-#: indicator-sensors/is-sensor-dialog.c:134
+#: indicator-sensors/is-sensor-dialog.c:140
 msgid "High value"
 msgstr "ערך עליון"
 
@@ -266,6 +244,19 @@ msgstr ""
 #, fuzzy, c-format
 msgid "Error reading power management state for sensor %s"
 msgstr "שגיאה בהשגת ערך החיישן עבור חיישן %s"
+
+#~ msgid "Show indicator"
+#~ msgstr "הצג אינדיקטור"
+
+#~ msgid "Preferences"
+#~ msgstr "העדפות"
+
+#~ msgid "About"
+#~ msgstr "אודות"
+
+#, fuzzy
+#~ msgid "_Quit"
+#~ msgstr "יציאה"
 
 #, c-format
 #~ msgid "Error reading temperature value for GPU %d"
