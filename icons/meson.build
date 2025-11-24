@@ -43,6 +43,3 @@ install_data('high-value-icon.png',
              install_dir: get_option('datadir') / 'icons/hicolor/22x22/status')
 install_data('very-high-value-icon.png',
              install_dir: get_option('datadir') / 'icons/hicolor/22x22/status')
-
-install_data('indicator-sensors.svg',
-             install_dir: get_option('datadir') / 'icons/hicolor/scalable/apps')
