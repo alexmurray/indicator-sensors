@@ -15,7 +15,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            meson ninja-build pkg-config build-essential \
+            meson ninja-build pkg-config build-essential xvfb \
             intltool gnome-common desktop-file-utils \
             libglib2.0-dev libgdk-pixbuf2.0-0 libgtk-3-dev \
             libpeas-2-dev libnotify-dev libayatana-appindicator3-dev \
@@ -28,7 +28,7 @@ jobs:
         run: meson compile -C builddir
 
       - name: Test
-        run: meson test -C builddir --print-errorlogs
+        run: xvfb-run -a meson test -C builddir --print-errorlogs
 
       - name: Verify install rules
         run: meson install -C builddir --destdir=/tmp/indicator-sensors-install
@@ -42,7 +42,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            meson ninja-build pkg-config build-essential gcovr \
+            meson ninja-build pkg-config build-essential gcovr xvfb \
             intltool gnome-common desktop-file-utils \
             libglib2.0-dev libgdk-pixbuf2.0-0 libgtk-3-dev \
             libpeas-2-dev libnotify-dev libayatana-appindicator3-dev \
@@ -55,7 +55,7 @@ jobs:
         run: meson compile -C builddir
 
       - name: Test
-        run: meson test -C builddir --print-errorlogs
+        run: xvfb-run -a meson test -C builddir --print-errorlogs
 
       - name: Generate coverage report
         run: ninja -C builddir coverage-xml
