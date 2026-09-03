@@ -32,3 +32,37 @@ jobs:
 
       - name: Verify install rules
         run: meson install -C builddir --destdir=/tmp/indicator-sensors-install
+
+  coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            meson ninja-build pkg-config build-essential gcovr \
+            intltool gnome-common desktop-file-utils \
+            libglib2.0-dev libgdk-pixbuf2.0-0 libgtk-3-dev \
+            libpeas-2-dev libnotify-dev libayatana-appindicator3-dev \
+            libsensors-dev libudisks2-dev libx11-dev libxnvctrl-dev
+
+      - name: Configure
+        run: meson setup builddir -Denable-fake=true -Db_coverage=true
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Test
+        run: meson test -C builddir --print-errorlogs
+
+      - name: Generate coverage report
+        run: ninja -C builddir coverage-xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: builddir/meson-logs/coverage.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
