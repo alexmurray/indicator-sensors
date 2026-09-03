@@ -579,6 +579,11 @@ is_application_startup(GApplication *application)
                   G_SETTINGS_BIND_DEFAULT);
   g_object_set_data_full(G_OBJECT(priv->indicator), "gsettings", settings,
                          (GDestroyNotify)g_object_unref);
+
+  /* hold once for the lifetime of the application - activate() can fire
+   * again on re-launch of the primary instance, but is_application_quit()
+   * only releases once, so the hold must not be tied to activate() */
+  g_application_hold(application);
 }
 
 static void
@@ -586,7 +591,6 @@ is_application_activate(GApplication *application)
 {
   G_APPLICATION_CLASS(is_application_parent_class)->activate(application);
   is_debug("application", "Application activated");
-  g_application_hold(application);
 }
 
 static void

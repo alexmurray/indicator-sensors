@@ -283,7 +283,6 @@ is_udisks_plugin_activate(IsActivatable *activatable)
       is_debug("udisks", "error getting sensor proxy for disk %s: %s", path,
                error->message);
       g_clear_error(&error);
-      g_object_unref(sensor_proxy);
       continue;
     }
 

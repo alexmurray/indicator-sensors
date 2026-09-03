@@ -153,6 +153,11 @@ is_libsensors_plugin_finalize(GObject *object)
     sensors_cleanup();
     priv->inited = FALSE;
   }
+  if (priv->application)
+  {
+    g_object_unref(priv->application);
+    priv->application = NULL;
+  }
   G_OBJECT_CLASS(is_libsensors_plugin_parent_class)->finalize(object);
 }
 

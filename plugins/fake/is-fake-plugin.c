@@ -101,6 +101,12 @@ is_fake_plugin_finalize(GObject *object)
 
   g_rand_free(priv->rand);
 
+  if (priv->application)
+  {
+    g_object_unref(priv->application);
+    priv->application = NULL;
+  }
+
   G_OBJECT_CLASS(is_fake_plugin_parent_class)->finalize(object);
 }
 

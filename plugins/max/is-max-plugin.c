@@ -34,6 +34,7 @@ typedef struct _IsMaxPluginPrivate
 } IsMaxPluginPrivate;
 
 static void is_activatable_iface_init(IsActivatableInterface *iface);
+static void is_max_plugin_finalize(GObject *object);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(
     IsMaxPlugin, is_max_plugin, G_TYPE_OBJECT, 0,
@@ -197,6 +198,7 @@ on_sensor_disabled(IsManager *manager, IsSensor *sensor, gpointer data)
           on_sensor_value_notify(IS_SENSOR(_list->data), NULL, self);
         }
       }
+      g_slist_free_full(sensors, g_object_unref);
     }
   }
 }
@@ -267,12 +269,28 @@ is_max_plugin_deactivate(IsActivatable *activatable)
 }
 
 static void
+is_max_plugin_finalize(GObject *object)
+{
+  IsMaxPlugin *self = IS_MAX_PLUGIN(object);
+  IsMaxPluginPrivate *priv = is_max_plugin_get_instance_private(self);
+
+  if (priv->application)
+  {
+    g_object_unref(priv->application);
+    priv->application = NULL;
+  }
+
+  G_OBJECT_CLASS(is_max_plugin_parent_class)->finalize(object);
+}
+
+static void
 is_max_plugin_class_init(IsMaxPluginClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   gobject_class->get_property = is_max_plugin_get_property;
   gobject_class->set_property = is_max_plugin_set_property;
+  gobject_class->finalize = is_max_plugin_finalize;
 
   g_object_class_override_property(gobject_class, PROP_APPLICATION,
                                    "application");

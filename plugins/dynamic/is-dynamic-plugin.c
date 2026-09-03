@@ -112,7 +112,11 @@ is_dynamic_plugin_finalize(GObject *object)
   IsDynamicPlugin *self = (IsDynamicPlugin *)object;
   IsDynamicPluginPrivate *priv = is_dynamic_plugin_get_instance_private(self);
 
-  (void)priv;
+  if (priv->application)
+  {
+    g_object_unref(priv->application);
+    priv->application = NULL;
+  }
 
   G_OBJECT_CLASS(is_dynamic_plugin_parent_class)->finalize(object);
 }
@@ -267,6 +271,7 @@ on_sensor_disabled(IsManager *manager, IsSensor *sensor, gpointer data)
           on_sensor_value_notify(IS_SENSOR(_list->data), NULL, self);
         }
       }
+      g_slist_free_full(sensors, g_object_unref);
     }
   }
 }

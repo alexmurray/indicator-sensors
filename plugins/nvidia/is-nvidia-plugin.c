@@ -118,6 +118,11 @@ is_nvidia_plugin_finalize(GObject *object)
     XCloseDisplay(priv->display);
     priv->inited = FALSE;
   }
+  if (priv->application)
+  {
+    g_object_unref(priv->application);
+    priv->application = NULL;
+  }
   G_OBJECT_CLASS(is_nvidia_plugin_parent_class)->finalize(object);
 }
 

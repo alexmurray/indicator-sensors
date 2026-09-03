@@ -58,6 +58,7 @@ on_plugin_list_items_changed(GListModel *model, guint position, guint removed,
     PeasPluginInfo *info = PEAS_PLUGIN_INFO(g_list_model_get_item(model, i));
     is_debug("main", "Loading plugin: %s", peas_plugin_info_get_name(info));
     peas_engine_load_plugin(PEAS_ENGINE(model), info);
+    g_object_unref(info);
   }
 }
 
