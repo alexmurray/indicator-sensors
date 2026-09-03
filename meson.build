@@ -43,6 +43,7 @@ subdir('icons')
 subdir('plugins')
 subdir('po')
 subdir('indicator-sensors')
+subdir('tests')
 
 gnome.post_install(
   glib_compile_schemas: true,
