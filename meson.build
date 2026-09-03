@@ -8,8 +8,6 @@ gio_dep = dependency('gio-2.0', version : '>= 2.40')
 gtk_dep = dependency('gtk+-3.0', version : '>= 3.0')
 libpeas_dep = dependency('libpeas-2', version : '>= 2.0')
 appindicator_dep = dependency('ayatana-appindicator3-0.1', version : '>= 0.0.7')
-libatasmart_dep = dependency('libatasmart', version : '>= 0.16',
-                             required: false)
 udisks2_dep = dependency('udisks2', version : '>= 2.0',
                          required: false)
 
@@ -53,7 +51,6 @@ gnome.post_install(
 
 summary({
   'fake_plugin': get_option('enable-fake'),
-  'udisks_plugin': libatasmart_dep.found(),
   'udisks2_plugin': udisks2_dep.found(),
   'libsensors_plugin': libsensors_dep.found(),
   'nvidia_plugin': get_option('enable-nvidia'),
