@@ -41,4 +41,4 @@ GNotification *is_notifyv(const gchar *id, IsNotifyLevel level,
 void is_notify_withdraw(const gchar *id);
 G_END_DECLS
 
-#endif /* __IS_LOG_H__ */
+#endif /* __IS_NOTIFY_H__ */

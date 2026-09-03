@@ -22,7 +22,6 @@ typedef struct _IsTemperatureSensorPrivate
 {
   IsTemperatureSensorScale scale;
 } IsTemperatureSensorPrivate;
-;
 
 G_DEFINE_TYPE_WITH_PRIVATE(IsTemperatureSensor, is_temperature_sensor,
                            IS_TYPE_SENSOR);

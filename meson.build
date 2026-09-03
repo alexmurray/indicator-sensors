@@ -37,6 +37,7 @@ configure_file(output : 'config.h',
 root_include_dir = include_directories('.')
 
 i18n = import('i18n')
+gnome = import('gnome')
 add_project_arguments('-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()), language: 'c')
 
 subdir('data')
@@ -44,6 +45,11 @@ subdir('icons')
 subdir('plugins')
 subdir('po')
 subdir('indicator-sensors')
+
+gnome.post_install(
+  glib_compile_schemas: true,
+  gtk_update_icon_cache: true,
+)
 
 summary({
   'fake_plugin': get_option('enable-fake'),
