@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,98 +15,90 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "config.h"
 
+#include "is-active-sensor-generated.h"
 #include "is-dbus-plugin.h"
 #include "is-org-gnome-shell-search-provider-generated.h"
-#include "is-active-sensor-generated.h"
+#include <gio/gio.h>
+#include <glib.h>
+#include <glib/gi18n.h>
+#include <indicator-sensors/is-activatable.h>
 #include <indicator-sensors/is-application.h>
 #include <indicator-sensors/is-log.h>
-#include <gio/gio.h>
-#include <glib/gi18n.h>
 
-static void peas_activatable_iface_init(PeasActivatableInterface *iface);
-
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsDBusPlugin,
-                               is_dbus_plugin,
-                               PEAS_TYPE_EXTENSION_BASE,
-                               0,
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(PEAS_TYPE_ACTIVATABLE,
-                                                             peas_activatable_iface_init));
-
-enum
-{
-  PROP_OBJECT = 1,
-};
-
-struct _IsDBusPluginPrivate
+typedef struct _IsDBusPluginPrivate
 {
   IsApplication *application;
   guint id;
   GDBusObjectManagerServer *sensors_object_manager;
   GDBusObjectManagerServer *search_object_manager;
   IsOrgGnomeShellSearchProvider2 *skeleton;
+} IsDBusPluginPrivate;
+
+static void is_activatable_iface_init(IsActivatableInterface *iface);
+
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(
+    IsDBusPlugin, is_dbus_plugin, G_TYPE_OBJECT, 0,
+    G_ADD_PRIVATE_DYNAMIC(IsDBusPlugin)
+        G_IMPLEMENT_INTERFACE_DYNAMIC(IS_TYPE_ACTIVATABLE,
+                                      is_activatable_iface_init));
+
+enum
+{
+  PROP_APPLICATION = 1,
 };
 
 static void is_dbus_plugin_finalize(GObject *object);
 
 static void
-is_dbus_plugin_set_property(GObject *object,
-                            guint prop_id,
-                            const GValue *value,
+is_dbus_plugin_set_property(GObject *object, guint prop_id, const GValue *value,
                             GParamSpec *pspec)
 {
   IsDBusPlugin *plugin = IS_DBUS_PLUGIN(object);
+  IsDBusPluginPrivate *priv = is_dbus_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      plugin->priv->application = IS_APPLICATION(g_value_dup_object(value));
-      break;
+  case PROP_APPLICATION:
+    priv->application = IS_APPLICATION(g_value_dup_object(value));
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
-is_dbus_plugin_get_property(GObject *object,
-                            guint prop_id,
-                            GValue *value,
+is_dbus_plugin_get_property(GObject *object, guint prop_id, GValue *value,
                             GParamSpec *pspec)
 {
   IsDBusPlugin *plugin = IS_DBUS_PLUGIN(object);
+  IsDBusPluginPrivate *priv = is_dbus_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      g_value_set_object(value, plugin->priv->application);
-      break;
+  case PROP_APPLICATION:
+    g_value_set_object(value, priv->application);
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
 is_dbus_plugin_init(IsDBusPlugin *self)
 {
-  IsDBusPluginPrivate *priv =
-    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_DBUS_PLUGIN,
-                                IsDBusPluginPrivate);
-  self->priv = priv;
 }
 
 static void
 is_dbus_plugin_finalize(GObject *object)
 {
   IsDBusPlugin *self = (IsDBusPlugin *)object;
-  IsDBusPluginPrivate *priv = self->priv;
-
+  IsDBusPluginPrivate *priv = is_dbus_plugin_get_instance_private(self);
 
   if (priv->application)
   {
@@ -117,27 +109,22 @@ is_dbus_plugin_finalize(GObject *object)
 }
 
 static void
-sensor_property_changed(IsSensor *sensor,
-                        GParamSpec *pspec,
-                        gpointer data)
+sensor_property_changed(IsSensor *sensor, GParamSpec *pspec, gpointer data)
 {
   const gchar *name = g_param_spec_get_name(pspec);
   IsActiveSensor *active_sensor = IS_ACTIVE_SENSOR(data);
 
   if (!g_strcmp0(name, "value"))
   {
-    is_active_sensor_set_value(active_sensor,
-                               is_sensor_get_value(sensor));
+    is_active_sensor_set_value(active_sensor, is_sensor_get_value(sensor));
   }
   else if (!g_strcmp0(name, "label"))
   {
-    is_active_sensor_set_label(active_sensor,
-                               is_sensor_get_label(sensor));
+    is_active_sensor_set_label(active_sensor, is_sensor_get_label(sensor));
   }
   else if (!g_strcmp0(name, "units"))
   {
-    is_active_sensor_set_units(active_sensor,
-                               is_sensor_get_units(sensor));
+    is_active_sensor_set_units(active_sensor, is_sensor_get_units(sensor));
   }
   else if (!g_strcmp0(name, "icon-path"))
   {
@@ -146,16 +133,13 @@ sensor_property_changed(IsSensor *sensor,
   }
   else if (!g_strcmp0(name, "digits"))
   {
-    is_active_sensor_set_digits(active_sensor,
-                                is_sensor_get_digits(sensor));
+    is_active_sensor_set_digits(active_sensor, is_sensor_get_digits(sensor));
   }
   else if (!g_strcmp0(name, "error"))
   {
-    is_active_sensor_set_error(active_sensor,
-                               is_sensor_get_error(sensor));
+    is_active_sensor_set_error(active_sensor, is_sensor_get_error(sensor));
   }
 }
-
 
 static gchar *
 dbus_sensor_object_path(IsSensor *sensor)
@@ -164,8 +148,9 @@ dbus_sensor_object_path(IsSensor *sensor)
   /* Create a new D-Bus object at the path
    * /com/github/alexmurray/IndicatorSensors/ActiveSensors/path where path
    * is path of each sensor */
-  path = g_strdup_printf("/com/github/alexmurray/IndicatorSensors/ActiveSensors/%s",
-                         is_sensor_get_path(sensor));
+  path = g_strdup_printf(
+      "/com/github/alexmurray/IndicatorSensors/ActiveSensors/%s",
+      is_sensor_get_path(sensor));
 
   /* ensure valid path */
   path = g_strcanon(path,
@@ -177,9 +162,7 @@ dbus_sensor_object_path(IsSensor *sensor)
 }
 
 static void
-sensor_position_changed(IsManager *manager,
-                        IsSensor *sensor,
-                        gint i,
+sensor_position_changed(IsManager *manager, IsSensor *sensor, gint i,
                         IsDBusPlugin *self)
 {
   IsDBusPluginPrivate *priv;
@@ -187,10 +170,10 @@ sensor_position_changed(IsManager *manager,
   IsActiveSensor *active_sensor;
   gchar *path;
 
-  priv = self->priv;
+  priv = is_dbus_plugin_get_instance_private(self);
   path = dbus_sensor_object_path(sensor);
-  object = IS_OBJECT_SKELETON(g_dbus_object_manager_get_object(G_DBUS_OBJECT_MANAGER(priv->sensors_object_manager),
-                                                               path));
+  object = IS_OBJECT_SKELETON(g_dbus_object_manager_get_object(
+      G_DBUS_OBJECT_MANAGER(priv->sensors_object_manager), path));
   g_object_get(object, "active-sensor", &active_sensor, NULL);
   is_active_sensor_set_index(active_sensor, i);
   g_object_unref(object);
@@ -198,17 +181,14 @@ sensor_position_changed(IsManager *manager,
 }
 
 static void
-sensor_enabled(IsManager *manager,
-               IsSensor *sensor,
-               gint i,
-               IsDBusPlugin *self)
+sensor_enabled(IsManager *manager, IsSensor *sensor, gint i, IsDBusPlugin *self)
 {
   IsDBusPluginPrivate *priv;
   gchar *path;
   IsActiveSensor *active_sensor;
   IsObjectSkeleton *object;
 
-  priv = self->priv;
+  priv = is_dbus_plugin_get_instance_private(self);
 
   path = dbus_sensor_object_path(sensor);
   object = is_object_skeleton_new(path);
@@ -227,10 +207,11 @@ sensor_enabled(IsManager *manager,
   is_active_sensor_set_value(active_sensor, is_sensor_get_value(sensor));
   is_active_sensor_set_digits(active_sensor, is_sensor_get_digits(sensor));
   is_active_sensor_set_index(active_sensor, i);
-  is_active_sensor_set_icon_path(active_sensor, is_sensor_get_icon_path(sensor));
+  is_active_sensor_set_icon_path(active_sensor,
+                                 is_sensor_get_icon_path(sensor));
 
-  g_signal_connect(sensor, "notify",
-                   G_CALLBACK(sensor_property_changed), active_sensor);
+  g_signal_connect(sensor, "notify", G_CALLBACK(sensor_property_changed),
+                   active_sensor);
   is_object_skeleton_set_active_sensor(object, active_sensor);
   g_object_unref(active_sensor);
 
@@ -242,24 +223,22 @@ sensor_enabled(IsManager *manager,
 }
 
 static void
-sensor_disabled(IsManager *manager,
-                IsSensor *sensor,
-                IsDBusPlugin *self)
+sensor_disabled(IsManager *manager, IsSensor *sensor, IsDBusPlugin *self)
 {
   IsDBusPluginPrivate *priv;
   IsObjectSkeleton *object;
   IsActiveSensor *active_sensor;
   gchar *path;
 
-  priv = self->priv;
+  priv = is_dbus_plugin_get_instance_private(self);
   path = dbus_sensor_object_path(sensor);
-  object = IS_OBJECT_SKELETON(g_dbus_object_manager_get_object(G_DBUS_OBJECT_MANAGER(priv->sensors_object_manager),
-                                                               path));
+  object = IS_OBJECT_SKELETON(g_dbus_object_manager_get_object(
+      G_DBUS_OBJECT_MANAGER(priv->sensors_object_manager), path));
   g_object_get(object, "active-sensor", &active_sensor, NULL);
   g_object_unref(object);
-  g_signal_handlers_disconnect_by_func(sensor, sensor_property_changed, active_sensor);
-  g_dbus_object_manager_server_unexport(priv->sensors_object_manager,
-                                        path);
+  g_signal_handlers_disconnect_by_func(sensor, sensor_property_changed,
+                                       active_sensor);
+  g_dbus_object_manager_server_unexport(priv->sensors_object_manager, path);
   g_free(path);
 }
 
@@ -267,69 +246,49 @@ static GDBusNodeInfo *introspection_data = NULL;
 
 /* Introspection data for IndicatorSensors */
 static const gchar introspection_xml[] =
-  "<node>"
-  "  <interface name='com.github.alexmurray.IndicatorSensors'>"
-  "    <method name='ShowPreferences'>"
-  "    </method>"
-  "    <method name='ShowIndicator'>"
-  "    </method>"
-  "    <method name='HideIndicator'>"
-  "    </method>"
-  "  </interface>"
-  "</node>";
+    "<node>"
+    "  <interface name='com.github.alexmurray.IndicatorSensors'>"
+    "    <method name='ShowPreferences'>"
+    "    </method>"
+    "  </interface>"
+    "</node>";
 
 static void
-handle_method_call(GDBusConnection *connection,
-                   const gchar *sender,
-                   const gchar *object_path,
-                   const gchar *interface_name,
-                   const gchar *method_name,
-                   GVariant *parameters,
-                   GDBusMethodInvocation *invocation,
-                   gpointer user_data)
+handle_method_call(GDBusConnection *connection, const gchar *sender,
+                   const gchar *object_path, const gchar *interface_name,
+                   const gchar *method_name, GVariant *parameters,
+                   GDBusMethodInvocation *invocation, gpointer user_data)
 {
   IsDBusPlugin *self = IS_DBUS_PLUGIN(user_data);
-  IsDBusPluginPrivate *priv = self->priv;
+  IsDBusPluginPrivate *priv = is_dbus_plugin_get_instance_private(self);
 
   if (g_strcmp0(method_name, "ShowPreferences") == 0)
   {
     is_application_show_preferences(priv->application);
   }
-  else if (g_strcmp0(method_name, "ShowIndicator") == 0)
-  {
-    is_application_set_show_indicator(priv->application, TRUE);
-  }
-  else if (g_strcmp0(method_name, "HideIndicator") == 0)
-  {
-    is_application_set_show_indicator(priv->application, FALSE);
-  }
   g_dbus_method_invocation_return_value(invocation, NULL);
 }
 
-
 /* for now */
-static const GDBusInterfaceVTable interface_vtable =
-{
-  handle_method_call,
-  NULL,
-  NULL,
+static const GDBusInterfaceVTable interface_vtable = {
+    handle_method_call,
+    NULL,
+    NULL,
 };
 
 static GVariant *
-get_result_set(IsDBusPlugin *self,
-               gchar **terms)
+get_result_set(IsDBusPlugin *self, gchar **terms)
 {
   GVariantBuilder builder;
   GSList *sensors, *_list;
   IsManager *manager;
+  IsDBusPluginPrivate *priv = is_dbus_plugin_get_instance_private(self);
 
-  g_variant_builder_init(&builder, G_VARIANT_TYPE ("as"));
-  manager = is_application_get_manager(self->priv->application);
+  g_variant_builder_init(&builder, G_VARIANT_TYPE("as"));
+  manager = is_application_get_manager(priv->application);
   sensors = is_manager_get_enabled_sensors_list(manager);
 
-  for (_list = sensors;
-       _list != NULL;
-       _list = _list->next)
+  for (_list = sensors; _list != NULL; _list = _list->next)
   {
     int i;
     IsSensor *sensor = IS_SENSOR(_list->data);
@@ -352,15 +311,15 @@ get_result_set(IsDBusPlugin *self,
 }
 
 static GVariant *
-get_result_metas (IsDBusPlugin *self,
-                  const gchar **results)
+get_result_metas(IsDBusPlugin *self, const gchar **results)
 {
   IsManager *manager;
   gint idx;
   GVariantBuilder meta, metas;
+  IsDBusPluginPrivate *priv = is_dbus_plugin_get_instance_private(self);
 
-  g_variant_builder_init(&metas, G_VARIANT_TYPE ("aa{sv}"));
-  manager = is_application_get_manager(self->priv->application);
+  g_variant_builder_init(&metas, G_VARIANT_TYPE("aa{sv}"));
+  manager = is_application_get_manager(priv->application);
 
   for (idx = 0; results[idx] != NULL; idx++)
   {
@@ -369,66 +328,62 @@ get_result_metas (IsDBusPlugin *self,
     gchar *name;
     gchar *gicon_str;
 
-    g_variant_builder_init(&meta, G_VARIANT_TYPE ("a{sv}"));
-    g_variant_builder_add(&meta, "{sv}",
-                          "id", g_variant_new_string(results[idx]));
+    g_variant_builder_init(&meta, G_VARIANT_TYPE("a{sv}"));
+    g_variant_builder_add(&meta, "{sv}", "id",
+                          g_variant_new_string(results[idx]));
 
-    name = g_strdup_printf("%s %2.*f%s",
-                           is_sensor_get_label(sensor),
-                           is_sensor_get_digits(sensor),
-                           is_sensor_get_value(sensor),
-                           is_sensor_get_units(sensor));
-    g_variant_builder_add(&meta, "{sv}",
-                          "name", g_variant_new_string(name));
+    name = g_strdup_printf(
+        "%s %2.*f%s", is_sensor_get_label(sensor), is_sensor_get_digits(sensor),
+        is_sensor_get_value(sensor), is_sensor_get_units(sensor));
+    g_variant_builder_add(&meta, "{sv}", "name", g_variant_new_string(name));
     g_free(name);
 
-    gicon_str = g_icon_to_string (gicon);
-    g_variant_builder_add (&meta, "{sv}",
-                           "gicon", g_variant_new_string (gicon_str));
+    gicon_str = g_icon_to_string(gicon);
+    g_variant_builder_add(&meta, "{sv}", "gicon",
+                          g_variant_new_string(gicon_str));
     g_free(gicon_str);
 
-    g_variant_builder_add_value(&metas, g_variant_builder_end (&meta));
+    g_variant_builder_add_value(&metas, g_variant_builder_end(&meta));
   }
 
   return g_variant_new("(aa{sv})", &metas);
 }
 
 static void
-handle_get_initial_result_set (IsOrgGnomeShellSearchProvider2  *skeleton,
-                               GDBusMethodInvocation              *invocation,
-                               gchar                             **terms,
-                               gpointer                            user_data)
+handle_get_initial_result_set(IsOrgGnomeShellSearchProvider2 *skeleton,
+                              GDBusMethodInvocation *invocation, gchar **terms,
+                              gpointer user_data)
 {
   IsDBusPlugin *self = IS_DBUS_PLUGIN(user_data);
-  gchar *joined_terms = g_strjoinv (" ", terms);
+  gchar *joined_terms = g_strjoinv(" ", terms);
 
   is_debug("dbus", "GetInitialResultSet() called with %s", joined_terms);
-  g_free (joined_terms);
+  g_free(joined_terms);
 
-  g_dbus_method_invocation_return_value (invocation, get_result_set(self, terms));
+  g_dbus_method_invocation_return_value(invocation,
+                                        get_result_set(self, terms));
 }
 
 static void
-handle_get_subsearch_result_set (IsOrgGnomeShellSearchProvider2  *skeleton,
-                                 GDBusMethodInvocation              *invocation,
-                                 gchar                             **previous_results,
-                                 gchar                             **terms,
-                                 gpointer                            user_data)
+handle_get_subsearch_result_set(IsOrgGnomeShellSearchProvider2 *skeleton,
+                                GDBusMethodInvocation *invocation,
+                                gchar **previous_results, gchar **terms,
+                                gpointer user_data)
 {
   IsDBusPlugin *self = IS_DBUS_PLUGIN(user_data);
-  gchar *joined_terms = g_strjoinv (" ", terms);
+  gchar *joined_terms = g_strjoinv(" ", terms);
 
   is_debug("dbus", "GetSubSearchResultSet() called with %s", joined_terms);
-  g_free (joined_terms);
+  g_free(joined_terms);
 
-  g_dbus_method_invocation_return_value(invocation, get_result_set(self, terms));
+  g_dbus_method_invocation_return_value(invocation,
+                                        get_result_set(self, terms));
 }
 
 static void
-handle_get_result_metas (IsOrgGnomeShellSearchProvider2  *skeleton,
-                         GDBusMethodInvocation              *invocation,
-                         gchar                             **results,
-                         gpointer                            user_data)
+handle_get_result_metas(IsOrgGnomeShellSearchProvider2 *skeleton,
+                        GDBusMethodInvocation *invocation, gchar **results,
+                        gpointer user_data)
 {
   IsDBusPlugin *self = IS_DBUS_PLUGIN(user_data);
   gint idx;
@@ -440,46 +395,40 @@ handle_get_result_metas (IsOrgGnomeShellSearchProvider2  *skeleton,
 
   is_debug("dbus", "\n");
 
-  g_dbus_method_invocation_return_value (invocation,
-                                         get_result_metas (self, (const gchar **)results));
+  g_dbus_method_invocation_return_value(
+      invocation, get_result_metas(self, (const gchar **)results));
 }
 
 static void
-handle_launch_search (IsOrgGnomeShellSearchProvider2  *skeleton,
-                      GDBusMethodInvocation              *invocation,
-                      gchar                             **terms,
-                      guint32                             timestamp,
-                      gpointer                            user_data)
+handle_launch_search(IsOrgGnomeShellSearchProvider2 *skeleton,
+                     GDBusMethodInvocation *invocation, gchar **terms,
+                     guint32 timestamp, gpointer user_data)
 {
-  gchar *joined_terms = g_strjoinv (" ", terms);
+  gchar *joined_terms = g_strjoinv(" ", terms);
 
   is_debug("dbus", "LaunchSearch() called with %s\n", joined_terms);
-  g_free (joined_terms);
+  g_free(joined_terms);
 
-  g_dbus_method_invocation_return_value (invocation, NULL);
+  g_dbus_method_invocation_return_value(invocation, NULL);
 }
 
 static void
-handle_activate_result (IsOrgGnomeShellSearchProvider2  *skeleton,
-                        GDBusMethodInvocation              *invocation,
-                        gchar                              *result,
-                        gchar                             **terms,
-                        guint32                             timestamp,
-                        gpointer                            user_data)
+handle_activate_result(IsOrgGnomeShellSearchProvider2 *skeleton,
+                       GDBusMethodInvocation *invocation, gchar *result,
+                       gchar **terms, guint32 timestamp, gpointer user_data)
 {
-  gchar *joined_terms = g_strjoinv (" ", terms);
+  gchar *joined_terms = g_strjoinv(" ", terms);
 
   is_debug("dbus", "ActivateResult() called for %s and result %s\n",
            joined_terms, result);
-  g_free (joined_terms);
+  g_free(joined_terms);
 
-  g_dbus_method_invocation_return_value (invocation, NULL);
+  g_dbus_method_invocation_return_value(invocation, NULL);
 }
 
 static void
-on_bus_acquired(GDBusConnection *connection,
-                const gchar     *name,
-                gpointer         user_data)
+on_bus_acquired(GDBusConnection *connection, const gchar *name,
+                gpointer user_data)
 {
   IsDBusPlugin *self;
   IsDBusPluginPrivate *priv;
@@ -490,46 +439,45 @@ on_bus_acquired(GDBusConnection *connection,
   gint i = 0;
 
   self = IS_DBUS_PLUGIN(user_data);
-  priv = self->priv;
+  priv = is_dbus_plugin_get_instance_private(self);
 
   is_debug("dbus-plugin", "Acquired a message bus connection\n");
 
-  priv->search_object_manager = g_dbus_object_manager_server_new ("/com/github/alexmurray/IndicatorSensors/SearchProvider");
-  priv->skeleton = is_org_gnome_shell_search_provider2_skeleton_new ();
+  priv->search_object_manager = g_dbus_object_manager_server_new(
+      "/com/github/alexmurray/IndicatorSensors/SearchProvider");
+  priv->skeleton = is_org_gnome_shell_search_provider2_skeleton_new();
 
-  g_signal_connect (priv->skeleton, "handle-get-initial-result-set",
-                    G_CALLBACK (handle_get_initial_result_set), self);
-  g_signal_connect (priv->skeleton, "handle-get-subsearch-result-set",
-                    G_CALLBACK (handle_get_subsearch_result_set), self);
-  g_signal_connect (priv->skeleton, "handle-get-result-metas",
-                    G_CALLBACK (handle_get_result_metas), self);
-  g_signal_connect (priv->skeleton, "handle-activate-result",
-                    G_CALLBACK (handle_activate_result), self);
-  g_signal_connect (priv->skeleton, "handle-launch-search",
-                    G_CALLBACK (handle_launch_search), self);
+  g_signal_connect(priv->skeleton, "handle-get-initial-result-set",
+                   G_CALLBACK(handle_get_initial_result_set), self);
+  g_signal_connect(priv->skeleton, "handle-get-subsearch-result-set",
+                   G_CALLBACK(handle_get_subsearch_result_set), self);
+  g_signal_connect(priv->skeleton, "handle-get-result-metas",
+                   G_CALLBACK(handle_get_result_metas), self);
+  g_signal_connect(priv->skeleton, "handle-activate-result",
+                   G_CALLBACK(handle_activate_result), self);
+  g_signal_connect(priv->skeleton, "handle-launch-search",
+                   G_CALLBACK(handle_launch_search), self);
 
-  g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (priv->skeleton),
-                                    connection,
-                                    "/com/github/alexmurray/IndicatorSensors/SearchProvider",
-                                    NULL);
-  g_dbus_object_manager_server_set_connection (priv->search_object_manager, connection);
+  g_dbus_interface_skeleton_export(
+      G_DBUS_INTERFACE_SKELETON(priv->skeleton), connection,
+      "/com/github/alexmurray/IndicatorSensors/SearchProvider", NULL);
+  g_dbus_object_manager_server_set_connection(priv->search_object_manager,
+                                              connection);
 
-  id = g_dbus_connection_register_object(connection,
-                                         "/com/github/alexmurray/IndicatorSensors",
-                                         introspection_data->interfaces[0],
-                                         &interface_vtable,
-                                         self,
-                                         NULL,
-                                         &error);
+  id = g_dbus_connection_register_object(
+      connection, "/com/github/alexmurray/IndicatorSensors",
+      introspection_data->interfaces[0], &interface_vtable, self, NULL, &error);
   if (!id)
   {
-    is_warning("dbus-plugin", "Unabled to register IndicatorSensors object on dbus: %s",
+    is_warning("dbus-plugin",
+               "Unabled to register IndicatorSensors object on dbus: %s",
                error->message);
     g_error_free(error);
   }
   /* Create a new org.freedesktop.DBus.ObjectManager rooted at
    * /indicator-sensors/ActiveSensors */
-  priv->sensors_object_manager = g_dbus_object_manager_server_new("/com/github/alexmurray/IndicatorSensors/ActiveSensors");
+  priv->sensors_object_manager = g_dbus_object_manager_server_new(
+      "/com/github/alexmurray/IndicatorSensors/ActiveSensors");
 
   manager = is_application_get_manager(priv->application);
   /* set up a skeleton object and sensor for each active sensor */
@@ -542,48 +490,41 @@ on_bus_acquired(GDBusConnection *connection,
 
     sensor_enabled(manager, sensor, i++, self);
   }
-  g_signal_connect(manager, "sensor-enabled",
-                   G_CALLBACK(sensor_enabled), self);
-  g_signal_connect(manager, "sensor-disabled",
-                   G_CALLBACK(sensor_disabled), self);
+  g_slist_free_full(sensors, g_object_unref);
+  g_signal_connect(manager, "sensor-enabled", G_CALLBACK(sensor_enabled), self);
+  g_signal_connect(manager, "sensor-disabled", G_CALLBACK(sensor_disabled),
+                   self);
   g_signal_connect(manager, "sensor-position-changed",
                    G_CALLBACK(sensor_position_changed), self);
   /* Export all objects */
-  g_dbus_object_manager_server_set_connection(priv->sensors_object_manager, connection);
+  g_dbus_object_manager_server_set_connection(priv->sensors_object_manager,
+                                              connection);
 }
 
 static void
-on_name_acquired(GDBusConnection *connection,
-                 const gchar     *name,
-                 gpointer         user_data)
+on_name_acquired(GDBusConnection *connection, const gchar *name,
+                 gpointer user_data)
 {
   is_debug("dbus-plugin", "Acquired the name %s\n", name);
 }
 
 static void
-on_name_lost(GDBusConnection *connection,
-             const gchar     *name,
-             gpointer         user_data)
+on_name_lost(GDBusConnection *connection, const gchar *name, gpointer user_data)
 {
   is_debug("dbus-plugin", "Lost the name %s\n", name);
 }
 
 static void
-is_dbus_plugin_activate(PeasActivatable *activatable)
+is_dbus_plugin_activate(IsActivatable *activatable)
 {
   IsDBusPlugin *self = IS_DBUS_PLUGIN(activatable);
-  IsDBusPluginPrivate *priv = self->priv;
+  IsDBusPluginPrivate *priv = is_dbus_plugin_get_instance_private(self);
 
   /* get our dbus name */
-  priv->id = g_bus_own_name(G_BUS_TYPE_SESSION,
-                            "com.github.alexmurray.IndicatorSensors",
-                            G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
-                            G_BUS_NAME_OWNER_FLAGS_REPLACE,
-                            on_bus_acquired,
-                            on_name_acquired,
-                            on_name_lost,
-                            self,
-                            NULL);
+  priv->id = g_bus_own_name(
+      G_BUS_TYPE_SESSION, "com.github.alexmurray.IndicatorSensors",
+      G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT | G_BUS_NAME_OWNER_FLAGS_REPLACE,
+      on_bus_acquired, on_name_acquired, on_name_lost, self, NULL);
   /* connect to sensors enabled / disabled signals and export them over
    * dbus - also iterate through any existing enabled sensors and export
    * those as well */
@@ -592,10 +533,10 @@ is_dbus_plugin_activate(PeasActivatable *activatable)
 }
 
 static void
-is_dbus_plugin_deactivate(PeasActivatable *activatable)
+is_dbus_plugin_deactivate(IsActivatable *activatable)
 {
   IsDBusPlugin *self = IS_DBUS_PLUGIN(activatable);
-  IsDBusPluginPrivate *priv = self->priv;
+  IsDBusPluginPrivate *priv = is_dbus_plugin_get_instance_private(self);
 
   /* teardown dbus object manager */
 
@@ -608,13 +549,12 @@ is_dbus_plugin_class_init(IsDBusPluginClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  g_type_class_add_private(klass, sizeof(IsDBusPluginPrivate));
-
   gobject_class->get_property = is_dbus_plugin_get_property;
   gobject_class->set_property = is_dbus_plugin_set_property;
   gobject_class->finalize = is_dbus_plugin_finalize;
 
-  g_object_class_override_property(gobject_class, PROP_OBJECT, "object");
+  g_object_class_override_property(gobject_class, PROP_APPLICATION,
+                                   "application");
 
   /* do interface introspection data */
   introspection_data = g_dbus_node_info_new_for_xml(introspection_xml, NULL);
@@ -622,7 +562,7 @@ is_dbus_plugin_class_init(IsDBusPluginClass *klass)
 }
 
 static void
-peas_activatable_iface_init(PeasActivatableInterface *iface)
+is_activatable_iface_init(IsActivatableInterface *iface)
 {
   iface->activate = is_dbus_plugin_activate;
   iface->deactivate = is_dbus_plugin_deactivate;
@@ -639,7 +579,6 @@ peas_register_types(PeasObjectModule *module)
 {
   is_dbus_plugin_register_type(G_TYPE_MODULE(module));
 
-  peas_object_module_register_extension_type(module,
-                                             PEAS_TYPE_ACTIVATABLE,
+  peas_object_module_register_extension_type(module, IS_TYPE_ACTIVATABLE,
                                              IS_TYPE_DBUS_PLUGIN);
 }

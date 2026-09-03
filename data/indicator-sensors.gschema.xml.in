@@ -2,34 +2,29 @@
   <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.indicator" path="/apps/indicator-sensors/indicator/">
     <key type="s" name="primary-sensor">
       <default>""</default>
-      <_summary>Primary sensor to display</_summary>
-      <_description>The primary sensor to display in the indicator, identified by it’s path.</_description>
+      <summary>Primary sensor to display</summary>
+      <description>The primary sensor to display in the indicator, identified by it’s path.</description>
     </key>
     <!-- consider making this an enum -->
     <key type="i" name="display-flags">
       <default>7</default>
-      <_summary>Display flags for the indicator</_summary>
-      <_description>The elements used to display the primary sensor within the indicator.</_description>
+      <summary>Display flags for the indicator</summary>
+      <description>The elements used to display the primary sensor within the indicator.</description>
     </key>
   </schema>
   <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.manager" path="/apps/indicator-sensors/manager/">
     <key type="as" name="enabled-sensors">
       <default>[]</default>
-      <_summary>Enabled sensors</_summary>
-      <_description>The list of enabled sensors to monitor, each identified by it’s path.</_description>
+      <summary>Enabled sensors</summary>
+      <description>The list of enabled sensors to monitor, each identified by it’s path.</description>
     </key>
   </schema>
   <schema gettext-domain="@GETTEXT_PACKAGE@" id="indicator-sensors.application" path="/apps/indicator-sensors/application/">
     <!-- consider making this an enum -->
     <key type="i" name="temperature-scale">
       <default>1</default>
-      <_summary>Temperature scale</_summary>
-      <_description>The temperature scale to display temperature sensor values.</_description>
-    </key>
-    <key type="b" name="show-indicator">
-      <default>true</default>
-      <_summary>Show indicator</_summary>
-      <_description>Whether to show the indicator in the notification area.</_description>
+      <summary>Temperature scale</summary>
+      <description>The temperature scale to display temperature sensor values.</description>
     </key>
   </schema>
 </schemalist>

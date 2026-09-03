@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,33 +21,21 @@
 #include <glib-object.h>
 #include <gtk/gtk.h>
 
-
 G_BEGIN_DECLS
 
-#define IS_TYPE_SENSOR        \
-  (is_sensor_get_type())
-#define IS_SENSOR(obj)          \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj),    \
-                              IS_TYPE_SENSOR, \
-                              IsSensor))
-#define IS_SENSOR_CLASS(klass)        \
-  (G_TYPE_CHECK_CLASS_CAST((klass),   \
-                           IS_TYPE_SENSOR,  \
-                           IsSensorClass))
-#define IS_IS_SENSOR(obj)       \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj),    \
-                              IS_TYPE_SENSOR))
-#define IS_IS_SENSOR_CLASS(klass)     \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),   \
-                           IS_TYPE_SENSOR))
-#define IS_SENSOR_GET_CLASS(obj)      \
-  (G_TYPE_INSTANCE_GET_CLASS((obj),   \
-                             IS_TYPE_SENSOR,  \
-                             IsSensorClass))
+#define IS_TYPE_SENSOR (is_sensor_get_type())
+#define IS_SENSOR(obj)                                                         \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), IS_TYPE_SENSOR, IsSensor))
+#define IS_SENSOR_CLASS(klass)                                                 \
+  (G_TYPE_CHECK_CLASS_CAST((klass), IS_TYPE_SENSOR, IsSensorClass))
+#define IS_IS_SENSOR(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), IS_TYPE_SENSOR))
+#define IS_IS_SENSOR_CLASS(klass)                                              \
+  (G_TYPE_CHECK_CLASS_TYPE((klass), IS_TYPE_SENSOR))
+#define IS_SENSOR_GET_CLASS(obj)                                               \
+  (G_TYPE_INSTANCE_GET_CLASS((obj), IS_TYPE_SENSOR, IsSensorClass))
 
-typedef struct _IsSensor      IsSensor;
+typedef struct _IsSensor IsSensor;
 typedef struct _IsSensorClass IsSensorClass;
-typedef struct _IsSensorPrivate IsSensorPrivate;
 
 struct _IsSensorClass
 {
@@ -59,7 +47,6 @@ struct _IsSensorClass
 struct _IsSensor
 {
   GObject parent;
-  IsSensorPrivate *priv;
 };
 
 typedef enum

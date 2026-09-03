@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,45 +18,36 @@
 #ifndef __IS_LIBSENSORS_PLUGIN_H__
 #define __IS_LIBSENSORS_PLUGIN_H__
 
-#include <libpeas/peas.h>
-
+#include <libpeas.h>
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_LIBSENSORS_PLUGIN   \
-  (is_libsensors_plugin_get_type())
-#define IS_LIBSENSORS_PLUGIN(obj)       \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
-                              IS_TYPE_LIBSENSORS_PLUGIN,  \
+#define IS_TYPE_LIBSENSORS_PLUGIN (is_libsensors_plugin_get_type())
+#define IS_LIBSENSORS_PLUGIN(obj)                                              \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), IS_TYPE_LIBSENSORS_PLUGIN,                \
                               IsLibsensorsPlugin))
-#define IS_LIBSENSORS_PLUGIN_CLASS(klass)     \
-  (G_TYPE_CHECK_CLASS_CAST((klass),     \
-                           IS_TYPE_LIBSENSORS_PLUGIN, \
+#define IS_LIBSENSORS_PLUGIN_CLASS(klass)                                      \
+  (G_TYPE_CHECK_CLASS_CAST((klass), IS_TYPE_LIBSENSORS_PLUGIN,                 \
                            IsLibsensorsPluginClass))
-#define IS_IS_LIBSENSORS_PLUGIN(obj)        \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj),      \
-                              IS_TYPE_LIBSENSORS_PLUGIN))
-#define IS_IS_LIBSENSORS_PLUGIN_CLASS(klass)      \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
-                           IS_TYPE_LIBSENSORS_PLUGIN))
-#define IS_LIBSENSORS_PLUGIN_GET_CLASS(obj)     \
-  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
-                             IS_TYPE_LIBSENSORS_PLUGIN, \
+#define IS_IS_LIBSENSORS_PLUGIN(obj)                                           \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj), IS_TYPE_LIBSENSORS_PLUGIN))
+#define IS_IS_LIBSENSORS_PLUGIN_CLASS(klass)                                   \
+  (G_TYPE_CHECK_CLASS_TYPE((klass), IS_TYPE_LIBSENSORS_PLUGIN))
+#define IS_LIBSENSORS_PLUGIN_GET_CLASS(obj)                                    \
+  (G_TYPE_INSTANCE_GET_CLASS((obj), IS_TYPE_LIBSENSORS_PLUGIN,                 \
                              IsLibsensorsPluginClass))
 
-typedef struct _IsLibsensorsPlugin      IsLibsensorsPlugin;
+typedef struct _IsLibsensorsPlugin IsLibsensorsPlugin;
 typedef struct _IsLibsensorsPluginClass IsLibsensorsPluginClass;
-typedef struct _IsLibsensorsPluginPrivate IsLibsensorsPluginPrivate;
 
 struct _IsLibsensorsPluginClass
 {
-  PeasExtensionBaseClass parent_class;
+  GObjectClass parent_class;
 };
 
 struct _IsLibsensorsPlugin
 {
-  PeasExtensionBase parent;
-  IsLibsensorsPluginPrivate *priv;
+  GObject parent;
 };
 
 GType is_libsensors_plugin_get_type(void) G_GNUC_CONST;

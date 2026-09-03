@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,36 +18,25 @@
 #ifndef __IS_STORE_H__
 #define __IS_STORE_H__
 
+#include "is-sensor.h"
 #include <glib-object.h>
 #include <gtk/gtk.h>
-#include "is-sensor.h"
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_STORE       \
-  (is_store_get_type())
-#define IS_STORE(obj)         \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj),    \
-                              IS_TYPE_STORE,  \
-                              IsStore))
-#define IS_STORE_CLASS(klass)     \
-  (G_TYPE_CHECK_CLASS_CAST((klass), \
-                           IS_TYPE_STORE, \
-                           IsStoreClass))
-#define IS_IS_STORE(obj)        \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj),    \
-                              IS_TYPE_STORE))
-#define IS_IS_STORE_CLASS(klass)      \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),   \
-                           IS_TYPE_STORE))
-#define IS_STORE_GET_CLASS(obj)       \
-  (G_TYPE_INSTANCE_GET_CLASS((obj),   \
-                             IS_TYPE_STORE, \
-                             IsStoreClass))
+#define IS_TYPE_STORE (is_store_get_type())
+#define IS_STORE(obj)                                                          \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), IS_TYPE_STORE, IsStore))
+#define IS_STORE_CLASS(klass)                                                  \
+  (G_TYPE_CHECK_CLASS_CAST((klass), IS_TYPE_STORE, IsStoreClass))
+#define IS_IS_STORE(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), IS_TYPE_STORE))
+#define IS_IS_STORE_CLASS(klass)                                               \
+  (G_TYPE_CHECK_CLASS_TYPE((klass), IS_TYPE_STORE))
+#define IS_STORE_GET_CLASS(obj)                                                \
+  (G_TYPE_INSTANCE_GET_CLASS((obj), IS_TYPE_STORE, IsStoreClass))
 
-typedef struct _IsStore      IsStore;
+typedef struct _IsStore IsStore;
 typedef struct _IsStoreClass IsStoreClass;
-typedef struct _IsStorePrivate IsStorePrivate;
 
 struct _IsStoreClass
 {
@@ -57,7 +46,6 @@ struct _IsStoreClass
 struct _IsStore
 {
   GObject parent;
-  IsStorePrivate *priv;
 };
 
 enum
@@ -73,26 +61,17 @@ enum
 
 GType is_store_get_type(void) G_GNUC_CONST;
 IsStore *is_store_new(void);
-gboolean is_store_add_sensor(IsStore *self,
-                             IsSensor *sensor,
+gboolean is_store_add_sensor(IsStore *self, IsSensor *sensor,
                              GtkTreeIter *iter);
-gboolean is_store_remove(IsStore *self,
-                         GtkTreeIter *iter);
-gboolean is_store_remove_path(IsStore *self,
-                              const gchar *path);
-gboolean is_store_set_label(IsStore *self,
-                            GtkTreeIter *iter,
+gboolean is_store_remove(IsStore *self, GtkTreeIter *iter);
+gboolean is_store_remove_path(IsStore *self, const gchar *path);
+gboolean is_store_set_label(IsStore *self, GtkTreeIter *iter,
                             const gchar *label);
-gboolean is_store_set_enabled(IsStore *self,
-                              GtkTreeIter *iter,
+gboolean is_store_set_enabled(IsStore *self, GtkTreeIter *iter,
                               gboolean enabled);
-gboolean is_store_get_iter(IsStore *self,
-                           const gchar *path,
-                           GtkTreeIter *iter);
-#define is_store_get_iter_for_sensor(self, sensor, iter) \
-  is_store_get_iter(self,       \
-                    is_sensor_get_path(sensor), \
-                    iter)
+gboolean is_store_get_iter(IsStore *self, const gchar *path, GtkTreeIter *iter);
+#define is_store_get_iter_for_sensor(self, sensor, iter)                       \
+  is_store_get_iter(self, is_sensor_get_path(sensor), iter)
 G_END_DECLS
 
 #endif /* __IS_STORE_H__ */

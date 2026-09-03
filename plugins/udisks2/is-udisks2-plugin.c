@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,93 +20,87 @@
 #endif
 
 #include "is-udisks2-plugin.h"
-#include <indicator-sensors/is-log.h>
-#include <indicator-sensors/is-application.h>
-#include <indicator-sensors/is-temperature-sensor.h>
-#include <udisks/udisks.h>
 #include <gio/gio.h>
 #include <glib/gi18n.h>
+#include <indicator-sensors/is-activatable.h>
+#include <indicator-sensors/is-application.h>
+#include <indicator-sensors/is-log.h>
+#include <indicator-sensors/is-temperature-sensor.h>
 #include <math.h>
+#include <udisks/udisks.h>
 
 #define UDISKS2_PATH_PREFIX "udisks2"
 
-static void peas_activatable_iface_init(PeasActivatableInterface *iface);
-
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsUDisks2Plugin,
-                               is_udisks2_plugin,
-                               PEAS_TYPE_EXTENSION_BASE,
-                               0,
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(PEAS_TYPE_ACTIVATABLE,
-                                   peas_activatable_iface_init));
-
-enum
-{
-  PROP_OBJECT = 1,
-};
-
-struct _IsUDisks2PluginPrivate
+typedef struct _IsUDisks2PluginPrivate
 {
   IsApplication *application;
   UDisksClient *client;
   GHashTable *sensors;
+} IsUDisks2PluginPrivate;
+
+static void is_activatable_iface_init(IsActivatableInterface *iface);
+
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(
+    IsUDisks2Plugin, is_udisks2_plugin, G_TYPE_OBJECT, 0,
+    G_ADD_PRIVATE_DYNAMIC(IsUDisks2Plugin)
+        G_IMPLEMENT_INTERFACE_DYNAMIC(IS_TYPE_ACTIVATABLE,
+                                      is_activatable_iface_init));
+
+enum
+{
+  PROP_APPLICATION = 1,
 };
 
 static void is_udisks2_plugin_finalize(GObject *object);
 
 static void
-is_udisks2_plugin_set_property(GObject *object,
-                               guint prop_id,
-                               const GValue *value,
-                               GParamSpec *pspec)
+is_udisks2_plugin_set_property(GObject *object, guint prop_id,
+                               const GValue *value, GParamSpec *pspec)
 {
   IsUDisks2Plugin *plugin = IS_UDISKS2_PLUGIN(object);
+  IsUDisks2PluginPrivate *priv = is_udisks2_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      plugin->priv->application = IS_APPLICATION(g_value_dup_object(value));
-      break;
+  case PROP_APPLICATION:
+    priv->application = IS_APPLICATION(g_value_dup_object(value));
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
-is_udisks2_plugin_get_property(GObject *object,
-                               guint prop_id,
-                               GValue *value,
+is_udisks2_plugin_get_property(GObject *object, guint prop_id, GValue *value,
                                GParamSpec *pspec)
 {
   IsUDisks2Plugin *plugin = IS_UDISKS2_PLUGIN(object);
+  IsUDisks2PluginPrivate *priv = is_udisks2_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      g_value_set_object(value, plugin->priv->application);
-      break;
+  case PROP_APPLICATION:
+    g_value_set_object(value, priv->application);
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
 is_udisks2_plugin_init(IsUDisks2Plugin *self)
 {
-  IsUDisks2PluginPrivate *priv =
-    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_UDISKS2_PLUGIN,
-                                IsUDisks2PluginPrivate);
-  self->priv = priv;
 }
 
 static void
 is_udisks2_plugin_finalize(GObject *object)
 {
   IsUDisks2Plugin *self = (IsUDisks2Plugin *)object;
-  IsUDisks2PluginPrivate *priv = self->priv;
+  IsUDisks2PluginPrivate *priv = is_udisks2_plugin_get_instance_private(self);
 
   if (priv->application)
   {
@@ -117,9 +111,7 @@ is_udisks2_plugin_finalize(GObject *object)
 }
 
 static void
-smart_update_ready_cb(GObject *source,
-                      GAsyncResult *res,
-                      gpointer data)
+smart_update_ready_cb(GObject *source, GAsyncResult *res, gpointer data)
 {
   UDisksDriveAta *drive = UDISKS_DRIVE_ATA(source);
   IsTemperatureSensor *sensor = IS_TEMPERATURE_SENSOR(data);
@@ -130,8 +122,7 @@ smart_update_ready_cb(GObject *source,
   ret = udisks_drive_ata_call_smart_update_finish(drive, res, &error);
   if (!ret)
   {
-    g_prefix_error(&error,
-                   _("Error reading new SMART data for sensor %s"),
+    g_prefix_error(&error, _("Error reading new SMART data for sensor %s"),
                    is_sensor_get_path(IS_SENSOR(sensor)));
     is_sensor_set_error(IS_SENSOR(sensor), error->message);
     g_error_free(error);
@@ -142,7 +133,7 @@ smart_update_ready_cb(GObject *source,
   temp_k = udisks_drive_ata_get_smart_temperature(drive);
   /* convert to celsius and set if is non-zero */
   if (fabs(temp_k) > DBL_EPSILON)
-    is_temperature_sensor_set_celsius_value(sensor,  temp_k - 273.15);
+    is_temperature_sensor_set_celsius_value(sensor, temp_k - 273.15);
   is_sensor_set_error(IS_SENSOR(sensor), NULL);
 
 out:
@@ -150,9 +141,7 @@ out:
 }
 
 static void
-pm_get_state_ready_cb(GObject *source,
-                      GAsyncResult *res,
-                      gpointer data)
+pm_get_state_ready_cb(GObject *source, GAsyncResult *res, gpointer data)
 {
   UDisksDriveAta *drive = UDISKS_DRIVE_ATA(source);
   IsTemperatureSensor *sensor = IS_TEMPERATURE_SENSOR(data);
@@ -183,14 +172,12 @@ pm_get_state_ready_cb(GObject *source,
   }
 
   is_debug("udisks2", "pm_get_state doing smart update");
-  udisks_drive_ata_call_smart_update(drive,
-                                     /* try not to wakeup disk if is spun
-                                        down */
-                                     g_variant_new_parsed("{'nowakeup': %v}",
-                                         g_variant_new_boolean(TRUE)),
-                                     NULL,
-                                     smart_update_ready_cb,
-                                     sensor);
+  udisks_drive_ata_call_smart_update(
+      drive,
+      /* try not to wakeup disk if is spun
+         down */
+      g_variant_new_parsed("{'nowakeup': %v}", g_variant_new_boolean(TRUE)),
+      NULL, smart_update_ready_cb, sensor);
   is_sensor_set_error(IS_SENSOR(sensor), NULL);
 
 out:
@@ -198,19 +185,19 @@ out:
 }
 
 static void
-update_sensor_value(IsTemperatureSensor *sensor,
-                    IsUDisks2Plugin *self)
+update_sensor_value(IsTemperatureSensor *sensor, IsUDisks2Plugin *self)
 {
+  IsUDisks2PluginPrivate *priv = is_udisks2_plugin_get_instance_private(self);
   GDBusObjectManager *manager;
   gchar *path = NULL;
   GDBusObject *object;
   UDisksDriveAta *drive = NULL;
 
-  manager = udisks_client_get_object_manager(self->priv->client);
+  manager = udisks_client_get_object_manager(priv->client);
   path = g_strdup_printf("/org/freedesktop/UDisks2/drives/%s",
                          /* get id to find on bus as character past / */
-                         g_strrstr(is_sensor_get_path(IS_SENSOR(sensor)),
-                                   "/") + 1);
+                         g_strrstr(is_sensor_get_path(IS_SENSOR(sensor)), "/") +
+                             1);
   object = g_dbus_object_manager_get_object(manager, path);
   if (!object)
   {
@@ -219,11 +206,8 @@ update_sensor_value(IsTemperatureSensor *sensor,
   }
 
   g_object_get(object, "drive-ata", &drive, NULL);
-  udisks_drive_ata_call_pm_get_state(drive,
-                                     g_variant_new("a{sv}", NULL),
-                                     NULL,
-                                     pm_get_state_ready_cb,
-                                     sensor);
+  udisks_drive_ata_call_pm_get_state(drive, g_variant_new("a{sv}", NULL), NULL,
+                                     pm_get_state_ready_cb, sensor);
 out:
   g_clear_object(&drive);
   g_clear_object(&object);
@@ -232,16 +216,17 @@ out:
 }
 
 static void
-object_removed_cb(GDBusObjectManager *obj_manager,
-                  GDBusObject *object,
+object_removed_cb(GDBusObjectManager *obj_manager, GDBusObject *object,
                   gpointer data)
 {
   IsUDisks2Plugin *self;
+  IsUDisks2PluginPrivate *priv;
   IsManager *manager;
   const gchar *id;
   gchar *path = NULL;
 
   self = IS_UDISKS2_PLUGIN(data);
+  priv = is_udisks2_plugin_get_instance_private(self);
 
   id = g_dbus_object_get_object_path(object);
   /* ignore if is not a drive */
@@ -252,7 +237,7 @@ object_removed_cb(GDBusObjectManager *obj_manager,
 
   id = g_strrstr(id, "/") + 1;
   path = g_strdup_printf(UDISKS2_PATH_PREFIX "/%s", id);
-  manager = is_application_get_manager(self->priv->application);
+  manager = is_application_get_manager(priv->application);
   is_debug("udisks2", "Removing sensor %s as drive removed", id);
   is_manager_remove_path(manager, path);
 
@@ -261,11 +246,10 @@ out:
 }
 
 static void
-object_added_cb(GDBusObjectManager *manager,
-                GDBusObject *object,
-                gpointer data)
+object_added_cb(GDBusObjectManager *manager, GDBusObject *object, gpointer data)
 {
   IsUDisks2Plugin *self;
+  IsUDisks2PluginPrivate *priv;
   UDisksDrive *drive = NULL;
   UDisksDriveAta *ata_drive = NULL;
   const gchar *id;
@@ -273,6 +257,7 @@ object_added_cb(GDBusObjectManager *manager,
   IsSensor *sensor;
 
   self = IS_UDISKS2_PLUGIN(data);
+  priv = is_udisks2_plugin_get_instance_private(self);
 
   id = g_dbus_object_get_object_path(object);
   /* ignore if is not a drive */
@@ -280,14 +265,11 @@ object_added_cb(GDBusObjectManager *manager,
   {
     goto out;
   }
-  g_object_get(object,
-               "drive", &drive,
-               "drive-ata", &ata_drive,
-               NULL);
-  if (!drive || !ata_drive ||
-      !udisks_drive_ata_get_smart_enabled(ata_drive))
+  g_object_get(object, "drive", &drive, "drive-ata", &ata_drive, NULL);
+  if (!drive || !ata_drive || !udisks_drive_ata_get_smart_enabled(ata_drive))
   {
-    is_debug("udisks2", "Ignoring drive at path %s as not ATA / SMART enabled\n", id);
+    is_debug("udisks2",
+             "Ignoring drive at path %s as not ATA / SMART enabled\n", id);
     goto out;
   }
 
@@ -299,11 +281,10 @@ object_added_cb(GDBusObjectManager *manager,
   is_sensor_set_icon(sensor, IS_STOCK_DISK);
   /* only update every minute to avoid waking disk too much */
   is_sensor_set_update_interval(sensor, 60);
-  g_signal_connect(sensor, "update-value",
-                   G_CALLBACK(update_sensor_value), self);
+  g_signal_connect(sensor, "update-value", G_CALLBACK(update_sensor_value),
+                   self);
   is_debug("udisks2", "Adding sensor %s as drive added", id);
-  is_manager_add_sensor(is_application_get_manager(self->priv->application),
-                        sensor);
+  is_manager_add_sensor(is_application_get_manager(priv->application), sensor);
 
 out:
   g_free(path);
@@ -312,12 +293,11 @@ out:
 }
 
 static void
-is_udisks2_plugin_client_ready_cb(GObject *source,
-                                  GAsyncResult *res,
+is_udisks2_plugin_client_ready_cb(GObject *source, GAsyncResult *res,
                                   gpointer data)
 {
   IsUDisks2Plugin *self = IS_UDISKS2_PLUGIN(data);
-  IsUDisks2PluginPrivate *priv = self->priv;
+  IsUDisks2PluginPrivate *priv = is_udisks2_plugin_get_instance_private(self);
   GError *error = NULL;
   GDBusObjectManager *manager;
   GList *objects, *_list;
@@ -346,31 +326,28 @@ is_udisks2_plugin_client_ready_cb(GObject *source,
   }
   g_list_free(objects);
 
-  g_signal_connect(manager, "object-added",
-                   G_CALLBACK(object_added_cb), self);
-  g_signal_connect(manager, "object-removed",
-                   G_CALLBACK(object_removed_cb), self);
+  g_signal_connect(manager, "object-added", G_CALLBACK(object_added_cb), self);
+  g_signal_connect(manager, "object-removed", G_CALLBACK(object_removed_cb),
+                   self);
 
 out:
   return;
 }
 
 static void
-is_udisks2_plugin_activate(PeasActivatable *activatable)
+is_udisks2_plugin_activate(IsActivatable *activatable)
 {
   IsUDisks2Plugin *self = IS_UDISKS2_PLUGIN(activatable);
 
   is_debug("udisks2", "Trying to get udisks client");
-  udisks_client_new(NULL,
-                    is_udisks2_plugin_client_ready_cb,
-                    self);
+  udisks_client_new(NULL, is_udisks2_plugin_client_ready_cb, self);
 }
 
 static void
-is_udisks2_plugin_deactivate(PeasActivatable *activatable)
+is_udisks2_plugin_deactivate(IsActivatable *activatable)
 {
   IsUDisks2Plugin *self = IS_UDISKS2_PLUGIN(activatable);
-  IsUDisks2PluginPrivate *priv = self->priv;
+  IsUDisks2PluginPrivate *priv = is_udisks2_plugin_get_instance_private(self);
   IsManager *manager;
 
   if (priv->client)
@@ -386,17 +363,16 @@ is_udisks2_plugin_class_init(IsUDisks2PluginClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  g_type_class_add_private(klass, sizeof(IsUDisks2PluginPrivate));
-
   gobject_class->get_property = is_udisks2_plugin_get_property;
   gobject_class->set_property = is_udisks2_plugin_set_property;
   gobject_class->finalize = is_udisks2_plugin_finalize;
 
-  g_object_class_override_property(gobject_class, PROP_OBJECT, "object");
+  g_object_class_override_property(gobject_class, PROP_APPLICATION,
+                                   "application");
 }
 
 static void
-peas_activatable_iface_init(PeasActivatableInterface *iface)
+is_activatable_iface_init(IsActivatableInterface *iface)
 {
   iface->activate = is_udisks2_plugin_activate;
   iface->deactivate = is_udisks2_plugin_deactivate;
@@ -413,7 +389,6 @@ peas_register_types(PeasObjectModule *module)
 {
   is_udisks2_plugin_register_type(G_TYPE_MODULE(module));
 
-  peas_object_module_register_extension_type(module,
-      PEAS_TYPE_ACTIVATABLE,
-      IS_TYPE_UDISKS2_PLUGIN);
+  peas_object_module_register_extension_type(module, IS_TYPE_ACTIVATABLE,
+                                             IS_TYPE_UDISKS2_PLUGIN);
 }

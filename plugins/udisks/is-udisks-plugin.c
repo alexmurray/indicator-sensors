@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,102 +15,94 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "is-udisks-plugin.h"
-#include <indicator-sensors/is-log.h>
-#include <indicator-sensors/is-application.h>
-#include <indicator-sensors/is-temperature-sensor.h>
 #include <atasmart.h>
 #include <gio/gio.h>
 #include <glib/gi18n.h>
+#include <indicator-sensors/is-activatable.h>
+#include <indicator-sensors/is-application.h>
+#include <indicator-sensors/is-log.h>
+#include <indicator-sensors/is-temperature-sensor.h>
 
-#define UDISKS_BUS_NAME              "org.freedesktop.UDisks"
-#define UDISKS_INTERFACE_NAME        "org.freedesktop.UDisks"
-#define UDISKS_OBJECT_PATH           "/org/freedesktop/UDisks"
+#define UDISKS_BUS_NAME "org.freedesktop.UDisks"
+#define UDISKS_INTERFACE_NAME "org.freedesktop.UDisks"
+#define UDISKS_OBJECT_PATH "/org/freedesktop/UDisks"
 #define UDISKS_DEVICE_INTERFACE_NAME "org.freedesktop.UDisks.Device"
 
 #define UDISKS_PATH_PREFIX "udisks"
 
-static void peas_activatable_iface_init(PeasActivatableInterface *iface);
-
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsUdisksPlugin,
-                               is_udisks_plugin,
-                               PEAS_TYPE_EXTENSION_BASE,
-                               0,
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(PEAS_TYPE_ACTIVATABLE,
-                                   peas_activatable_iface_init));
-
-enum
-{
-  PROP_OBJECT = 1,
-};
-
-struct _IsUdisksPluginPrivate
+typedef struct _IsUdisksPluginPrivate
 {
   IsApplication *application;
   GHashTable *sensors;
   GDBusConnection *connection;
+} IsUdisksPluginPrivate;
+
+static void is_activatable_iface_init(IsActivatableInterface *iface);
+
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(
+    IsUdisksPlugin, is_udisks_plugin, G_TYPE_OBJECT, 0,
+    G_ADD_PRIVATE_DYNAMIC(IsUdisksPlugin)
+        G_IMPLEMENT_INTERFACE_DYNAMIC(IS_TYPE_ACTIVATABLE,
+                                      is_activatable_iface_init));
+
+enum
+{
+  PROP_APPLICATION = 1,
 };
 
 static void is_udisks_plugin_finalize(GObject *object);
 
 static void
-is_udisks_plugin_set_property(GObject *object,
-                              guint prop_id,
-                              const GValue *value,
-                              GParamSpec *pspec)
+is_udisks_plugin_set_property(GObject *object, guint prop_id,
+                              const GValue *value, GParamSpec *pspec)
 {
   IsUdisksPlugin *plugin = IS_UDISKS_PLUGIN(object);
+  IsUdisksPluginPrivate *priv = is_udisks_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      plugin->priv->application = IS_APPLICATION(g_value_dup_object(value));
-      break;
+  case PROP_APPLICATION:
+    priv->application = IS_APPLICATION(g_value_dup_object(value));
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
-is_udisks_plugin_get_property(GObject *object,
-                              guint prop_id,
-                              GValue *value,
+is_udisks_plugin_get_property(GObject *object, guint prop_id, GValue *value,
                               GParamSpec *pspec)
 {
   IsUdisksPlugin *plugin = IS_UDISKS_PLUGIN(object);
+  IsUdisksPluginPrivate *priv = is_udisks_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      g_value_set_object(value, plugin->priv->application);
-      break;
+  case PROP_APPLICATION:
+    g_value_set_object(value, priv->application);
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
 is_udisks_plugin_init(IsUdisksPlugin *self)
 {
-  IsUdisksPluginPrivate *priv =
-    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_UDISKS_PLUGIN,
-                                IsUdisksPluginPrivate);
-  self->priv = priv;
 }
 
 static void
 is_udisks_plugin_finalize(GObject *object)
 {
   IsUdisksPlugin *self = (IsUdisksPlugin *)object;
-  IsUdisksPluginPrivate *priv = self->priv;
+  IsUdisksPluginPrivate *priv = is_udisks_plugin_get_instance_private(self);
 
   if (priv->application)
   {
@@ -121,8 +113,7 @@ is_udisks_plugin_finalize(GObject *object)
 }
 
 static void
-update_sensor_value(IsTemperatureSensor *sensor,
-                    IsUdisksPlugin *self)
+update_sensor_value(IsTemperatureSensor *sensor, IsUdisksPlugin *self)
 
 {
   IsUdisksPluginPrivate *priv;
@@ -135,26 +126,21 @@ update_sensor_value(IsTemperatureSensor *sensor,
   gsize len;
   guint64 temperature;
   gdouble value;
-  const gchar * const options[] = { "nowakeup", NULL };
+  const gchar *const options[] = {"nowakeup", NULL};
 
-  priv = self->priv;
+  priv = is_udisks_plugin_get_instance_private(self);
 
   device = g_path_get_basename(is_sensor_get_path(IS_SENSOR(sensor)));
   path = g_strdup_printf("%s/devices/%s", UDISKS_OBJECT_PATH, device);
-  proxy = g_dbus_proxy_new_sync(priv->connection,
-                                G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS,
-                                NULL,
-                                UDISKS_BUS_NAME,
-                                path,
-                                UDISKS_DEVICE_INTERFACE_NAME,
-                                NULL, &error);
+  proxy = g_dbus_proxy_new_sync(
+      priv->connection, G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS, NULL,
+      UDISKS_BUS_NAME, path, UDISKS_DEVICE_INTERFACE_NAME, NULL, &error);
   g_free(path);
   g_free(device);
 
   if (!proxy)
   {
-    g_prefix_error(&error,
-                   _("Error reading new SMART data for sensor %s"),
+    g_prefix_error(&error, _("Error reading new SMART data for sensor %s"),
                    is_sensor_get_path(IS_SENSOR(sensor)));
     is_sensor_set_error(IS_SENSOR(sensor), error->message);
     g_error_free(error);
@@ -165,12 +151,10 @@ update_sensor_value(IsTemperatureSensor *sensor,
   var = g_variant_new_strv(options, 0);
   var = g_dbus_proxy_call_sync(proxy, "DriveAtaSmartRefreshData",
                                g_variant_new_tuple(&var, 1),
-                               G_DBUS_CALL_FLAGS_NONE,
-                               -1, NULL, &error);
+                               G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
   if (!var)
   {
-    g_prefix_error(&error,
-                   _("Error refreshing SMART data for sensor %s"),
+    g_prefix_error(&error, _("Error refreshing SMART data for sensor %s"),
                    is_sensor_get_path(IS_SENSOR(sensor)));
     is_sensor_set_error(IS_SENSOR(sensor), error->message);
     g_error_free(error);
@@ -179,8 +163,7 @@ update_sensor_value(IsTemperatureSensor *sensor,
   }
   g_variant_unref(var);
 
-  var = g_dbus_proxy_get_cached_property(proxy,
-                                         "DriveAtaSmartBlob");
+  var = g_dbus_proxy_get_cached_property(proxy, "DriveAtaSmartBlob");
   if (!var)
   {
     is_debug("udisks", "unable to get atasmartblob for sensor %s",
@@ -203,7 +186,8 @@ update_sensor_value(IsTemperatureSensor *sensor,
   sk_disk_set_blob(sk_disk, blob, len);
   if (sk_disk_smart_get_temperature(sk_disk, &temperature) < 0)
   {
-    is_debug("udisks", "Error getting temperature from AtaSmartBlob for sensor %s",
+    is_debug("udisks",
+             "Error getting temperature from AtaSmartBlob for sensor %s",
              is_sensor_get_path(IS_SENSOR(sensor)));
     sk_disk_free(sk_disk);
     g_variant_unref(var);
@@ -225,10 +209,10 @@ out:
 }
 
 static void
-is_udisks_plugin_activate(PeasActivatable *activatable)
+is_udisks_plugin_activate(IsActivatable *activatable)
 {
   IsUdisksPlugin *self = IS_UDISKS_PLUGIN(activatable);
-  IsUdisksPluginPrivate *priv = self->priv;
+  IsUdisksPluginPrivate *priv = is_udisks_plugin_get_instance_private(self);
   GDBusProxy *proxy;
   GError *error = NULL;
   GVariant *container, *paths;
@@ -249,13 +233,10 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
    */
   proxy = g_dbus_proxy_new_sync(priv->connection,
                                 G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES |
-                                G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS,
+                                    G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS,
 
-                                NULL,
-                                UDISKS_BUS_NAME,
-                                UDISKS_OBJECT_PATH,
-                                UDISKS_INTERFACE_NAME,
-                                NULL, &error);
+                                NULL, UDISKS_BUS_NAME, UDISKS_OBJECT_PATH,
+                                UDISKS_INTERFACE_NAME, NULL, &error);
 
   if (!proxy)
   {
@@ -269,8 +250,7 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
    * of object paths
    */
   container = g_dbus_proxy_call_sync(proxy, "EnumerateDevices", NULL,
-                                     G_DBUS_CALL_FLAGS_NONE, -1, NULL,
-                                     &error);
+                                     G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
   if (!container)
   {
     is_warning("udisks", "Failed to enumerate disk devices: %s",
@@ -294,49 +274,40 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
     IsSensor *sensor;
     gchar *name, *sensor_path;
 
-    sensor_proxy = g_dbus_proxy_new_sync(priv->connection,
-                                         G_DBUS_PROXY_FLAGS_NONE,
-                                         NULL,
-                                         UDISKS_BUS_NAME,
-                                         path,
-                                         UDISKS_DEVICE_INTERFACE_NAME,
-                                         NULL,
-                                         &error);
+    sensor_proxy = g_dbus_proxy_new_sync(
+        priv->connection, G_DBUS_PROXY_FLAGS_NONE, NULL, UDISKS_BUS_NAME, path,
+        UDISKS_DEVICE_INTERFACE_NAME, NULL, &error);
 
     if (!sensor_proxy)
     {
-      is_debug("udisks", "error getting sensor proxy for disk %s: %s",
-               path, error->message);
+      is_debug("udisks", "error getting sensor proxy for disk %s: %s", path,
+               error->message);
       g_clear_error(&error);
-      g_object_unref(sensor_proxy);
       continue;
     }
 
-    smart_available = g_dbus_proxy_get_cached_property(sensor_proxy,
-                      "DriveAtaSmartIsAvailable");
+    smart_available = g_dbus_proxy_get_cached_property(
+        sensor_proxy, "DriveAtaSmartIsAvailable");
     if (!smart_available)
     {
-      is_debug("udisks", "error getting smart status for disk %s",
-               path);
+      is_debug("udisks", "error getting smart status for disk %s", path);
       g_object_unref(sensor_proxy);
       continue;
     }
     if (!g_variant_get_boolean(smart_available))
     {
-      is_debug("udisks", "drive %s does not support SMART monitoring, ignoring...",
-               path);
+      is_debug("udisks",
+               "drive %s does not support SMART monitoring, ignoring...", path);
       g_variant_unref(smart_available);
       g_object_unref(sensor_proxy);
       continue;
     }
 
     g_variant_unref(smart_available);
-    model = g_dbus_proxy_get_cached_property(sensor_proxy,
-            "DriveModel");
+    model = g_dbus_proxy_get_cached_property(sensor_proxy, "DriveModel");
     if (!model)
     {
-      is_debug("udisks", "error getting drive model for disk %s",
-               path);
+      is_debug("udisks", "error getting drive model for disk %s", path);
       g_clear_error(&error);
       g_object_unref(sensor_proxy);
       continue;
@@ -349,8 +320,8 @@ is_udisks_plugin_activate(PeasActivatable *activatable)
     is_sensor_set_icon(sensor, IS_STOCK_DISK);
     /* only update every minute to avoid waking disk too much */
     is_sensor_set_update_interval(sensor, 60);
-    g_signal_connect(sensor, "update-value",
-                     G_CALLBACK(update_sensor_value), self);
+    g_signal_connect(sensor, "update-value", G_CALLBACK(update_sensor_value),
+                     self);
     is_manager_add_sensor(is_application_get_manager(priv->application),
                           sensor);
 
@@ -367,10 +338,10 @@ out:
 }
 
 static void
-is_udisks_plugin_deactivate(PeasActivatable *activatable)
+is_udisks_plugin_deactivate(IsActivatable *activatable)
 {
   IsUdisksPlugin *self = IS_UDISKS_PLUGIN(activatable);
-  IsUdisksPluginPrivate *priv = self->priv;
+  IsUdisksPluginPrivate *priv = is_udisks_plugin_get_instance_private(self);
   IsManager *manager;
 
   if (priv->connection)
@@ -386,17 +357,16 @@ is_udisks_plugin_class_init(IsUdisksPluginClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  g_type_class_add_private(klass, sizeof(IsUdisksPluginPrivate));
-
   gobject_class->get_property = is_udisks_plugin_get_property;
   gobject_class->set_property = is_udisks_plugin_set_property;
   gobject_class->finalize = is_udisks_plugin_finalize;
 
-  g_object_class_override_property(gobject_class, PROP_OBJECT, "object");
+  g_object_class_override_property(gobject_class, PROP_APPLICATION,
+                                   "application");
 }
 
 static void
-peas_activatable_iface_init(PeasActivatableInterface *iface)
+is_activatable_iface_init(IsActivatableInterface *iface)
 {
   iface->activate = is_udisks_plugin_activate;
   iface->deactivate = is_udisks_plugin_deactivate;
@@ -413,7 +383,6 @@ peas_register_types(PeasObjectModule *module)
 {
   is_udisks_plugin_register_type(G_TYPE_MODULE(module));
 
-  peas_object_module_register_extension_type(module,
-      PEAS_TYPE_ACTIVATABLE,
-      IS_TYPE_UDISKS_PLUGIN);
+  peas_object_module_register_extension_type(module, IS_TYPE_ACTIVATABLE,
+                                             IS_TYPE_UDISKS_PLUGIN);
 }

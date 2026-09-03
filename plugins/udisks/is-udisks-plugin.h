@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,45 +18,33 @@
 #ifndef __IS_UDISKS_PLUGIN_H__
 #define __IS_UDISKS_PLUGIN_H__
 
-#include <libpeas/peas.h>
-
+#include <libpeas.h>
 
 G_BEGIN_DECLS
 
-#define IS_TYPE_UDISKS_PLUGIN   \
-  (is_udisks_plugin_get_type())
-#define IS_UDISKS_PLUGIN(obj)       \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj),      \
-                              IS_TYPE_UDISKS_PLUGIN,  \
-                              IsUdisksPlugin))
-#define IS_UDISKS_PLUGIN_CLASS(klass)     \
-  (G_TYPE_CHECK_CLASS_CAST((klass),     \
-                           IS_TYPE_UDISKS_PLUGIN, \
-                           IsUdisksPluginClass))
-#define IS_IS_UDISKS_PLUGIN(obj)        \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj),      \
-                              IS_TYPE_UDISKS_PLUGIN))
-#define IS_IS_UDISKS_PLUGIN_CLASS(klass)      \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),     \
-                           IS_TYPE_UDISKS_PLUGIN))
-#define IS_UDISKS_PLUGIN_GET_CLASS(obj)     \
-  (G_TYPE_INSTANCE_GET_CLASS((obj),     \
-                             IS_TYPE_UDISKS_PLUGIN, \
-                             IsUdisksPluginClass))
+#define IS_TYPE_UDISKS_PLUGIN (is_udisks_plugin_get_type())
+#define IS_UDISKS_PLUGIN(obj)                                                  \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), IS_TYPE_UDISKS_PLUGIN, IsUdisksPlugin))
+#define IS_UDISKS_PLUGIN_CLASS(klass)                                          \
+  (G_TYPE_CHECK_CLASS_CAST((klass), IS_TYPE_UDISKS_PLUGIN, IsUdisksPluginClass))
+#define IS_IS_UDISKS_PLUGIN(obj)                                               \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj), IS_TYPE_UDISKS_PLUGIN))
+#define IS_IS_UDISKS_PLUGIN_CLASS(klass)                                       \
+  (G_TYPE_CHECK_CLASS_TYPE((klass), IS_TYPE_UDISKS_PLUGIN))
+#define IS_UDISKS_PLUGIN_GET_CLASS(obj)                                        \
+  (G_TYPE_INSTANCE_GET_CLASS((obj), IS_TYPE_UDISKS_PLUGIN, IsUdisksPluginClass))
 
-typedef struct _IsUdisksPlugin      IsUdisksPlugin;
+typedef struct _IsUdisksPlugin IsUdisksPlugin;
 typedef struct _IsUdisksPluginClass IsUdisksPluginClass;
-typedef struct _IsUdisksPluginPrivate IsUdisksPluginPrivate;
 
 struct _IsUdisksPluginClass
 {
-  PeasExtensionBaseClass parent_class;
+  GObjectClass parent_class;
 };
 
 struct _IsUdisksPlugin
 {
-  PeasExtensionBase parent;
-  IsUdisksPluginPrivate *priv;
+  GObject parent;
 };
 
 GType is_udisks_plugin_get_type(void) G_GNUC_CONST;

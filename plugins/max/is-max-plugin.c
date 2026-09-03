@@ -15,103 +15,81 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "config.h"
 
 #include "is-max-plugin.h"
-#include <stdlib.h>
-#include <math.h>
-#include <indicator-sensors/is-application.h>
-#include <indicator-sensors/is-manager.h>
-#include <indicator-sensors/is-log.h>
 #include <glib/gi18n.h>
+#include <indicator-sensors/is-activatable.h>
+#include <indicator-sensors/is-application.h>
+#include <indicator-sensors/is-log.h>
+#include <indicator-sensors/is-manager.h>
+#include <stdlib.h>
 
-static void peas_activatable_iface_init(PeasActivatableInterface *iface);
-
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsMaxPlugin,
-                               is_max_plugin,
-                               PEAS_TYPE_EXTENSION_BASE,
-                               0,
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(PEAS_TYPE_ACTIVATABLE,
-                                                             peas_activatable_iface_init));
-
-#define MAX_SENSOR_PATH "virtual/max"
-
-enum
-{
-  PROP_OBJECT = 1,
-};
-
-struct _IsMaxPluginPrivate
+typedef struct _IsMaxPluginPrivate
 {
   IsApplication *application;
   IsSensor *sensor;
   IsSensor *max;
   gdouble max_value;
-};
+} IsMaxPluginPrivate;
 
+static void is_activatable_iface_init(IsActivatableInterface *iface);
 static void is_max_plugin_finalize(GObject *object);
 
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(
+    IsMaxPlugin, is_max_plugin, G_TYPE_OBJECT, 0,
+    G_ADD_PRIVATE_DYNAMIC(IsMaxPlugin)
+        G_IMPLEMENT_INTERFACE_DYNAMIC(IS_TYPE_ACTIVATABLE,
+                                      is_activatable_iface_init));
+
+#define MAX_SENSOR_PATH "virtual/max"
+
+enum
+{
+  PROP_APPLICATION = 1,
+};
+
 static void
-is_max_plugin_set_property(GObject *object,
-                           guint prop_id,
-                           const GValue *value,
+is_max_plugin_set_property(GObject *object, guint prop_id, const GValue *value,
                            GParamSpec *pspec)
 {
   IsMaxPlugin *plugin = IS_MAX_PLUGIN(object);
+  IsMaxPluginPrivate *priv = is_max_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      plugin->priv->application = IS_APPLICATION(g_value_dup_object(value));
-      break;
+  case PROP_APPLICATION:
+    priv->application = IS_APPLICATION(g_value_dup_object(value));
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
-is_max_plugin_get_property(GObject *object,
-                           guint prop_id,
-                           GValue *value,
+is_max_plugin_get_property(GObject *object, guint prop_id, GValue *value,
                            GParamSpec *pspec)
 {
   IsMaxPlugin *plugin = IS_MAX_PLUGIN(object);
+  IsMaxPluginPrivate *priv = is_max_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      g_value_set_object(value, plugin->priv->application);
-      break;
+  case PROP_APPLICATION:
+    g_value_set_object(value, priv->application);
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
 is_max_plugin_init(IsMaxPlugin *self)
 {
-  IsMaxPluginPrivate *priv =
-    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_MAX_PLUGIN,
-                                IsMaxPluginPrivate);
-
-  self->priv = priv;
-}
-
-static void
-is_max_plugin_finalize(GObject *object)
-{
-  IsMaxPlugin *self = (IsMaxPlugin *)object;
-  IsMaxPluginPrivate *priv = self->priv;
-
-  (void)priv;
-
-  G_OBJECT_CLASS(is_max_plugin_parent_class)->finalize(object);
 }
 
 static void
@@ -120,7 +98,7 @@ update_sensor_from_max(IsMaxPlugin *self)
   IsMaxPluginPrivate *priv;
   gchar *label;
 
-  priv = self->priv;
+  priv = is_max_plugin_get_instance_private(self);
 
   label = g_strdup_printf("↑%s", is_sensor_get_label(priv->max));
   is_sensor_set_label(priv->sensor, label);
@@ -132,16 +110,14 @@ update_sensor_from_max(IsMaxPlugin *self)
 }
 
 static void
-on_sensor_value_notify(IsSensor *sensor,
-                       GParamSpec *pspec,
-                       gpointer user_data)
+on_sensor_value_notify(IsSensor *sensor, GParamSpec *pspec, gpointer user_data)
 {
   IsMaxPlugin *self;
   IsMaxPluginPrivate *priv;
   gdouble value;
 
   self = IS_MAX_PLUGIN(user_data);
-  priv = self->priv;
+  priv = is_max_plugin_get_instance_private(self);
 
   value = is_sensor_get_value(sensor);
   if (value - IS_SENSOR_VALUE_UNSET <= DBL_EPSILON)
@@ -172,9 +148,7 @@ exit:
 }
 
 static void
-on_sensor_enabled(IsManager *manager,
-                  IsSensor *sensor,
-                  gint index,
+on_sensor_enabled(IsManager *manager, IsSensor *sensor, gint index,
                   gpointer data)
 {
   IsMaxPlugin *self = (IsMaxPlugin *)data;
@@ -190,20 +164,17 @@ on_sensor_enabled(IsManager *manager,
 }
 
 static void
-on_sensor_disabled(IsManager *manager,
-                   IsSensor *sensor,
-                   gpointer data)
+on_sensor_disabled(IsManager *manager, IsSensor *sensor, gpointer data)
 {
   IsMaxPlugin *self = (IsMaxPlugin *)data;
-  IsMaxPluginPrivate *priv = self->priv;
+  IsMaxPluginPrivate *priv = is_max_plugin_get_instance_private(self);
 
   // don't bother monitoring non-temperature sensors
   if (IS_IS_TEMPERATURE_SENSOR(sensor))
   {
     is_debug("max", "sensor disabled: %s", is_sensor_get_label(sensor));
-    g_signal_handlers_disconnect_by_func(sensor,
-                                         G_CALLBACK(on_sensor_value_notify),
-                                         self);
+    g_signal_handlers_disconnect_by_func(
+        sensor, G_CALLBACK(on_sensor_value_notify), self);
     if (priv->max == sensor)
     {
       // get all sensors and find the one with the maximum value and switch to
@@ -220,26 +191,23 @@ on_sensor_disabled(IsManager *manager,
       is_sensor_set_digits(priv->sensor, 1);
 
       sensors = is_manager_get_enabled_sensors_list(manager);
-      for (_list = sensors;
-           _list != NULL;
-           _list = _list->next)
+      for (_list = sensors; _list != NULL; _list = _list->next)
       {
         if (IS_IS_TEMPERATURE_SENSOR(_list->data))
         {
-          on_sensor_value_notify(IS_SENSOR(_list->data),
-                                 NULL,
-                                 self);
+          on_sensor_value_notify(IS_SENSOR(_list->data), NULL, self);
         }
       }
+      g_slist_free_full(sensors, g_object_unref);
     }
   }
 }
 
 static void
-is_max_plugin_activate(PeasActivatable *activatable)
+is_max_plugin_activate(IsActivatable *activatable)
 {
   IsMaxPlugin *self = IS_MAX_PLUGIN(activatable);
-  IsMaxPluginPrivate *priv = self->priv;
+  IsMaxPluginPrivate *priv = is_max_plugin_get_instance_private(self);
   IsManager *manager;
   GSList *sensors, *_list;
   int i = 0;
@@ -259,9 +227,7 @@ is_max_plugin_activate(PeasActivatable *activatable)
 
   is_debug("max", "attaching to signals");
   sensors = is_manager_get_enabled_sensors_list(manager);
-  for (_list = sensors;
-       _list != NULL;
-       _list = _list->next)
+  for (_list = sensors; _list != NULL; _list = _list->next)
   {
     IsSensor *sensor = IS_SENSOR(_list->data);
     on_sensor_enabled(manager, sensor, i, self);
@@ -269,18 +235,17 @@ is_max_plugin_activate(PeasActivatable *activatable)
     i++;
   }
   g_slist_free(sensors);
-  g_signal_connect(manager, "sensor-enabled",
-                   G_CALLBACK(on_sensor_enabled), self);
-  g_signal_connect(manager, "sensor-disabled",
-                   G_CALLBACK(on_sensor_disabled), self);
-
+  g_signal_connect(manager, "sensor-enabled", G_CALLBACK(on_sensor_enabled),
+                   self);
+  g_signal_connect(manager, "sensor-disabled", G_CALLBACK(on_sensor_disabled),
+                   self);
 }
 
 static void
-is_max_plugin_deactivate(PeasActivatable *activatable)
+is_max_plugin_deactivate(IsActivatable *activatable)
 {
   IsMaxPlugin *self = IS_MAX_PLUGIN(activatable);
-  IsMaxPluginPrivate *priv = self->priv;
+  IsMaxPluginPrivate *priv = is_max_plugin_get_instance_private(self);
   IsManager *manager;
   GSList *sensors, *_list;
 
@@ -290,20 +255,32 @@ is_max_plugin_deactivate(PeasActivatable *activatable)
 
   is_manager_remove_path(manager, MAX_SENSOR_PATH);
   sensors = is_manager_get_enabled_sensors_list(manager);
-  for (_list = sensors;
-       _list != NULL;
-       _list = _list->next)
+  for (_list = sensors; _list != NULL; _list = _list->next)
   {
     IsSensor *sensor = IS_SENSOR(_list->data);
     on_sensor_disabled(manager, sensor, self);
     g_object_unref(sensor);
   }
   g_slist_free(sensors);
-  g_signal_handlers_disconnect_by_func(manager,
-                                       G_CALLBACK(on_sensor_enabled), self);
-  g_signal_handlers_disconnect_by_func(manager,
-                                       G_CALLBACK(on_sensor_disabled), self);
+  g_signal_handlers_disconnect_by_func(manager, G_CALLBACK(on_sensor_enabled),
+                                       self);
+  g_signal_handlers_disconnect_by_func(manager, G_CALLBACK(on_sensor_disabled),
+                                       self);
+}
 
+static void
+is_max_plugin_finalize(GObject *object)
+{
+  IsMaxPlugin *self = IS_MAX_PLUGIN(object);
+  IsMaxPluginPrivate *priv = is_max_plugin_get_instance_private(self);
+
+  if (priv->application)
+  {
+    g_object_unref(priv->application);
+    priv->application = NULL;
+  }
+
+  G_OBJECT_CLASS(is_max_plugin_parent_class)->finalize(object);
 }
 
 static void
@@ -311,17 +288,16 @@ is_max_plugin_class_init(IsMaxPluginClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  g_type_class_add_private(klass, sizeof(IsMaxPluginPrivate));
-
   gobject_class->get_property = is_max_plugin_get_property;
   gobject_class->set_property = is_max_plugin_set_property;
   gobject_class->finalize = is_max_plugin_finalize;
 
-  g_object_class_override_property(gobject_class, PROP_OBJECT, "object");
+  g_object_class_override_property(gobject_class, PROP_APPLICATION,
+                                   "application");
 }
 
 static void
-peas_activatable_iface_init(PeasActivatableInterface *iface)
+is_activatable_iface_init(IsActivatableInterface *iface)
 {
   iface->activate = is_max_plugin_activate;
   iface->deactivate = is_max_plugin_deactivate;
@@ -338,7 +314,6 @@ peas_register_types(PeasObjectModule *module)
 {
   is_max_plugin_register_type(G_TYPE_MODULE(module));
 
-  peas_object_module_register_extension_type(module,
-                                             PEAS_TYPE_ACTIVATABLE,
+  peas_object_module_register_extension_type(module, IS_TYPE_ACTIVATABLE,
                                              IS_TYPE_MAX_PLUGIN);
 }

@@ -15,27 +15,33 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "config.h"
 
 #include "is-dynamic-plugin.h"
-#include <stdlib.h>
-#include <math.h>
-#include <inttypes.h>
-#include <indicator-sensors/is-application.h>
-#include <indicator-sensors/is-manager.h>
-#include <indicator-sensors/is-log.h>
 #include <glib/gi18n.h>
+#include <indicator-sensors/is-activatable.h>
+#include <indicator-sensors/is-application.h>
+#include <indicator-sensors/is-log.h>
+#include <indicator-sensors/is-manager.h>
+#include <inttypes.h>
+#include <math.h>
+#include <stdlib.h>
 
-static void peas_activatable_iface_init(PeasActivatableInterface *iface);
+typedef struct _IsDynamicPluginPrivate
+{
+  IsApplication *application;
+  IsSensor *sensor;
+  IsSensor *max;
+  gdouble max_rate;
+} IsDynamicPluginPrivate;
 
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsDynamicPlugin,
-                               is_dynamic_plugin,
-                               PEAS_TYPE_EXTENSION_BASE,
-                               0,
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(PEAS_TYPE_ACTIVATABLE,
-                                                             peas_activatable_iface_init));
+static void is_activatable_iface_init(IsActivatableInterface *iface);
+
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(
+    IsDynamicPlugin, is_dynamic_plugin, G_TYPE_OBJECT, 0,
+    G_ADD_PRIVATE_DYNAMIC(IsDynamicPlugin)
+        G_IMPLEMENT_INTERFACE_DYNAMIC(IS_TYPE_ACTIVATABLE,
+                                      is_activatable_iface_init));
 
 #define DYNAMIC_RATE_DATA_KEY "dynamic-rate-data"
 
@@ -45,15 +51,7 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsDynamicPlugin,
 
 enum
 {
-  PROP_OBJECT = 1,
-};
-
-struct _IsDynamicPluginPrivate
-{
-  IsApplication *application;
-  IsSensor *sensor;
-  IsSensor *max;
-  gdouble max_rate;
+  PROP_APPLICATION = 1,
 };
 
 typedef struct _RateData
@@ -66,62 +64,59 @@ typedef struct _RateData
 static void is_dynamic_plugin_finalize(GObject *object);
 
 static void
-is_dynamic_plugin_set_property(GObject *object,
-                               guint prop_id,
-                               const GValue *value,
-                               GParamSpec *pspec)
+is_dynamic_plugin_set_property(GObject *object, guint prop_id,
+                               const GValue *value, GParamSpec *pspec)
 {
   IsDynamicPlugin *plugin = IS_DYNAMIC_PLUGIN(object);
+  IsDynamicPluginPrivate *priv = is_dynamic_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      plugin->priv->application = IS_APPLICATION(g_value_dup_object(value));
-      break;
+  case PROP_APPLICATION:
+    priv->application = IS_APPLICATION(g_value_dup_object(value));
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
-is_dynamic_plugin_get_property(GObject *object,
-                               guint prop_id,
-                               GValue *value,
+is_dynamic_plugin_get_property(GObject *object, guint prop_id, GValue *value,
                                GParamSpec *pspec)
 {
   IsDynamicPlugin *plugin = IS_DYNAMIC_PLUGIN(object);
+  IsDynamicPluginPrivate *priv = is_dynamic_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      g_value_set_object(value, plugin->priv->application);
-      break;
+  case PROP_APPLICATION:
+    g_value_set_object(value, priv->application);
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
 is_dynamic_plugin_init(IsDynamicPlugin *self)
 {
-  IsDynamicPluginPrivate *priv =
-    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_DYNAMIC_PLUGIN,
-                                IsDynamicPluginPrivate);
-
-  self->priv = priv;
 }
 
 static void
 is_dynamic_plugin_finalize(GObject *object)
 {
   IsDynamicPlugin *self = (IsDynamicPlugin *)object;
-  IsDynamicPluginPrivate *priv = self->priv;
+  IsDynamicPluginPrivate *priv = is_dynamic_plugin_get_instance_private(self);
 
-  (void)priv;
+  if (priv->application)
+  {
+    g_object_unref(priv->application);
+    priv->application = NULL;
+  }
 
   G_OBJECT_CLASS(is_dynamic_plugin_parent_class)->finalize(object);
 }
@@ -132,7 +127,7 @@ update_sensor_from_max(IsDynamicPlugin *self)
   IsDynamicPluginPrivate *priv;
   gchar *label;
 
-  priv = self->priv;
+  priv = is_dynamic_plugin_get_instance_private(self);
 
   label = g_strdup_printf("Δ%s", is_sensor_get_label(priv->max));
   is_sensor_set_label(priv->sensor, label);
@@ -144,9 +139,7 @@ update_sensor_from_max(IsDynamicPlugin *self)
 }
 
 static void
-on_sensor_value_notify(IsSensor *sensor,
-                       GParamSpec *pspec,
-                       gpointer user_data)
+on_sensor_value_notify(IsSensor *sensor, GParamSpec *pspec, gpointer user_data)
 {
   IsDynamicPlugin *self;
   IsDynamicPluginPrivate *priv;
@@ -155,7 +148,7 @@ on_sensor_value_notify(IsSensor *sensor,
   gint64 now;
 
   self = IS_DYNAMIC_PLUGIN(user_data);
-  priv = self->priv;
+  priv = is_dynamic_plugin_get_instance_private(self);
 
   value = is_sensor_get_value(sensor);
 
@@ -179,25 +172,25 @@ on_sensor_value_notify(IsSensor *sensor,
     data->rate = 0.0f;
     data->last_value = value;
     data->last_time = now;
-    g_object_set_data_full(G_OBJECT(sensor), DYNAMIC_RATE_DATA_KEY,
-                           data, g_free);
+    g_object_set_data_full(G_OBJECT(sensor), DYNAMIC_RATE_DATA_KEY, data,
+                           g_free);
     goto exit;
   }
 
-  is_debug("dynamic", "Got existing rate data for sensor: %s - rate: %f, last_value %f, last_time %"PRId64"",
-           is_sensor_get_label(sensor),
-           data->rate,
-           data->last_value,
+  is_debug("dynamic",
+           "Got existing rate data for sensor: %s - rate: %f, last_value %f, "
+           "last_time %" PRId64 "",
+           is_sensor_get_label(sensor), data->rate, data->last_value,
            data->last_time);
   dv = value - data->last_value;
-  dt = ((double)(now - data->last_time) /
-        (double)G_USEC_PER_SEC);
+  dt = ((double)(now - data->last_time) / (double)G_USEC_PER_SEC);
 
   // convert rate to units per second
   rate = fabs(dv / dt);
-  is_debug("dynamic", "abs rate of change of sensor %s: %f (t0: %f, t-1: %f, dv: %f, dt: %f)",
-           is_sensor_get_label(sensor), rate, value, data->last_value,
-           dv, dt);
+  is_debug(
+      "dynamic",
+      "abs rate of change of sensor %s: %f (t0: %f, t-1: %f, dv: %f, dt: %f)",
+      is_sensor_get_label(sensor), rate, value, data->last_value, dv, dt);
 
   // calculate exponentially weighted moving average of rate
   rate = (EWMA_ALPHA * rate) + ((1 - EWMA_ALPHA) * data->rate);
@@ -228,9 +221,7 @@ exit:
 }
 
 static void
-on_sensor_enabled(IsManager *manager,
-                  IsSensor *sensor,
-                  gint index,
+on_sensor_enabled(IsManager *manager, IsSensor *sensor, gint index,
                   gpointer data)
 {
   IsDynamicPlugin *self = (IsDynamicPlugin *)data;
@@ -246,20 +237,17 @@ on_sensor_enabled(IsManager *manager,
 }
 
 static void
-on_sensor_disabled(IsManager *manager,
-                   IsSensor *sensor,
-                   gpointer data)
+on_sensor_disabled(IsManager *manager, IsSensor *sensor, gpointer data)
 {
   IsDynamicPlugin *self = (IsDynamicPlugin *)data;
-  IsDynamicPluginPrivate *priv = self->priv;
+  IsDynamicPluginPrivate *priv = is_dynamic_plugin_get_instance_private(self);
 
   // don't bother monitoring non-temperature sensors
   if (IS_IS_TEMPERATURE_SENSOR(sensor))
   {
     is_debug("dynamic", "sensor disabled: %s", is_sensor_get_label(sensor));
-    g_signal_handlers_disconnect_by_func(sensor,
-                                         G_CALLBACK(on_sensor_value_notify),
-                                         self);
+    g_signal_handlers_disconnect_by_func(
+        sensor, G_CALLBACK(on_sensor_value_notify), self);
     if (priv->max == sensor)
     {
       // get all sensors and find the one with the maximum rate and switch to
@@ -276,25 +264,23 @@ on_sensor_disabled(IsManager *manager,
       is_sensor_set_digits(priv->sensor, 1);
 
       sensors = is_manager_get_enabled_sensors_list(manager);
-      for (_list = sensors;
-           _list != NULL;
-           _list = _list->next)
+      for (_list = sensors; _list != NULL; _list = _list->next)
       {
         if (IS_IS_TEMPERATURE_SENSOR(_list->data))
         {
           on_sensor_value_notify(IS_SENSOR(_list->data), NULL, self);
         }
       }
+      g_slist_free_full(sensors, g_object_unref);
     }
-
   }
 }
 
 static void
-is_dynamic_plugin_activate(PeasActivatable *activatable)
+is_dynamic_plugin_activate(IsActivatable *activatable)
 {
   IsDynamicPlugin *self = IS_DYNAMIC_PLUGIN(activatable);
-  IsDynamicPluginPrivate *priv = self->priv;
+  IsDynamicPluginPrivate *priv = is_dynamic_plugin_get_instance_private(self);
   IsManager *manager;
   GSList *sensors, *_list;
   int i = 0;
@@ -314,9 +300,7 @@ is_dynamic_plugin_activate(PeasActivatable *activatable)
 
   is_debug("dynamic", "attaching to signals");
   sensors = is_manager_get_enabled_sensors_list(manager);
-  for (_list = sensors;
-       _list != NULL;
-       _list = _list->next)
+  for (_list = sensors; _list != NULL; _list = _list->next)
   {
     IsSensor *sensor = IS_SENSOR(_list->data);
     on_sensor_enabled(manager, sensor, i, self);
@@ -324,18 +308,17 @@ is_dynamic_plugin_activate(PeasActivatable *activatable)
     i++;
   }
   g_slist_free(sensors);
-  g_signal_connect(manager, "sensor-enabled",
-                   G_CALLBACK(on_sensor_enabled), self);
-  g_signal_connect(manager, "sensor-disabled",
-                   G_CALLBACK(on_sensor_disabled), self);
-
+  g_signal_connect(manager, "sensor-enabled", G_CALLBACK(on_sensor_enabled),
+                   self);
+  g_signal_connect(manager, "sensor-disabled", G_CALLBACK(on_sensor_disabled),
+                   self);
 }
 
 static void
-is_dynamic_plugin_deactivate(PeasActivatable *activatable)
+is_dynamic_plugin_deactivate(IsActivatable *activatable)
 {
   IsDynamicPlugin *self = IS_DYNAMIC_PLUGIN(activatable);
-  IsDynamicPluginPrivate *priv = self->priv;
+  IsDynamicPluginPrivate *priv = is_dynamic_plugin_get_instance_private(self);
   IsManager *manager;
   GSList *sensors, *_list;
 
@@ -345,20 +328,17 @@ is_dynamic_plugin_deactivate(PeasActivatable *activatable)
 
   is_manager_remove_path(manager, DYNAMIC_SENSOR_PATH);
   sensors = is_manager_get_enabled_sensors_list(manager);
-  for (_list = sensors;
-       _list != NULL;
-       _list = _list->next)
+  for (_list = sensors; _list != NULL; _list = _list->next)
   {
     IsSensor *sensor = IS_SENSOR(_list->data);
     on_sensor_disabled(manager, sensor, self);
     g_object_unref(sensor);
   }
   g_slist_free(sensors);
-  g_signal_handlers_disconnect_by_func(manager,
-                                       G_CALLBACK(on_sensor_enabled), self);
-  g_signal_handlers_disconnect_by_func(manager,
-                                       G_CALLBACK(on_sensor_disabled), self);
-
+  g_signal_handlers_disconnect_by_func(manager, G_CALLBACK(on_sensor_enabled),
+                                       self);
+  g_signal_handlers_disconnect_by_func(manager, G_CALLBACK(on_sensor_disabled),
+                                       self);
 }
 
 static void
@@ -366,17 +346,16 @@ is_dynamic_plugin_class_init(IsDynamicPluginClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  g_type_class_add_private(klass, sizeof(IsDynamicPluginPrivate));
-
   gobject_class->get_property = is_dynamic_plugin_get_property;
   gobject_class->set_property = is_dynamic_plugin_set_property;
   gobject_class->finalize = is_dynamic_plugin_finalize;
 
-  g_object_class_override_property(gobject_class, PROP_OBJECT, "object");
+  g_object_class_override_property(gobject_class, PROP_APPLICATION,
+                                   "application");
 }
 
 static void
-peas_activatable_iface_init(PeasActivatableInterface *iface)
+is_activatable_iface_init(IsActivatableInterface *iface)
 {
   iface->activate = is_dynamic_plugin_activate;
   iface->deactivate = is_dynamic_plugin_deactivate;
@@ -393,7 +372,6 @@ peas_register_types(PeasObjectModule *module)
 {
   is_dynamic_plugin_register_type(G_TYPE_MODULE(module));
 
-  peas_object_module_register_extension_type(module,
-                                             PEAS_TYPE_ACTIVATABLE,
+  peas_object_module_register_extension_type(module, IS_TYPE_ACTIVATABLE,
                                              IS_TYPE_DYNAMIC_PLUGIN);
 }

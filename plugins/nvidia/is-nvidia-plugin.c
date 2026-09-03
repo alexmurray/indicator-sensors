@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2019 Alex Murray <murray.alex@gmail.com>
+ * Copyright (C) 2011-2025 Alex Murray <murray.alex@gmail.com>
  *
  * indicator-sensors is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,96 +15,89 @@
  * along with indicator-sensors.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "config.h"
 
 #include "is-nvidia-plugin.h"
-#include <stdlib.h>
-#include <indicator-sensors/is-temperature-sensor.h>
-#include <indicator-sensors/is-fan-sensor.h>
-#include <indicator-sensors/is-application.h>
-#include <indicator-sensors/is-log.h>
-#include <X11/Xlib.h>
 #include <NVCtrl/NVCtrl.h>
 #include <NVCtrl/NVCtrlLib.h>
+#include <X11/Xlib.h>
 #include <glib/gi18n.h>
+#include <indicator-sensors/is-activatable.h>
+#include <indicator-sensors/is-application.h>
+#include <indicator-sensors/is-fan-sensor.h>
+#include <indicator-sensors/is-log.h>
+#include <indicator-sensors/is-temperature-sensor.h>
+#include <stdlib.h>
 
 #define NVIDIA_PATH_PREFIX "nvidia"
 
-static void peas_activatable_iface_init(PeasActivatableInterface *iface);
-
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(IsNvidiaPlugin,
-                               is_nvidia_plugin,
-                               PEAS_TYPE_EXTENSION_BASE,
-                               0,
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(PEAS_TYPE_ACTIVATABLE,
-                                   peas_activatable_iface_init));
-
-enum
-{
-  PROP_OBJECT = 1,
-};
-
-struct _IsNvidiaPluginPrivate
+typedef struct _IsNvidiaPluginPrivate
 {
   IsApplication *application;
   Display *display; /* the connection to the X server */
 
   gboolean inited;
   GHashTable *sensor_chip_names;
+} IsNvidiaPluginPrivate;
+
+static void is_activatable_iface_init(IsActivatableInterface *iface);
+
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(
+    IsNvidiaPlugin, is_nvidia_plugin, G_TYPE_OBJECT, 0,
+    G_ADD_PRIVATE_DYNAMIC(IsNvidiaPlugin)
+        G_IMPLEMENT_INTERFACE_DYNAMIC(IS_TYPE_ACTIVATABLE,
+                                      is_activatable_iface_init));
+
+enum
+{
+  PROP_APPLICATION = 1,
 };
 
 static void is_nvidia_plugin_finalize(GObject *object);
 
 static void
-is_nvidia_plugin_set_property(GObject *object,
-                              guint prop_id,
-                              const GValue *value,
-                              GParamSpec *pspec)
+is_nvidia_plugin_set_property(GObject *object, guint prop_id,
+                              const GValue *value, GParamSpec *pspec)
 {
   IsNvidiaPlugin *plugin = IS_NVIDIA_PLUGIN(object);
+  IsNvidiaPluginPrivate *priv = is_nvidia_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      plugin->priv->application = IS_APPLICATION(g_value_dup_object(value));
-      break;
+  case PROP_APPLICATION:
+    priv->application = IS_APPLICATION(g_value_dup_object(value));
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
-is_nvidia_plugin_get_property(GObject *object,
-                              guint prop_id,
-                              GValue *value,
+is_nvidia_plugin_get_property(GObject *object, guint prop_id, GValue *value,
                               GParamSpec *pspec)
 {
   IsNvidiaPlugin *plugin = IS_NVIDIA_PLUGIN(object);
+  IsNvidiaPluginPrivate *priv = is_nvidia_plugin_get_instance_private(plugin);
 
   switch (prop_id)
   {
-    case PROP_OBJECT:
-      g_value_set_object(value, plugin->priv->application);
-      break;
+  case PROP_APPLICATION:
+    g_value_set_object(value, priv->application);
+    break;
 
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-      break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+    break;
   }
 }
 
 static void
 is_nvidia_plugin_init(IsNvidiaPlugin *self)
 {
-  IsNvidiaPluginPrivate *priv =
-    G_TYPE_INSTANCE_GET_PRIVATE(self, IS_TYPE_NVIDIA_PLUGIN,
-                                IsNvidiaPluginPrivate);
+  IsNvidiaPluginPrivate *priv = is_nvidia_plugin_get_instance_private(self);
 
-  self->priv = priv;
   priv->display = XOpenDisplay(NULL);
   if (priv->display != NULL)
   {
@@ -116,7 +109,7 @@ static void
 is_nvidia_plugin_finalize(GObject *object)
 {
   IsNvidiaPlugin *self = (IsNvidiaPlugin *)object;
-  IsNvidiaPluginPrivate *priv = self->priv;
+  IsNvidiaPluginPrivate *priv = is_nvidia_plugin_get_instance_private(self);
 
   /* think about storing this in the class structure so we only init once
      and unload once */
@@ -124,6 +117,11 @@ is_nvidia_plugin_finalize(GObject *object)
   {
     XCloseDisplay(priv->display);
     priv->inited = FALSE;
+  }
+  if (priv->application)
+  {
+    g_object_unref(priv->application);
+    priv->application = NULL;
   }
   G_OBJECT_CLASS(is_nvidia_plugin_parent_class)->finalize(object);
 }
@@ -136,51 +134,32 @@ struct map_entry
   const gchar *description;
 };
 
-static const struct map_entry map[] =
-{
-  /* use thermal sensors if available, otherwise use core and ambient
-   * temp */
+static const struct map_entry map[] = {
+/* use thermal sensors if available, otherwise use core and ambient
+ * temp */
 #ifdef NV_CTRL_BINARY_DATA_THERMAL_SENSORS_USED_BY_GPU
-  {
-    NV_CTRL_BINARY_DATA_THERMAL_SENSORS_USED_BY_GPU,
-    NV_CTRL_TARGET_TYPE_THERMAL_SENSOR,
-    NV_CTRL_THERMAL_SENSOR_READING,
-    "ThermalSensor"
-  },
+    {NV_CTRL_BINARY_DATA_THERMAL_SENSORS_USED_BY_GPU,
+     NV_CTRL_TARGET_TYPE_THERMAL_SENSOR, NV_CTRL_THERMAL_SENSOR_READING,
+     "ThermalSensor"},
 #else
-  {
-    -1,
-    NV_CTRL_TARGET_TYPE_GPU,
-    NV_CTRL_GPU_CORE_TEMPERATURE,
-    "CoreTemp"
-  },
-  {
-    -1,
-    NV_CTRL_TARGET_TYPE_GPU,
-    NV_CTRL_AMBIENT_TEMPERATURE,
-    "AmbientTemp"
-  },
+    {-1, NV_CTRL_TARGET_TYPE_GPU, NV_CTRL_GPU_CORE_TEMPERATURE, "CoreTemp"},
+    {-1, NV_CTRL_TARGET_TYPE_GPU, NV_CTRL_AMBIENT_TEMPERATURE, "AmbientTemp"},
 #endif
-  /* use thermal coolers if available */
+/* use thermal coolers if available */
 #ifdef NV_CTRL_BINARY_DATA_COOLERS_USED_BY_GPU
-  {
-    NV_CTRL_BINARY_DATA_COOLERS_USED_BY_GPU,
-    NV_CTRL_TARGET_TYPE_COOLER,
-    NV_CTRL_THERMAL_COOLER_LEVEL,
-    "Fan"
-  },
+    {NV_CTRL_BINARY_DATA_COOLERS_USED_BY_GPU, NV_CTRL_TARGET_TYPE_COOLER,
+     NV_CTRL_THERMAL_COOLER_LEVEL, "Fan"},
 #endif
 };
 
 static void
-update_sensor_value(IsSensor *sensor,
-                    IsNvidiaPlugin *self)
+update_sensor_value(IsSensor *sensor, IsNvidiaPlugin *self)
 {
   IsNvidiaPluginPrivate *priv;
   const gchar *path;
   guint i;
 
-  priv = self->priv;
+  priv = is_nvidia_plugin_get_instance_private(self);
 
   path = is_sensor_get_path(sensor);
 
@@ -194,22 +173,19 @@ update_sensor_value(IsSensor *sensor,
       continue;
     }
     idx = g_ascii_strtoll(g_strrstr(path, map[i].description) +
-                          strlen(map[i].description), NULL, 10);
+                              strlen(map[i].description),
+                          NULL, 10);
 
-    ret = XNVCTRLQueryTargetAttribute(priv->display,
-                                      map[i].target,
-                                      idx,
-                                      0,
-                                      map[i].attribute,
-                                      &value);
+    ret = XNVCTRLQueryTargetAttribute(priv->display, map[i].target, idx, 0,
+                                      map[i].attribute, &value);
     if (!ret)
     {
-      GError *error = g_error_new(g_quark_from_string("nvidia-plugin-error-quark"),
-                                  0,
-                                  /* first placeholder is
-                                   * sensor name */
-                                  _("Error getting sensor value for sensor %s"),
-                                  is_sensor_get_label(sensor));
+      GError *error =
+          g_error_new(g_quark_from_string("nvidia-plugin-error-quark"), 0,
+                      /* first placeholder is
+                       * sensor name */
+                      _("Error getting sensor value for sensor %s"),
+                      is_sensor_get_label(sensor));
       is_sensor_set_error(sensor, error->message);
       g_error_free(error);
       continue;
@@ -228,10 +204,10 @@ update_sensor_value(IsSensor *sensor,
 }
 
 static void
-is_nvidia_plugin_activate(PeasActivatable *activatable)
+is_nvidia_plugin_activate(IsActivatable *activatable)
 {
   IsNvidiaPlugin *self = IS_NVIDIA_PLUGIN(activatable);
-  IsNvidiaPluginPrivate *priv = self->priv;
+  IsNvidiaPluginPrivate *priv = is_nvidia_plugin_get_instance_private(self);
   Bool ret;
   int event_base, error_base;
   gint n;
@@ -256,9 +232,7 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
 
   /* get number of GPUs, then for each GPU get any thermal_sensors and
      coolers used by it */
-  ret = XNVCTRLQueryTargetCount(priv->display,
-                                NV_CTRL_TARGET_TYPE_GPU,
-                                &n);
+  ret = XNVCTRLQueryTargetCount(priv->display, NV_CTRL_TARGET_TYPE_GPU, &n);
   if (!ret)
   {
     goto out;
@@ -268,12 +242,9 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
   {
     guint j;
     char *label = NULL;
-    ret = XNVCTRLQueryTargetStringAttribute(priv->display,
-                                            NV_CTRL_TARGET_TYPE_GPU,
-                                            i,
-                                            0,
-                                            NV_CTRL_STRING_PRODUCT_NAME,
-                                            &label);
+    ret = XNVCTRLQueryTargetStringAttribute(
+        priv->display, NV_CTRL_TARGET_TYPE_GPU, i, 0,
+        NV_CTRL_STRING_PRODUCT_NAME, &label);
     if (!ret)
     {
       free(label);
@@ -291,9 +262,7 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
          for the number of targets */
       if (map[j].gpu_attribute == -1)
       {
-        ret = XNVCTRLQueryTargetCount(priv->display,
-                                      map[j].target,
-                                      &k);
+        ret = XNVCTRLQueryTargetCount(priv->display, map[j].target, &k);
         if (!ret)
         {
           continue;
@@ -310,13 +279,9 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
       }
       else
       {
-        ret = XNVCTRLQueryTargetBinaryData(priv->display,
-                                           NV_CTRL_TARGET_TYPE_GPU,
-                                           i,
-                                           0,
-                                           map[j].gpu_attribute,
-                                           (unsigned char **)&data,
-                                           &len);
+        ret = XNVCTRLQueryTargetBinaryData(
+            priv->display, NV_CTRL_TARGET_TYPE_GPU, i, 0, map[j].gpu_attribute,
+            (unsigned char **)&data, &len);
         if (!ret)
         {
           continue;
@@ -337,30 +302,24 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
         if (map[j].gpu_attribute == -1)
         {
           gchar *old_label;
-          ret = XNVCTRLQueryTargetStringAttribute(priv->display,
-                                                  NV_CTRL_TARGET_TYPE_GPU,
-                                                  idx,
-                                                  0,
-                                                  NV_CTRL_STRING_PRODUCT_NAME,
-                                                  &old_label);
+          ret = XNVCTRLQueryTargetStringAttribute(
+              priv->display, NV_CTRL_TARGET_TYPE_GPU, idx, 0,
+              NV_CTRL_STRING_PRODUCT_NAME, &old_label);
           if (ret)
           {
             free(label);
             label = old_label;
           }
         }
-        ret = XNVCTRLQueryTargetAttribute(priv->display,
-                                          map[j].target,
-                                          idx,
-                                          0,
-                                          map[j].attribute,
-                                          &value);
+        ret = XNVCTRLQueryTargetAttribute(priv->display, map[j].target, idx, 0,
+                                          map[j].attribute, &value);
         if (!ret)
         {
           continue;
         }
 
-        path = g_strdup_printf(NVIDIA_PATH_PREFIX "/%s%d", map[j].description, idx);
+        path = g_strdup_printf(NVIDIA_PATH_PREFIX "/%s%d", map[j].description,
+                               idx);
 #ifdef NV_CTRL_TARGET_TYPE_COOLER
         if (map[j].target == NV_CTRL_TARGET_TYPE_COOLER)
         {
@@ -385,8 +344,7 @@ is_nvidia_plugin_activate(PeasActivatable *activatable)
         is_sensor_set_label(sensor, label);
         /* connect to update-value signal */
         g_signal_connect(sensor, "update-value",
-                         G_CALLBACK(update_sensor_value),
-                         self);
+                         G_CALLBACK(update_sensor_value), self);
         is_manager_add_sensor(is_application_get_manager(priv->application),
                               sensor);
         g_free(path);
@@ -401,10 +359,10 @@ out:
 }
 
 static void
-is_nvidia_plugin_deactivate(PeasActivatable *activatable)
+is_nvidia_plugin_deactivate(IsActivatable *activatable)
 {
   IsNvidiaPlugin *plugin = IS_NVIDIA_PLUGIN(activatable);
-  IsNvidiaPluginPrivate *priv = plugin->priv;
+  IsNvidiaPluginPrivate *priv = is_nvidia_plugin_get_instance_private(plugin);
   IsManager *manager;
 
   manager = is_application_get_manager(priv->application);
@@ -416,17 +374,16 @@ is_nvidia_plugin_class_init(IsNvidiaPluginClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  g_type_class_add_private(klass, sizeof(IsNvidiaPluginPrivate));
-
   gobject_class->get_property = is_nvidia_plugin_get_property;
   gobject_class->set_property = is_nvidia_plugin_set_property;
   gobject_class->finalize = is_nvidia_plugin_finalize;
 
-  g_object_class_override_property(gobject_class, PROP_OBJECT, "object");
+  g_object_class_override_property(gobject_class, PROP_APPLICATION,
+                                   "application");
 }
 
 static void
-peas_activatable_iface_init(PeasActivatableInterface *iface)
+is_activatable_iface_init(IsActivatableInterface *iface)
 {
   iface->activate = is_nvidia_plugin_activate;
   iface->deactivate = is_nvidia_plugin_deactivate;
@@ -443,7 +400,6 @@ peas_register_types(PeasObjectModule *module)
 {
   is_nvidia_plugin_register_type(G_TYPE_MODULE(module));
 
-  peas_object_module_register_extension_type(module,
-      PEAS_TYPE_ACTIVATABLE,
-      IS_TYPE_NVIDIA_PLUGIN);
+  peas_object_module_register_extension_type(module, IS_TYPE_ACTIVATABLE,
+                                             IS_TYPE_NVIDIA_PLUGIN);
 }
