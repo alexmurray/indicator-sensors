@@ -882,10 +882,13 @@ is_sensor_set_error(IsSensor *self, const gchar *error)
   IsSensorPrivate *priv = is_sensor_get_instance_private(self);
   if (g_strcmp0(error, priv->error) != 0)
   {
-    notification = g_object_get_data(G_OBJECT(self), "error-notification");
+    /* steal rather than get so the destroy-notify registered below isn't
+     * invoked a second time on the pointer we are about to unref here */
+    notification = g_object_steal_data(G_OBJECT(self), "error-notification");
     if (notification != NULL)
     {
       is_debug("sensor", "Closing existing error notification");
+      is_notify_withdraw(priv->path);
       g_object_unref(notification);
     }
     g_free(priv->error);
@@ -893,8 +896,8 @@ is_sensor_set_error(IsSensor *self, const gchar *error)
 
     if (priv->error)
     {
-      notification = is_notify(IS_NOTIFY_LEVEL_WARNING, _("Sensor Error"), "%s",
-                               priv->error);
+      notification = is_notify(priv->path, IS_NOTIFY_LEVEL_WARNING,
+                               _("Sensor Error"), "%s", priv->error);
       is_debug("sensor", "Displaying error notification");
       g_object_set_data_full(G_OBJECT(self), "error-notification", notification,
                              g_object_unref);

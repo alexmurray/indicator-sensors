@@ -23,13 +23,14 @@
 #include <stdio.h>
 
 GNotification *
-is_notify(IsNotifyLevel level, const gchar *title, const gchar *format, ...)
+is_notify(const gchar *id, IsNotifyLevel level, const gchar *title,
+         const gchar *format, ...)
 {
   GNotification *notification = NULL;
   va_list args;
 
   va_start(args, format);
-  notification = is_notifyv(level, title, format, args);
+  notification = is_notifyv(id, level, title, format, args);
   va_end(args);
   return notification;
 }
@@ -93,10 +94,11 @@ is_notify_level_to_icon(IsNotifyLevel level)
 }
 
 GNotification *
-is_notifyv(IsNotifyLevel level, const gchar *title, const gchar *format,
-           va_list args)
+is_notifyv(const gchar *id, IsNotifyLevel level, const gchar *title,
+          const gchar *format, va_list args)
 {
   GNotification *notification;
+  GApplication *application;
   gchar *body;
   GIcon *icon;
 
@@ -109,5 +111,19 @@ is_notifyv(IsNotifyLevel level, const gchar *title, const gchar *format,
   g_notification_set_icon(notification, icon);
   g_object_unref(icon);
   g_free(body);
+
+  application = g_application_get_default();
+  if (application)
+    g_application_send_notification(application, id, notification);
+
   return notification;
+}
+
+void
+is_notify_withdraw(const gchar *id)
+{
+  GApplication *application = g_application_get_default();
+
+  if (application)
+    g_application_withdraw_notification(application, id);
 }

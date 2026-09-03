@@ -191,10 +191,13 @@ main(int argc, char **argv)
     gchar **enabled_sensors = is_manager_get_enabled_sensors(manager);
     if (!g_strv_length(enabled_sensors))
     {
-      is_notify(IS_NOTIFY_LEVEL_INFO, _("No Sensors Enabled For Monitoring"),
-                _("Sensors detected but none are enabled for monitoring. "
-                  "To enable monitoring of sensors open the Preferences "
-                  "window and select the sensors to monitor"));
+      GNotification *notification = is_notify(
+          "no-sensors-enabled", IS_NOTIFY_LEVEL_INFO,
+          _("No Sensors Enabled For Monitoring"),
+          _("Sensors detected but none are enabled for monitoring. "
+            "To enable monitoring of sensors open the Preferences "
+            "window and select the sensors to monitor"));
+      g_object_unref(notification);
     }
     g_strfreev(enabled_sensors);
     g_slist_foreach(sensors, (GFunc)g_object_unref, NULL);

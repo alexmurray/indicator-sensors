@@ -423,10 +423,12 @@ is_libsensors_plugin_activate(IsActivatable *activatable)
    * user to try and run sensors-detect from the command line */
   if (!g_hash_table_size(priv->sensor_chip_names))
   {
-    is_notify(IS_NOTIFY_LEVEL_INFO, _("No Sensors Detected"),
-              _("Try running the command 'sensors-detect' from the "
-                "command-line and restarting %s"),
-              PACKAGE_NAME);
+    GNotification *notification = is_notify(
+        "no-sensors-detected", IS_NOTIFY_LEVEL_INFO, _("No Sensors Detected"),
+        _("Try running the command 'sensors-detect' from the "
+          "command-line and restarting %s"),
+        PACKAGE_NAME);
+    g_object_unref(notification);
   }
 out:
   return;

@@ -32,10 +32,13 @@ typedef enum
   NUM_IS_NOTIFY_LEVELS,
 } IsNotifyLevel;
 
-GNotification *is_notify(IsNotifyLevel level, const gchar *title,
-                         const gchar *format, ...) G_GNUC_PRINTF(3, 4);
-GNotification *is_notifyv(IsNotifyLevel level, const gchar *title,
-                          const gchar *format, va_list args);
+GNotification *is_notify(const gchar *id, IsNotifyLevel level,
+                         const gchar *title, const gchar *format,
+                         ...) G_GNUC_PRINTF(4, 5);
+GNotification *is_notifyv(const gchar *id, IsNotifyLevel level,
+                          const gchar *title, const gchar *format,
+                          va_list args);
+void is_notify_withdraw(const gchar *id);
 G_END_DECLS
 
 #endif /* __IS_LOG_H__ */
