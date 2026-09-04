@@ -897,7 +897,7 @@ is_sensor_set_error(IsSensor *self, const gchar *error)
     if (priv->error)
     {
       notification = is_notify(priv->path, IS_NOTIFY_LEVEL_WARNING,
-                               _("Sensor Error"), "%s", priv->error);
+                               _("Sensor Error"), NULL, "%s", priv->error);
       is_debug("sensor", "Displaying error notification");
       g_object_set_data_full(G_OBJECT(self), "error-notification", notification,
                              g_object_unref);

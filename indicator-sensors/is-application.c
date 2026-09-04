@@ -21,6 +21,7 @@
 #include "is-indicator.h"
 #include "is-log.h"
 #include "is-manager.h"
+#include "is-notify.h"
 #include "is-preferences-dialog.h"
 #include "is-sensor-dialog.h"
 #include <glib/gi18n.h>
@@ -46,10 +47,13 @@ static void is_application_dispose(GObject *object);
 static void is_application_finalize(GObject *object);
 static void is_application_startup(GApplication *application);
 static void is_application_activate(GApplication *application);
+static void is_application_constructed(GObject *object);
 static void is_application_get_property(GObject *object, guint property_id,
                                         GValue *value, GParamSpec *pspec);
 static void is_application_set_property(GObject *object, guint property_id,
                                         const GValue *value, GParamSpec *pspec);
+static void on_preferences_action(GSimpleAction *action, GVariant *parameter,
+                                  gpointer user_data);
 
 // poll timeout should be less than the alarm timeout / hysteresis to ensure we
 // get at least one more reading in before showing the notification otherwise
@@ -74,6 +78,7 @@ is_application_class_init(IsApplicationClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GApplicationClass *gapplication_class = G_APPLICATION_CLASS(klass);
 
+  gobject_class->constructed = is_application_constructed;
   gobject_class->get_property = is_application_get_property;
   gobject_class->set_property = is_application_set_property;
   gobject_class->dispose = is_application_dispose;
@@ -158,8 +163,14 @@ is_application_init(IsApplication *self)
 
   priv = is_application_get_instance_private(self);
 
-  g_application_set_application_id(G_APPLICATION(self),
-                                   "com.github.alexmurray.IndicatorSensors");
+  /* register early so it exists before any notification (eg. the
+   * no-sensors-enabled one sent from startup()) can reference it as its
+   * default action */
+  static const GActionEntry action_entries[] = {
+      {"preferences", on_preferences_action, NULL, NULL, NULL, {0}},
+  };
+  g_action_map_add_action_entries(G_ACTION_MAP(self), action_entries,
+                                  G_N_ELEMENTS(action_entries), self);
 
   priv->poll_timeout = DEFAULT_POLL_TIMEOUT;
   path = g_build_filename(g_get_user_config_dir(), "autostart",
@@ -184,6 +195,19 @@ is_application_init(IsApplication *self)
     g_error_free(error);
   }
   g_free(path);
+}
+
+static void
+is_application_constructed(GObject *object)
+{
+  G_OBJECT_CLASS(is_application_parent_class)->constructed(object);
+
+  /* GApplication's "application-id" property is G_PARAM_CONSTRUCT, so its
+   * default value (NULL) is applied by GObject right after instance init
+   * runs, clobbering anything set there - so it must be set here instead,
+   * once the construct properties have already been applied */
+  g_application_set_application_id(G_APPLICATION(object),
+                                   "com.github.alexmurray.IndicatorSensors");
 }
 
 static void
@@ -523,6 +547,14 @@ on_prefs_action(GtkMenuItem *item, gpointer data)
 }
 
 static void
+on_preferences_action(GSimpleAction *action, GVariant *parameter,
+                      gpointer user_data)
+{
+  IsApplication *self = IS_APPLICATION(user_data);
+  is_application_show_preferences(self);
+}
+
+static void
 on_about_action(GtkMenuItem *item, gpointer data)
 {
   IsApplication *self = IS_APPLICATION(data);
@@ -579,6 +611,30 @@ is_application_startup(GApplication *application)
                   G_SETTINGS_BIND_DEFAULT);
   g_object_set_data_full(G_OBJECT(priv->indicator), "gsettings", settings,
                          (GDestroyNotify)g_object_unref);
+
+  /* since all plugins are now inited show a notification if we detected
+   * sensors but none are enabled - activating the notification opens the
+   * Preferences dialog so the user can select sensors to monitor. This must
+   * happen after the chain-up above, which is where the application gets
+   * registered, since g_application_send_notification() requires that */
+  GSList *sensors = is_manager_get_all_sensors_list(priv->manager);
+  if (sensors)
+  {
+    gchar **enabled_sensors = is_manager_get_enabled_sensors(priv->manager);
+    if (!g_strv_length(enabled_sensors))
+    {
+      GNotification *notification = is_notify(
+          "no-sensors-enabled", IS_NOTIFY_LEVEL_INFO,
+          _("No Sensors Enabled For Monitoring"), "app.preferences",
+          _("Sensors detected but none are enabled for monitoring. "
+            "To enable monitoring of sensors open the Preferences "
+            "window and select the sensors to monitor"));
+      g_object_unref(notification);
+    }
+    g_strfreev(enabled_sensors);
+    g_slist_foreach(sensors, (GFunc)g_object_unref, NULL);
+    g_slist_free(sensors);
+  }
 
   /* hold once for the lifetime of the application - activate() can fire
    * again on re-launch of the primary instance, but is_application_quit()
