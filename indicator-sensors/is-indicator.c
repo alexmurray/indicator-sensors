@@ -21,7 +21,14 @@
 #include "is-application.h"
 #include "is-indicator.h"
 #include "is-log.h"
+#include "is-notify.h"
 #include <glib/gi18n.h>
+
+/* how long to wait after the AppIndicator reports it is disconnected before
+ * assuming there is no indicator/tray support on this desktop at all and
+ * warning the user, rather than reacting to what may just be the desktop
+ * shell's StatusNotifierWatcher not having registered yet at startup */
+#define INDICATOR_NOT_SHOWN_TIMEOUT 10
 
 typedef struct _IsIndicatorPrivate
 {
@@ -31,6 +38,7 @@ typedef struct _IsIndicatorPrivate
   IsSensor *primary;
   IsIndicatorDisplayFlags display_flags;
   GSList *menu_items;
+  guint indicator_not_shown_timeout_id;
 } IsIndicatorPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(IsIndicator, is_indicator, APP_INDICATOR_TYPE);
@@ -44,6 +52,7 @@ static void is_indicator_set_property(GObject *object, guint property_id,
                                       const GValue *value, GParamSpec *pspec);
 static void is_indicator_connection_changed(AppIndicator *indicator,
                                             gboolean connected, gpointer data);
+static gboolean indicator_not_shown_timeout_cb(gpointer data);
 static void sensor_enabled(IsManager *manager, IsSensor *sensor, gint position,
                            IsIndicator *self);
 static void _sensor_disabled(IsSensor *sensor, IsIndicator *self);
@@ -221,6 +230,29 @@ is_indicator_set_property(GObject *object, guint property_id,
   }
 }
 
+static gboolean
+indicator_not_shown_timeout_cb(gpointer data)
+{
+  IsIndicator *self = IS_INDICATOR(data);
+  IsIndicatorPrivate *priv = is_indicator_get_instance_private(self);
+  GNotification *notification;
+
+  is_warning("indicator", "No indicator/tray support was found on this "
+                          "desktop - unable to display sensors");
+  notification = is_notify(
+      "indicator-not-shown", IS_NOTIFY_LEVEL_WARNING,
+      _("Unable To Display Sensors"), "app.preferences",
+      _("%s could not find a compatible indicator area on this desktop to "
+        "display sensor readings in - you may need to install an "
+        "AppIndicator / Ayatana indicator support extension. Sensors can "
+        "still be configured via the Preferences window."),
+      PACKAGE_NAME);
+  g_object_unref(notification);
+
+  priv->indicator_not_shown_timeout_id = 0;
+  return G_SOURCE_REMOVE;
+}
+
 static void
 is_indicator_connection_changed(AppIndicator *indicator, gboolean connected,
                                 gpointer data)
@@ -228,6 +260,27 @@ is_indicator_connection_changed(AppIndicator *indicator, gboolean connected,
   IsIndicator *self = IS_INDICATOR(indicator);
   IsIndicatorPrivate *priv = is_indicator_get_instance_private(self);
   GtkMenuItem *item;
+
+  is_debug("indicator", "connection changed: %s",
+          connected ? "connected" : "disconnected");
+
+  if (connected)
+  {
+    if (priv->indicator_not_shown_timeout_id)
+    {
+      g_source_remove(priv->indicator_not_shown_timeout_id);
+      priv->indicator_not_shown_timeout_id = 0;
+    }
+    is_notify_withdraw("indicator-not-shown");
+  }
+  else if (!priv->indicator_not_shown_timeout_id)
+  {
+    /* don't alert immediately - give the desktop shell a chance to
+     * register a StatusNotifierWatcher first, which may not have
+     * happened yet this early during startup */
+    priv->indicator_not_shown_timeout_id = g_timeout_add_seconds(
+        INDICATOR_NOT_SHOWN_TIMEOUT, indicator_not_shown_timeout_cb, self);
+  }
 
   if (!priv->primary)
   {
@@ -258,6 +311,12 @@ is_indicator_dispose(GObject *object)
   IsIndicatorPrivate *priv = is_indicator_get_instance_private(self);
   IsManager *manager;
   GSList *sensors, *_list;
+
+  if (priv->indicator_not_shown_timeout_id)
+  {
+    g_source_remove(priv->indicator_not_shown_timeout_id);
+    priv->indicator_not_shown_timeout_id = 0;
+  }
 
   manager = is_application_get_manager(priv->application);
   g_signal_handlers_disconnect_by_func(manager, sensor_enabled, self);
