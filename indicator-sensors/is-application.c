@@ -164,7 +164,7 @@ is_application_init(IsApplication *self)
   priv = is_application_get_instance_private(self);
 
   /* register early so it exists before any notification (eg. the
-   * no-sensors-enabled one sent from main()) can reference it as its
+   * no-sensors-enabled one sent from startup()) can reference it as its
    * default action */
   static const GActionEntry action_entries[] = {
       {"preferences", on_preferences_action, NULL, NULL, NULL, {0}},
