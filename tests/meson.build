@@ -64,6 +64,39 @@ test_manager = executable(
 )
 test('manager', test_manager, env: test_env)
 
+# constructing a real IsApplication and opening its preferences dialog
+# binds GSettings against the real indicator-sensors.{application,indicator}
+# schemas - force an in-memory backend so the test never touches the real,
+# installed application's saved settings, and point at the schema compiled
+# into the build tree by the 'compile-schemas' custom_target in
+# data/meson.build since the schema is not otherwise installed anywhere in
+# an uninstalled build (see also the fake-plugin-integration env below)
+application_test_env = environment({'NO_AT_BRIDGE': '1'})
+application_test_env.set('GSETTINGS_BACKEND', 'memory')
+application_test_env.set('GSETTINGS_SCHEMA_DIR',
+                         meson.project_build_root() / 'data')
+
+test_application = executable(
+  'test-application',
+  [
+    'test-application.c',
+    is_dir / 'is-application.c',
+    is_dir / 'is-indicator.c',
+    is_dir / 'is-log.c',
+    is_dir / 'is-notify.c',
+    is_dir / 'is-manager.c',
+    is_dir / 'is-store.c',
+    is_dir / 'is-sensor.c',
+    is_dir / 'is-temperature-sensor.c',
+    is_dir / 'is-fan-sensor.c',
+    is_dir / 'is-preferences-dialog.c',
+    is_dir / 'is-sensor-dialog.c',
+  ] + marshalled_files,
+  dependencies: [glib_dep, gio_dep, gtk_dep, appindicator_dep],
+  include_directories: test_include_dirs,
+)
+test('application', test_application, env: application_test_env)
+
 # the fake-plugin integration test loads the real, built fake plugin via
 # libpeas, so it needs the same source set as the indicator-sensors
 # executable itself (minus indicator-sensors.c) plus the fake plugin
