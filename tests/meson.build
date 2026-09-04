@@ -95,9 +95,14 @@ if get_option('enable-fake')
   # constructing a real IsApplication binds its manager's
   # "enabled-sensors" property to the real indicator-sensors.manager
   # GSettings schema - force an in-memory backend so the test never
-  # touches the real, installed application's saved settings
+  # touches the real, installed application's saved settings, and
+  # point at the schema compiled into the build tree by the
+  # 'compile-schemas' custom_target in data/meson.build since the
+  # schema is not otherwise installed anywhere in an uninstalled build
   fake_plugin_integration_env = environment({'NO_AT_BRIDGE': '1'})
   fake_plugin_integration_env.set('GSETTINGS_BACKEND', 'memory')
+  fake_plugin_integration_env.set('GSETTINGS_SCHEMA_DIR',
+                                  meson.project_build_root() / 'data')
   test('fake-plugin-integration', test_fake_plugin_integration,
        depends: [is_fake_plugin], timeout: 30,
        env: fake_plugin_integration_env)
