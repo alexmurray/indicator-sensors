@@ -1,9 +1,6 @@
 subdir('dbus')
 subdir('dynamic')
 subdir('max')
-if libatasmart_dep.found()
-  subdir('udisks')
-endif
 
 if get_option('enable-fake')
   subdir('fake')

@@ -9,3 +9,8 @@ is_fake_plugin = shared_module('fake',
 
 install_data('fake.plugin',
              install_dir: get_option('libdir') / 'indicator-sensors/plugins')
+
+# also copy the plugin descriptor next to the built module in the build
+# tree, so libpeas can discover it uninstalled (used by the fake-plugin
+# integration test)
+configure_file(input: 'fake.plugin', output: 'fake.plugin', copy: true)
