@@ -20,7 +20,6 @@
 #include "is-activatable.h"
 #include "is-application.h"
 #include "is-log.h"
-#include "is-notify.h"
 #include <gio/gio.h>
 #include <glib.h>
 #include <glib/gi18n.h>
@@ -107,7 +106,6 @@ main(int argc, char **argv)
   IsApplication *application;
   IsTemperatureSensorScale scale;
   GSettings *settings;
-  IsManager *manager;
   gchar *plugin_dir;
   PeasEngine *engine;
   PeasExtensionSet *set;
@@ -182,29 +180,8 @@ main(int argc, char **argv)
   g_signal_connect(set, "extension-removed", G_CALLBACK(on_extension_removed),
                    application);
 
-  /* since all plugins are now inited show a notification if we detected
-   * sensors but none are enabled - TODO: perhaps just open the pref's
-   * dialog?? */
-  manager = is_application_get_manager(application);
-  GSList *sensors = is_manager_get_all_sensors_list(manager);
-  if (sensors)
-  {
-    gchar **enabled_sensors = is_manager_get_enabled_sensors(manager);
-    if (!g_strv_length(enabled_sensors))
-    {
-      GNotification *notification = is_notify(
-          "no-sensors-enabled", IS_NOTIFY_LEVEL_INFO,
-          _("No Sensors Enabled For Monitoring"),
-          _("Sensors detected but none are enabled for monitoring. "
-            "To enable monitoring of sensors open the Preferences "
-            "window and select the sensors to monitor"));
-      g_object_unref(notification);
-    }
-    g_strfreev(enabled_sensors);
-    g_slist_foreach(sensors, (GFunc)g_object_unref, NULL);
-    g_slist_free(sensors);
-  }
-
+  /* the "no sensors enabled" notification (if needed) is shown from
+   * IsApplication's startup vfunc, once the application is registered */
   g_application_run(G_APPLICATION(application), argc, argv);
 
   g_object_unref(application);

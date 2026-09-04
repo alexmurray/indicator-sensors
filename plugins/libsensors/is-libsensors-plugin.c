@@ -430,6 +430,7 @@ is_libsensors_plugin_activate(IsActivatable *activatable)
   {
     GNotification *notification = is_notify(
         "no-sensors-detected", IS_NOTIFY_LEVEL_INFO, _("No Sensors Detected"),
+        NULL,
         _("Try running the command 'sensors-detect' from the "
           "command-line and restarting %s"),
         PACKAGE_NAME);
