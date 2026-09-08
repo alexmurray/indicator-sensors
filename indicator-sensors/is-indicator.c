@@ -114,10 +114,26 @@ static void
 is_indicator_constructed(GObject *object)
 {
   IsIndicator *self = IS_INDICATOR(object);
+  const gchar *snap;
+
+  G_OBJECT_CLASS(is_indicator_parent_class)->constructed(object);
 
   const gchar *label = _("No Sensors");
   app_indicator_set_label(APP_INDICATOR(self), label, label);
   app_indicator_set_status(APP_INDICATOR(self), APP_INDICATOR_STATUS_ACTIVE);
+
+  /* when running as a snap, our icons are installed under $SNAP rather
+   * than a system icon theme directory, so the (unconfined) process which
+   * renders the indicator icon can't find them by name unless we tell it
+   * where to look */
+  snap = g_getenv("SNAP");
+  if (snap != NULL)
+  {
+    gchar *icon_theme_path =
+        g_build_filename(snap, "usr", "share", "icons", NULL);
+    app_indicator_set_icon_theme_path(APP_INDICATOR(self), icon_theme_path);
+    g_free(icon_theme_path);
+  }
 
   process_existing_sensors(IS_INDICATOR(object));
 }
